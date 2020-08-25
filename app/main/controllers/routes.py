@@ -54,13 +54,13 @@ def set_routes(app):
     """
     @app.route('/projects/<int:project_id>', methods=['PATCH'])
     def update_project(project_id):
-        body = request.get_json()
-        if body is None:
-            abort(400)
-
         project = Project.query.get(project_id)
         if project is None:
             abort(404)
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
 
         new_title = body.get('title', None)
         if new_title is None:
@@ -73,6 +73,22 @@ def set_routes(app):
             'success': True,
             'id': project_id,
             'title': new_title
+        })
+
+    """
+    Deletes a project given the project ID. Returns the id of the deleted project.
+    """
+    @app.route('/projects/<int:project_id>', methods=['DELETE'])
+    def delete_project(project_id):
+        project = Project.query.get(project_id)
+        if project is None:
+            abort(404)
+
+        project.delete()
+
+        return jsonify({
+            'success': True,
+            'deleted': project_id
         })
 
 
