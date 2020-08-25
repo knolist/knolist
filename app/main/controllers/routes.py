@@ -15,6 +15,9 @@ def set_routes(app):
     def index():
         return '<h1>Welcome to the Knolist API!</h1>'
 
+    """
+    Returns a list of all projects in the database.
+    """
     @app.route('/projects')
     def get_projects():
         projects = Project.query.order_by(Project.id).all()
@@ -23,6 +26,29 @@ def set_routes(app):
             'success': True,
             'projects': [project.format() for project in projects]
         })
+
+    """
+    Creates a new project. Data is passed as a JSON argument. Returns information about the new project.
+    """
+    @app.route('/projects', methods=['POST'])
+    def create_project():
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        title = body.get('title', None)
+        if title is None:
+            abort(400)
+
+        project = Project(title)
+        project.insert()
+
+        return jsonify({
+            'success': True,
+            'id': project.id,
+            'title': project.title
+        })
+
 
     @app.route('/extract')
     def extract():

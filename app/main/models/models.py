@@ -18,7 +18,7 @@ class Project(db.Model):
     title = db.Column(db.String, nullable=False)
     sources = db.relationship('Source', backref='project', lazy=True)
 
-    def __int__(self, title):
+    def __init__(self, title):
         self.title = title
 
     def __repr__(self):
