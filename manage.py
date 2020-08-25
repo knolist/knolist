@@ -7,6 +7,7 @@ from flask_script import Manager
 
 from app.main import create_app, db
 from app.main.models import models
+from app.main.controllers.routes import set_routes
 
 app = create_app(os.getenv('BOILERPLATE_ENV') or 'dev')
 
@@ -20,6 +21,8 @@ manager.add_command('db', MigrateCommand)
 
 @manager.command
 def run():
+    """Runs the application"""
+    set_routes(app)
     app.run()
 
 @manager.command
