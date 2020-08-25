@@ -49,6 +49,32 @@ def set_routes(app):
             'title': project.title
         })
 
+    """
+    Updates the title of a project. New title is passed as a JSON body. Returns the id and updated title of the project
+    """
+    @app.route('/projects/<int:project_id>', methods=['PATCH'])
+    def update_project(project_id):
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        project = Project.query.get(project_id)
+        if project is None:
+            abort(404)
+
+        new_title = body.get('title', None)
+        if new_title is None:
+            abort(400)
+
+        project.title = new_title
+        project.update()
+
+        return jsonify({
+            'success': True,
+            'id': project_id,
+            'title': new_title
+        })
+
 
     @app.route('/extract')
     def extract():
