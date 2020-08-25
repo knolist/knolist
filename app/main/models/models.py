@@ -16,6 +16,7 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
+    # user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     sources = db.relationship('Source', backref='project', lazy=True)
 
     def __init__(self, title):
@@ -95,3 +96,14 @@ class Source(db.Model):
             'next_sources': self.next_sources,
             'prev_sources': self.prev_sources
         }
+
+# class User(db.Model):
+#     __tablename__ = 'users'
+#
+#     id = db.Column(db.Integer, primary_key=True)
+#     first_name = db.Column(db.String, nullable=False)
+#     last_name = db.Column(db.String, nullable=False)
+#     projects = db.relationship('Project', backref='user', lazy=True)
+#
+#     def __repr__(self):
+#         return f'<User {self.id}: {self.first_name} {self.last_name}>'

@@ -39,4 +39,4 @@ def set_error_handlers(app):
             'success': False,
             'error': 500,
             'message': 'internal server error'
-        })
+        }), 500
