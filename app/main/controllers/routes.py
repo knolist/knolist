@@ -2,6 +2,8 @@ from flask import request, abort, jsonify
 import justext
 import requests
 
+from ..models.models import Project, Source
+
 def get_title(html):
     temp = html.decode("utf-8", errors='ignore').split("<title", 1)[1]
     temp = temp.split(">", 1)[1]
@@ -12,6 +14,15 @@ def set_routes(app):
     @app.route('/')
     def index():
         return '<h1>Welcome to the Knolist API!</h1>'
+
+    @app.route('/projects')
+    def get_projects():
+        projects = Project.query.order_by(Project.id).all()
+
+        return jsonify({
+            'success': True,
+            'projects': [project.format() for project in projects]
+        })
 
     @app.route('/extract')
     def extract():

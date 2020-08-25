@@ -58,6 +58,8 @@ class Source(db.Model):
     # x and y positions are used to represent the position of the node on a graph
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
+    # The project that holds this source
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
 
     # Self-referential many-to-many relationship
     next_sources = db.relationship('Source', secondary=edges,
