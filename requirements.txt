@@ -12,6 +12,7 @@ gunicorn==20.0.4
 idna==2.10
 itsdangerous==1.1.0
 Jinja2==2.11.2
+jose==1.0.0
 jusText==2.2.0
 lxml==4.5.2
 Mako==1.1.3
