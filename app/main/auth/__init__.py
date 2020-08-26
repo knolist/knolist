@@ -51,21 +51,6 @@ def get_token_auth_header():
     token = parts[1]
     return token
 
-def check_permissions(permission, payload):
-    if 'permissions' not in payload:
-        raise AuthError({
-            'code': 'invalid_payload',
-            'description': 'Payload does not contain a permissions list.'
-        }, 401)
-
-    if permission not in payload['permissions']:
-        raise AuthError({
-            'code': 'unauthorized',
-            'description': 'Necessary permission is not given.'
-        }, 403)
-
-    return True
-
 def verify_decode_jwt(token):
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
@@ -77,7 +62,7 @@ def verify_decode_jwt(token):
             'description': 'Authorization malformed.'
         }, 401)
 
-    for key in jkws['keys']:
+    for key in jwks['keys']:
         if key['kid'] == unverified_header['kid']:
             rsa_key = {
                 'kty': key['kty'],
@@ -117,6 +102,21 @@ def verify_decode_jwt(token):
         'code': 'invalid_header',
         'description': 'Unable to find the appropriate key.'
     }, 400)
+
+def check_permissions(permission, payload):
+    if 'permissions' not in payload:
+        raise AuthError({
+            'code': 'invalid_payload',
+            'description': 'Payload does not contain a permissions list.'
+        }, 401)
+
+    if permission not in payload['permissions']:
+        raise AuthError({
+            'code': 'unauthorized',
+            'description': 'Necessary permission is not given.'
+        }, 403)
+
+    return True
 
 def requires_auth(permission=''):
     def requires_auth_decorator(f):
