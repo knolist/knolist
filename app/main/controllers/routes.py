@@ -16,13 +16,20 @@ def set_routes(app):
     def index():
         return '<h1>Welcome to the Knolist API!</h1>'
 
+    @app.route('/auth/callback')
+    def auth_callback():
+        return jsonify({
+            'success': True,
+            'message': 'Authenticated'
+        })
+
     """
     Returns a list of all projects in the database.
     """
     @app.route('/projects')
-    @requires_auth('get:projects')
+    @requires_auth('read:projects')
     def get_projects(user_id):
-        projects = Project.query.filter_by(Project.user_id == user_id).order_by(Project.id).all()
+        projects = Project.query.filter(Project.user_id == user_id).order_by(Project.id).all()
 
         return jsonify({
             'success': True,

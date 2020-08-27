@@ -16,7 +16,7 @@ class Project(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
-    user_id = db.Column(db.String, nullable=False)
+    user_id = db.Column(db.String, nullable=False)  # ID provided by Auth0, no need for local users table
     sources = db.relationship('Source', backref='project', lazy=True)
 
     def __init__(self, title, user_id):
