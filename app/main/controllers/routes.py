@@ -115,6 +115,27 @@ def set_routes(app):
             'deleted': project_id
         })
 
+    """
+    Gets all the sources of a given project.
+    """
+    @app.route('/projects/<int:project_id>/sources')
+    @requires_auth('read:project-sources')
+    def get_project_sources(user_id, project_id):
+        project = Project.query.get(project_id)
+        if project is None:
+            abort(404)
+
+        if project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
+
+        return jsonify({
+            'success': True,
+            'sources': [source.format_short() for source in project.sources]
+        })
+
 
     @app.route('/extract')
     def extract():

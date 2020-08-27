@@ -84,7 +84,7 @@ class Source(db.Model):
         db.session.delete(self)
         db.session.commit()
 
-    def format(self):
+    def format_long(self):
         return {
             'id': self.id,
             'url': self.url,
@@ -94,8 +94,19 @@ class Source(db.Model):
             'notes': json.loads(self.notes),
             'x_position': self.x_position,
             'y_position': self.y_position,
-            'next_sources': self.next_sources,
-            'prev_sources': self.prev_sources
+            'next_sources': [source.id for source in self.next_sources],
+            'prev_sources': [source.id for source in self.prev_sources]
+        }
+
+    def format_short(self):
+        return {
+            'id': self.id,
+            'url': self.url,
+            'title': self.title,
+            'x_position': self.x_position,
+            'y_position': self.y_position,
+            'next_sources': [source.id for source in self.next_sources],
+            'prev_sources': [source.id for source in self.prev_sources]
         }
 
 # class User(db.Model):
