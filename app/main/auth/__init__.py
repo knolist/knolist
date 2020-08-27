@@ -22,7 +22,7 @@ class AuthError(Exception):
         self.status_code = status_code
 
 
-## Auth header
+## This function takes an authorization header and returns the JWT
 def get_token_auth_header():
     auth = request.headers.get('Authorization', None)
     if auth is None:
@@ -51,6 +51,7 @@ def get_token_auth_header():
     token = parts[1]
     return token
 
+## This function takes a JWT, verifies and decrypts it
 def verify_decode_jwt(token):
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
@@ -103,6 +104,8 @@ def verify_decode_jwt(token):
         'description': 'Unable to find the appropriate key.'
     }, 400)
 
+## This function takes a permission and a payload, and checks if the payload contains the necessary permission
+## If successful, the function returns the Auth0 user id
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
         raise AuthError({
@@ -116,7 +119,7 @@ def check_permissions(permission, payload):
             'description': 'Necessary permission is not given.'
         }, 403)
 
-    return True
+    return payload['sub']
 
 def requires_auth(permission=''):
     def requires_auth_decorator(f):
@@ -124,8 +127,9 @@ def requires_auth(permission=''):
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
             payload = verify_decode_jwt(token)
-            check_permissions(permission, payload)
+            user_id = check_permissions(permission, payload)
 
-            return f(*args, **kwargs)
+            # Pass the user id as a parameter to the function
+            return f(user_id, *args, **kwargs)
         return wrapper
     return requires_auth_decorator

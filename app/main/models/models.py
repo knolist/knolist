@@ -19,8 +19,9 @@ class Project(db.Model):
     user_id = db.Column(db.String, nullable=False)
     sources = db.relationship('Source', backref='project', lazy=True)
 
-    def __init__(self, title):
+    def __init__(self, title, user_id):
         self.title = title
+        self.user_id = user_id
 
     def __repr__(self):
         return f'<Project {self.id}: {self.title}>'

@@ -1,5 +1,7 @@
 from flask import jsonify
 
+from ..auth import AuthError
+
 def set_error_handlers(app):
     @app.errorhandler(400)
     def bad_request(error):
@@ -40,3 +42,11 @@ def set_error_handlers(app):
             'error': 500,
             'message': 'internal server error'
         }), 500
+
+    @app.errorhandler(AuthError)
+    def auth_error(error):
+        return jsonify({
+            'success': False,
+            'error': error.status_code,
+            'message': error.error['description']
+        }), error.status_code

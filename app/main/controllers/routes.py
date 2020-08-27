@@ -3,6 +3,7 @@ import justext
 import requests
 
 from ..models.models import Project, Source
+from ..auth import requires_auth, AuthError
 
 def get_title(html):
     temp = html.decode("utf-8", errors='ignore').split("<title", 1)[1]
@@ -19,8 +20,9 @@ def set_routes(app):
     Returns a list of all projects in the database.
     """
     @app.route('/projects')
-    def get_projects():
-        projects = Project.query.order_by(Project.id).all()
+    @requires_auth('get:projects')
+    def get_projects(user_id):
+        projects = Project.query.filter_by(Project.user_id == user_id).order_by(Project.id).all()
 
         return jsonify({
             'success': True,
@@ -31,7 +33,8 @@ def set_routes(app):
     Creates a new project. Data is passed as a JSON argument. Returns information about the new project.
     """
     @app.route('/projects', methods=['POST'])
-    def create_project():
+    @requires_auth('create:projects')
+    def create_project(user_id):
         body = request.get_json()
         if body is None:
             abort(400)
@@ -40,7 +43,7 @@ def set_routes(app):
         if title is None:
             abort(400)
 
-        project = Project(title)
+        project = Project(title, user_id)
         project.insert()
 
         return jsonify({
@@ -53,7 +56,8 @@ def set_routes(app):
     Updates the title of a project. New title is passed as a JSON body. Returns the id and updated title of the project
     """
     @app.route('/projects/<int:project_id>', methods=['PATCH'])
-    def update_project(project_id):
+    @requires_auth('update:projects')
+    def update_project(user_id, project_id):
         project = Project.query.get(project_id)
         if project is None:
             abort(404)
@@ -65,6 +69,12 @@ def set_routes(app):
         new_title = body.get('title', None)
         if new_title is None:
             abort(400)
+
+        if project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
 
         project.title = new_title
         project.update()
@@ -79,10 +89,17 @@ def set_routes(app):
     Deletes a project given the project ID. Returns the id of the deleted project.
     """
     @app.route('/projects/<int:project_id>', methods=['DELETE'])
-    def delete_project(project_id):
+    @requires_auth('delete:projects')
+    def delete_project(user_id, project_id):
         project = Project.query.get(project_id)
         if project is None:
             abort(404)
+
+        if project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
 
         project.delete()
 
