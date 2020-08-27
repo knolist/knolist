@@ -11,6 +11,25 @@ def get_title(html):
     title = temp.split("</title>", 1)[0]
     return title
 
+def extract_content_from_url(url):
+    try:
+        response = requests.get(url)
+    except Exception:
+        abort(422)
+    else:
+        paragraphs = justext.justext(response.content, justext.get_stoplist("English"))
+        real_text = ""
+
+        for paragraph in paragraphs:
+            if not paragraph.is_boilerplate:
+                real_text += paragraph.text
+                real_text += "\n\n"
+
+        return {
+            'content': real_text,
+            'title': get_title(response.content)
+        }
+
 def set_routes(app):
     @app.route('/')
     def index():
@@ -57,7 +76,7 @@ def set_routes(app):
             'success': True,
             'id': project.id,
             'title': project.title
-        })
+        }), 201
 
     """
     Updates the title of a project. New title is passed as a JSON body. Returns the id and updated title of the project
@@ -119,7 +138,7 @@ def set_routes(app):
     Gets all the sources of a given project.
     """
     @app.route('/projects/<int:project_id>/sources')
-    @requires_auth('read:project-sources')
+    @requires_auth('read:sources')
     def get_project_sources(user_id, project_id):
         project = Project.query.get(project_id)
         if project is None:
@@ -136,23 +155,48 @@ def set_routes(app):
             'sources': [source.format_short() for source in project.sources]
         })
 
+    """
+    Creates a new source inside an existing project. The necessary data is passed as a JSON body.
+    Returns a
+    """
+    @app.route('/projects/<int:project_id>/sources', methods=['POST'])
+    @requires_auth('create:sources')
+    def create_source(user_id, project_id):
+        project = Project.query.get(project_id)
+        if project is None:
+            abort(404)
 
-    @app.route('/extract')
-    def extract():
-        url = request.args.get('url')
-        response = requests.get(url)
+        if project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
 
-        paragraphs = justext.justext(response.content, justext.get_stoplist("English"))
-        real_text = ""
+        body = request.get_json()
+        if body is None:
+            abort(400)
 
-        for paragraph in paragraphs:
-            if not paragraph.is_boilerplate:
-                real_text += paragraph.text
-                real_text += "\n\n"
-        
+        url = body.get('url', None)
+        if url is None:
+            abort(400)
+
+        # Check if source already exists
+        existing_source = Source.query.filter(Source.url == url, Source.project_id == project_id).first()
+        if existing_source is not None:
+            return jsonify({
+                'success': True,
+                'id': existing_source.id
+            })
+
+        # Extract content to create source object
+        extraction_results = extract_content_from_url(url)
+        content = extraction_results['content']
+        title = extraction_results['title']
+
+        source = Source(url=url, title=title, content=content, project_id=project.id)
+        source.insert()
+
         return jsonify({
             'success': True,
-            'content': real_text,
-            'url': url,
-            'title': get_title(response.content)
-        })
+            'id': source.id
+        }), 201

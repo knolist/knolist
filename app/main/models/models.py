@@ -55,8 +55,8 @@ class Source(db.Model):
     title = db.Column(db.String, nullable=False)
     content = db.Column(db.String)
     # Highlights and notes are stored as JSON arrays
-    highlights = db.Column(db.String)
-    notes = db.Column(db.String)
+    highlights = db.Column(db.String, default='[]')
+    notes = db.Column(db.String, default='[]')
     # x and y positions are used to represent the position of the node on a graph
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
