@@ -200,3 +200,27 @@ def set_routes(app):
             'success': True,
             'id': source.id
         }), 201
+
+    """
+    Deletes a source.
+    """
+    @app.route('/sources/<int:source_id>', methods=['DELETE'])
+    @requires_auth('delete:sources')
+    def delete_source(user_id, source_id):
+        source = Source.query.get(source_id)
+        if source is None:
+            abort(404)
+
+        if source.project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
+
+        source.delete()
+
+        return jsonify({
+            'success': True,
+            'deleted': source_id
+        })
+
