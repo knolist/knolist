@@ -1,7 +1,7 @@
-from flask import request, abort, jsonify
+from flask import jsonify
 
 from .projects import set_project_routes
-from .sources import set_sources_routes
+from .sources import set_source_routes
 
 def set_routes(app):
     @app.route('/')
@@ -16,7 +16,7 @@ def set_routes(app):
         })
 
     set_project_routes(app)
-    set_sources_routes(app)
+    set_source_routes(app)
 
 
 

@@ -45,7 +45,7 @@ def get_authorized_source(user_id, source_id):
 
     return source
 
-def set_sources_routes(app):
+def set_source_routes(app):
     """
     Gets all the sources of a given project.
     """
@@ -238,4 +238,59 @@ def set_sources_routes(app):
             'success': True,
             'id': source_id,
             'highlights': highlights_list
+        })
+
+    """
+    Adds a new note to a source's notes. The note is passed in a JSON body.
+    """
+    @app.route('/sources/<int:source_id>/notes', methods=['POST'])
+    @requires_auth('create:notes')
+    def create_notes(user_id, source_id):
+        source = get_authorized_source(user_id, source_id)
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        note = body.get('note', None)
+        if note is None:
+            abort(400)
+
+        notes_list = json.loads(source.notes)
+        notes_list.append(note)
+        source.notes = json.dumps(notes_list)
+        source.update()
+
+        return jsonify({
+            'success': True,
+            'id': source_id,
+            'notes': notes_list
+        })
+
+    """
+    Deletes one or more notes from a source. Notes to be deleted are passed as a list of indices 
+    in a JSON body.
+    """
+    @app.route('/sources/<int:source_id>/notes', methods=['DELETE'])
+    @requires_auth('delete:notes')
+    def delete_notes(user_id, source_id):
+        source = get_authorized_source(user_id, source_id)
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        indices_to_delete = body.get('delete', None)
+        if indices_to_delete is None or type(indices_to_delete) is not list:
+            abort(400)
+
+        notes_list = json.loads(source.notes)
+        notes_list = [v for i, v in enumerate(notes_list) if i not in indices_to_delete]
+        source.notes = json.dumps(notes_list)
+        source.update()
+
+        return jsonify({
+            'success': True,
+            'id': source_id,
+            'notes': notes_list
         })
