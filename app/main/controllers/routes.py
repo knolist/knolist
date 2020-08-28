@@ -1,3 +1,5 @@
+import json
+
 from flask import request, abort, jsonify
 import justext
 import requests
@@ -222,5 +224,71 @@ def set_routes(app):
         return jsonify({
             'success': True,
             'deleted': source_id
+        })
+
+    """
+    Updates information in a source. The information to be updated is passed in a JSON body.
+    """
+    @app.route('/sources/<int:source_id>', methods=['PATCH'])
+    @requires_auth('update:sources')
+    def update_source(user_id, source_id):
+        source = Source.query.get(source_id)
+        if source is None:
+            abort(404)
+
+        if source.project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        # Obtain the simple attributes
+        title = body.get('title', None)
+        content = body.get('content', None)
+        x_position = body.get('x_position', None)
+        y_position = body.get('y_position', None)
+        # Obtain JSON list attributes
+        highlights = body.get('highlights', None)
+        notes = body.get('notes', None)
+        # Obtain project ID
+        project_id = body.get('project_id', None)
+
+        # Verify that parameters are correctly formatted
+        if x_position is not None and type(x_position) is not int:
+            abort(422)
+        if y_position is not None and type(y_position) is not int:
+            abort(422)
+        if highlights is not None and type(notes) is not list:
+            abort(422)
+        if notes is not None and type(notes) is not list:
+            abort(422)
+        if project_id is not None:
+            project = Project.query.get(project_id)
+            if project is None:
+                abort(422)
+            if project.user_id != user_id:
+                raise AuthError({
+                    'code': 'invalid_user',
+                    'description': 'This item does not belong to the requesting user.'
+                }, 403)
+
+        # Update values that are not None
+        source.title = title if title is not None else source.title
+        source.content = content if content is not None else source.content
+        source.x_position = x_position if x_position is not None else source.x_position
+        source.y_position = y_position if y_position is not None else source.y_position
+        source.highlights = json.dumps(highlights) if highlights is not None else source.highlights
+        source.notes = json.dumps(notes) if notes is not None else source.notes
+        source.project_id = project_id if project_id is not None else source.project_id
+
+        source.update()
+
+        return jsonify({
+            'success': True,
+            'source_id': source_id
         })
 
