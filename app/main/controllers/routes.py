@@ -32,6 +32,19 @@ def extract_content_from_url(url):
             'title': get_title(response.content)
         }
 
+def get_authorized_source(user_id, source_id):
+    source = Source.query.get(source_id)
+    if source is None:
+        abort(404)
+
+    if source.project.user_id != user_id:
+        raise AuthError({
+            'code': 'invalid_user',
+            'description': 'This item does not belong to the requesting user.'
+        }, 403)
+
+    return source
+
 def set_routes(app):
     @app.route('/')
     def index():
@@ -209,15 +222,7 @@ def set_routes(app):
     @app.route('/sources/<int:source_id>', methods=['DELETE'])
     @requires_auth('delete:sources')
     def delete_source(user_id, source_id):
-        source = Source.query.get(source_id)
-        if source is None:
-            abort(404)
-
-        if source.project.user_id != user_id:
-            raise AuthError({
-                'code': 'invalid_user',
-                'description': 'This item does not belong to the requesting user.'
-            }, 403)
+        source = get_authorized_source(user_id, source_id)
 
         source.delete()
 
@@ -232,15 +237,7 @@ def set_routes(app):
     @app.route('/sources/<int:source_id>', methods=['PATCH'])
     @requires_auth('update:sources')
     def update_source(user_id, source_id):
-        source = Source.query.get(source_id)
-        if source is None:
-            abort(404)
-
-        if source.project.user_id != user_id:
-            raise AuthError({
-                'code': 'invalid_user',
-                'description': 'This item does not belong to the requesting user.'
-            }, 403)
+        source = get_authorized_source(user_id, source_id)
 
         body = request.get_json()
         if body is None:
@@ -298,15 +295,7 @@ def set_routes(app):
     @app.route('/sources/<int:source_id>/highlights', methods=['POST'])
     @requires_auth('create:highlights')
     def create_highlights(user_id, source_id):
-        source = Source.query.get(source_id)
-        if source is None:
-            abort(404)
-
-        if source.project.user_id != user_id:
-            raise AuthError({
-                'code': 'invalid_user',
-                'description': 'This item does not belong to the requesting user.'
-            }, 403)
+        source = get_authorized_source(user_id, source_id)
 
         body = request.get_json()
         if body is None:
@@ -324,7 +313,36 @@ def set_routes(app):
         return jsonify({
             'success': True,
             'id': source_id,
-            'highlight': highlight
+            'highlights': highlights_list
         })
+
+    """
+    Deletes one or more highlights from a source. Highlights to be deleted are passed as a list of indices 
+    in a JSON body.
+    """
+    @app.route('/sources/<int:source_id>/highlights', methods=['DELETE'])
+    @requires_auth('delete:highlights')
+    def delete_highlights(user_id, source_id):
+        source = get_authorized_source(user_id, source_id)
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        indices_to_delete = body.get('delete', None)
+        if indices_to_delete is None or type(indices_to_delete) is not list:
+            abort(400)
+
+        highlights_list = json.loads(source.highlights)
+        highlights_list = [v for i, v in enumerate(highlights_list) if i not in indices_to_delete]
+        source.highlights = json.dumps(highlights_list)
+        source.update()
+
+        return jsonify({
+            'success': True,
+            'id': source_id,
+            'highlights': highlights_list
+        })
+
 
 
