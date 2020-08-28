@@ -6,7 +6,7 @@ from flask_cors import CORS
 db = SQLAlchemy()
 
 from .config import config_by_name
-from app.main.controllers.routes import set_routes
+from app.main.controllers import set_routes
 from app.main.error_handlers import set_error_handlers
 
 def create_app(config_name):
