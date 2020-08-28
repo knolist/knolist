@@ -113,6 +113,20 @@ def set_source_routes(app):
         }), 201
 
     """
+    Reads the detailed information of a specific source.
+    """
+    @app.route('/sources/<int:source_id>')
+    @requires_auth('read:sources-detail')
+    def get_source_detail(user_id, source_id):
+        source = get_authorized_source(user_id, source_id)
+
+        return jsonify({
+            'success': True,
+            'id': source_id,
+            'source': source.format_long()
+        })
+
+    """
     Deletes a source.
     """
     @app.route('/sources/<int:source_id>', methods=['DELETE'])
