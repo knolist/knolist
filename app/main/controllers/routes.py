@@ -188,7 +188,7 @@ def set_routes(app):
             return jsonify({
                 'success': True,
                 'id': existing_source.id
-            })
+            }) ## Status code 200 to represent that no new object was created
 
         # Extract content to create source object
         extraction_results = extract_content_from_url(url)
@@ -262,7 +262,7 @@ def set_routes(app):
             abort(422)
         if y_position is not None and type(y_position) is not int:
             abort(422)
-        if highlights is not None and type(notes) is not list:
+        if highlights is not None and type(highlights) is not list:
             abort(422)
         if notes is not None and type(notes) is not list:
             abort(422)
@@ -291,4 +291,40 @@ def set_routes(app):
             'success': True,
             'source_id': source_id
         })
+
+    """
+    Adds a new highlight to a source's highlights. The highlight is passed in a JSON body.
+    """
+    @app.route('/sources/<int:source_id>/highlights', methods=['POST'])
+    @requires_auth('create:highlights')
+    def create_highlights(user_id, source_id):
+        source = Source.query.get(source_id)
+        if source is None:
+            abort(404)
+
+        if source.project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        highlight = body.get('highlight', None)
+        if highlight is None:
+            abort(400)
+
+        highlights_list = json.loads(source.highlights)
+        highlights_list.append(highlight)
+        source.highlights = json.dumps(highlights_list)
+        source.update()
+
+        return jsonify({
+            'success': True,
+            'id': source_id,
+            'highlight': highlight
+        })
+
 
