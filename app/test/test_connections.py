@@ -69,6 +69,19 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertTrue(self.source_2 in self.source_1.next_sources)
         self.assertTrue(self.source_1 in self.source_2.prev_sources)
 
+    def test_create_connection_that_already_exists(self):
+        # Create a connection
+        self.source_1.next_sources.append(self.source_2)
+        self.source_1.update()
+        self.assertTrue(self.source_2 in self.source_1.next_sources)
+
+        res = self.client().post(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=self.auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)  # In this case, 200 is returned
+        self.assertTrue(data['success'])
+        # Assert that the connection is still there
+
     def test_create_connection_invalid_id(self):
         res = self.client().post(f'/connections/{self.source_1.id}/2000', headers=self.auth_header)
         data = json.loads(res.data)
