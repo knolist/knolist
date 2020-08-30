@@ -110,8 +110,7 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'id': project_id,
-            'title': new_title
+            'project': project.format()
         })
 
     """

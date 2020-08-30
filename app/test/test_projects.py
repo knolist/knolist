@@ -92,6 +92,46 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertFalse(data['success'])
         self.assertEqual(len(new_projects), len(initial_projects))
 
+    ### PATCH '/projects/{project_id}' ###
+    def test_update_project(self):
+        old_title = Project.query.get(self.project_1.id).title
+        res = self.client().patch(f'/projects/{self.project_1.id}',
+                                  json={'title': self.new_project['title']}, headers=auth_header)
+        data = json.loads(res.data)
+        new_title = Project.query.get(self.project_1.id).title
+        
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertNotEqual(new_title, old_title)
+        self.assertEqual(data['project']['title'], new_title)
+
+    def test_update_project_no_body(self):
+        # Attempt to update project
+        res = self.client().patch(f'/projects/{self.project_1.id}', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_update_project_no_title(self):
+        # Attempt to update project
+        res = self.client().patch(f'/projects/{self.project_1.id}',
+                                  json={'some_field': 'some_data'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_update_project_no_id(self):
+        # Attempt to update project
+        res = self.client().patch('/projects', json={'title': self.new_project['title']}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 405)
+        self.assertFalse(data['success'])
+
+        
+
 
 
 
