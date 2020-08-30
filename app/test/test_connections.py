@@ -5,7 +5,8 @@ from manage import app, db
 from app.main.models.models import Source, Project
 
 def create_starter_data(user_id):
-    project = Project('Test Project', user_id)
+    project_1 = Project('Test Project 1', user_id)
+    project_2 = Project('Test Project 2', user_id)
 
     source_1 = Source(url='https://test1.com',
                     title='Test Source 1',
@@ -15,13 +16,20 @@ def create_starter_data(user_id):
                     title='Test Source 2',
                     content='This is the content of test source 2')
 
-    project.sources.append(source_1)
-    project.sources.append(source_2)
-    project.insert()
+    source_3 = Source(url='https://test3.com',
+                      title='Test Source 3',
+                      content='This is the content of test source 3')
+
+    project_1.sources.append(source_1)
+    project_1.sources.append(source_2)
+    project_2.sources.append(source_3)
+    project_1.insert()
+    project_2.insert()
     source_1.insert()
     source_2.insert()
+    source_3.insert()
 
-    return project, source_1, source_2
+    return project_1, project_2, source_1, source_2, source_3
 
 class TestConnectionsEndpoints(unittest.TestCase):
     """This class contains tests for endpoints that start with '/connections'."""
@@ -41,12 +49,13 @@ class TestConnectionsEndpoints(unittest.TestCase):
             self.db.drop_all()
             self.db.create_all()
 
-        self.project, self.source_1, self.source_2 = create_starter_data(self.user_id)
+        self.project_1, self.project_2, self.source_1, self.source_2, self.source_3 = create_starter_data(self.user_id)
 
     def tearDown(self):
         """Executed after each test."""
         pass
 
+    ### POST '/connections/{from_id}/{to_id}' ###
     def test_create_connection(self):
         # Assert that connection initially doesn't exist
         self.assertFalse(self.source_2 in self.source_1.next_sources)
@@ -66,6 +75,39 @@ class TestConnectionsEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
+
+    def test_create_connection_different_projects(self):
+        res = self.client().post(f'/connections/{self.source_1.id}/{self.source_3.id}', headers=self.auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
+
+    ### DELETE '/connections/{from_id}/{to_id}' ###
+    def test_delete_connection(self):
+        # Create a connection
+        self.source_1.next_sources.append(self.source_2)
+        self.source_1.update()
+        self.assertTrue(self.source_2 in self.source_1.next_sources)
+        self.assertTrue(self.source_1 in self.source_2.prev_sources)
+
+        # Delete the connection
+        res = self.client().delete(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=self.auth_header)
+        data = json.loads(res.data)
+
+        # Observe results
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertFalse(self.source_2 in self.source_1.next_sources)
+        self.assertFalse(self.source_1 in self.source_2.prev_sources)
+
+    def test_delete_connection_invalid_id(self):
+        # Delete the connection
+        res = self.client().delete(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=self.auth_header)
+        data = json.loads(res.data)
+
+
+
 
 
 if __name__ == '__main__':
