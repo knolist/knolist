@@ -82,7 +82,7 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         # Assert that the connection is still there
 
-    def test_create_connection_invalid_id(self):
+    def test_create_connection_nonexistent_source(self):
         res = self.client().post(f'/connections/{self.source_1.id}/2000', headers=self.auth_header)
         data = json.loads(res.data)
 
@@ -114,11 +114,19 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertFalse(self.source_2 in self.source_1.next_sources)
         self.assertFalse(self.source_1 in self.source_2.prev_sources)
 
-    def test_delete_connection_invalid_id(self):
-        # Delete the connection
+    def test_delete_connection_nonexistent_source(self):
+        res = self.client().delete(f'/connections/{self.source_1.id}/2000', headers=self.auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+
+    def test_delete_nonexistent_connection(self):
         res = self.client().delete(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=self.auth_header)
         data = json.loads(res.data)
 
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
 
 
 
