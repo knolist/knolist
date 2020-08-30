@@ -31,3 +31,25 @@ def set_connection_routes(app):
             'from_id': from_id,
             'to_id': to_id
         }), status_code
+
+
+    """
+    Deletes a connection.
+    """
+    @app.route('/connections/<int:from_id>/<int:to_id>', methods=['DELETE'])
+    @requires_auth('delete:connections')
+    def delete_connection(user_id, from_id, to_id):
+        from_source = get_authorized_source(user_id, from_id)
+        to_source = get_authorized_source(user_id, to_id)
+
+        if to_source not in from_source.next_sources:
+            abort(422)
+
+        from_source.next_sources.remove(to_source)
+        from_source.update()
+
+        return jsonify({
+            'success': True,
+            'from_id': from_id,
+            'to_id': to_id
+        })
