@@ -30,7 +30,7 @@ def extract_content_from_url(url):
             'title': get_title(response.content)
         }
 
-def create_source_object(url, project_id):
+def create_and_insert_source(url, project_id):
     extraction_results = extract_content_from_url(url)
     content = extraction_results['content']
     title = extraction_results['title']
@@ -149,7 +149,7 @@ def set_project_routes(app):
     @app.route('/projects/<int:project_id>/sources', methods=['POST'])
     @requires_auth('create:sources')
     def create_source(user_id, project_id):
-        project = get_authorized_project(user_id, project_id)
+        get_authorized_project(user_id, project_id)
 
         body = request.get_json()
         if body is None:
@@ -168,7 +168,7 @@ def set_project_routes(app):
             })  ## Status code 200 to represent that no new object was created
 
         # Extract content to create source object
-        source = create_source_object(url, project_id)
+        source = create_and_insert_source(url, project_id)
 
         return jsonify({
             'success': True,
@@ -183,7 +183,7 @@ def set_project_routes(app):
     @app.route('/projects/<int:project_id>/connections', methods=['POST'])
     @requires_auth('create:connections')
     def create_connection_from_urls(user_id, project_id):
-        project = get_authorized_project(user_id, project_id)
+        get_authorized_project(user_id, project_id)
 
         body = request.get_json()
         if body is None:
@@ -199,9 +199,9 @@ def set_project_routes(app):
         to_source = Source.query.filter(Source.project_id == project_id, Source.url == to_url).first()
 
         if from_source is None:
-            from_source = create_source_object(from_url, project_id)
+            from_source = create_and_insert_source(from_url, project_id)
         if to_source is None:
-            to_source = create_source_object(to_url, project_id)
+            to_source = create_and_insert_source(to_url, project_id)
 
         # Only add connection if it doesn't exist
         status_code = 200
