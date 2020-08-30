@@ -50,6 +50,11 @@ Represents a specific source, which is a node in a directed graph.
 class Source(db.Model):
     __tablename__ = 'sources'
 
+    # Ensure unique URLs within a project
+    __table_args__ = (
+        db.UniqueConstraint('project_id', 'url'),
+    )
+
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String, nullable=False)
     title = db.Column(db.String, nullable=False)
