@@ -215,3 +215,38 @@ def set_source_routes(app):
             'id': source_id,
             'notes': notes_list
         })
+
+
+    """
+    Updates the content of one of a source's notes. The note ID and new content are passed in a JSON body.
+    """
+    @app.route('/sources/<int:source_id>/notes', methods=['PATCH'])
+    @requires_auth('update:notes')
+    def update_note(user_id, source_id):
+        source = get_authorized_source(user_id, source_id)
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        # Get parameters
+        note_id = body.get('note_id', None)
+        new_content = body.get('new_content', None)
+        if note_id is None or new_content is None:
+            abort(400)
+
+        # Verify that the ID is valid (int, non-negative, and less than the length of notes_list)
+        notes_list = json.loads(source.notes)
+        if type(note_id) is not int or note_id < 0 or note_id >= len(notes_list):
+            abort(422)
+
+        # Update the content
+        notes_list[note_id] = new_content
+        source.notes = json.dumps(notes_list)
+        source.update()
+
+        return jsonify({
+            'success': True,
+            'id': source_id,
+            'notes': notes_list
+        })
