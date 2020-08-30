@@ -65,8 +65,8 @@ class Source(db.Model):
 
     # Self-referential many-to-many relationship
     next_sources = db.relationship('Source', secondary=edges,
-                                   primaryjoin=(id == edges.c.to_id),
-                                   secondaryjoin=(id == edges.c.from_id),
+                                   primaryjoin=(id == edges.c.from_id),
+                                   secondaryjoin=(id == edges.c.to_id),
                                    backref=db.backref('prev_sources', lazy=True)
                                    )
 

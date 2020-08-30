@@ -182,7 +182,7 @@ def set_project_routes(app):
     """
     @app.route('/projects/<int:project_id>/connections', methods=['POST'])
     @requires_auth('create:connections')
-    def create_connection(user_id, project_id):
+    def create_connection_from_urls(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
 
         body = request.get_json()
