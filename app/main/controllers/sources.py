@@ -1,36 +1,9 @@
 import json
 
 from flask import request, abort, jsonify
-import justext
-import requests
 
 from ..models.models import Project, Source
 from ..auth import requires_auth, AuthError
-
-def get_title(html):
-    temp = html.decode("utf-8", errors='ignore').split("<title", 1)[1]
-    temp = temp.split(">", 1)[1]
-    title = temp.split("</title>", 1)[0]
-    return title
-
-def extract_content_from_url(url):
-    try:
-        response = requests.get(url)
-    except Exception:
-        abort(422)
-    else:
-        paragraphs = justext.justext(response.content, justext.get_stoplist("English"))
-        real_text = ""
-
-        for paragraph in paragraphs:
-            if not paragraph.is_boilerplate:
-                real_text += paragraph.text
-                real_text += "\n\n"
-
-        return {
-            'content': real_text,
-            'title': get_title(response.content)
-        }
 
 def get_authorized_source(user_id, source_id):
     source = Source.query.get(source_id)
@@ -46,72 +19,6 @@ def get_authorized_source(user_id, source_id):
     return source
 
 def set_source_routes(app):
-    """
-    Gets all the sources of a given project.
-    """
-    @app.route('/projects/<int:project_id>/sources')
-    @requires_auth('read:sources')
-    def get_project_sources(user_id, project_id):
-        project = Project.query.get(project_id)
-        if project is None:
-            abort(404)
-
-        if project.user_id != user_id:
-            raise AuthError({
-                'code': 'invalid_user',
-                'description': 'This item does not belong to the requesting user.'
-            }, 403)
-
-        return jsonify({
-            'success': True,
-            'sources': [source.format_short() for source in project.sources]
-        })
-
-    """
-    Creates a new source inside an existing project. The necessary data is passed as a JSON body.
-    """
-    @app.route('/projects/<int:project_id>/sources', methods=['POST'])
-    @requires_auth('create:sources')
-    def create_source(user_id, project_id):
-        project = Project.query.get(project_id)
-        if project is None:
-            abort(404)
-
-        if project.user_id != user_id:
-            raise AuthError({
-                'code': 'invalid_user',
-                'description': 'This item does not belong to the requesting user.'
-            }, 403)
-
-        body = request.get_json()
-        if body is None:
-            abort(400)
-
-        url = body.get('url', None)
-        if url is None:
-            abort(400)
-
-        # Check if source already exists
-        existing_source = Source.query.filter(Source.url == url, Source.project_id == project_id).first()
-        if existing_source is not None:
-            return jsonify({
-                'success': True,
-                'id': existing_source.id
-            })  ## Status code 200 to represent that no new object was created
-
-        # Extract content to create source object
-        extraction_results = extract_content_from_url(url)
-        content = extraction_results['content']
-        title = extraction_results['title']
-
-        source = Source(url=url, title=title, content=content, project_id=project.id)
-        source.insert()
-
-        return jsonify({
-            'success': True,
-            'id': source.id
-        }), 201
-
     """
     Reads the detailed information of a specific source.
     """
