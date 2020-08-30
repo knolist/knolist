@@ -86,8 +86,7 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'id': project.id,
-            'title': project.title
+            'project': project.format()
         }), 201
 
     """
