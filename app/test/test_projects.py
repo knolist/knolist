@@ -130,6 +130,38 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 405)
         self.assertFalse(data['success'])
 
+    def test_update_project_nonexistent_project(self):
+        # Attempt to update project
+        res = self.client().patch('/projects/2000', json={'title': self.new_project['title']}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+
+    ### DELETE '/projects/{project_id}' ###
+    def test_delete_project(self):
+        old_total = len(Project.query.filter(Project.user_id == user_id).all())
+        res = self.client().delete(f'/projects/{self.project_1.id}', headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.filter(Project.user_id == user_id).all())
+        deleted_project = Project.query.get(self.project_1.id)
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertIsNone(deleted_project)
+        self.assertEqual(new_total, old_total - 1)
+
+    def test_delete_project_nonexistent_project(self):
+        old_total = len(Project.query.filter(Project.user_id == user_id).all())
+        res = self.client().delete(f'/projects/2000', headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.filter(Project.user_id == user_id).all())
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+        self.assertEqual(new_total, old_total)
+
+
         
 
 
