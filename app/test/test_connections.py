@@ -25,7 +25,7 @@ class TestConnectionsEndpoints(unittest.TestCase):
         pass
 
     ### POST '/connections/{from_id}/{to_id}' ###
-    def test_create_connection(self):
+    def test_create_connection_from_ids(self):
         # Assert that connection initially doesn't exist
         self.assertFalse(self.source_2 in self.source_1.next_sources)
 
@@ -38,7 +38,7 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertTrue(self.source_2 in self.source_1.next_sources)
         self.assertTrue(self.source_1 in self.source_2.prev_sources)
 
-    def test_create_connection_that_already_exists(self):
+    def test_create_connection_that_already_exists_from_ids(self):
         # Create a connection
         self.source_1.next_sources.append(self.source_2)
         self.source_1.update()
@@ -50,20 +50,24 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 200)  # In this case, 200 is returned
         self.assertTrue(data['success'])
         # Assert that the connection is still there
+        self.assertTrue(self.source_2 in self.source_1.next_sources)
+        self.assertTrue(self.source_1 in self.source_2.prev_sources)
 
-    def test_create_connection_nonexistent_source(self):
+    def test_create_connection_nonexistent_source_from_ids(self):
         res = self.client().post(f'/connections/{self.source_1.id}/2000', headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
-    def test_create_connection_different_projects(self):
+    def test_create_connection_different_projects_from_ids(self):
         res = self.client().post(f'/connections/{self.source_1.id}/{self.source_3.id}', headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
+        self.assertFalse(self.source_3 in self.source_1.next_sources)
+        self.assertFalse(self.source_1 in self.source_3.prev_sources)
 
     ### DELETE '/connections/{from_id}/{to_id}' ###
     def test_delete_connection(self):
