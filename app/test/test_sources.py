@@ -49,3 +49,26 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
+
+    ### DELETE '/sources/{source_id}' ###
+    def test_delete_source(self):
+        old_total = len(Source.query.filter(Source.project_id == self.source_1.project_id).all())
+        res = self.client().delete(f'/sources/{self.source_1.id}', headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Source.query.filter(Source.project_id == self.source_1.project_id).all())
+        deleted_source = Source.query.get(self.project_1.id)
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertIsNone(deleted_source)
+        self.assertEqual(new_total, old_total - 1)
+
+    def test_delete_source_nonexistent_source(self):
+        old_total = len(Source.query.filter(Source.project_id == self.source_1.project_id).all())
+        res = self.client().delete('/sources/2000', headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Source.query.filter(Source.project_id == self.source_1.project_id).all())
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+        self.assertEqual(new_total, old_total)

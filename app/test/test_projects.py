@@ -146,7 +146,7 @@ class TestProjectsEndpoints(unittest.TestCase):
 
     def test_delete_project_nonexistent_project(self):
         old_total = len(Project.query.filter(Project.user_id == user_id).all())
-        res = self.client().delete(f'/projects/2000', headers=auth_header)
+        res = self.client().delete('/projects/2000', headers=auth_header)
         data = json.loads(res.data)
 
         new_total = len(Project.query.filter(Project.user_id == user_id).all())
