@@ -29,7 +29,6 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'id': source_id,
             'source': source.format_long()
         })
 
