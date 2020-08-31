@@ -37,7 +37,7 @@ class TestProjectsEndpoints(unittest.TestCase):
         pass
 
     ### GET '/projects' ###
-    # Only one test case, since the endpoint is always successful for authenticated users
+    # Only one test case since the endpoint is always successful for authenticated users
     def test_get_projects(self):
         res = self.client().get('/projects', headers=auth_header)
         data = json.loads(res.data)
@@ -160,6 +160,21 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
         self.assertEqual(new_total, old_total)
+
+    ### GET '/projects/{project_id}/sources' ###
+    # Only one test case since the endpoint is always successful for authenticated users
+    def test_get_sources(self):
+        res = self.client().get(f'/projects/{self.project_1.id}/sources', headers=auth_header)
+        data = json.loads(res.data)
+
+        expected_sources = Project.query.get(self.project_1.id).sources
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sources']), len(expected_sources))
+        # Assert that only sources from this project were obtained
+        for source in data['sources']:
+            self.assertEqual(source['project_id'], self.project_1.id)
+
 
 
         

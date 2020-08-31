@@ -100,7 +100,8 @@ class Source(db.Model):
             'x_position': self.x_position,
             'y_position': self.y_position,
             'next_sources': [source.id for source in self.next_sources],
-            'prev_sources': [source.id for source in self.prev_sources]
+            'prev_sources': [source.id for source in self.prev_sources],
+            'project_id': self.project_id
         }
 
     def format_short(self):
@@ -111,7 +112,8 @@ class Source(db.Model):
             'x_position': self.x_position,
             'y_position': self.y_position,
             'next_sources': [source.id for source in self.next_sources],
-            'prev_sources': [source.id for source in self.prev_sources]
+            'prev_sources': [source.id for source in self.prev_sources],
+            'project_id': self.project_id
         }
 
 # class User(db.Model):
