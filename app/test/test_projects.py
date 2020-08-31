@@ -21,16 +21,9 @@ class TestProjectsEndpoints(unittest.TestCase):
 
         self.project_1, self.project_2, self.source_1, self.source_2, self.source_3 = create_starter_data()
 
-        self.new_project = {
-            'title': 'New Project',
-            'user_id': user_id
-        }
+        self.new_project_title = 'New Project'
 
-        self.new_source = {
-            'url': 'https://newsource.com',
-            'title': 'New Source',
-            'content': "This is the new source's content"
-        }
+        self.new_source_url = 'https://en.wikipedia.org/wiki/Test'
 
     def tearDown(self):
         """Executed after each test."""
@@ -56,7 +49,7 @@ class TestProjectsEndpoints(unittest.TestCase):
         initial_projects = Project.query.filter(Project.user_id == user_id).all()
 
         # Create project
-        res = self.client().post('/projects', json={'title': self.new_project['title']}, headers=auth_header)
+        res = self.client().post('/projects', json={'title': self.new_project_title}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 201)
@@ -96,7 +89,7 @@ class TestProjectsEndpoints(unittest.TestCase):
     def test_update_project(self):
         old_title = Project.query.get(self.project_1.id).title
         res = self.client().patch(f'/projects/{self.project_1.id}',
-                                  json={'title': self.new_project['title']}, headers=auth_header)
+                                  json={'title': self.new_project_title}, headers=auth_header)
         data = json.loads(res.data)
         new_title = Project.query.get(self.project_1.id).title
         
@@ -124,7 +117,7 @@ class TestProjectsEndpoints(unittest.TestCase):
 
     def test_update_project_no_id(self):
         # Attempt to update project
-        res = self.client().patch('/projects', json={'title': self.new_project['title']}, headers=auth_header)
+        res = self.client().patch('/projects', json={'title': self.new_project_title}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 405)
@@ -132,7 +125,7 @@ class TestProjectsEndpoints(unittest.TestCase):
 
     def test_update_project_nonexistent_project(self):
         # Attempt to update project
-        res = self.client().patch('/projects/2000', json={'title': self.new_project['title']}, headers=auth_header)
+        res = self.client().patch('/projects/2000', json={'title': self.new_project_title}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
@@ -174,6 +167,75 @@ class TestProjectsEndpoints(unittest.TestCase):
         # Assert that only sources from this project were obtained
         for source in data['sources']:
             self.assertEqual(source['project_id'], self.project_1.id)
+
+    ### POST '/projects/{project_id}/sources' ###
+    def test_create_source(self):
+        old_total = len(Project.query.get(self.project_1.id).sources)
+        res = self.client().post(f'/projects/{self.project_1.id}/sources',
+                                 json={'url': self.new_source_url}, headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_1.id).sources)
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_source = data['source']
+        self.assertIsNotNone(Source.query.get(added_source['id']))
+        self.assertEqual(added_source['project_id'], self.project_1.id)
+        self.assertEqual(added_source['url'], self.new_source_url)
+        self.assertEqual(new_total, old_total + 1)
+
+    def test_create_existing_source(self):
+        old_total = len(Project.query.get(self.project_1.id).sources)
+        res = self.client().post(f'/projects/{self.project_1.id}/sources',
+                                 json={'url': self.source_1.url}, headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_1.id).sources)
+        self.assertEqual(res.status_code, 200)  # 200 since no new source was created
+        self.assertTrue(data['success'])
+        self.assertEqual(data['source']['id'], self.source_1.id)
+        self.assertEqual(new_total, old_total)
+
+    def test_create_source_no_body(self):
+        old_total = len(Source.query.filter(Source.project_id == self.project_1.id).all())
+
+        # Attempt to create project
+        res = self.client().post(f'/projects/{self.project_1.id}/sources', headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Source.query.filter(Source.project_id == self.project_1.id).all())
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+        self.assertEqual(new_total, old_total)
+
+    def test_create_source_no_url(self):
+        old_total = len(Source.query.filter(Source.project_id == self.project_1.id).all())
+
+        # Attempt to create project
+        res = self.client().post(f'/projects/{self.project_1.id}/sources',
+                                 json={'some_field': 'some_data'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Source.query.filter(Source.project_id == self.project_1.id).all())
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+        self.assertEqual(new_total, old_total)
+
+    def test_create_source_nonexistent_project(self):
+        old_total = len(Source.query.filter(Source.project_id == self.project_1.id).all())
+
+        # Attempt to create project
+        res = self.client().post('/projects/2000/sources',
+                                 json={'url': self.new_source_url}, headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Source.query.filter(Source.project_id == self.project_1.id).all())
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+        self.assertEqual(new_total, old_total)
+
+
+
 
 
 

@@ -162,7 +162,7 @@ def set_project_routes(app):
         if existing_source is not None:
             return jsonify({
                 'success': True,
-                'id': existing_source.id
+                'source': existing_source.format_short()
             })  ## Status code 200 to represent that no new object was created
 
         # Extract content to create source object
@@ -170,7 +170,7 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'id': source.id
+            'source': source.format_short()
         }), 201
 
     """
