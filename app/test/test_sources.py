@@ -250,3 +250,86 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
+    ### POST '/sources/{source_id}/notes' ###
+    def test_add_notes(self):
+        note = 'New note'
+        old_notes = json.loads(Source.query.get(self.source_1.id).notes)
+        res = self.client().post(f'/sources/{self.source_1.id}/notes',
+                                 json={'note': note}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        source = data['source']
+        self.assertEqual(len(source['notes']), len(old_notes) + 1)
+        self.assertEqual(source['notes'][-1], note)
+
+    def test_add_highlighnotey(self):
+        res = self.client().post(f'/sources/{self.project_1.id}/notes', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_add_notes_no_note(self):
+        res = self.client().post(f'/sources/{self.project_1.id}/notes',
+                                 json={'some_field': 'some_data'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_add_notes_nonexistent_project(self):
+        note = 'New note'
+        res = self.client().post('/sources/2000/notes',
+                                 json={'note': note}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+
+    ### DELETE '/sources/{source_id}/notes' ###
+    def test_delete_notes(self):
+        old_notes = json.loads(self.source_1.notes)
+        indices_to_delete = [0, 1]
+        res = self.client().delete(f'/sources/{self.source_1.id}/notes',
+                                   json={'delete': indices_to_delete}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        source = data['source']
+        self.assertEqual(len(source['notes']), len(old_notes) - len(indices_to_delete))
+
+    def test_delete_notes_no_body(self):
+        res = self.client().delete(f'/sources/{self.source_1.id}/notes', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_delete_notes_no_indices(self):
+        res = self.client().delete(f'/sources/{self.source_1.id}/notes',
+                                   json={'some_field': 'some_data'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_delete_notes_invalid_indices_format(self):
+        res = self.client().delete(f'/sources/{self.source_1.id}/notes',
+                                   json={'delete': 'not list'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_delete_notes_nonexistent_project(self):
+        indices_to_delete = [0, 1]
+        res = self.client().delete('/sources/2000/notes',
+                                   json={'delete': indices_to_delete}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+
