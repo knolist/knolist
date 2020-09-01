@@ -70,6 +70,13 @@ def set_source_routes(app):
         # Obtain project ID
         project_id = body.get('project_id', None)
 
+        # Verify that at least one parameter was passed
+        no_title_content_xpos_ypos = title is None and content is None and x_position is None and y_position is None
+        no_highlights_notes_projectid = highlights is None and notes is None and project_id is None
+        if no_title_content_xpos_ypos and no_highlights_notes_projectid:
+            abort(400)
+
+
         # Verify that parameters are correctly formatted
         if x_position is not None and type(x_position) is not int:
             abort(422)
@@ -102,7 +109,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source_id': source_id
+            'source': source.format_long()
         })
 
     """

@@ -21,6 +21,16 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.project_1, self.project_2, self.source_1, self.source_2, self.source_3 = create_starter_data()
 
+        self.new_source = {
+            'title': 'New title',
+            'content': 'New content',
+            'highlights': ['New highlight'],
+            'notes': ['New notes'],
+            'x_position': self.source_1.x_position + 100,
+            'y_position': self.source_1.y_position + 100,
+            'project_id': self.project_2.id
+        }
+
     def tearDown(self):
         """Executed after each test."""
         pass
@@ -72,3 +82,87 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
         self.assertEqual(new_total, old_total)
+
+    ### PATCH '/sources/{source_id}' ###
+    def test_update_source(self):
+        res = self.client().patch(f'/sources/{self.source_1.id}', json=self.new_source, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        source = data['source']
+        self.assertEqual(source['title'], self.new_source['title'])
+        self.assertEqual(source['content'], self.new_source['content'])
+        self.assertEqual(source['highlights'], self.new_source['highlights'])
+        self.assertEqual(source['notes'], self.new_source['notes'])
+        self.assertEqual(source['x_position'], self.new_source['x_position'])
+        self.assertEqual(source['y_position'], self.new_source['y_position'])
+        self.assertEqual(source['project_id'], self.new_source['project_id'])
+
+    def test_update_source_no_body(self):
+        # Attempt to update source
+        res = self.client().patch(f'/sources/{self.source_1.id}', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_update_source_no_data_in_body(self):
+        # Attempt to update source
+        res = self.client().patch(f'/sources/{self.project_1.id}',
+                                  json={'some_field': 'some_data'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_update_source_no_id(self):
+        # Attempt to update source
+        res = self.client().patch('/sources', json=self.new_source, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+
+    def test_update_source_nonexistent_source(self):
+        # Attempt to update source
+        res = self.client().patch('/sources/2000', json=self.new_source, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+
+    def test_update_source_invalid_x_position(self):
+        res = self.client().patch(f'/sources/{self.source_1.id}', json={'x_position': 'not int'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
+
+    def test_update_source_invalid_y_position(self):
+        res = self.client().patch(f'/sources/{self.source_1.id}', json={'y_position': 'not int'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
+
+    def test_update_source_invalid_highlights(self):
+        res = self.client().patch(f'/sources/{self.source_1.id}', json={'highlights': 'not list'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
+
+    def test_update_source_invalid_notes(self):
+        res = self.client().patch(f'/sources/{self.source_1.id}', json={'notes': 'not list'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
+
+    def test_update_source_nonexistent_project(self):
+        res = self.client().patch(f'/sources/{self.source_1.id}', json={'project_id': 2000}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
