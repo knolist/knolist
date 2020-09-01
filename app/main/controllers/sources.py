@@ -232,18 +232,18 @@ def set_source_routes(app):
             abort(400)
 
         # Get parameters
-        note_id = body.get('note_id', None)
+        note_index = body.get('note_index', None)
         new_content = body.get('new_content', None)
-        if note_id is None or new_content is None:
+        if note_index is None or new_content is None:
             abort(400)
 
         # Verify that the ID is valid (int, non-negative, and less than the length of notes_list)
         notes_list = json.loads(source.notes)
-        if type(note_id) is not int or note_id < 0 or note_id >= len(notes_list):
+        if type(note_index) is not int or note_index < 0 or note_index >= len(notes_list):
             abort(422)
 
         # Update the content
-        notes_list[note_id] = new_content
+        notes_list[note_index] = new_content
         source.notes = json.dumps(notes_list)
         source.update()
 
