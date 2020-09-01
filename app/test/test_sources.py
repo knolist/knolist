@@ -177,8 +177,9 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 201)
         self.assertTrue(data['success'])
-        self.assertEqual(len(data['highlights']), len(old_highlights) + 1)
-        self.assertEqual(data['highlights'][-1], highlight)
+        source = data['source']
+        self.assertEqual(len(source['highlights']), len(old_highlights) + 1)
+        self.assertEqual(source['highlights'][-1], highlight)
 
     def test_add_highlights_no_body(self):
         res = self.client().post(f'/sources/{self.project_1.id}/highlights', headers=auth_header)
@@ -203,3 +204,49 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
+
+    ### DELETE '/sources/{source_id}/highlights' ###
+    def test_delete_highlights(self):
+        old_highlights = json.loads(self.source_1.highlights)
+        indices_to_delete = [0, 1]
+        res = self.client().delete(f'/sources/{self.source_1.id}/highlights',
+                                   json={'delete': indices_to_delete}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        source = data['source']
+        self.assertEqual(len(source['highlights']), len(old_highlights) - len(indices_to_delete))
+
+    def test_delete_highlights_no_body(self):
+        res = self.client().delete(f'/sources/{self.source_1.id}/highlights', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_delete_highlights_no_indices(self):
+        res = self.client().delete(f'/sources/{self.source_1.id}/highlights',
+                                   json={'some_field': 'some_data'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_delete_highlights_invalid_indices_format(self):
+        res = self.client().delete(f'/sources/{self.source_1.id}/highlights',
+                                   json={'delete': 'not list'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_delete_highlights_nonexistent_project(self):
+        indices_to_delete = [0, 1]
+        res = self.client().delete('/sources/2000/highlights',
+                                   json={'delete': indices_to_delete}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+

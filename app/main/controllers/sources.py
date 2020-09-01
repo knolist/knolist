@@ -135,8 +135,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'id': source_id,
-            'highlights': highlights_list
+            'source': source.format_long()
         }), 201
 
     """
@@ -163,8 +162,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'id': source_id,
-            'highlights': highlights_list
+            'source': source.format_long()
         })
 
     """
@@ -190,8 +188,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'id': source_id,
-            'notes': notes_list
+            'source': source.format_long()
         }), 201
 
     """
@@ -218,8 +215,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'id': source_id,
-            'notes': notes_list
+            'source': source.format_long()
         })
 
 
@@ -253,6 +249,5 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'id': source_id,
-            'notes': notes_list
+            'source': source.format_long()
         })
