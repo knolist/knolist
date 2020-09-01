@@ -117,7 +117,7 @@ def set_source_routes(app):
     """
     @app.route('/sources/<int:source_id>/highlights', methods=['POST'])
     @requires_auth('create:highlights')
-    def create_highlights(user_id, source_id):
+    def add_highlights(user_id, source_id):
         source = get_authorized_source(user_id, source_id)
 
         body = request.get_json()
@@ -137,7 +137,7 @@ def set_source_routes(app):
             'success': True,
             'id': source_id,
             'highlights': highlights_list
-        })
+        }), 201
 
     """
     Deletes one or more highlights from a source. Highlights to be deleted are passed as a list of indices 
@@ -172,7 +172,7 @@ def set_source_routes(app):
     """
     @app.route('/sources/<int:source_id>/notes', methods=['POST'])
     @requires_auth('create:notes')
-    def create_notes(user_id, source_id):
+    def add_notes(user_id, source_id):
         source = get_authorized_source(user_id, source_id)
 
         body = request.get_json()
@@ -192,7 +192,7 @@ def set_source_routes(app):
             'success': True,
             'id': source_id,
             'notes': notes_list
-        })
+        }), 201
 
     """
     Deletes one or more notes from a source. Notes to be deleted are passed as a list of indices 

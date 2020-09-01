@@ -166,3 +166,40 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
+
+    ### POST '/sources/{source_id}/highlights' ###
+    def test_add_highlights(self):
+        highlight = 'New highlight'
+        old_highlights = json.loads(Source.query.get(self.source_1.id).highlights)
+        res = self.client().post(f'/sources/{self.source_1.id}/highlights',
+                                  json={'highlight': highlight}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['highlights']), len(old_highlights) + 1)
+        self.assertEqual(data['highlights'][-1], highlight)
+
+    def test_add_highlights_no_body(self):
+        res = self.client().post(f'/sources/{self.project_1.id}/highlights', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_add_highlights_no_highlight(self):
+        res = self.client().post(f'/sources/{self.project_1.id}/highlights',
+                                 json={'some_field': 'some_data'}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_add_highlights_nonexistent_project(self):
+        highlight = 'New highlight'
+        res = self.client().post('/sources/2000/highlights',
+                                 json={'highlight': highlight}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])

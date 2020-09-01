@@ -13,7 +13,7 @@ def create_starter_data():
     source_1 = Source(url='https://test1.com',
                       title='Test Source 1',
                       content='This is the content of test source 1',
-                      highlights='["This is a highlight"]',
+                      highlights='["First highlight", "Second highlight"]',
                       notes='["First note", "Second note"]',
                       x_position=100,
                       y_position=-30)
