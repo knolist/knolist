@@ -333,3 +333,64 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
+    def test_update_note(self):
+        index_to_update = 0
+        old_note = json.loads(self.source_1.notes)[index_to_update]
+        new_content = 'This is the new content'
+        json_body = {
+            'note_index': index_to_update,
+            'new_content': new_content
+        }
+        res = self.client().patch(f'/sources/{self.source_1.id}/notes',
+                                  json=json_body, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        new_note = data['source']['notes'][index_to_update]
+        self.assertEqual(new_note, new_content)
+        self.assertNotEqual(new_note, old_note)
+
+    def test_update_note_no_body(self):
+        res = self.client().patch(f'/sources/{self.source_1.id}/notes', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_update_note_missing_field(self):
+        json_body = {
+            'note_index': 0  # Missing content
+        }
+        res = self.client().patch(f'/sources/{self.source_1.id}/notes',
+                                  json=json_body, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 400)
+        self.assertFalse(data['success'])
+
+    def test_update_note_invalid_index(self):
+        json_body = {
+            'note_index': 99999,
+            'new_content': 'New content'
+        }
+        res = self.client().patch(f'/sources/{self.source_1.id}/notes',
+                                  json=json_body, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
+
+    def test_update_note_nonexistent_source(self):
+        json_body = {
+            'note_index': 0,
+            'new_content': 'New content'
+        }
+        res = self.client().patch('/sources/2000/notes', json=json_body, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertFalse(data['success'])
+
+
+

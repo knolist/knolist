@@ -237,7 +237,7 @@ def set_source_routes(app):
         if note_index is None or new_content is None:
             abort(400)
 
-        # Verify that the ID is valid (int, non-negative, and less than the length of notes_list)
+        # Verify that the index is valid (int, non-negative, and less than the length of notes_list)
         notes_list = json.loads(source.notes)
         if type(note_index) is not int or note_index < 0 or note_index >= len(notes_list):
             abort(422)
