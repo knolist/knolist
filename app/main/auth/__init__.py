@@ -55,7 +55,13 @@ def get_token_auth_header():
 def verify_decode_jwt(token):
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
-    unverified_header = jwt.get_unverified_header(token)
+    try:
+        unverified_header = jwt.get_unverified_header(token)
+    except:
+        raise AuthError({
+            'code': 'invalid_token',
+            'description': 'Provided token is invalid.'
+        }, 401)
     rsa_key = {}
     if 'kid' not in unverified_header:
         raise AuthError({
