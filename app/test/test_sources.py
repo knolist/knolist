@@ -1,9 +1,8 @@
 import json
 import unittest
 
-from manage import app, db
-from app.test import create_starter_data, auth_header, user_id
-from app.main.models.models import Project, Source
+from app.test import create_starter_data, auth_header, app, db
+from app.main.models.models import Source
 
 class TestSourcesEndpoints(unittest.TestCase):
     """This class contains tests for endpoints that start with '/sources'."""

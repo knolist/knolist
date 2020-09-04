@@ -1,8 +1,7 @@
 import json
 import unittest
 
-from manage import app, db
-from app.test import create_starter_data, auth_header, user_id
+from app.test import create_starter_data, auth_header, user_id, app, db
 from app.main.models.models import Project, Source
 
 class TestProjectsEndpoints(unittest.TestCase):

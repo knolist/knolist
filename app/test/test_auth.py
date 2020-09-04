@@ -1,11 +1,11 @@
 import json
 import unittest
 
-from manage import app, db
-from app.test import create_starter_data, other_user_jwt
+from app.test import create_starter_data, other_user_jwt, app, db
 
 class TestAuthentication(unittest.TestCase):
     """This class contains tests related to authentication. Not all endpoints are tested, for simplicity's sake."""
+
     def setUp(self):
         """Define test variables and initialize app."""
         self.app = app

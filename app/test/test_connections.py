@@ -1,8 +1,7 @@
 import json
 import unittest
 
-from manage import app, db
-from app.test import create_starter_data, auth_header
+from app.test import create_starter_data, auth_header, app, db
 
 class TestConnectionsEndpoints(unittest.TestCase):
     """This class contains tests for endpoints that start with '/connections'."""
