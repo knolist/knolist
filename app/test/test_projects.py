@@ -1,5 +1,6 @@
 import json
 import unittest
+from urllib.parse import quote
 
 from app.test import create_starter_data, auth_header, user_id, app, db
 from app.main.models.models import Project, Source
@@ -154,7 +155,6 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(new_total, old_total)
 
     ### GET '/projects/{project_id}/sources' ###
-    # Only one test case since the endpoint is always successful for authenticated users
     def test_get_sources(self):
         res = self.client().get(f'/projects/{self.project_1.id}/sources', headers=auth_header)
         data = json.loads(res.data)
@@ -166,6 +166,15 @@ class TestProjectsEndpoints(unittest.TestCase):
         # Assert that only sources from this project were obtained
         for source in data['sources']:
             self.assertEqual(source['project_id'], self.project_1.id)
+
+    def test_search_sources(self):
+        query = quote('test1')
+        res = self.client().get(f'/projects/{self.project_1.id}/sources?query={query}', headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sources']), 1)  # Only source 1
 
     ### POST '/projects/{project_id}/sources' ###
     def test_create_source(self):
