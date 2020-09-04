@@ -76,7 +76,6 @@ def set_source_routes(app):
         if no_title_content_xpos_ypos and no_highlights_notes_projectid:
             abort(400)
 
-
         # Verify that parameters are correctly formatted
         if x_position is not None and type(x_position) is not int:
             abort(422)

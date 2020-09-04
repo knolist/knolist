@@ -129,17 +129,33 @@ def set_project_routes(app):
         })
 
     """
-    Gets all the sources of a given project.
+    Gets all the sources of a given project or searches through them if a search query is passed.
+    Search looks at all text fields of a source.
     """
     @app.route('/projects/<int:project_id>/sources')
     @requires_auth('read:sources')
     def get_project_sources(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
 
+        search_query = request.args.get('query', None)
+        if search_query is None:
+            # Returns all sources
+            return jsonify({
+                'success': True,
+                'sources': [source.format_short() for source in project.sources]
+            })
+
+        pattern = '%' + search_query + '%'
+        results = Source.query.filter(Source.project_id == project_id)\
+            .filter(Source.url.ilike(pattern) | Source.title.ilike(pattern) | Source.content.ilike(pattern)
+                    | Source.highlights.ilike(pattern) | Source.notes.ilike(pattern)).order_by(Source.id).all()
+
         return jsonify({
             'success': True,
-            'sources': [source.format_short() for source in project.sources]
+            'sources': [source.format_short() for source in results]
         })
+
+
 
     """
     Creates a new source inside an existing project. The necessary data is passed as a JSON body.
