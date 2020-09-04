@@ -1,5 +1,5 @@
 ## Based on auth.py from Udacity FSND Project 3
-
+import os
 import json
 from functools import wraps
 from urllib.request import urlopen
@@ -7,9 +7,9 @@ from urllib.request import urlopen
 from flask import request
 from jose import jwt
 
-AUTH0_DOMAIN = 'knolist.us.auth0.com'
-ALGORITHMS = ['RS256']
-API_AUDIENCE = 'knolist'
+AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN')
+ALGORITHMS = os.environ.get('ALGORITHMS')
+API_AUDIENCE = os.environ.get('API_AUDIENCE')
 
 ## AuthError Exception
 """

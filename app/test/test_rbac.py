@@ -40,18 +40,18 @@ class TestRBAC(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
 
-    def test_get_sources_regular_user(self):
+    def test_get_projects_regular_user(self):
         # Expected to succeed, since this endpoint is available to all users
         regular_user_auth_header = {'Authorization': f'Bearer {other_user_jwt}'}
-        res = self.client().get(f'/projects/{self.project_1.id}/sources', headers=regular_user_auth_header)
+        res = self.client().get('/projects', headers=regular_user_auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
 
-    def test_get_sources_premium_user(self):
+    def test_get_projects_premium_user(self):
         # Expected to succeed, since this endpoint is available to all users
-        res = self.client().get(f'/projects/{self.project_1.id}/sources', headers=auth_header)
+        res = self.client().get('/projects', headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
