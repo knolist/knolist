@@ -249,7 +249,7 @@ Assume that all `curl` calls include the following:
 
 ### GET '/projects/{project_id}/sources'
 - This endpoint serves two different purposes, depending on whether or not a search query is passed.
-1. Get all sources
+1. Get all sources.
     - Fetches all the sources of a given project (based on the project ID)
     - Request arguments: None
     - Returns: A JSON object with the following keys:
@@ -301,5 +301,130 @@ Assume that all `curl` calls include the following:
     }
   ],
   "success": true
+}
+```
+
+2. Search through sources.
+    - Searches through all sources of the given project. The search is case-insensitive and looks through all text 
+    fields of all sources (url, title, content, highlights, and notes)
+    - Request arguments:
+        - `query`: a string passed as a query parameter, indicating the query to be searched
+    - Returns: A JSON object with the following keys:
+        - "success": holds `true` if the request was successful
+        - "sources": an array of `short source` objects representing all the sources in the project
+         that contain the given query
+    - Sample: `curl http://localhost:5000/projects/1/sources?query=Browning`
+```
+200 OK
+```
+```json
+{
+  "sources": [
+    {
+      "id": 1,
+      "next_sources": [],
+      "prev_sources": [
+        2
+      ],
+      "project_id": 1,
+      "title": "Robert Browning - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+      "x_position": null,
+      "y_position": null
+    },
+    {
+      "id": 2,
+      "next_sources": [
+        4,
+        1
+      ],
+      "prev_sources": [],
+      "project_id": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+
+### POST '/projects/{project_id}/sources'
+- Creates a new source and adds it to the given project (based on the ID). The source is created based on its URL, 
+which is used to extract the page title and content, both of which are saved in the database.
+- If the given URL already exists in the given project, no new source is created (URLs must be unique withing a project)
+If that is the case, the return status wil be 200 instead of 201, since no new source was created.
+- Request arguments (passed as JSON body):
+    - "url": the URL of the source that will be added
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `short source` object representing the newly created source (or the existing source if the URL is 
+    already in the project)
+- Sample: `curl http://localhost:5000/projects/1/sources -X POST -H "Content-Type: application/json" -d '{"url": "https://en.wikipedia.org/wiki/English_poetry"}'`
+```
+201 Created (or 200 OK if the URL already exists in the project)
+```
+```json
+{
+  "source": {
+    "id": 5,
+    "next_sources": [],
+    "prev_sources": [],
+    "project_id": 1,
+    "title": "English poetry - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/English_poetry",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### POST '/projects/{project_id}/connections'
+- Creates a new connection between sources in the project. The sources are defined by their URLs, and if a source 
+doesn't exist yet, it is first created.
+- If the connection already exists in the project, no new connection is created, and a status code 200 is returned to
+signify that.
+- Request arguments (passed as JSON body):
+    - "from_url": the URL of the source with the outgoing connection
+    - "to_url": the URL of the source with the incoming connection
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "from_source": a `short source` object representing the source from where the connection leaves
+    - "to_source": a `short source` object representing the source to where the connection goes
+- Sample: `curl http://localhost:5000/projects/1/connections -X POST -H "Content-Type: application/json" -d '{"from_url": "https://en.wikipedia.org/wiki/My_Last_Duchess", "to_url": "https://en.wikipedia.org/wiki/English_poetry"}'`
+```
+201 Created (or 200 OK if the connection already existed)
+```
+```json
+{
+  "from_source": {
+    "id": 2,
+    "next_sources": [
+      4,
+      1,
+      5
+    ],
+    "prev_sources": [],
+    "project_id": 1,
+    "title": "My Last Duchess - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true,
+  "to_source": {
+    "id": 5,
+    "next_sources": [],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "English poetry - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/English_poetry",
+    "x_position": null,
+    "y_position": null
+  }
 }
 ```

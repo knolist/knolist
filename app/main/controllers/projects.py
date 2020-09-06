@@ -226,8 +226,8 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'from_id': from_source.id,
-            'to_id': to_source.id
+            'from_source': from_source.format_short(),
+            'to_source': to_source.format_short()
         }), status_code
 
 
