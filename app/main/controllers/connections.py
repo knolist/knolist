@@ -1,4 +1,4 @@
-from flask import jsonify, abort
+from flask import jsonify, abort, request
 
 from ..auth import requires_auth
 from ..models.models import Source
@@ -9,9 +9,19 @@ def set_connection_routes(app):
     """
     Creates a connection given two existing source IDs.
     """
-    @app.route('/connections/<int:from_id>/<int:to_id>', methods=['POST'])
+    @app.route('/connections', methods=['POST'])
     @requires_auth('create:connections')
-    def create_connection_from_ids(user_id, from_id, to_id):
+    def create_connection_from_ids(user_id):
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        from_id = body.get('from_id', None)
+        to_id = body.get('to_id', None)
+
+        if from_id is None or to_id is None:
+            abort(400)
+
         from_source = get_authorized_source(user_id, from_id)
         to_source = get_authorized_source(user_id, to_id)
 
@@ -28,17 +38,26 @@ def set_connection_routes(app):
 
         return jsonify({
             'success': True,
-            'from_id': from_id,
-            'to_id': to_id
+            'from_source': from_source.format_short(),
+            'to_source': to_source.format_short()
         }), status_code
 
 
     """
     Deletes a connection.
     """
-    @app.route('/connections/<int:from_id>/<int:to_id>', methods=['DELETE'])
+    @app.route('/connections', methods=['DELETE'])
     @requires_auth('delete:connections')
-    def delete_connection(user_id, from_id, to_id):
+    def delete_connection(user_id):
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        from_id = body.get('from_id', None)
+        to_id = body.get('to_id', None)
+        if from_id is None or to_id is None:
+            abort(400)
+
         from_source = get_authorized_source(user_id, from_id)
         to_source = get_authorized_source(user_id, to_id)
 
@@ -50,6 +69,6 @@ def set_connection_routes(app):
 
         return jsonify({
             'success': True,
-            'from_id': from_id,
-            'to_id': to_id
+            'from_source': from_source.format_short(),
+            'to_source': to_source.format_short()
         })

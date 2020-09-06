@@ -23,12 +23,13 @@ class TestConnectionsEndpoints(unittest.TestCase):
         """Executed after each test."""
         pass
 
-    ### POST '/connections/{from_id}/{to_id}' ###
+    ### POST '/connections' ###
     def test_create_connection_from_ids(self):
         # Assert that connection initially doesn't exist
         self.assertFalse(self.source_2 in self.source_1.next_sources)
 
-        res = self.client().post(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=auth_header)
+        res = self.client().post(f'/connections',
+                                 json={'from_id': self.source_1.id, 'to_id': self.source_2.id}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 201)
@@ -43,7 +44,8 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.source_1.update()
         self.assertTrue(self.source_2 in self.source_1.next_sources)
 
-        res = self.client().post(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=auth_header)
+        res = self.client().post(f'/connections',
+                                 json={'from_id': self.source_1.id, 'to_id': self.source_2.id}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)  # In this case, 200 is returned
@@ -53,14 +55,16 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertTrue(self.source_1 in self.source_2.prev_sources)
 
     def test_create_connection_nonexistent_source_from_ids(self):
-        res = self.client().post(f'/connections/{self.source_1.id}/2000', headers=auth_header)
+        res = self.client().post(f'/connections',
+                                 json={'from_id': self.source_1.id, 'to_id': 2000}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
     def test_create_connection_different_projects_from_ids(self):
-        res = self.client().post(f'/connections/{self.source_1.id}/{self.source_3.id}', headers=auth_header)
+        res = self.client().post(f'/connections',
+                                 json={'from_id': self.source_1.id, 'to_id': self.source_3.id}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
@@ -68,7 +72,7 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertFalse(self.source_3 in self.source_1.next_sources)
         self.assertFalse(self.source_1 in self.source_3.prev_sources)
 
-    ### DELETE '/connections/{from_id}/{to_id}' ###
+    ### DELETE '/connections' ###
     def test_delete_connection(self):
         # Create a connection
         self.source_1.next_sources.append(self.source_2)
@@ -77,7 +81,8 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertTrue(self.source_1 in self.source_2.prev_sources)
 
         # Delete the connection
-        res = self.client().delete(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=auth_header)
+        res = self.client().delete(f'/connections',
+                                   json={'from_id': self.source_1.id, 'to_id': self.source_2.id}, headers=auth_header)
         data = json.loads(res.data)
 
         # Observe results
@@ -87,14 +92,16 @@ class TestConnectionsEndpoints(unittest.TestCase):
         self.assertFalse(self.source_1 in self.source_2.prev_sources)
 
     def test_delete_connection_nonexistent_source(self):
-        res = self.client().delete(f'/connections/{self.source_1.id}/2000', headers=auth_header)
+        res = self.client().delete(f'/connections',
+                                 json={'from_id': self.source_1.id, 'to_id': 2000}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
     def test_delete_nonexistent_connection(self):
-        res = self.client().delete(f'/connections/{self.source_1.id}/{self.source_2.id}', headers=auth_header)
+        res = self.client().delete(f'/connections',
+                                   json={'from_id': self.source_1.id, 'to_id': self.source_2.id}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)

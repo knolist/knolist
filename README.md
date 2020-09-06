@@ -705,3 +705,95 @@ signify that.
   "success": true
 }
 ```
+
+
+### POST '/connections'
+- Creates a connection given two existing source IDs (they must be in the same project). If the connection already exists,
+no new connection is created, and a 200 status code is returned to signify that
+- Request arguments (passed as JSON body):
+    - `id` "from_id": the ID of the source with the outgoing connection *(Required)*
+    - `id` "to_id": the ID of the source with the incoming connection *(Required)*
+- Returns: A JSON body with the following keys:
+    - "success": holds `true` if the request was successful
+    - "from_source": a `short source` object representing the source from where the connection leaves
+    - "to_source": a `short source` object representing the source to where the connection goes
+- Sample: `curl http://localhost:5000/connections -X POST -H "Content-Type: application/json" -d '{"from_id": 1, "to_id": 4}'`
+```
+201 Created (or 200 OK if the connection already existed)
+```
+```json
+{
+  "from_source": {
+    "id": 1,
+    "next_sources": [
+      4
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true,
+  "to_source": {
+    "id": 4,
+    "next_sources": [],
+    "prev_sources": [
+      2,
+      1
+    ],
+    "project_id": 1,
+    "title": "Anthology - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Anthology",
+    "x_position": null,
+    "y_position": null
+  }
+}
+```
+
+
+### DELETE '/connections'
+- Deletes an existing connection.
+- Request arguments (passed as JSON body):
+    - `id` "from_id": the ID of the source with the outgoing connection *(Required)*
+    - `id` "to_id": the ID of the source with the incoming connection *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "from_source": a `short source` object representing the source from where the connection leaves
+    - "to_source": a `short source` object representing the source to where the connection goes
+- Sample: `curl http://localhost:5000/connections -X DELETE -H "Content-Type: application/json" -d '{"from_id": 1, "to_id": 4}'`
+```
+200 OK
+```
+```json
+{
+  "from_source": {
+    "id": 1,
+    "next_sources": [],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true,
+  "to_source": {
+    "id": 4,
+    "next_sources": [],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "Anthology - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Anthology",
+    "x_position": null,
+    "y_position": null
+  }
+}
+```
