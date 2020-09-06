@@ -94,6 +94,9 @@ def set_source_routes(app):
                     'code': 'invalid_user',
                     'description': 'This item does not belong to the requesting user.'
                 }, 403)
+            for existing_source in project.sources:
+                if existing_source.url == source.url:
+                    abort(422)  ## Can't have two sources with the same URL in one project
 
         # Update values that are not None
         source.title = title if title is not None else source.title

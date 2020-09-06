@@ -58,7 +58,7 @@ class Source(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String, nullable=False)
     title = db.Column(db.String, nullable=False)
-    content = db.Column(db.String)
+    content = db.Column(db.String)  # All of the content of the URL, only used for search purposes
     # Highlights and notes are stored as JSON arrays
     highlights = db.Column(db.String, default='[]')
     notes = db.Column(db.String, default='[]')
@@ -94,7 +94,6 @@ class Source(db.Model):
             'id': self.id,
             'url': self.url,
             'title': self.title,
-            'content': self.content,
             'highlights': json.loads(self.highlights),
             'notes': json.loads(self.notes),
             'x_position': self.x_position,

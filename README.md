@@ -150,7 +150,6 @@ Whenever a JSON object that represents a database model is returned, there are a
     - "project_id": the ID of the project where the current source belongs
 - A `long source` is a more complete representation of a source. 
 It contains all the keys of `short source`, as well as the following:
-    - "content": the content of the source, which is extracted at creation time
     - "highlights": an array of all the highlights associated with that source. Each highlight in the array is a string.
     - "notes": analogous to highlights
  
@@ -190,7 +189,7 @@ Assume that all `curl` calls include the following:
 ### POST '/projects'
 - Creates a new project for the requesting user.
 - Request arguments (passed as JSON body):
-    - "title": The title of the new project *(Required)*
+    - `string` "title": The title of the new project *(Required)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "project": a `project` object that represents the newly created project
@@ -212,7 +211,7 @@ Assume that all `curl` calls include the following:
 ### PATCH '/projects/{project_id}'
 - Updates the title of an existing project given its ID.
 - Request arguments (passed as JSON body):
-    - "title": The new title to be applied *(Required)*
+    - `string` "title": The new title to be applied *(Required)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "project": a `project` object that represents the updated project
@@ -308,7 +307,7 @@ Assume that all `curl` calls include the following:
     - Searches through all sources of the given project. The search is case-insensitive and looks through all text 
     fields of all sources (url, title, content, highlights, and notes)
     - Request arguments:
-        - `query`: a string passed as a query parameter, indicating the query to be searched
+        - `query`: a string passed as a query parameter, indicating the query to be searched *(Required)*
     - Returns: A JSON object with the following keys:
         - "success": holds `true` if the request was successful
         - "sources": an array of `short source` objects representing all the sources in the project
@@ -356,7 +355,7 @@ which is used to extract the page title and content, both of which are saved in 
 - If the given URL already exists in the given project, no new source is created (URLs must be unique withing a project)
 If that is the case, the return status wil be 200 instead of 201, since no new source was created.
 - Request arguments (passed as JSON body):
-    - "url": the URL of the source that will be added
+    - `string` "url": the URL of the source that will be added *(Required)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `short source` object representing the newly created source (or the existing source if the URL is 
@@ -387,8 +386,8 @@ doesn't exist yet, it is first created.
 - If the connection already exists in the project, no new connection is created, and a status code 200 is returned to
 signify that.
 - Request arguments (passed as JSON body):
-    - "from_url": the URL of the source with the outgoing connection
-    - "to_url": the URL of the source with the incoming connection
+    - `string` "from_url": the URL of the source with the outgoing connection *(Required)*
+    - `string` "to_url": the URL of the source with the incoming connection *(Required)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "from_source": a `short source` object representing the source from where the connection leaves
@@ -426,5 +425,283 @@ signify that.
     "x_position": null,
     "y_position": null
   }
+}
+```
+
+### GET '/sources/{source_id}'
+- Fetches the detailed information of a specific source.
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `long source` object representing the requested source
+- Sample: `curl http://localhost:5000/sources/1`
+```
+200 OK
+```
+```json
+{
+  "source": {
+    "highlights": [
+      "This is a highlight",
+      "This is another highlight"
+    ],
+    "id": 1,
+    "next_sources": [],
+    "notes": [
+      "This is a note"
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "Robert Browning - Wikipedia",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### DELETE '/sources/{source_id}'
+- Deletes a source based on its ID.
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "deleted": the ID of the source that was deleted
+- Sample: `curl http://localhost:5000/sources/5 -X DELETE`
+```
+200 OK
+```
+```json
+{
+  "deleted": 5,
+  "success": true
+}
+```
+
+### PATCH '/sources/{source_id}'
+- Allows updates to most fields of the given source.
+- Request arguments (passed as JSON body, at least one is required):
+    - `string` "title": the new title to apply to the source *(Optional)*
+    - `string` "content": the new content to apply to the source *(Optional)*
+    - `int` "x_position": the new x position to apply to the source *(Optional)*
+    - `int` "y_position": the new y position to apply to the source *(Optional)*
+    - `array` of `string` "highlights": the new array of highlights to apply to the source *(Optional)*
+    - `array` of `string` "notes": the new array of notes to apply to the source *(Optional)*
+    - `int` "project_id": the ID of the new project that this source will belong to. It must be a valid ID of an 
+    existing project. If the project already has a source with the current URL, error 422 is thrown.
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `long source` object representing the source that was just updated
+- Sample: `curl http://localhost:5000/sources/1 -X PATCH -H "Content-Type: application/json" -d '{"title": "New title", "notes": ["Updated notes", "New notes"]}'`
+```
+200 OK
+```
+```json
+{
+  "source": {
+    "highlights": [
+      "This is a highlight",
+      "This is another highlight"
+    ],
+    "id": 1,
+    "next_sources": [],
+    "notes": [
+      "Updated notes",
+      "New notes"
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### POST '/sources/{source_id}/highlights'
+- Appends a new highlight to a source's highlights.
+- Request arguments (passed as JSON body):
+    - `string` "highlight": the string that will be appended to the highlights list *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `long source` object representing the source that was just updated
+- Sample: `curl http://localhost:5000/sources/1/highlights -X POST -H "Content-Type: application/json" -d '{"highlight": "This is a new highlight"}'`
+```
+201 Created
+```
+```json
+{
+  "source": {
+    "highlights": [
+      "This is a highlight",
+      "This is another highlight",
+      "This is a new highlight"
+    ],
+    "id": 1,
+    "next_sources": [],
+    "notes": [
+      "Updated notes",
+      "New notes"
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### DELETE '/sources/{source_id}/highlights'
+- Deletes one or more highlights from a source.
+- Request arguments (passed as JSON body):
+    - `array` of `int` "delete": an array of indices to be deleted from the list of highlights *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `long source` object representing the source that was just updated
+- Sample: `curl http://localhost:5000/sources/1/highlights -X DELETE -H "Content-Type: application/json" -d '{"delete": [0, 2]}'`
+```
+200 OK
+```
+```json
+{
+  "source": {
+    "highlights": [
+      "This is another highlight"
+    ],
+    "id": 1,
+    "next_sources": [],
+    "notes": [
+      "Updated notes",
+      "New notes"
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### POST '/sources/{source_id}/notes'
+- Appends a new note to a source's notes.
+- Request arguments (passed as JSON body):
+    - `string` "note": the string that will be appended to the notes list *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `long source` object representing the source that was just updated
+- Sample: `curl http://localhost:5000/sources/1/notes -X POST -H "Content-Type: application/json" -d '{"note": "This is a new note"}'`
+```
+201 Created
+```
+```json
+{
+  "source": {
+    "highlights": [
+      "This is another highlight"
+    ],
+    "id": 1,
+    "next_sources": [],
+    "notes": [
+      "Updated notes",
+      "New notes",
+      "This is a new note"
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### DELETE '/sources/{source_id}/notes'
+- Deletes one or more notes from a source.
+- Request arguments (passed as JSON body):
+    - `array` of `int` "delete": an array of indices to be deleted from the list of notes *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `long source` object representing the source that was just updated
+- Sample: `curl http://localhost:5000/sources/1/notes -X DELETE -H "Content-Type: application/json" -d '{"delete": [1, 2]}'`
+```
+200 OK
+```
+```json
+{
+  "source": {
+    "highlights": [
+      "This is another highlight"
+    ],
+    "id": 1,
+    "next_sources": [],
+    "notes": [
+      "Updated notes"
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### PATCH '/sources/{source_id}/notes'
+- Updates the content of one of a source's notes.
+- Request arguments (passed as JSON body):
+    - `int` "note_index": the index of the note to be updated in the notes list *(Required)*
+    - `string` "new_content": the content the will be inserted in the given index *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "source": a `long source` object representing the source that was just updated
+- Sample: `curl http://localhost:5000/sources/1/notes -X PATCH -H "Content-Type: application/json" -d '{"note_index": 0, "new_content": "New content for the documentation"}'`
+```
+200 OK
+```
+```json
+{
+  "source": {
+    "highlights": [
+      "This is another highlight"
+    ],
+    "id": 1,
+    "next_sources": [],
+    "notes": [
+      "New content for the documentation"
+    ],
+    "prev_sources": [
+      2
+    ],
+    "project_id": 1,
+    "title": "New title",
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
 }
 ```

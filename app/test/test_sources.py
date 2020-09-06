@@ -45,7 +45,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(source['id'], self.source_1.id)
         self.assertEqual(source['url'], self.source_1.url)
         self.assertEqual(source['title'], self.source_1.title)
-        self.assertEqual(source['content'], self.source_1.content)
         self.assertEqual(len(source['highlights']), len(json.loads(self.source_1.highlights)))
         self.assertEqual(len(source['notes']), len(json.loads(self.source_1.notes)))
         self.assertEqual(source['x_position'], self.source_1.x_position)
@@ -91,12 +90,13 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         source = data['source']
         self.assertEqual(source['title'], self.new_source['title'])
-        self.assertEqual(source['content'], self.new_source['content'])
         self.assertEqual(source['highlights'], self.new_source['highlights'])
         self.assertEqual(source['notes'], self.new_source['notes'])
         self.assertEqual(source['x_position'], self.new_source['x_position'])
         self.assertEqual(source['y_position'], self.new_source['y_position'])
         self.assertEqual(source['project_id'], self.new_source['project_id'])
+        self.assertTrue(self.source_1 in self.project_2.sources)
+        self.assertTrue(self.source_1 not in self.project_1.sources)
 
     def test_update_source_no_body(self):
         # Attempt to update source
@@ -161,6 +161,19 @@ class TestSourcesEndpoints(unittest.TestCase):
 
     def test_update_source_nonexistent_project(self):
         res = self.client().patch(f'/sources/{self.source_1.id}', json={'project_id': 2000}, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertFalse(data['success'])
+
+    def test_update_source_project_with_already_existing_url(self):
+        # Create source with same URL as source 1, but in project 2
+        other_source = Source(url=self.source_1.url, title=self.source_1.title)
+        self.project_2.sources.append(other_source)
+        other_source.insert()
+
+        # Attempt to change source 1's project ID to project 2
+        res = self.client().patch(f'/sources/{self.source_1.id}', json={'project_id': 2}, headers=auth_header)
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
