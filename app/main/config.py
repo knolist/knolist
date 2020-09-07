@@ -5,8 +5,9 @@ import os
 # uncomment the line below for postgres database url from environment variable
 database_name = 'knolist'
 test_database_name = 'knolist_test'
-postgres_local_base = 'postgres://postgres:postgres@{}/{}'.format('localhost:5432', database_name)
+postgres_dev_base = 'postgres://postgres:postgres@{}/{}'.format('localhost:5432', database_name)
 postgres_test_base = 'postgres://postgres:postgres@{}/{}'.format('localhost:5432', test_database_name)
+postgres_prod_base = os.environ.get('DATABASE_URL')  # Obtained from Heroku
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -18,7 +19,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     # uncomment the line below to use postgres
-    SQLALCHEMY_DATABASE_URI = postgres_local_base
+    SQLALCHEMY_DATABASE_URI = postgres_dev_base
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -34,7 +35,7 @@ class TestingConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     # uncomment the line below to use postgres
-    SQLALCHEMY_DATABASE_URI = postgres_local_base
+    SQLALCHEMY_DATABASE_URI = postgres_prod_base
 
 
 config_by_name = dict(
