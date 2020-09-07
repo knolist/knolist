@@ -61,7 +61,7 @@ Start a Postgres server using:
 sudo service postgresql start
 ```
 
-Create a dev/prod database and a test database:
+Create a dev database and a test database:
 ```bash
 createdb knolist
 createdb knolist_test
@@ -106,7 +106,7 @@ python3 manage.py test
     - Most endpoints require a valid JWT for authorization.
     - JWTs must be passed as a Bearer token in the Authorization header.
     - Login can be done through the following link: 
-    https://knolist.us.auth0.com/authorize?audience=knolist&response_type=token&client_id=pBu5uP4mKTQgBttTW13N0wCVgsx90KMi&redirect_uri=http://localhost:5000/auth/callback
+    https://knolist.us.auth0.com/authorize?audience=knolist&response_type=token&client_id=pBu5uP4mKTQgBttTW13N0wCVgsx90KMi&redirect_uri=https://knolist-api.herokuapp.com/auth/callback
     - There are two different roles:
         - User: A general user of Knolist. Has access to all the basic functionality.
         - Premium User: A user that pays for a Knolist subscription, which allows them to access a few more features. 
@@ -166,7 +166,7 @@ Assume that all `curl` calls include the following:
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "projects": a list of all `project` objects owned by the requesting user
-- Sample: `curl http://localhost:5000/projects`
+- Sample: `curl https://knolist-api.herokuapp.com/projects`
 ```
 200 OK
 ```
@@ -193,7 +193,7 @@ Assume that all `curl` calls include the following:
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "project": a `project` object that represents the newly created project
-- Sample: `curl http://localhost:5000/projects -X POST -H "Content-Type: application/json" -d "{"title": "New Project"}"`
+- Sample: `curl https://knolist-api.herokuapp.com/projects -X POST -H "Content-Type: application/json" -d "{"title": "New Project"}"`
 ```
 201 Created
 ```
@@ -215,7 +215,7 @@ Assume that all `curl` calls include the following:
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "project": a `project` object that represents the updated project
-- Sample: `curl http://localhost:5000/projects/1 -X PATCH -H "Content-Type: application/json" -d "{"title": "Updated Title"}"`
+- Sample: `curl https://knolist-api.herokuapp.com/projects/1 -X PATCH -H "Content-Type: application/json" -d "{"title": "Updated Title"}"`
 ```
 200 OK
 ```
@@ -235,7 +235,7 @@ Assume that all `curl` calls include the following:
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "deleted": the ID of the project that was deleted
-- Sample: `curl http://localhost:5000/projects/3 -X DELETE`
+- Sample: `curl https://knolist-api.herokuapp.com/projects/3 -X DELETE`
 ```
 200 OK
 ```
@@ -254,7 +254,7 @@ Assume that all `curl` calls include the following:
     - Returns: A JSON object with the following keys:
         - "success": holds `true` if the request was successful
         - "sources": an array of `short source` objects representing all the sources of the project
-    - Sample: `curl http://localhost:5000/projects/1/sources`
+    - Sample: `curl https://knolist-api.herokuapp.com/projects/1/sources`
 ```
 200 OK
 ```
@@ -312,7 +312,7 @@ Assume that all `curl` calls include the following:
         - "success": holds `true` if the request was successful
         - "sources": an array of `short source` objects representing all the sources in the project
          that contain the given query
-    - Sample: `curl http://localhost:5000/projects/1/sources?query=Browning`
+    - Sample: `curl https://knolist-api.herokuapp.com/projects/1/sources?query=Browning`
 ```
 200 OK
 ```
@@ -360,7 +360,7 @@ If that is the case, the return status wil be 200 instead of 201, since no new s
     - "success": holds `true` if the request was successful
     - "source": a `short source` object representing the newly created source (or the existing source if the URL is 
     already in the project)
-- Sample: `curl http://localhost:5000/projects/1/sources -X POST -H "Content-Type: application/json" -d '{"url": "https://en.wikipedia.org/wiki/English_poetry"}'`
+- Sample: `curl https://knolist-api.herokuapp.com/projects/1/sources -X POST -H "Content-Type: application/json" -d '{"url": "https://en.wikipedia.org/wiki/English_poetry"}'`
 ```
 201 Created (or 200 OK if the URL already exists in the project)
 ```
@@ -392,7 +392,7 @@ signify that.
     - "success": holds `true` if the request was successful
     - "from_source": a `short source` object representing the source from where the connection leaves
     - "to_source": a `short source` object representing the source to where the connection goes
-- Sample: `curl http://localhost:5000/projects/1/connections -X POST -H "Content-Type: application/json" -d '{"from_url": "https://en.wikipedia.org/wiki/My_Last_Duchess", "to_url": "https://en.wikipedia.org/wiki/English_poetry"}'`
+- Sample: `curl https://knolist-api.herokuapp.com/projects/1/connections -X POST -H "Content-Type: application/json" -d '{"from_url": "https://en.wikipedia.org/wiki/My_Last_Duchess", "to_url": "https://en.wikipedia.org/wiki/English_poetry"}'`
 ```
 201 Created (or 200 OK if the connection already existed)
 ```
@@ -434,7 +434,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `long source` object representing the requested source
-- Sample: `curl http://localhost:5000/sources/1`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1`
 ```
 200 OK
 ```
@@ -469,7 +469,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "deleted": the ID of the source that was deleted
-- Sample: `curl http://localhost:5000/sources/5 -X DELETE`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/5 -X DELETE`
 ```
 200 OK
 ```
@@ -494,7 +494,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `long source` object representing the source that was just updated
-- Sample: `curl http://localhost:5000/sources/1 -X PATCH -H "Content-Type: application/json" -d '{"title": "New title", "notes": ["Updated notes", "New notes"]}'`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1 -X PATCH -H "Content-Type: application/json" -d '{"title": "New title", "notes": ["Updated notes", "New notes"]}'`
 ```
 200 OK
 ```
@@ -531,7 +531,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `long source` object representing the source that was just updated
-- Sample: `curl http://localhost:5000/sources/1/highlights -X POST -H "Content-Type: application/json" -d '{"highlight": "This is a new highlight"}'`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1/highlights -X POST -H "Content-Type: application/json" -d '{"highlight": "This is a new highlight"}'`
 ```
 201 Created
 ```
@@ -569,7 +569,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `long source` object representing the source that was just updated
-- Sample: `curl http://localhost:5000/sources/1/highlights -X DELETE -H "Content-Type: application/json" -d '{"delete": [0, 2]}'`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1/highlights -X DELETE -H "Content-Type: application/json" -d '{"delete": [0, 2]}'`
 ```
 200 OK
 ```
@@ -605,7 +605,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `long source` object representing the source that was just updated
-- Sample: `curl http://localhost:5000/sources/1/notes -X POST -H "Content-Type: application/json" -d '{"note": "This is a new note"}'`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1/notes -X POST -H "Content-Type: application/json" -d '{"note": "This is a new note"}'`
 ```
 201 Created
 ```
@@ -642,7 +642,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `long source` object representing the source that was just updated
-- Sample: `curl http://localhost:5000/sources/1/notes -X DELETE -H "Content-Type: application/json" -d '{"delete": [1, 2]}'`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1/notes -X DELETE -H "Content-Type: application/json" -d '{"delete": [1, 2]}'`
 ```
 200 OK
 ```
@@ -678,7 +678,7 @@ signify that.
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `long source` object representing the source that was just updated
-- Sample: `curl http://localhost:5000/sources/1/notes -X PATCH -H "Content-Type: application/json" -d '{"note_index": 0, "new_content": "New content for the documentation"}'`
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1/notes -X PATCH -H "Content-Type: application/json" -d '{"note_index": 0, "new_content": "New content for the documentation"}'`
 ```
 200 OK
 ```
@@ -706,7 +706,6 @@ signify that.
 }
 ```
 
-
 ### POST '/connections'
 - Creates a connection given two existing source IDs (they must be in the same project). If the connection already exists,
 no new connection is created, and a 200 status code is returned to signify that
@@ -717,7 +716,7 @@ no new connection is created, and a 200 status code is returned to signify that
     - "success": holds `true` if the request was successful
     - "from_source": a `short source` object representing the source from where the connection leaves
     - "to_source": a `short source` object representing the source to where the connection goes
-- Sample: `curl http://localhost:5000/connections -X POST -H "Content-Type: application/json" -d '{"from_id": 1, "to_id": 4}'`
+- Sample: `curl https://knolist-api.herokuapp.com/connections -X POST -H "Content-Type: application/json" -d '{"from_id": 1, "to_id": 4}'`
 ```
 201 Created (or 200 OK if the connection already existed)
 ```
@@ -754,7 +753,6 @@ no new connection is created, and a 200 status code is returned to signify that
 }
 ```
 
-
 ### DELETE '/connections'
 - Deletes an existing connection.
 - Request arguments (passed as JSON body):
@@ -764,7 +762,7 @@ no new connection is created, and a 200 status code is returned to signify that
     - "success": holds `true` if the request was successful
     - "from_source": a `short source` object representing the source from where the connection leaves
     - "to_source": a `short source` object representing the source to where the connection goes
-- Sample: `curl http://localhost:5000/connections -X DELETE -H "Content-Type: application/json" -d '{"from_id": 1, "to_id": 4}'`
+- Sample: `curl https://knolist-api.herokuapp.com/connections -X DELETE -H "Content-Type: application/json" -d '{"from_id": 1, "to_id": 4}'`
 ```
 200 OK
 ```
