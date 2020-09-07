@@ -98,6 +98,10 @@ To run the `unittest` test suite, run the following command from the root direct
 python3 manage.py test
 ```
 
+A [Postman collection](./knolist.postman_collection.json) with a valid JWT is also included to facilitate testing the 
+endpoints. The collection doesn't have any tests, since those are done through unittest.
+The [setup.sh](./setup.sh) file contains two valid JWTs for local testing, as well.
+
 # Knolist API Reference
 ## Getting Started
 - Base URL: `knolist-api.herokuapp.com` (Note: when runing locally, the base URL is `localhost:5000`)
