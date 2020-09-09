@@ -13,7 +13,25 @@ edges = db.Table('edges',
                  )
 
 
-class Project(db.Model):
+class BaseModel(db.Model):
+    """
+    Extend the base Model class to add common methods
+    """
+    __abstract__ = True
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+
+
+class Project(BaseModel):
     """
     Represents a project that contains several sources within it.
     """
@@ -33,17 +51,6 @@ class Project(db.Model):
     def __repr__(self):
         return f'<Project {self.id}: {self.title}>'
 
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
     def format(self):
         return {
             'id': self.id,
@@ -51,7 +58,7 @@ class Project(db.Model):
         }
 
 
-class Source(db.Model):
+class Source(BaseModel):
     """
     Represents a specific source, which is a node in a directed graph.
     """
@@ -88,17 +95,6 @@ class Source(db.Model):
     def __repr__(self):
         return f'<Source {self.id}: {self.url}>'
 
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-
     def format_long(self):
         return {
             'id': self.id,
@@ -124,15 +120,3 @@ class Source(db.Model):
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
-
-# class User(db.Model):
-#     __tablename__ = 'users'
-#
-#     id = db.Column(db.Integer, primary_key=True)
-#     first_name = db.Column(db.String, nullable=False)
-#     last_name = db.Column(db.String, nullable=False)
-#     email = db.Column(db.String, nullable=False)
-#     projects = db.relationship('Project', backref='user', lazy=True)
-#
-#     def __repr__(self):
-#         return f'<User {self.id}: {self.first_name} {self.last_name}>'
