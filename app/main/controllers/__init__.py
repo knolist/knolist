@@ -4,6 +4,7 @@ from .projects import set_project_routes
 from .sources import set_source_routes
 from .connections import set_connection_routes
 
+
 def set_routes(app):
     @app.route('/')
     def index():
@@ -19,7 +20,3 @@ def set_routes(app):
     set_project_routes(app)
     set_source_routes(app)
     set_connection_routes(app)
-
-
-
-

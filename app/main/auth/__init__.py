@@ -1,4 +1,4 @@
-## Based on auth.py from Udacity FSND Project 3
+# Based on auth.py from Udacity FSND Project 3
 import os
 import json
 from functools import wraps
@@ -11,18 +11,19 @@ AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN')
 ALGORITHMS = os.environ.get('ALGORITHMS')
 API_AUDIENCE = os.environ.get('API_AUDIENCE')
 
-## AuthError Exception
-"""
-AuthError Exception
-A standardized way to communicate auth failure modes
-"""
+
+# AuthError Exception
 class AuthError(Exception):
+    """
+    AuthError Exception
+    A standardized way to communicate auth failure modes
+    """
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
 
 
-## This function takes an authorization header and returns the JWT
+# This function takes an authorization header and returns the JWT
 def get_token_auth_header():
     auth = request.headers.get('Authorization', None)
     if auth is None:
@@ -51,13 +52,14 @@ def get_token_auth_header():
     token = parts[1]
     return token
 
-## This function takes a JWT, verifies and decrypts it
+
+# This function takes a JWT, verifies and decrypts it
 def verify_decode_jwt(token):
     jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
     jwks = json.loads(jsonurl.read())
     try:
         unverified_header = jwt.get_unverified_header(token)
-    except:
+    except Exception:
         raise AuthError({
             'code': 'invalid_token',
             'description': 'Provided token is invalid.'
@@ -97,7 +99,8 @@ def verify_decode_jwt(token):
         except jwt.JWTClaimsError:
             raise AuthError({
                 'code': 'invalid_claims',
-                'description': 'Incorrect claims. Please, check the audience and issuer.'
+                'description':
+                    'Incorrect claims. Please, check the audience and issuer.'
             }, 401)
         except Exception:
             raise AuthError({
@@ -110,8 +113,10 @@ def verify_decode_jwt(token):
         'description': 'Unable to find the appropriate key.'
     }, 400)
 
-## This function takes a permission and a payload, and checks if the payload contains the necessary permission
-## If successful, the function returns the Auth0 user id
+
+# This function takes a permission and a payload,
+# and checks if the payload contains the necessary permission
+# If successful, the function returns the Auth0 user id
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
         raise AuthError({
@@ -126,6 +131,7 @@ def check_permissions(permission, payload):
         }, 403)
 
     return payload['sub']
+
 
 def requires_auth(permission=''):
     def requires_auth_decorator(f):

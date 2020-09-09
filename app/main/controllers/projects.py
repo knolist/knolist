@@ -5,11 +5,13 @@ from requests import get as requests_get
 from ..models.models import Project, Source
 from ..auth import requires_auth, AuthError
 
+
 def get_title(html):
     temp = html.decode("utf-8", errors='ignore').split("<title", 1)[1]
     temp = temp.split(">", 1)[1]
     title = temp.split("</title>", 1)[0]
     return title
+
 
 def extract_content_from_url(url):
     try:
@@ -30,15 +32,18 @@ def extract_content_from_url(url):
             'title': get_title(response.content)
         }
 
+
 def create_and_insert_source(url, project_id):
     extraction_results = extract_content_from_url(url)
     content = extraction_results['content']
     title = extraction_results['title']
 
-    source = Source(url=url, title=title, content=content, project_id=project_id)
+    source = Source(url=url, title=title,
+                    content=content, project_id=project_id)
     source.insert()
 
     return source
+
 
 def get_authorized_project(user_id, project_id):
     project = Project.query.get(project_id)
@@ -53,6 +58,7 @@ def get_authorized_project(user_id, project_id):
 
     return project
 
+
 def set_project_routes(app):
     """
     Returns a list of all projects in the database.
@@ -60,7 +66,8 @@ def set_project_routes(app):
     @app.route('/projects')
     @requires_auth('read:projects')
     def get_projects(user_id):
-        projects = Project.query.filter(Project.user_id == user_id).order_by(Project.id).all()
+        temp_filter = Project.query.filter(Project.user_id == user_id)
+        projects = temp_filter.order_by(Project.id).all()
 
         return jsonify({
             'success': True,
@@ -68,7 +75,8 @@ def set_project_routes(app):
         })
 
     """
-    Creates a new project. Data is passed as a JSON argument. Returns information about the new project.
+    Creates a new project. Data is passed as a JSON argument.
+    Returns information about the new project.
     """
     @app.route('/projects', methods=['POST'])
     @requires_auth('create:projects')
@@ -90,7 +98,8 @@ def set_project_routes(app):
         }), 201
 
     """
-    Updates the title of a project. New title is passed as a JSON body. Returns the id and updated title of the project
+    Updates the title of a project. New title is passed as a JSON body.
+    Returns the id and updated title of the project
     """
     @app.route('/projects/<int:project_id>', methods=['PATCH'])
     @requires_auth('update:projects')
@@ -114,7 +123,8 @@ def set_project_routes(app):
         })
 
     """
-    Deletes a project given the project ID. Returns the id of the deleted project.
+    Deletes a project given the project ID.
+    Returns the id of the deleted project.
     """
     @app.route('/projects/<int:project_id>', methods=['DELETE'])
     @requires_auth('delete:projects')
@@ -129,7 +139,8 @@ def set_project_routes(app):
         })
 
     """
-    Gets all the sources of a given project or searches through them if a search query is passed.
+    Gets all the sources of a given project
+    or searches through them if a search query is passed.
     Search looks at all text fields of a source.
     """
     @app.route('/projects/<int:project_id>/sources')
@@ -142,23 +153,25 @@ def set_project_routes(app):
             # Returns all sources
             return jsonify({
                 'success': True,
-                'sources': [source.format_short() for source in project.sources]
+                'sources': [s.format_short() for s in project.sources]
             })
 
         pattern = '%' + search_query + '%'
         results = Source.query.filter(Source.project_id == project_id)\
-            .filter(Source.url.ilike(pattern) | Source.title.ilike(pattern) | Source.content.ilike(pattern)
-                    | Source.highlights.ilike(pattern) | Source.notes.ilike(pattern)).order_by(Source.id).all()
+            .filter(Source.url.ilike(pattern)
+                    | Source.title.ilike(pattern)
+                    | Source.content.ilike(pattern)
+                    | Source.highlights.ilike(pattern)
+                    | Source.notes.ilike(pattern)).order_by(Source.id).all()
 
         return jsonify({
             'success': True,
             'sources': [source.format_short() for source in results]
         })
 
-
-
     """
-    Creates a new source inside an existing project. The necessary data is passed as a JSON body.
+    Creates a new source inside an existing project.
+    The necessary data is passed as a JSON body.
     """
     @app.route('/projects/<int:project_id>/sources', methods=['POST'])
     @requires_auth('create:sources')
@@ -174,12 +187,14 @@ def set_project_routes(app):
             abort(400)
 
         # Check if source already exists
-        existing_source = Source.query.filter(Source.url == url, Source.project_id == project_id).first()
+        temp_filter = Source.query.filter(Source.url == url,
+                                          Source.project_id == project_id)
+        existing_source = temp_filter.first()
         if existing_source is not None:
             return jsonify({
                 'success': True,
                 'source': existing_source.format_short()
-            })  ## Status code 200 to represent that no new object was created
+            })  # Status code 200 to represent that no new object was created
 
         # Extract content to create source object
         source = create_and_insert_source(url, project_id)
@@ -190,9 +205,11 @@ def set_project_routes(app):
         }), 201
 
     """
-    Adds a new connection to a project. The parameters are from_url and to_url, the two URLs to be connected.
+    Adds a new connection to a project.
+    The parameters are from_url and to_url, the two URLs to be connected.
     The parameters are passed in a JSON body.
-    If any of the URLs is not a source in the project, a source is first created.
+    If any of the URLs is not a source in the project,
+    a source is first created.
     """
     @app.route('/projects/<int:project_id>/connections', methods=['POST'])
     @requires_auth('create:connections')
@@ -209,8 +226,10 @@ def set_project_routes(app):
             abort(400)
 
         # Get sources and create them if necessary
-        from_source = Source.query.filter(Source.project_id == project_id, Source.url == from_url).first()
-        to_source = Source.query.filter(Source.project_id == project_id, Source.url == to_url).first()
+        from_source = Source.query.filter(Source.project_id == project_id,
+                                          Source.url == from_url).first()
+        to_source = Source.query.filter(Source.project_id == project_id,
+                                        Source.url == to_url).first()
 
         if from_source is None:
             from_source = create_and_insert_source(from_url, project_id)
@@ -222,14 +241,11 @@ def set_project_routes(app):
         if to_source not in from_source.next_sources:
             from_source.next_sources.append(to_source)
             from_source.update()
-            status_code = 201  # Set status_code to 201 to indicate new connection created
+            # Set status_code to 201 to indicate new connection created
+            status_code = 201
 
         return jsonify({
             'success': True,
             'from_source': from_source.format_short(),
             'to_source': to_source.format_short()
         }), status_code
-
-
-
-

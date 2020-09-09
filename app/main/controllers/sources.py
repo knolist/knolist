@@ -5,6 +5,7 @@ from flask import request, abort, jsonify
 from ..models.models import Project, Source
 from ..auth import requires_auth, AuthError
 
+
 def get_authorized_source(user_id, source_id):
     source = Source.query.get(source_id)
     if source is None:
@@ -17,6 +18,7 @@ def get_authorized_source(user_id, source_id):
         }, 403)
 
     return source
+
 
 def set_source_routes(app):
     """
@@ -48,7 +50,8 @@ def set_source_routes(app):
         })
 
     """
-    Updates information in a source. The information to be updated is passed in a JSON body.
+    Updates information in a source.
+    The information to be updated is passed in a JSON body.
     """
     @app.route('/sources/<int:source_id>', methods=['PATCH'])
     @requires_auth('update:sources')
@@ -71,9 +74,10 @@ def set_source_routes(app):
         project_id = body.get('project_id', None)
 
         # Verify that at least one parameter was passed
-        no_title_content_xpos_ypos = title is None and content is None and x_position is None and y_position is None
-        no_highlights_notes_projectid = highlights is None and notes is None and project_id is None
-        if no_title_content_xpos_ypos and no_highlights_notes_projectid:
+        cond_1 = title is None and content is None
+        cond_2 = x_position is None and y_position is None
+        cond_3 = highlights is None and notes is None and project_id is None
+        if cond_1 and cond_2 and cond_3:
             abort(400)
 
         # Verify that parameters are correctly formatted
@@ -92,20 +96,26 @@ def set_source_routes(app):
             if project.user_id != user_id:
                 raise AuthError({
                     'code': 'invalid_user',
-                    'description': 'This item does not belong to the requesting user.'
+                    'description':
+                        'This item does not belong to the requesting user.'
                 }, 403)
             for existing_source in project.sources:
                 if existing_source.url == source.url:
-                    abort(422)  ## Can't have two sources with the same URL in one project
+                    # Can't have two sources with the same URL in one project
+                    abort(422)
 
         # Update values that are not None
         source.title = title if title is not None else source.title
         source.content = content if content is not None else source.content
-        source.x_position = x_position if x_position is not None else source.x_position
-        source.y_position = y_position if y_position is not None else source.y_position
-        source.highlights = json.dumps(highlights) if highlights is not None else source.highlights
+        source.x_position = x_position if x_position is not None\
+            else source.x_position
+        source.y_position = y_position if y_position is not None \
+            else source.y_position
+        source.highlights = json.dumps(highlights) if highlights is not None \
+            else source.highlights
         source.notes = json.dumps(notes) if notes is not None else source.notes
-        source.project_id = project_id if project_id is not None else source.project_id
+        source.project_id = project_id if project_id is not None \
+            else source.project_id
 
         source.update()
 
@@ -115,7 +125,8 @@ def set_source_routes(app):
         })
 
     """
-    Adds a new highlight to a source's highlights. The highlight is passed in a JSON body.
+    Adds a new highlight to a source's highlights.
+    The highlight is passed in a JSON body.
     """
     @app.route('/sources/<int:source_id>/highlights', methods=['POST'])
     @requires_auth('create:highlights')
@@ -141,8 +152,8 @@ def set_source_routes(app):
         }), 201
 
     """
-    Deletes one or more highlights from a source. Highlights to be deleted are passed as a list of indices 
-    in a JSON body.
+    Deletes one or more highlights from a source.
+    Highlights to be deleted are passed as a list of indices in a JSON body.
     """
     @app.route('/sources/<int:source_id>/highlights', methods=['DELETE'])
     @requires_auth('delete:highlights')
@@ -158,7 +169,8 @@ def set_source_routes(app):
             abort(400)
 
         highlights_list = json.loads(source.highlights)
-        highlights_list = [v for i, v in enumerate(highlights_list) if i not in indices_to_delete]
+        highlights_list = [v for i, v in enumerate(highlights_list)
+                           if i not in indices_to_delete]
         source.highlights = json.dumps(highlights_list)
         source.update()
 
@@ -194,8 +206,8 @@ def set_source_routes(app):
         }), 201
 
     """
-    Deletes one or more notes from a source. Notes to be deleted are passed as a list of indices 
-    in a JSON body.
+    Deletes one or more notes from a source.
+    Notes to be deleted are passed as a list of indices in a JSON body.
     """
     @app.route('/sources/<int:source_id>/notes', methods=['DELETE'])
     @requires_auth('delete:notes')
@@ -211,7 +223,8 @@ def set_source_routes(app):
             abort(400)
 
         notes_list = json.loads(source.notes)
-        notes_list = [v for i, v in enumerate(notes_list) if i not in indices_to_delete]
+        notes_list = [v for i, v in enumerate(notes_list)
+                      if i not in indices_to_delete]
         source.notes = json.dumps(notes_list)
         source.update()
 
@@ -220,9 +233,9 @@ def set_source_routes(app):
             'source': source.format_long()
         })
 
-
     """
-    Updates the content of one of a source's notes. The note ID and new content are passed in a JSON body.
+    Updates the content of one of a source's notes.
+    The note ID and new content are passed in a JSON body.
     """
     @app.route('/sources/<int:source_id>/notes', methods=['PATCH'])
     @requires_auth('update:notes')
@@ -239,9 +252,11 @@ def set_source_routes(app):
         if note_index is None or new_content is None:
             abort(400)
 
-        # Verify that the index is valid (int, non-negative, and less than the length of notes_list)
+        # Verify that the index is valid
+        # (int, non-negative, and less than the length of notes_list)
         notes_list = json.loads(source.notes)
-        if type(note_index) is not int or note_index < 0 or note_index >= len(notes_list):
+        if type(note_index) is not int or note_index < 0 \
+                or note_index >= len(notes_list):
             abort(422)
 
         # Update the content

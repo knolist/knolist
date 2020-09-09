@@ -3,7 +3,7 @@ import os
 from app.main.models.models import Source, Project
 from manage import app, db
 
-## Set variables for all tests
+# Set variables for all tests
 # First user has premium user role
 user_id = 'auth0|5f4737ec9c5106006de161bc'
 jwt = os.environ.get('PREMIUM_USER_JWT')
@@ -14,6 +14,7 @@ other_user_jwt = os.environ.get('GENERAL_USER_JWT')
 # Set up app and db for all tests
 app.config.from_object('app.main.config.TestingConfig')
 db.init_app(app)
+
 
 def create_starter_data():
     project_1 = Project('Test Project 1', user_id)

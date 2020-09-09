@@ -4,6 +4,7 @@ from ..auth import requires_auth
 from ..models.models import Source
 from .sources import get_authorized_source
 
+
 def set_connection_routes(app):
 
     """
@@ -34,14 +35,14 @@ def set_connection_routes(app):
         if to_source not in from_source.next_sources:
             from_source.next_sources.append(to_source)
             from_source.update()
-            status_code = 201  # Set status_code to 201 to indicate new connection created
+            # Set status_code to 201 to indicate new connection created
+            status_code = 201
 
         return jsonify({
             'success': True,
             'from_source': from_source.format_short(),
             'to_source': to_source.format_short()
         }), status_code
-
 
     """
     Deletes a connection.

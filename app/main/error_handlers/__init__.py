@@ -2,6 +2,7 @@ from flask import jsonify
 
 from ..auth import AuthError
 
+
 def set_error_handlers(app):
     @app.errorhandler(400)
     def bad_request(error):

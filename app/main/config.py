@@ -1,12 +1,15 @@
-## Based on https://www.freecodecamp.org/news/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563/
+# Based on
+# https://www.freecodecamp.org/news/structuring-a-flask-restplus-web-service-for-production-builds-c2ec676de563/
 
 import os
 
 # uncomment the line below for postgres database url from environment variable
-database_name = 'knolist'
+dev_database_name = 'knolist'
 test_database_name = 'knolist_test'
-postgres_dev_base = 'postgres://postgres:postgres@{}/{}'.format('localhost:5432', database_name)
-postgres_test_base = 'postgres://postgres:postgres@{}/{}'.format('localhost:5432', test_database_name)
+postgres_dev_base = 'postgres://postgres:postgres@{}/{}'\
+    .format('localhost:5432', dev_database_name)
+postgres_test_base = 'postgres://postgres:postgres@{}/{}'\
+    .format('localhost:5432', test_database_name)
 postgres_prod_base = os.environ.get('DATABASE_URL')  # Obtained from Heroku
 
 basedir = os.path.abspath(os.path.dirname(__file__))

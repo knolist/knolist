@@ -7,6 +7,7 @@ from flask_testing import TestCase
 from manage import app
 from app.main.config import postgres_dev_base, postgres_test_base
 
+
 class TestDevelopmentConfig(TestCase):
     def create_app(self):
         app.config.from_object('app.main.config.DevelopmentConfig')
