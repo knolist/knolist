@@ -21,8 +21,11 @@ Follow instructions to install the latest version of python for your platform in
 #### Virtual Environment
 
 We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies 
-for each project separate and organized. Instructions for setting up a virtual environment
-for your platform can be found in the [python docs](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/).
+for each project separate and organized. To create a virtual environment, observe the following steps:
+1. Install `virtualenv` if you haven't done so yet: `pip3 install virtualenv`
+2. From the root directory, create a virtual environment called `env`: `python3 -m venv env`
+3. Activate the virtual environment: `source env/bin/activate`
+4. To deactivate the virtual environment, simply run: `deactivate`
 
 #### PIP Dependencies
 
@@ -72,6 +75,33 @@ Run the database migrations to create the schema of the `knolist` database:
 python3 manage.py db upgrade
 ```
 
+### Data Modeling
+- The models used for this app can be found in `app/main/models/models.py`
+- The database consists of three tables: `projects`, `sources`, and `edges`
+- `projects` table:
+    - Represents Project objects
+    - Contains an `id` (primary key), the `title` of the project, and the `user_id` of the user 
+    that owns the project (this ID comes from Auth0 authentication, so there's no local users database)
+    - Through SQLAlchemy, the Project object also contains a `sources` field, which represents the one-to-many
+    relationship between projects and sources. `sources` holds a list of all Source objects owned by
+    the project.
+    - The model contains insert, update, delete, and format helper functions.
+- `sources` table:
+    - Represents Source objects
+    - Contains an `id` (primary key), the source's `url`, `title`, `content` (which is extracted based on the URL
+    and used for search purposes), `highlights` (stored as a JSON array), `notes` (stored as a JSON array),
+    `x_position` and `y_position` (integers representing the position of the source in the project graph),
+    and `project_id` (a foreign key that refers to the `projects` table)
+    - Through SQLAlchemy, the Source object also contains a `project` field, which returns the Project object
+    that owns the source. It also has `next_sources` and `prev_sources`, which are two lists of the sources
+    to which the current source is connected. This many-to-many relationship is encapsulated by the `edges` table.
+    - The table also has a uniqueness constraint to ensure that, within a given project, there will be no more than one
+    instance of any given URL.
+    - The model contains insert, update, delete, format_short, and format_long helper functions.
+- `edges` table:
+    - Represents the many-to-many relationship between sources
+    - Contains a `from_id` and a `to_id`, both of which are primary keys, to represent the 
+    sources involved in that connection.
 ## Running the server
 
 From the root directory, first ensure you are working using your created virtual environment.
