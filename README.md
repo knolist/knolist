@@ -11,6 +11,86 @@ source.
 4. Finally, they can create connections (edges in a graph) between sources, in order to identify concepts that 
 relate to each other.
 
+## Project guidelines
+### Project structure highlights (as of 10/7/20)
+```text
+.
+├── Procfile --> File that contains deployment instructions for Heroku
+├── README.md --> This file
+├── app --> Folder that contains most of the backend source code
+│   ├── __init__.py
+│   ├── main
+│   │   ├── __init__.py
+│   │   ├── auth --> Package that handles auth using Auth0
+│   │   │   └── __init__.py
+│   │   ├── config.py --> Sets up environments configurations (dev, test, prod) and databases
+│   │   ├── controllers --> Sets the API endpoints
+│   │   │   ├── __init__.py --> General endpoints
+│   │   │   ├── connections.py --> Endpoints for /connections/...
+│   │   │   ├── projects.py --> Endpoints for /projects/...
+│   │   │   └── sources.py --> Endpoints for /sources/...
+│   │   ├── error_handlers --> Defines the Flask error handlers
+│   │   │   └── __init__.py
+│   │   └── models --> Defines the SQLAlchemy database models
+│   │       ├── __init__.py
+│   │       └── models.py
+│   └── test --> All test files
+│       ├── __init__.py
+│       ├── test_auth.py
+│       ├── test_config.py
+│       ├── test_connections.py
+│       ├── test_projects.py
+│       ├── test_rbac.py
+│       └── test_sources.py
+├── knolist.postman_collection.json --> Postman test suite
+├── manage.py --> Initiates the app, first script to be called
+├── migrations --> Folder that contains the Flask-Migrate database migrations
+├── requirements.txt --> Contains the necessary pip requirements
+└── setup.sh --> Defines the necessary environment variables
+```
+
+### GitHub guidelines
+We have 3 main branches on GitHub, with increasing importance and restrictions:
+1. `dev`: This is the branch to which you will create pull requests. It contains the most updated
+features that have been tested and vetted. This branch has restricted push permissions, 
+it can only be updated through pull requests from a feature branch that you create.
+2. `staging`: This is a pre-deployment branch. When a set of a features is ready for deployment, 
+we create a pull request from `dev` to `staging` to make sure that everything works correctly. 
+Most of the times, this branch is identical to `master`. This branch has restricted push permissions, 
+it can only be updated through pull requests from `dev`.
+3. `master`: This is the production branch. It always contains the most stable release and is deployed 
+automatically to Heroku. This branch has restricted push permissions, 
+it can only be updated through pull requests from `staging`.
+
+To develop a feature, create a new branch with a descriptive name and develop within that branch.
+When you're done with your code and all the tests, and after ensuring that your code follows the 
+project' code style, create a pull request to `dev`.
+
+### Issue tracking
+To track tasks and issues, we use [ClickUp](https://app.clickup.com/2397669/). Tasks are divided
+into sprints and should contain most or all the information necessary for development.
+The main things to look for in a task are:
+- Assignee: the person (or people) responsible for implementing that feature
+- Due date: the date by which the feature should be fully implemented (generally the end of the spring)
+- Task ID: a unique identification number that can be used to associate commits with tasks (more on this later)
+
+#### ClickUp, GitHub, and commit messages
+To keep our commits organized, always include the ClickUp ID of the task related to 
+what you implemented in the first line of your commit message. Additionally, verbs should
+be in the present imperative tense: `fix bug` rather than `fixes bug` or `fixed bug`.
+Example:
+```text
+CU-elnvv
+Write tests for node creation feature.
+```
+
+### Code style
+For all Python code, we enforce [PEP 8](https://www.python.org/dev/peps/pep-0008/) 
+style rules. Code that fails at following those rules will not be accepted.
+ 
+To check if your code follows PEP 8, use the [`pycodestyle`](https://pypi.org/project/pycodestyle/) command.
+
+
 ## Getting Started
 ### Installing Dependencies
 #### Python 3.7
