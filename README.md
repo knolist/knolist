@@ -188,7 +188,7 @@ From the root directory, first ensure you are working using your created virtual
 
 Each time you open a new terminal session, run the following command to set the necessary environment variables:
 ```bash
-source setup.sh;
+source setup.sh
 ```
 
 To run the server, execute:
