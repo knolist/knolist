@@ -71,7 +71,7 @@ To track tasks and issues, we use [ClickUp](https://app.clickup.com/2397669/). T
 into sprints and should contain most or all the information necessary for development.
 The main things to look for in a task are:
 - Assignee: the person (or people) responsible for implementing that feature
-- Due date: the date by which the feature should be fully implemented (generally the end of the spring)
+- Due date: the date by which the feature should be fully implemented (generally the end of the sprint)
 - Task ID: a unique identification number that can be used to associate commits with tasks (more on this later)
 
 #### ClickUp, GitHub, and commit messages
@@ -93,7 +93,7 @@ To check if your code follows PEP 8, use the [`pycodestyle`](https://pypi.org/pr
 
 ## Getting Started
 ### Installing Dependencies
-#### Python 3.7
+#### Python 3
 
 Follow instructions to install the latest version of python for your platform in the
 [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python).
@@ -138,6 +138,11 @@ Useful for encoding, decoding, and verifying JWTs.
 automated test suite.
 
 ## Database Setup
+Install Postgres following [these instructions](https://www.postgresql.org/download/). 
+On Linux, you have to run:
+```bash
+apt-get install postgresql
+```
 
 Start a Postgres server using:
 ```bash
