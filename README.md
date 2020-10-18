@@ -93,7 +93,7 @@ To check if your code follows PEP 8, use the [`pycodestyle`](https://pypi.org/pr
 
 ## Getting Started
 ### Installing Dependencies
-#### Python 3
+#### Python 3.6 (or above)
 
 Follow instructions to install the latest version of python for your platform in the
 [python docs](https://docs.python.org/3/using/unix.html#getting-and-installing-the-latest-version-of-python).
