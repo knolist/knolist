@@ -1,0 +1,14 @@
+.limit-height {
+    height: 100%;
+}
+
+#projects-sidebar-btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding: 5px 15px;
+}
+
+#project-title {
+    font-weight: bold;
+    font-size: 2em;
+}
