@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Navbar, Nav, Button, FlexboxGrid, Drawer} from 'rsuite';
+import {Navbar, Nav, Button, FlexboxGrid, Drawer, Icon} from 'rsuite';
 
 // import default style
 import 'rsuite/dist/styles/rsuite-default.css';
@@ -24,7 +24,8 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <Header curProject={this.state.curProject} showSidebar={this.switchShowProjectsSidebar}/>
+                <Header curProject={this.state.curProject} showSidebar={this.state.showProjectsSidebar}
+                        switchShowSidebar={this.switchShowProjectsSidebar}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} close={this.switchShowProjectsSidebar}/>
             </div>
         );
@@ -32,6 +33,9 @@ class App extends React.Component {
 }
 
 function Header(props) {
+    const openSidebarButton = {
+        // transform: "translateX(-400px)"
+    }
     return (
         <Navbar>
             <FlexboxGrid justify="space-between" align="middle">
@@ -42,7 +46,8 @@ function Header(props) {
                     <span id="project-title">Current Project: {props.curProject}</span>
                 </FlexboxGrid.Item>
                 <Nav pullRight>
-                    <Button appearance="primary" id="projects-sidebar-btn" onClick={props.showSidebar}>
+                    <Button appearance="primary" id="projects-sidebar-btn"
+                            style={props.showSidebar ? openSidebarButton : undefined} onClick={props.switchShowSidebar}>
                         Your<br/>Projects
                     </Button>
                 </Nav>
@@ -52,6 +57,7 @@ function Header(props) {
 }
 
 function ProjectsSidebar(props) {
+    const projects = ["Knolist", "My Last Duchess", "Grad School Application"];
     return (
         <Drawer
             size="xs"
@@ -61,7 +67,7 @@ function ProjectsSidebar(props) {
                 <Drawer.Title>Your Projects</Drawer.Title>
             </Drawer.Header>
             <Drawer.Body>
-                Drawer body
+                <ProjectsList projects={projects}/>
             </Drawer.Body>
             <Drawer.Footer>
                 <Button onClick={props.close} appearance="primary">Confirm</Button>
@@ -69,6 +75,14 @@ function ProjectsSidebar(props) {
             </Drawer.Footer>
         </Drawer>
     )
+}
+
+function ProjectsList(props) {
+    return (
+        <Nav vertical activeKey={props.projects[0]}>
+            {props.projects.map(project => <Nav.Item key={project} icon={<Icon icon="project"/>} eventKey={project}>{project}</Nav.Item>)}
+        </Nav>
+    );
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'));
