@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Navbar, Nav, Button, FlexboxGrid} from 'rsuite';
+import {Navbar, Nav, Button, FlexboxGrid, Drawer} from 'rsuite';
 
 // import default style
 import 'rsuite/dist/styles/rsuite-default.css';
@@ -12,14 +12,20 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            curProject: "Knolist"
+            curProject: "Knolist",
+            showProjectsSidebar: false
         }
+    }
+
+    switchShowProjectsSidebar = () => {
+        this.setState({showProjectsSidebar: !this.state.showProjectsSidebar});
     }
 
     render() {
         return (
             <div>
-                <Header curProject={this.state.curProject}/>
+                <Header curProject={this.state.curProject} showSidebar={this.switchShowProjectsSidebar}/>
+                <ProjectsSidebar show={this.state.showProjectsSidebar} close={this.switchShowProjectsSidebar}/>
             </div>
         );
     }
@@ -36,11 +42,33 @@ function Header(props) {
                     <span id="project-title">Current Project: {props.curProject}</span>
                 </FlexboxGrid.Item>
                 <Nav pullRight>
-                    <Button appearance="primary" id="projects-sidebar-btn">Your<br/>Projects</Button>
+                    <Button appearance="primary" id="projects-sidebar-btn" onClick={props.showSidebar}>
+                        Your<br/>Projects
+                    </Button>
                 </Nav>
             </FlexboxGrid>
         </Navbar>
     );
+}
+
+function ProjectsSidebar(props) {
+    return (
+        <Drawer
+            size="xs"
+            show={props.show}
+            onHide={props.close}>
+            <Drawer.Header>
+                <Drawer.Title>Your Projects</Drawer.Title>
+            </Drawer.Header>
+            <Drawer.Body>
+                Drawer body
+            </Drawer.Body>
+            <Drawer.Footer>
+                <Button onClick={props.close} appearance="primary">Confirm</Button>
+                <Button onClick={props.close} appearance="subtle">Cancel</Button>
+            </Drawer.Footer>
+        </Drawer>
+    )
 }
 
 ReactDOM.render(<App/>, document.getElementById('root'));
