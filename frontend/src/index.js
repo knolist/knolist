@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Navbar, Nav, Button, FlexboxGrid, Drawer, Icon} from 'rsuite';
+import {Navbar, Nav, Button, FlexboxGrid, Drawer, Icon, IconButton, ButtonToolbar} from 'rsuite';
 
 // import default style
 import 'rsuite/dist/styles/rsuite-default.css';
@@ -21,21 +21,25 @@ class App extends React.Component {
         this.setState({showProjectsSidebar: !this.state.showProjectsSidebar});
     }
 
+    setCurProject = (project) => {
+        // TODO: add callback to update graph data
+        this.setState({curProject: project})
+    }
+
     render() {
         return (
             <div>
                 <Header curProject={this.state.curProject} showSidebar={this.state.showProjectsSidebar}
                         switchShowSidebar={this.switchShowProjectsSidebar}/>
-                <ProjectsSidebar show={this.state.showProjectsSidebar} close={this.switchShowProjectsSidebar}/>
+                <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
+                                 close={this.switchShowProjectsSidebar}
+                                 setCurProject={this.setCurProject}/>
             </div>
         );
     }
 }
 
 function Header(props) {
-    const openSidebarButton = {
-        // transform: "translateX(-400px)"
-    }
     return (
         <Navbar>
             <FlexboxGrid justify="space-between" align="middle">
@@ -46,8 +50,7 @@ function Header(props) {
                     <span id="project-title">Current Project: {props.curProject}</span>
                 </FlexboxGrid.Item>
                 <Nav pullRight>
-                    <Button appearance="primary" id="projects-sidebar-btn"
-                            style={props.showSidebar ? openSidebarButton : undefined} onClick={props.switchShowSidebar}>
+                    <Button appearance="primary" id="projects-sidebar-btn" onClick={props.switchShowSidebar}>
                         Your<br/>Projects
                     </Button>
                 </Nav>
@@ -66,12 +69,11 @@ function ProjectsSidebar(props) {
             <Drawer.Header>
                 <Drawer.Title>Your Projects</Drawer.Title>
             </Drawer.Header>
-            <Drawer.Body>
-                <ProjectsList projects={projects}/>
+            <Drawer.Body style={{marginBottom: 10}}>
+                <ProjectsList projects={projects} curProject={props.curProject} setCurProject={props.setCurProject}/>
             </Drawer.Body>
             <Drawer.Footer>
-                <Button onClick={props.close} appearance="primary">Confirm</Button>
-                <Button onClick={props.close} appearance="subtle">Cancel</Button>
+                <IconButton appearance="primary" icon={<Icon icon="plus"/>} circle size="lg"/>
             </Drawer.Footer>
         </Drawer>
     )
@@ -79,9 +81,27 @@ function ProjectsSidebar(props) {
 
 function ProjectsList(props) {
     return (
-        <Nav vertical activeKey={props.projects[0]}>
-            {props.projects.map(project => <Nav.Item key={project} icon={<Icon icon="project"/>} eventKey={project}>{project}</Nav.Item>)}
+        <Nav vertical activeKey={props.curProject} onSelect={(eventKey) => props.setCurProject(eventKey)}>
+            {props.projects.map(project => <Project key={project} project={project} eventKey={project}/>)}
         </Nav>
+    );
+}
+
+function Project(props) {
+    return (
+        <Nav.Item {...props}>
+            <FlexboxGrid justify="space-between">
+                <FlexboxGrid.Item>
+                    <Icon icon={"project"}/> {props.project}
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item>
+                    <ButtonToolbar>
+                        <IconButton icon={<Icon icon="edit2"/>} size="sm"/>
+                        <IconButton icon={<Icon icon="trash"/>} size="sm"/>
+                    </ButtonToolbar>
+                </FlexboxGrid.Item>
+            </FlexboxGrid>
+        </Nav.Item>
     );
 }
 
