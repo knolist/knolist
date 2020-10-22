@@ -1,6 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Navbar, Nav, Button, FlexboxGrid, Drawer, Icon, IconButton, ButtonToolbar} from 'rsuite';
+import {
+    Navbar,
+    Nav,
+    Button,
+    FlexboxGrid,
+    Drawer,
+    Icon,
+    IconButton,
+    ButtonToolbar,
+    Input,
+    InputGroup,
+    Dropdown,
+    Checkbox,
+    CheckboxGroup,
+    Divider,
+    Whisper,
+    Tooltip
+} from 'rsuite';
 
 // import default style
 import 'rsuite/dist/styles/rsuite-default.css';
@@ -26,6 +43,14 @@ class App extends React.Component {
         this.setState({curProject: project})
     }
 
+    projectsButton = () => {
+        return (
+            <Button appearance="primary" id="projects-sidebar-btn" onClick={this.switchShowProjectsSidebar}>
+                Your<br/>Projects
+            </Button>
+        );
+    }
+
     render() {
         return (
             <div>
@@ -34,6 +59,7 @@ class App extends React.Component {
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                                  close={this.switchShowProjectsSidebar}
                                  setCurProject={this.setCurProject}/>
+                {this.projectsButton()}
             </div>
         );
     }
@@ -41,7 +67,7 @@ class App extends React.Component {
 
 function Header(props) {
     return (
-        <Navbar>
+        <Navbar style={{padding: "0 10px"}}>
             <FlexboxGrid justify="space-between" align="middle">
                 <Navbar.Header>
                     <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
@@ -49,13 +75,92 @@ function Header(props) {
                 <FlexboxGrid.Item>
                     <span id="project-title">Current Project: {props.curProject}</span>
                 </FlexboxGrid.Item>
-                <Nav pullRight>
-                    <Button appearance="primary" id="projects-sidebar-btn" onClick={props.switchShowSidebar}>
-                        Your<br/>Projects
-                    </Button>
-                </Nav>
+                <FlexboxGrid.Item>
+                    <SearchAndFilter/>
+                </FlexboxGrid.Item>
             </FlexboxGrid>
         </Navbar>
+    );
+}
+
+class SearchAndFilter extends React.Component {
+    constructor(props) {
+        super(props);
+        // TODO: make backend endpoint to return the filter categories
+        const filterCategories = [
+            "Page Content",
+            "URL",
+            "Title",
+            "Next Connections",
+            "Previous Connections",
+            "Highlights",
+            "Notes"
+        ]
+        this.state = {
+            indeterminate: false,
+            checkAll: true,
+            value: filterCategories,
+            filterCategories: filterCategories
+        };
+        this.handleCheckAll = this.handleCheckAll.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+    }
+
+    handleCheckAll(value, checked) {
+        const nextValue = checked ? this.state.filterCategories : [];
+        this.setState({
+            value: nextValue,
+            indeterminate: false,
+            checkAll: checked
+        });
+    }
+
+    handleChange(value) {
+        this.setState({
+            value: value,
+            indeterminate: value.length > 0 && value.length < this.state.filterCategories.length,
+            checkAll: value.length === this.state.filterCategories.length
+        });
+    }
+
+    render() {
+        return (
+            <FlexboxGrid>
+                <FlexboxGrid.Item><SearchBar/></FlexboxGrid.Item>
+                <FlexboxGrid.Item>
+                    <Whisper
+                        preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
+                        placement="bottomEnd">
+                        <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter"/>}/>}>
+                            <div style={{width: 200}}>
+                                <Checkbox indeterminate={this.state.indeterminate} checked={this.state.checkAll}
+                                          onChange={this.handleCheckAll}>
+                                    Select all
+                                </Checkbox>
+                                <Divider style={{margin: "5px 0"}}/>
+                                <CheckboxGroup name="checkboxList" value={this.state.value}
+                                               onChange={this.handleChange}>
+                                    {this.state.filterCategories.map(filter => {
+                                        return <Checkbox key={filter} value={filter}>{filter}</Checkbox>
+                                    })}
+                                </CheckboxGroup>
+                            </div>
+                        </Dropdown>
+                    </Whisper>
+                </FlexboxGrid.Item>
+            </FlexboxGrid>
+        );
+    }
+}
+
+function SearchBar() {
+    return (
+        <InputGroup style={{marginRight: 15}}>
+            <Input placeholder="Search through your project"/>
+            <InputGroup.Button>
+                <Icon icon="search"/>
+            </InputGroup.Button>
+        </InputGroup>
     );
 }
 
@@ -105,4 +210,6 @@ function Project(props) {
     );
 }
 
-ReactDOM.render(<App/>, document.getElementById('root'));
+ReactDOM.render(
+    <App/>
+    , document.getElementById('root'));

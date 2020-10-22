@@ -5,7 +5,10 @@
 #projects-sidebar-btn {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+    margin-top: 10px;
     padding: 3px 15px;
+    right: 0;
+    position: absolute;
 }
 
 #project-title {
