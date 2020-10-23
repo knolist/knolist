@@ -16,8 +16,10 @@ import {
     CheckboxGroup,
     Divider,
     Whisper,
-    Tooltip
+    Tooltip,
+    Modal
 } from 'rsuite';
+import {Network, DataSet} from 'vis-network/standalone';
 
 // import default style
 import 'rsuite/dist/styles/rsuite-default.css';
@@ -54,18 +56,176 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <Header curProject={this.state.curProject} showSidebar={this.state.showProjectsSidebar}
-                        switchShowSidebar={this.switchShowProjectsSidebar}/>
+                <AppHeader curProject={this.state.curProject} showSidebar={this.state.showProjectsSidebar}
+                           switchShowSidebar={this.switchShowProjectsSidebar}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                                  close={this.switchShowProjectsSidebar}
                                  setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
+                <MindMap/>
             </div>
         );
     }
 }
 
-function Header(props) {
+class MindMap extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            network: null,
+            selectedNode: null
+        }
+    }
+
+    setSelectedNode = (id) => {
+        this.setState({selectedNode: id})
+    }
+
+    // Check if the network is in edit mode
+    isEditMode = () => {
+        const visCloseButton = document.getElementsByClassName("vis-close")[0];
+        return getComputedStyle(visCloseButton).display === "none"
+    }
+
+    // Set selected node for the detailed view
+    handleClickedNode = (id) => {
+        // Only open modal outside of edit mode
+        if (this.isEditMode()) {
+            this.setSelectedNode(id);
+        }
+    }
+
+    componentDidMount() {
+        // create an array with nodes
+        const nodes = new DataSet([
+            {id: 1, label: 'Node 1'},
+            {id: 2, label: 'Node 2'},
+            {id: 3, label: 'Node 3'},
+            {id: 4, label: 'Node 4'},
+            {id: 5, label: 'Node 5'}
+        ]);
+
+        // create an array with edges
+        const edges = new DataSet([
+            {from: 1, to: 3},
+            {from: 1, to: 2},
+            {from: 2, to: 4},
+            {from: 2, to: 5}
+        ]);
+
+        // create a network
+        const container = document.getElementById('mindmap');
+
+        // provide the data in the vis format
+        const data = {
+            nodes: nodes,
+            edges: edges
+        };
+        const options = {
+            nodes: {
+                shape: "box",
+                size: 16,
+                margin: 10,
+                physics: false,
+                chosen: false,
+                color: {
+                    // background: nodeBackgroundDefaultColor
+                },
+                widthConstraint: {
+                    maximum: 500
+                }
+            },
+            edges: {
+                arrows: {
+                    to: {
+                        enabled: true
+                    }
+                },
+                color: "black",
+                physics: false,
+                smooth: false,
+                hoverWidth: 0
+            },
+            interaction: {
+                navigationButtons: true,
+                selectConnectedEdges: false,
+                hover: true,
+                hoverConnectedEdges: false
+            },
+            manipulation: {
+                enabled: true,
+                deleteNode: false,
+                // addNode: this.addNode,
+                // deleteEdge: this.deleteEdge,
+                // addEdge: this.addEdge,
+                editEdge: false
+            }
+        };
+
+        // initialize your network!
+        const network = new Network(container, data, options);
+        network.fit()
+
+        // Handle click vs drag
+        network.on("click", (params) => {
+            if (params.nodes !== undefined && params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                this.handleClickedNode(nodeId);
+            }
+        });
+
+        // Set cursor to pointer when hovering over a node
+        network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
+        network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
+
+        // Store the network
+        this.setState({network: network});
+    }
+
+    render() {
+        return (
+            <div>
+                <div id="mindmap"/>
+                <SourceView selectedNode={this.state.selectedNode} setSelectedNode={this.setSelectedNode}/>
+            </div>
+
+        );
+    }
+}
+
+class SourceView extends React.Component {
+    close = () => {
+        this.props.setSelectedNode(null);
+    }
+
+    render() {
+        if (this.props.selectedNode === null) return null;
+
+        return (
+            <Modal full show onHide={this.close}>
+                <Modal.Header>
+                    <Modal.Title>Modal Title</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    This is the body with selected node {this.props.selectedNode}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Source</Tooltip>}
+                             placement="bottom">
+                        <IconButton icon={<Icon icon="edit2"/>} size="lg"/>
+                    </Whisper>
+                    <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
+                             placement="bottom">
+                        <IconButton icon={<Icon icon="trash"/>} size="lg"/>
+                    </Whisper>
+                </Modal.Footer>
+            </Modal>
+
+        );
+    }
+}
+
+function AppHeader(props) {
     return (
         <Navbar style={{padding: "0 10px"}}>
             <FlexboxGrid justify="space-between" align="middle">
@@ -128,9 +288,8 @@ class SearchAndFilter extends React.Component {
             <FlexboxGrid>
                 <FlexboxGrid.Item><SearchBar/></FlexboxGrid.Item>
                 <FlexboxGrid.Item>
-                    <Whisper
-                        preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
-                        placement="bottomEnd">
+                    <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
+                             placement="bottomEnd">
                         <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter"/>}/>}>
                             <div style={{width: 200}}>
                                 <Checkbox indeterminate={this.state.indeterminate} checked={this.state.checkAll}
