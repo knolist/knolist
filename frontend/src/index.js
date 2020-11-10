@@ -125,17 +125,18 @@ class MindMap extends React.Component {
     }
 
     // Check if the network is in edit mode
-    isEditMode = () => {
-        const visCloseButton = document.getElementsByClassName("vis-close")[0];
-        return getComputedStyle(visCloseButton).display === "none"
-    }
+    // isEditMode = () => {
+    //     const visCloseButton = document.getElementsByClassName("vis-close")[0];
+    //     return getComputedStyle(visCloseButton).display === "none"
+    // }
 
     // Set selected node for the detailed view
     handleClickedNode = (id) => {
+        this.setSelectedNode(id);
         // Only open modal outside of edit mode
-        if (this.isEditMode()) {
-            this.setSelectedNode(id);
-        }
+        // if (this.isEditMode()) {
+        //     this.setSelectedNode(id);
+        // }
     }
 
     getSources = async (callback) => {
@@ -169,6 +170,12 @@ class MindMap extends React.Component {
         }).then(response => response.json());
         if (!response.success) {
             alert("Something went wrong!");
+        }
+    }
+
+    fitNetworkToScreen = () => {
+        if (this.state.network !== null) {
+            this.state.network.fit()
         }
     }
 
@@ -269,18 +276,9 @@ class MindMap extends React.Component {
                     hoverWidth: 0
                 },
                 interaction: {
-                    navigationButtons: true,
                     selectConnectedEdges: false,
                     hover: true,
                     hoverConnectedEdges: false
-                },
-                manipulation: {
-                    enabled: true,
-                    deleteNode: false,
-                    // addNode: this.addNode,
-                    // deleteEdge: this.deleteEdge,
-                    // addEdge: this.addEdge,
-                    editEdge: false
                 }
             };
 
@@ -337,6 +335,7 @@ class MindMap extends React.Component {
                             baseUrl={this.props.baseUrl}
                             jwt={this.props.jwt}
                             setSelectedNode={this.setSelectedNode}/>
+                <AppFooter fit={this.fitNetworkToScreen}/>
             </div>
 
         );
@@ -419,7 +418,7 @@ class SourceView extends React.Component {
 function HighlightsList(props) {
     return (
         <div>
-            <h6 className="source-view-subtitle" >{props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
+            <h6 className="source-view-subtitle">{props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
             {
                 props.highlights.length === 0 ?
                     <p>To add highlights, use the Knolist Chrome Extension.
@@ -466,6 +465,25 @@ function AppHeader(props) {
             </FlexboxGrid>
         </Navbar>
     );
+}
+
+class AppFooter extends React.Component {
+    render() {
+        return (
+            <div id="footer">
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Fit To Screen</Tooltip>}
+                         placement="topStart">
+                    <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="arrows-alt"/>} circle
+                                size="lg" onClick={this.props.fit} />
+                </Whisper>
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>New Source</Tooltip>}
+                         placement="topEnd">
+                    <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="plus"/>} circle
+                                size="lg"/>
+                </Whisper>
+            </div>
+        )
+    }
 }
 
 class SearchAndFilter extends React.Component {
