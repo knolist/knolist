@@ -31,7 +31,7 @@ import horizontalLogo from './images/horizontal_main.png';
 class App extends React.Component {
     constructor(props) {
         super(props);
-        const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDQ5NjEyNTIsImV4cCI6MTYwNTA0NzY1MiwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.nW42TZaAukSCcKlUkMxTxv09yTZEZaOt5dsYreVQGXsMGgaqyWGo_1wy1zQJFSQX-6VEmZFYhNy7eAo0rLLJ1t43JGyMI3MoUniuAMZnsOD5levKa6XVHGr0eWI42WZdct9Lb28We0cIeoxyUpauQpcnxtL9zujHiNrKpJ7ik2HUtTi5o4yo-HzxYdesJ9tY0c1VO0zSikZevNKR4SiHd7zYWxYpG9yP543wi-YBDNqHECDRAjUnz-t0jcLtcjYBJl8xRvsrXvl4BSUihmVqw228Kt3NXs9zT23Qq9VZj7eNwp-uMdqxJqSyK7C-Mq1dpcQ2s71iOYIczAJyMRiorQ";
+        const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDUwNDc3MTQsImV4cCI6MTYwNTEzNDExNCwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.ZyVpssuLyA_Xzpri1LYIPA1u5EkWQerUP5RR9DELzhtIHWWebJtsaVKKo-I1ePv8aBnCcZZD4Ym37w0RH9NWUGvlCpeQKxeT65rudBXUuetWkUR-V46vWpGmyjGIPrarj_omVj82Q7laTBi0YmUtJ0DmBCw5AR5tqowkWdBWWVS-HsAdeNm2688LimmweuAAtpI0l5Bn8ILnAQgvoho4MiE-Vy92rld6nRaiuxrXKsGslbK7y7fgWDbptnYd_UJvqf146R5DL4s-TWY5Yv7_IbAif60julrLxO--lEI5sl_2Ilrt4KgmBtoCu7SQJZXYSnGqpCXq8qrhajw-I0HdVQ";
         const baseUrl = "https://knolist-api.herokuapp.com";
         // const baseUrl = "http://localhost:5000"
         this.state = {
@@ -49,7 +49,7 @@ class App extends React.Component {
      * @param params The request parameters that would be used in the fetch call.
      * @returns {Promise<void>}
      */
-    makeHttpRequest = async (endpoint, params={}) => {
+    makeHttpRequest = async (endpoint, params = {}) => {
         const url = this.state.baseUrl + endpoint;
         // Add authorization to the request
         if (!params.hasOwnProperty("headers")) {
@@ -76,9 +76,10 @@ class App extends React.Component {
 
     setCurProject = async (projectId) => {
         if (projectId === null) this.setState({curProject: null})
-
-        const project = this.state.projects.find(x => x.id === projectId);
-        this.setState({curProject: project});
+        else {
+            const project = this.state.projects.find(x => x.id === projectId);
+            this.setState({curProject: project});
+        }
     }
 
     projectsButton = () => {
@@ -102,6 +103,9 @@ class App extends React.Component {
     componentDidUpdate(prevProps, prevState) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
+            if (this.state.curProject === null) {
+                this.setState({curProject: this.state.projects[0]})
+            }
             localStorage.setItem("curProject", JSON.stringify(this.state.curProject));
         }
     }
@@ -567,17 +571,18 @@ class ProjectsSidebar extends React.Component {
         }
     }
 
-    getProjects = async () => {
+    getProjects = async (callback) => {
         const endpoint = "/projects";
         const response = await this.props.makeHttpRequest(endpoint);
-        this.setState({projects: response.projects});
+        this.setState({projects: response.projects}, callback);
     }
 
     renderProjectsList = () => {
         if (this.state.projects === null) return <Placeholder.Paragraph rows={15} active/>;
 
         return <ProjectsList projects={this.state.projects} curProject={this.props.curProject}
-                             setCurProject={this.props.setCurProject}/>
+                             getProjects={this.getProjects} setCurProject={this.props.setCurProject}
+                             makeHttpRequest={this.props.makeHttpRequest}/>
     }
 
     componentDidMount() {
@@ -608,34 +613,92 @@ function ProjectsList(props) {
     return (
         <Nav vertical activeKey={props.curProject === null ? undefined : props.curProject.id}
              onSelect={(eventKey) => props.setCurProject(eventKey)}>
-            {props.projects.map(project => <Project key={project.id} project={project} eventKey={project.id}/>)}
+            {props.projects.map(project => <Project makeHttpRequest={props.makeHttpRequest} key={project.id}
+                                                    getProjects={props.getProjects} project={project}
+                                                    eventKey={project.id} setCurProject={props.setCurProject}/>)}
         </Nav>
     );
 }
 
 class Project extends React.Component {
-    deleteProject = () => {
+    constructor(props) {
+        super(props);
+        this.state = {
+            confirmDelete: false
+        }
+    }
 
+    setDeleteProject = (event) => {
+        event.stopPropagation();
+        this.setState({confirmDelete: true})
+    }
+
+    resetDeleteProject = () => {
+        this.setState({confirmDelete: false})
+    }
+
+    deleteProject = () => {
+        const endpoint = "/projects/" + this.props.project.id;
+        const params = {
+            method: "DELETE"
+        }
+        this.props.makeHttpRequest(endpoint, params).then(() => {
+            // Reset the current project if the deleted is active
+            let callback;
+            if (this.props.active) callback = () => this.props.setCurProject(null);
+            this.props.getProjects(callback);
+        });
+    }
+
+    generateConfirmDeletionWindow = () => {
+        return (
+            <Modal backdrop="static" show={this.state.confirmDelete} onHide={this.resetDeleteProject} size="xs">
+                <Modal.Body>
+                    <Icon
+                        icon="remind"
+                        style={{
+                            color: '#ffb300',
+                            fontSize: 24
+                        }}
+                    />
+                    {'  '}
+                    Are you sure you want to delete "{this.props.project.title}"?
+                    <br/>
+                    <b>This action cannot be undone.</b>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={this.deleteProject} appearance="primary">
+                        Delete
+                    </Button>
+                    <Button onClick={this.resetDeleteProject} appearance="default">
+                        Cancel
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        )
     }
 
     render() {
         return (
-            <Nav.Item {...this.props}>
-                <FlexboxGrid justify="space-between">
-                    <FlexboxGrid.Item>
-                        {/*<Icon icon={"project"}/>*/}{this.props.project.title}
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item>
-                        <ButtonToolbar>
-                            <IconButton onClick={(e) => {
-                                e.stopPropagation();
-                                alert('edit');
-                            }} icon={<Icon icon="edit2"/>} size="sm"/>
-                            <IconButton onClick={() => alert('delete')} icon={<Icon icon="trash"/>} size="sm"/>
-                        </ButtonToolbar>
-                    </FlexboxGrid.Item>
-                </FlexboxGrid>
-            </Nav.Item>
+            <div>
+                {this.generateConfirmDeletionWindow()}
+                <Nav.Item onSelect={this.props.onSelect} eventKey={this.props.eventKey} active={this.props.active}>
+                    <FlexboxGrid justify="space-between">
+                        <FlexboxGrid.Item>
+                            {/*<Icon icon={"project"}/>*/}{this.props.project.title}
+                        </FlexboxGrid.Item>
+                        <FlexboxGrid.Item>
+                            <ButtonToolbar>
+                                <IconButton onClick={(e) => {
+                                    e.stopPropagation();
+                                    alert('edit');
+                                }} icon={<Icon icon="edit2"/>} size="sm"/>
+                                <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
+                            </ButtonToolbar>
+                        </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                </Nav.Item>
+            </div>
         );
     }
 }
