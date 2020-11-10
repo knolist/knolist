@@ -43,18 +43,31 @@ class App extends React.Component {
         }
     }
 
-    getProjects = async () => {
-        const url = this.state.baseUrl + "/projects";
-        const response = await fetch(url, {
-            headers: {
-                "Authorization": "Bearer " + this.state.jwt
-            }
-        }).then(response => response.json());
-        if (response.success) {
-            return response.projects;
-        } else {
-            alert("Something went wrong!")
+    /**
+     * Used to make standard requests to the Knolist API. Includes authorization.
+     * @param endpoint The request endpoint (including the first slash). E.g., "/projects"
+     * @param params The request parameters that would be used in the fetch call.
+     * @returns {Promise<void>}
+     */
+    makeHttpRequest = async (endpoint, params={}) => {
+        const url = this.state.baseUrl + endpoint;
+        // Add authorization to the request
+        if (!params.hasOwnProperty("headers")) {
+            params["headers"] = {};
         }
+        params["headers"]["Authorization"] = "Bearer " + this.state.jwt;
+
+        // Make request
+        const response = await fetch(url, params).then(response => response.json())
+        if (!response.success) {
+            alert("Something went wrong!");
+        }
+        return response;
+    }
+
+    getProjects = async () => {
+        const response = await this.makeHttpRequest("/projects");
+        return response.projects;
     }
 
     switchShowProjectsSidebar = () => {
@@ -99,10 +112,10 @@ class App extends React.Component {
                 <AppHeader curProject={this.state.curProject} showSidebar={this.state.showProjectsSidebar}
                            switchShowSidebar={this.switchShowProjectsSidebar}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                 jwt={this.state.jwt} baseUrl={this.state.baseUrl}
+                                 makeHttpRequest={this.makeHttpRequest}
                                  close={this.switchShowProjectsSidebar} setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
-                <MindMap baseUrl={this.state.baseUrl} jwt={this.state.jwt} curProject={this.state.curProject}/>
+                <MindMap makeHttpRequest={this.makeHttpRequest} curProject={this.state.curProject}/>
             </div>
         );
     }
@@ -142,35 +155,24 @@ class MindMap extends React.Component {
     getSources = async (callback) => {
         if (this.props.curProject === null) return null;
 
-        const url = this.props.baseUrl + "/projects/" + this.props.curProject.id + "/sources";
-        const response = await fetch(url, {
-            headers: {
-                "Authorization": "Bearer " + this.props.jwt
-            }
-        }).then(response => response.json());
-        if (response.success) {
-            this.setState({sources: response.sources}, callback)
-        } else {
-            alert("Something went wrong!")
-        }
+        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
+        const response = await this.props.makeHttpRequest(endpoint);
+        this.setState({sources: response.sources}, callback);
     }
 
     updateSourcePosition = async (sourceId, x, y) => {
-        const url = this.props.baseUrl + "/sources/" + sourceId;
-        const response = await fetch(url, {
+        const endpoint = "/sources/" + sourceId;
+        const params = {
             method: "PATCH",
             headers: {
-                "Authorization": "Bearer " + this.props.jwt,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 "x_position": x,
                 "y_position": y
             })
-        }).then(response => response.json());
-        if (!response.success) {
-            alert("Something went wrong!");
         }
+        this.props.makeHttpRequest(endpoint, params);
     }
 
     fitNetworkToScreen = () => {
@@ -332,8 +334,7 @@ class MindMap extends React.Component {
             <div>
                 <div id="mindmap"/>
                 <SourceView selectedNode={this.state.selectedNode}
-                            baseUrl={this.props.baseUrl}
-                            jwt={this.props.jwt}
+                            makeHttpRequest={this.props.makeHttpRequest}
                             setSelectedNode={this.setSelectedNode}/>
                 <AppFooter fit={this.fitNetworkToScreen}/>
             </div>
@@ -360,17 +361,9 @@ class SourceView extends React.Component {
             this.setState({sourceDetails: null});
             return;
         }
-        const url = this.props.baseUrl + "/sources/" + this.props.selectedNode;
-        const response = await fetch(url, {
-            headers: {
-                "Authorization": "Bearer " + this.props.jwt
-            }
-        }).then(response => response.json())
-        if (response.success) {
-            this.setState({sourceDetails: response.source})
-        } else {
-            alert("Something went wrong!")
-        }
+        const endpoint = "/sources/" + this.props.selectedNode;
+        const response = await this.props.makeHttpRequest(endpoint);
+        this.setState({sourceDetails: response.source});
     }
 
     componentDidUpdate(prevProps) {
@@ -474,7 +467,7 @@ class AppFooter extends React.Component {
                 <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Fit To Screen</Tooltip>}
                          placement="topStart">
                     <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="arrows-alt"/>} circle
-                                size="lg" onClick={this.props.fit} />
+                                size="lg" onClick={this.props.fit}/>
                 </Whisper>
                 <Whisper preventOverflow trigger="hover" speaker={<Tooltip>New Source</Tooltip>}
                          placement="topEnd">
@@ -575,17 +568,9 @@ class ProjectsSidebar extends React.Component {
     }
 
     getProjects = async () => {
-        const url = this.props.baseUrl + "/projects"
-        const response = await fetch(url, {
-            headers: {
-                "Authorization": "Bearer " + this.props.jwt
-            }
-        }).then(response => response.json());
-        if (response.success) {
-            this.setState({projects: response.projects})
-        } else {
-            alert("Something went wrong!")
-        }
+        const endpoint = "/projects";
+        const response = await this.props.makeHttpRequest(endpoint);
+        this.setState({projects: response.projects});
     }
 
     renderProjectsList = () => {
@@ -628,22 +613,31 @@ function ProjectsList(props) {
     );
 }
 
-function Project(props) {
-    return (
-        <Nav.Item {...props}>
-            <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item>
-                    <Icon icon={"project"}/> {props.project.title}
-                </FlexboxGrid.Item>
-                <FlexboxGrid.Item>
-                    <ButtonToolbar>
-                        <IconButton icon={<Icon icon="edit2"/>} size="sm"/>
-                        <IconButton icon={<Icon icon="trash"/>} size="sm"/>
-                    </ButtonToolbar>
-                </FlexboxGrid.Item>
-            </FlexboxGrid>
-        </Nav.Item>
-    );
+class Project extends React.Component {
+    deleteProject = () => {
+
+    }
+
+    render() {
+        return (
+            <Nav.Item {...this.props}>
+                <FlexboxGrid justify="space-between">
+                    <FlexboxGrid.Item>
+                        {/*<Icon icon={"project"}/>*/}{this.props.project.title}
+                    </FlexboxGrid.Item>
+                    <FlexboxGrid.Item>
+                        <ButtonToolbar>
+                            <IconButton onClick={(e) => {
+                                e.stopPropagation();
+                                alert('edit');
+                            }} icon={<Icon icon="edit2"/>} size="sm"/>
+                            <IconButton onClick={() => alert('delete')} icon={<Icon icon="trash"/>} size="sm"/>
+                        </ButtonToolbar>
+                    </FlexboxGrid.Item>
+                </FlexboxGrid>
+            </Nav.Item>
+        );
+    }
 }
 
 ReactDOM.render(
