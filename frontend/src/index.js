@@ -31,7 +31,7 @@ import horizontalLogo from './images/horizontal_main.png';
 class App extends React.Component {
     constructor(props) {
         super(props);
-        const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDM0MTgzOTIsImV4cCI6MTYwMzUwNDc5MiwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.fQcMQX4YLVrxYkFSBKmziN25yh1nh-Y7zI6JJGoShA2LKYJ1hy4WanIXkXz8t8R3etppzp5wwDLpTfa6fR1egbKx4zH5mzUPuAFVsx2EHndz9Cnb7_bokuTPDAyKf1tyQkwDZ-Ivq6pVE3OaW9fz9ve8mUzYTBNNqk-uDnv9GG8rmmobDXXFC9D1YJL_WRJ95DKvjD_TyFkMi99KUyFFbsPecyMa5NbBgVvHwfEPBfwP2WSQVxzq-mid_eLHjCTdF6hdDZqIwhkm_hw0RwCfYGAFWWomKbb3GhEiCce158fWQJMfyb9kPkkOC57BaJRx8WUXCzZjiSEJs0d7Uhgo-g";
+        const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDQ5NjEyNTIsImV4cCI6MTYwNTA0NzY1MiwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.nW42TZaAukSCcKlUkMxTxv09yTZEZaOt5dsYreVQGXsMGgaqyWGo_1wy1zQJFSQX-6VEmZFYhNy7eAo0rLLJ1t43JGyMI3MoUniuAMZnsOD5levKa6XVHGr0eWI42WZdct9Lb28We0cIeoxyUpauQpcnxtL9zujHiNrKpJ7ik2HUtTi5o4yo-HzxYdesJ9tY0c1VO0zSikZevNKR4SiHd7zYWxYpG9yP543wi-YBDNqHECDRAjUnz-t0jcLtcjYBJl8xRvsrXvl4BSUihmVqw228Kt3NXs9zT23Qq9VZj7eNwp-uMdqxJqSyK7C-Mq1dpcQ2s71iOYIczAJyMRiorQ";
         const baseUrl = "https://knolist-api.herokuapp.com";
         // const baseUrl = "http://localhost:5000"
         this.state = {
@@ -333,7 +333,10 @@ class MindMap extends React.Component {
         return (
             <div>
                 <div id="mindmap"/>
-                <SourceView selectedNode={this.state.selectedNode} setSelectedNode={this.setSelectedNode}/>
+                <SourceView selectedNode={this.state.selectedNode}
+                            baseUrl={this.props.baseUrl}
+                            jwt={this.props.jwt}
+                            setSelectedNode={this.setSelectedNode}/>
             </div>
 
         );
@@ -341,20 +344,61 @@ class MindMap extends React.Component {
 }
 
 class SourceView extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            sourceDetails: null
+        }
+
+    }
+
     close = () => {
         this.props.setSelectedNode(null);
     }
 
-    render() {
-        if (this.props.selectedNode === null) return null;
+    getSourceDetails = async () => {
+        if (this.props.selectedNode === null) {
+            this.setState({sourceDetails: null});
+            return;
+        }
+        const url = this.props.baseUrl + "/sources/" + this.props.selectedNode;
+        const response = await fetch(url, {
+            headers: {
+                "Authorization": "Bearer " + this.props.jwt
+            }
+        }).then(response => response.json())
+        if (response.success) {
+            this.setState({sourceDetails: response.source})
+        } else {
+            alert("Something went wrong!")
+        }
+    }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.selectedNode !== this.props.selectedNode) {
+            this.getSourceDetails();
+        }
+    }
+
+    componentDidMount() {
+        this.getSourceDetails();
+    }
+
+    render() {
+        if (this.props.selectedNode === null || this.state.sourceDetails === null) return null;
+
+        const source = this.state.sourceDetails;
         return (
             <Modal full show onHide={this.close}>
                 <Modal.Header>
-                    <Modal.Title>Modal Title</Modal.Title>
+                    <Modal.Title>
+                        <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    This is the body with selected node {this.props.selectedNode}
+                    <HighlightsList highlights={source.highlights}/>
+                    <Divider/>
+                    <NotesList notes={source.notes}/>
                 </Modal.Body>
                 <Modal.Footer>
                     <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Source</Tooltip>}
@@ -370,6 +414,34 @@ class SourceView extends React.Component {
 
         );
     }
+}
+
+function HighlightsList(props) {
+    return (
+        <div>
+            <h6 className="source-view-subtitle" >{props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
+            {
+                props.highlights.length === 0 ?
+                    <p>To add highlights, use the Knolist Chrome Extension.
+                        Select text on a page, right-click, then click on "Highlight with Knolist".</p> :
+                    null
+            }
+            <ul>
+                {props.highlights.map((highlight, index) => <li key={index}>{highlight}</li>)}
+            </ul>
+        </div>
+    )
+}
+
+function NotesList(props) {
+    return (
+        <div>
+            <h6 className="source-view-subtitle">{props.notes.length > 0 ? "My Notes" : "You haven't added any notes yet."}</h6>
+            <ul>
+                {props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
+            </ul>
+        </div>
+    )
 }
 
 function AppHeader(props) {

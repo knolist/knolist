@@ -10,6 +10,7 @@
     right: 0;
     position: absolute;
     z-index: 1;
+    box-shadow: 0 0 10px #888888;
 }
 
 #project-title {
@@ -23,4 +24,8 @@
 
 #mindmap .vis-network:focus {
     outline: none;
+}
+
+.source-view-subtitle {
+    margin-bottom: 7px;
 }
