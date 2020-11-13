@@ -31,7 +31,7 @@ import horizontalLogo from './images/horizontal_main.png';
 class App extends React.Component {
     constructor(props) {
         super(props);
-        const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDUwNDc3MTQsImV4cCI6MTYwNTEzNDExNCwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.ZyVpssuLyA_Xzpri1LYIPA1u5EkWQerUP5RR9DELzhtIHWWebJtsaVKKo-I1ePv8aBnCcZZD4Ym37w0RH9NWUGvlCpeQKxeT65rudBXUuetWkUR-V46vWpGmyjGIPrarj_omVj82Q7laTBi0YmUtJ0DmBCw5AR5tqowkWdBWWVS-HsAdeNm2688LimmweuAAtpI0l5Bn8ILnAQgvoho4MiE-Vy92rld6nRaiuxrXKsGslbK7y7fgWDbptnYd_UJvqf146R5DL4s-TWY5Yv7_IbAif60julrLxO--lEI5sl_2Ilrt4KgmBtoCu7SQJZXYSnGqpCXq8qrhajw-I0HdVQ";
+        const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDUyNzU4MDcsImV4cCI6MTYwNTM2MjIwNywiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.YQZTdqky4xBBDV6IrBTsS5eqx-7Z3y-aN6awHt35k9Ck8d4Jm64G2TalBUmJpV67JK6U9_6mFZatfzPZEDTUHHkoZZuqPKwoJ4Bwo2GJji0rA9gXgiwfr5YAYALs3ENL3BgKLnoKiSJYA9mr_kNvAL-YFJWLarXSlVWDCtIk7P_BIs-u_cqTOpm71zcOayl33u-7XA3hlkrHGwm_FDGpbWxUeUf0bYhWuZHXIr4KUK1HgaAV-H80-tuIA0ZsBwxv8rNP-cb0L7UAFGn9sidpi_AsLwSE3TzuRkj8ThtKON3y8yucyt4bxwjI716gTQ06zPLcEN61o2T36L0LjuZs1w";
         const baseUrl = "https://knolist-api.herokuapp.com";
         // const baseUrl = "http://localhost:5000"
         this.state = {
@@ -413,12 +413,13 @@ class SourceView extends React.Component {
 }
 
 function HighlightsList(props) {
+    // TODO: include link to the Chrome Extension on the store.
     return (
         <div>
             <h6 className="source-view-subtitle">{props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
             {
                 props.highlights.length === 0 ?
-                    <p>To add highlights, use the Knolist Chrome Extension.
+                    <p>To add highlights, use the <a href="#">Knolist Chrome Extension</a>.
                         Select text on a page, right-click, then click on "Highlight with Knolist".</p> :
                     null
             }
