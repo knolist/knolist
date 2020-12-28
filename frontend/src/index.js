@@ -601,6 +601,12 @@ class ProjectsSidebar extends React.Component {
         this.props.updateProjects();
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.show !== this.props.show && !this.props.show) {
+            this.setShowNewProjectForm(false);
+        }
+    }
+
     render() {
         return (
             <Drawer
@@ -689,7 +695,7 @@ class NewProjectForm extends React.Component {
 
         return (
             <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
-                <Input id={this.state.inputId} onBlur={() => this.props.setShowNewProjectForm(false)} placeholder="New Project Name"/>
+                <Input id={this.state.inputId} placeholder="New Project Name"/>
                 <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
                         onClick={this.submit}>Create</Button>
             </Form>
@@ -715,7 +721,8 @@ class Project extends React.Component {
             confirmDelete: false,
             loading: false,
             editing: false,
-            updatedProjectNameFormId: "updated-project-name"
+            updatedProjectNameFormId: "updated-project-name",
+            updateProjectNameButtonId: "update-project-name-button"
         }
     }
 
@@ -725,6 +732,12 @@ class Project extends React.Component {
 
     setEditing = (val) => {
         this.setState({editing: val})
+    }
+
+    cancelEditing = (event) => {
+        if (event.relatedTarget === null || event.relatedTarget.id !== this.state.updateProjectNameButtonId) {
+            this.setEditing(false);
+        }
     }
 
     setDeleteProject = (event) => {
@@ -817,7 +830,7 @@ class Project extends React.Component {
                                     <Form onSubmit={this.updateProjectName}>
                                         <Input id={this.state.updatedProjectNameFormId}
                                                onClick={(e) => e.stopPropagation()}
-                                               onBlur={() => this.setEditing(false)}
+                                               onBlur={(e) => this.cancelEditing(e)}
                                                defaultValue={this.props.project.title}/>
                                     </Form> :
                                     this.props.project.title
@@ -826,6 +839,7 @@ class Project extends React.Component {
                         <FlexboxGrid.Item>
                             <ButtonToolbar>
                                 <EditProjectNameButton loading={this.state.loading} editing={this.state.editing}
+                                                       updateProjectNameButtonId={this.state.updateProjectNameButtonId}
                                                        setEditing={this.setEditing}
                                                        updateProjectName={this.updateProjectName}/>
                                 <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
@@ -848,7 +862,8 @@ class EditProjectNameButton extends React.Component {
     render() {
         if (this.props.editing) {
             return (
-                <Button loading={this.props.loading} onClick={(e) => this.buttonAction(e, false)}>Update</Button>
+                <Button id={this.props.updateProjectNameButtonId} loading={this.props.loading}
+                        onClick={(e) => this.buttonAction(e, false)}>Update</Button>
             );
         }
 
