@@ -11,6 +11,7 @@ import {
     ButtonToolbar,
     Input,
     InputGroup,
+    Form,
     Dropdown,
     Checkbox,
     CheckboxGroup,
@@ -22,52 +23,48 @@ import {
 } from 'rsuite';
 import {Network, DataSet} from 'vis-network/standalone';
 
-// import default style
+// Custom imports
+import Utils from './utils.js';
+
+// Import styles
 import 'rsuite/dist/styles/rsuite-default.css';
 import './index.css';
 
+// Import images
 import horizontalLogo from './images/horizontal_main.png';
+
+const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDkxMTM3NzMsImV4cCI6MTYwOTIwMDE3MywiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.aXAUhTXQgkuMVCiL9zifO5yWdDzZBmQdeYs9HqPKMDIMYQdAP_NAHqqj7Idw74Fmm4RZxlhou4ojWjITcDr4CcfmS6utGnPGp799CxFbGtWdtDyKQrh6iAsjP5N77YkHqXC8E2QwGQUXRMrAAlwJs75hUGwFnzCydgu2SUtI-ihGom6krVPIOKa5tlkxSKXNmZ9kg3dGd7WBPR6TKfrp-iAWnF7jC5bnvuJ0ozfLzYa8AANowiZuB1IPvVu-6U-8d9H5JwFdJHjcc-9T6CyhdGEbv5S0mTb_0h0C9V8zr-ULJCIrAeN27ETnIzYeU28ixJRwnLdqfRSCYAl7ZGFDGQ";
+const baseUrl = "https://knolist-api.herokuapp.com";
+// const baseUrl = "http://localhost:5000";
+
+const utils = new Utils(jwt, baseUrl);
 
 class App extends React.Component {
     constructor(props) {
         super(props);
-        const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDUyNzU4MDcsImV4cCI6MTYwNTM2MjIwNywiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.YQZTdqky4xBBDV6IrBTsS5eqx-7Z3y-aN6awHt35k9Ck8d4Jm64G2TalBUmJpV67JK6U9_6mFZatfzPZEDTUHHkoZZuqPKwoJ4Bwo2GJji0rA9gXgiwfr5YAYALs3ENL3BgKLnoKiSJYA9mr_kNvAL-YFJWLarXSlVWDCtIk7P_BIs-u_cqTOpm71zcOayl33u-7XA3hlkrHGwm_FDGpbWxUeUf0bYhWuZHXIr4KUK1HgaAV-H80-tuIA0ZsBwxv8rNP-cb0L7UAFGn9sidpi_AsLwSE3TzuRkj8ThtKON3y8yucyt4bxwjI716gTQ06zPLcEN61o2T36L0LjuZs1w";
-        const baseUrl = "https://knolist-api.herokuapp.com";
-        // const baseUrl = "http://localhost:5000"
         this.state = {
             curProject: JSON.parse(localStorage.getItem("curProject")),
             projects: null,
-            showProjectsSidebar: false,
-            jwt: jwt,
-            baseUrl: baseUrl
+            showProjectsSidebar: false
         }
-    }
-
-    /**
-     * Used to make standard requests to the Knolist API. Includes authorization.
-     * @param endpoint The request endpoint (including the first slash). E.g., "/projects"
-     * @param params The request parameters that would be used in the fetch call.
-     * @returns {Promise<void>}
-     */
-    makeHttpRequest = async (endpoint, params = {}) => {
-        const url = this.state.baseUrl + endpoint;
-        // Add authorization to the request
-        if (!params.hasOwnProperty("headers")) {
-            params["headers"] = {};
-        }
-        params["headers"]["Authorization"] = "Bearer " + this.state.jwt;
-
-        // Make request
-        const response = await fetch(url, params).then(response => response.json())
-        if (!response.success) {
-            alert("Something went wrong!");
-        }
-        return response;
     }
 
     getProjects = async () => {
-        const response = await this.makeHttpRequest("/projects");
+        const response = await utils.makeHttpRequest("/projects");
         return response.projects;
+    }
+
+    updateProjects = (callback) => {
+        this.getProjects().then(projects => {
+            this.setState({projects: projects}, () => {
+                if (typeof callback === "function") {
+                    callback();
+                }
+                if (projects.length > 0 && this.state.curProject === null) {
+                    this.setState({curProject: projects[0]});
+                }
+            })
+        });
     }
 
     switchShowProjectsSidebar = () => {
@@ -91,16 +88,10 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.getProjects().then(projects => {
-            this.setState({projects: projects}, () => {
-                if (projects.length > 0 && this.state.curProject === null) {
-                    this.setState({curProject: projects[0]})
-                }
-            })
-        });
+        this.updateProjects()
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps, prevState, snapshot) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
             if (this.state.curProject === null) {
@@ -113,13 +104,13 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <AppHeader curProject={this.state.curProject} showSidebar={this.state.showProjectsSidebar}
-                           switchShowSidebar={this.switchShowProjectsSidebar}/>
+                <AppHeader curProject={this.state.curProject}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                 makeHttpRequest={this.makeHttpRequest}
-                                 close={this.switchShowProjectsSidebar} setCurProject={this.setCurProject}/>
+                                 projects={this.state.projects}
+                                 close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
+                                 setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
-                <MindMap makeHttpRequest={this.makeHttpRequest} curProject={this.state.curProject}/>
+                <MindMap curProject={this.state.curProject}/>
             </div>
         );
     }
@@ -160,7 +151,7 @@ class MindMap extends React.Component {
         if (this.props.curProject === null) return null;
 
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        const response = await this.props.makeHttpRequest(endpoint);
+        const response = await utils.makeHttpRequest(endpoint);
         this.setState({sources: response.sources}, callback);
     }
 
@@ -176,7 +167,7 @@ class MindMap extends React.Component {
                 "y_position": y
             })
         }
-        this.props.makeHttpRequest(endpoint, params);
+        await utils.makeHttpRequest(endpoint, params);
     }
 
     fitNetworkToScreen = () => {
@@ -338,7 +329,6 @@ class MindMap extends React.Component {
             <div>
                 <div id="mindmap"/>
                 <SourceView selectedNode={this.state.selectedNode}
-                            makeHttpRequest={this.props.makeHttpRequest}
                             setSelectedNode={this.setSelectedNode}/>
                 <AppFooter fit={this.fitNetworkToScreen}/>
             </div>
@@ -366,7 +356,7 @@ class SourceView extends React.Component {
             return;
         }
         const endpoint = "/sources/" + this.props.selectedNode;
-        const response = await this.props.makeHttpRequest(endpoint);
+        const response = await utils.makeHttpRequest(endpoint);
         this.setState({sourceDetails: response.source});
     }
 
@@ -414,12 +404,14 @@ class SourceView extends React.Component {
 
 function HighlightsList(props) {
     // TODO: include link to the Chrome Extension on the store.
+    const chromeExtensionLink = "https://chrome.google.com/webstore/category/extensions?utm_source=chrome-ntp-icon";
     return (
         <div>
             <h6 className="source-view-subtitle">{props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
             {
                 props.highlights.length === 0 ?
-                    <p>To add highlights, use the <a href="#">Knolist Chrome Extension</a>.
+                    <p>To add highlights, use the <a rel="noopener noreferrer" target="_blank"
+                                                     href={chromeExtensionLink}>Knolist Chrome Extension</a>.
                         Select text on a page, right-click, then click on "Highlight with Knolist".</p> :
                     null
             }
@@ -568,26 +560,23 @@ class ProjectsSidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            projects: null
+            showNewProjectForm: false
         }
     }
 
-    getProjects = async (callback) => {
-        const endpoint = "/projects";
-        const response = await this.props.makeHttpRequest(endpoint);
-        this.setState({projects: response.projects}, callback);
+    setShowNewProjectForm = (val) => {
+        this.setState({showNewProjectForm: val})
     }
 
     renderProjectsList = () => {
-        if (this.state.projects === null) return <Placeholder.Paragraph rows={15} active/>;
+        if (this.props.projects === null) return <Placeholder.Paragraph rows={15} active/>;
 
-        return <ProjectsList projects={this.state.projects} curProject={this.props.curProject}
-                             getProjects={this.getProjects} setCurProject={this.props.setCurProject}
-                             makeHttpRequest={this.props.makeHttpRequest}/>
+        return <ProjectsList projects={this.props.projects} curProject={this.props.curProject}
+                             updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject}/>
     }
 
     componentDidMount() {
-        this.getProjects();
+        this.props.updateProjects();
     }
 
     render() {
@@ -601,12 +590,80 @@ class ProjectsSidebar extends React.Component {
                 </Drawer.Header>
                 <Drawer.Body style={{marginBottom: 10}}>
                     {this.renderProjectsList()}
+                    <NewProjectForm show={this.state.showNewProjectForm}
+                                    setShowNewProjectForm={this.setShowNewProjectForm}
+                                    updateProjects={this.props.updateProjects}/>
                 </Drawer.Body>
                 <Drawer.Footer>
-                    <IconButton appearance="primary" icon={<Icon icon="plus"/>} circle size="lg"/>
+                    <NewProjectButton setShowNewProjectForm={this.setShowNewProjectForm}
+                                      showNewProjectForm={this.state.showNewProjectForm}/>
                 </Drawer.Footer>
             </Drawer>
         )
+    }
+}
+
+function NewProjectButton(props) {
+    if (props.showNewProjectForm) {
+        return (
+            <Button onClick={() => props.setShowNewProjectForm(false)}>Cancel</Button>
+        );
+    } else {
+        return (
+            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>New Project</Tooltip>}
+                     placement="topEnd">
+                <IconButton onClick={() => props.setShowNewProjectForm(true)} appearance="primary"
+                            icon={<Icon icon="plus"/>} circle size="lg"/>
+            </Whisper>
+        );
+    }
+}
+
+class NewProjectForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            inputId: "new-project-name"
+        }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.show !== this.props.show && this.props.show) {
+            document.getElementById(this.state.inputId).focus();
+        }
+    }
+
+
+    submit = () => {
+        let projectName = document.getElementById(this.state.inputId).value;
+        projectName = utils.trimString(projectName);
+        const endpoint = "/projects";
+        const params = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "title": projectName
+            })
+        }
+        utils.makeHttpRequest(endpoint, params).then(() => {
+            // Update projects
+            const callback = () => this.props.setShowNewProjectForm(false);
+            this.props.updateProjects(callback);
+
+        });
+    }
+
+    render() {
+        if (!this.props.show) return null;
+
+        return (
+            <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
+                <Input id={this.state.inputId} placeholder="New Project Name"/>
+                <Button style={{float: "right", margin: 0}} appearance="primary" onClick={this.submit}>Create</Button>
+            </Form>
+        );
     }
 }
 
@@ -614,8 +671,8 @@ function ProjectsList(props) {
     return (
         <Nav vertical activeKey={props.curProject === null ? undefined : props.curProject.id}
              onSelect={(eventKey) => props.setCurProject(eventKey)}>
-            {props.projects.map(project => <Project makeHttpRequest={props.makeHttpRequest} key={project.id}
-                                                    getProjects={props.getProjects} project={project}
+            {props.projects.map(project => <Project key={project.id} updateProjects={props.updateProjects}
+                                                    project={project}
                                                     eventKey={project.id} setCurProject={props.setCurProject}/>)}
         </Nav>
     );
@@ -643,11 +700,11 @@ class Project extends React.Component {
         const params = {
             method: "DELETE"
         }
-        this.props.makeHttpRequest(endpoint, params).then(() => {
+        utils.makeHttpRequest(endpoint, params).then(() => {
             // Reset the current project if the deleted is active
             let callback;
             if (this.props.active) callback = () => this.props.setCurProject(null);
-            this.props.getProjects(callback);
+            this.props.updateProjects(callback);
         });
     }
 
@@ -704,6 +761,4 @@ class Project extends React.Component {
     }
 }
 
-ReactDOM.render(
-    <App/>
-    , document.getElementById('root'));
+ReactDOM.render(<App/>, document.getElementById('root'));

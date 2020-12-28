@@ -41,3 +41,11 @@
 .footer-btn {
     margin: 20px;
 }
+
+#new-project-form {
+    margin: 5px;
+}
+
+#new-project-name {
+    margin-bottom: 10px;
+}
