@@ -19,7 +19,8 @@ import {
     Whisper,
     Tooltip,
     Modal,
-    Placeholder
+    Placeholder,
+    Loader
 } from 'rsuite';
 import {Network, DataSet} from 'vis-network/standalone';
 
@@ -124,7 +125,8 @@ class MindMap extends React.Component {
             visNodes: null,
             visEdges: null,
             selectedNode: null,
-            sources: null
+            sources: null,
+            loading: false
         }
     }
 
@@ -147,11 +149,17 @@ class MindMap extends React.Component {
         // }
     }
 
+    setLoading = (val) => {
+        this.setState({loading: val});
+    }
+
     getSources = async (callback) => {
         if (this.props.curProject === null) return null;
+        this.setLoading(true);
 
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
         const response = await utils.makeHttpRequest(endpoint);
+        this.setLoading(false);
         this.setState({sources: response.sources}, callback);
     }
 
@@ -323,7 +331,7 @@ class MindMap extends React.Component {
     }
 
     render() {
-        if (this.props.curProject === null) return <Placeholder.Paragraph rows={20} active/>
+        if (this.props.curProject === null || this.state.loading) return <Loader size="lg" backdrop center/>
 
         return (
             <div>
@@ -341,9 +349,14 @@ class SourceView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            sourceDetails: null
+            sourceDetails: null,
+            loading: false
         }
 
+    }
+    
+    setLoading = (val) => {
+        this.setState({loading: val});
     }
 
     close = () => {
@@ -355,12 +368,14 @@ class SourceView extends React.Component {
             this.setState({sourceDetails: null});
             return;
         }
+        
+        this.setLoading(true);
         const endpoint = "/sources/" + this.props.selectedNode;
         const response = await utils.makeHttpRequest(endpoint);
-        this.setState({sourceDetails: response.source});
+        this.setState({sourceDetails: response.source}, () => this.setLoading(false));
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.selectedNode !== this.props.selectedNode) {
             this.getSourceDetails();
         }
@@ -371,7 +386,9 @@ class SourceView extends React.Component {
     }
 
     render() {
-        if (this.props.selectedNode === null || this.state.sourceDetails === null) return null;
+        if (this.props.selectedNode === null) return null;
+
+        if (this.state.loading || this.state.sourceDetails === null) return <Loader size="lg" backdrop center/>;
 
         const source = this.state.sourceDetails;
         return (
@@ -623,7 +640,8 @@ class NewProjectForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            inputId: "new-project-name"
+            inputId: "new-project-name",
+            loading: false
         }
     }
 
@@ -633,8 +651,12 @@ class NewProjectForm extends React.Component {
         }
     }
 
+    setLoading = (val) => {
+        this.setState({loading: val})
+    }
 
     submit = () => {
+        this.setLoading(true);
         let projectName = document.getElementById(this.state.inputId).value;
         projectName = utils.trimString(projectName);
         const endpoint = "/projects";
@@ -649,9 +671,11 @@ class NewProjectForm extends React.Component {
         }
         utils.makeHttpRequest(endpoint, params).then(() => {
             // Update projects
-            const callback = () => this.props.setShowNewProjectForm(false);
+            const callback = () => {
+                this.props.setShowNewProjectForm(false);
+                this.setLoading(false);
+            }
             this.props.updateProjects(callback);
-
         });
     }
 
@@ -661,7 +685,8 @@ class NewProjectForm extends React.Component {
         return (
             <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
                 <Input id={this.state.inputId} placeholder="New Project Name"/>
-                <Button style={{float: "right", margin: 0}} appearance="primary" onClick={this.submit}>Create</Button>
+                <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
+                        onClick={this.submit}>Create</Button>
             </Form>
         );
     }
@@ -682,8 +707,13 @@ class Project extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            confirmDelete: false
+            confirmDelete: false,
+            loading: false
         }
+    }
+
+    setLoading = (val) => {
+        this.setState({loading: val})
     }
 
     setDeleteProject = (event) => {
@@ -696,6 +726,7 @@ class Project extends React.Component {
     }
 
     deleteProject = () => {
+        this.setLoading(true);
         const endpoint = "/projects/" + this.props.project.id;
         const params = {
             method: "DELETE"
@@ -725,7 +756,7 @@ class Project extends React.Component {
                     <b>This action cannot be undone.</b>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.deleteProject} appearance="primary">
+                    <Button onClick={this.deleteProject} appearance="primary" loading={this.state.loading}>
                         Delete
                     </Button>
                     <Button onClick={this.resetDeleteProject} appearance="default">
