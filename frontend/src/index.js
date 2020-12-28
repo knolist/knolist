@@ -58,6 +58,11 @@ class App extends React.Component {
     updateProjects = (callback) => {
         this.getProjects().then(projects => {
             this.setState({projects: projects}, () => {
+                // Update current project
+                if (this.state.curProject !== null) {
+                    this.setCurProject(this.state.curProject.id);
+                }
+
                 if (typeof callback === "function") {
                     callback();
                 }
@@ -354,7 +359,7 @@ class SourceView extends React.Component {
         }
 
     }
-    
+
     setLoading = (val) => {
         this.setState({loading: val});
     }
@@ -368,7 +373,7 @@ class SourceView extends React.Component {
             this.setState({sourceDetails: null});
             return;
         }
-        
+
         this.setLoading(true);
         const endpoint = "/sources/" + this.props.selectedNode;
         const response = await utils.makeHttpRequest(endpoint);
@@ -684,7 +689,7 @@ class NewProjectForm extends React.Component {
 
         return (
             <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
-                <Input id={this.state.inputId} placeholder="New Project Name"/>
+                <Input id={this.state.inputId} onBlur={() => this.props.setShowNewProjectForm(false)} placeholder="New Project Name"/>
                 <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
                         onClick={this.submit}>Create</Button>
             </Form>
@@ -708,12 +713,18 @@ class Project extends React.Component {
         super(props);
         this.state = {
             confirmDelete: false,
-            loading: false
+            loading: false,
+            editing: false,
+            updatedProjectNameFormId: "updated-project-name"
         }
     }
 
     setLoading = (val) => {
         this.setState({loading: val})
+    }
+
+    setEditing = (val) => {
+        this.setState({editing: val})
     }
 
     setDeleteProject = (event) => {
@@ -737,6 +748,33 @@ class Project extends React.Component {
             if (this.props.active) callback = () => this.props.setCurProject(null);
             this.props.updateProjects(callback);
         });
+    }
+
+    updateProjectName = () => {
+        this.setLoading(true);
+        const updatedProjectName = utils.trimString(document.getElementById(this.state.updatedProjectNameFormId).value);
+        const endpoint = "/projects/" + this.props.project.id;
+        const params = {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "title": updatedProjectName
+            })
+        }
+        utils.makeHttpRequest(endpoint, params).then(() => {
+            this.props.updateProjects(() => {
+                this.setEditing(false);
+                this.setLoading(false);
+            });
+        });
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevState.editing !== this.state.editing && this.state.editing) {
+            document.getElementById(this.state.updatedProjectNameFormId).focus();
+        }
     }
 
     generateConfirmDeletionWindow = () => {
@@ -774,20 +812,48 @@ class Project extends React.Component {
                 <Nav.Item onSelect={this.props.onSelect} eventKey={this.props.eventKey} active={this.props.active}>
                     <FlexboxGrid justify="space-between">
                         <FlexboxGrid.Item>
-                            {/*<Icon icon={"project"}/>*/}{this.props.project.title}
+                            {
+                                this.state.editing ?
+                                    <Form onSubmit={this.updateProjectName}>
+                                        <Input id={this.state.updatedProjectNameFormId}
+                                               onClick={(e) => e.stopPropagation()}
+                                               onBlur={() => this.setEditing(false)}
+                                               defaultValue={this.props.project.title}/>
+                                    </Form> :
+                                    this.props.project.title
+                            }
                         </FlexboxGrid.Item>
                         <FlexboxGrid.Item>
                             <ButtonToolbar>
-                                <IconButton onClick={(e) => {
-                                    e.stopPropagation();
-                                    alert('edit');
-                                }} icon={<Icon icon="edit2"/>} size="sm"/>
+                                <EditProjectNameButton loading={this.state.loading} editing={this.state.editing}
+                                                       setEditing={this.setEditing}
+                                                       updateProjectName={this.updateProjectName}/>
                                 <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
                             </ButtonToolbar>
                         </FlexboxGrid.Item>
                     </FlexboxGrid>
                 </Nav.Item>
             </div>
+        );
+    }
+}
+
+class EditProjectNameButton extends React.Component {
+    buttonAction = (event, editing) => {
+        event.stopPropagation();
+        if (editing) this.props.setEditing(editing);
+        else this.props.updateProjectName();
+    }
+
+    render() {
+        if (this.props.editing) {
+            return (
+                <Button loading={this.props.loading} onClick={(e) => this.buttonAction(e, false)}>Update</Button>
+            );
+        }
+
+        return (
+            <IconButton onClick={(e) => this.buttonAction(e, true)} icon={<Icon icon="edit2"/>} size="sm"/>
         );
     }
 }
