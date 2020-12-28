@@ -20,7 +20,8 @@ import {
     Tooltip,
     Modal,
     Placeholder,
-    Loader
+    Loader,
+    Animation
 } from 'rsuite';
 import {Network, DataSet} from 'vis-network/standalone';
 
@@ -33,6 +34,9 @@ import './index.css';
 
 // Import images
 import horizontalLogo from './images/horizontal_main.png';
+
+// Global variables
+const {Fade} = Animation;
 
 const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDkxMTM3NzMsImV4cCI6MTYwOTIwMDE3MywiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.aXAUhTXQgkuMVCiL9zifO5yWdDzZBmQdeYs9HqPKMDIMYQdAP_NAHqqj7Idw74Fmm4RZxlhou4ojWjITcDr4CcfmS6utGnPGp799CxFbGtWdtDyKQrh6iAsjP5N77YkHqXC8E2QwGQUXRMrAAlwJs75hUGwFnzCydgu2SUtI-ihGom6krVPIOKa5tlkxSKXNmZ9kg3dGd7WBPR6TKfrp-iAWnF7jC5bnvuJ0ozfLzYa8AANowiZuB1IPvVu-6U-8d9H5JwFdJHjcc-9T6CyhdGEbv5S0mTb_0h0C9V8zr-ULJCIrAeN27ETnIzYeU28ixJRwnLdqfRSCYAl7ZGFDGQ";
 const baseUrl = "https://knolist-api.herokuapp.com";
@@ -480,6 +484,13 @@ function AppHeader(props) {
 }
 
 class AppFooter extends React.Component {
+    newSourceButton = () => {
+        return (
+            <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="plus"/>}
+                        circle size="lg"/>
+        )
+    }
+
     render() {
         return (
             <div id="footer">
@@ -488,11 +499,15 @@ class AppFooter extends React.Component {
                     <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="arrows-alt"/>} circle
                                 size="lg" onClick={this.props.fit}/>
                 </Whisper>
-                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>New Source</Tooltip>}
-                         placement="topEnd">
-                    <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="plus"/>} circle
-                                size="lg"/>
-                </Whisper>
+
+                <Dropdown trigger={["click", "hover"]} placement="topEnd" renderTitle={this.newSourceButton}>
+                    <Dropdown.Item>
+                        <Icon icon="file-o"/> Add File
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => console.log('yeet')}>
+                        <Icon icon="globe2"/> Add Web Page
+                    </Dropdown.Item>
+                </Dropdown>
             </div>
         )
     }
@@ -691,14 +706,16 @@ class NewProjectForm extends React.Component {
     }
 
     render() {
-        if (!this.props.show) return null;
+        // if (!this.props.show) return null;
 
         return (
-            <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
-                <Input id={this.state.inputId} placeholder="New Project Name"/>
-                <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
-                        onClick={this.submit}>Create</Button>
-            </Form>
+            <Fade in={this.props.show}>
+                <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
+                    <Input id={this.state.inputId} placeholder="New Project Name"/>
+                    <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
+                            onClick={this.submit}>Create</Button>
+                </Form>
+            </Fade>
         );
     }
 }
