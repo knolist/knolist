@@ -91,6 +91,20 @@ style rules. Code that fails at following those rules will not be accepted.
 To check if your code follows PEP 8, use the [`pycodestyle`](https://pypi.org/project/pycodestyle/) command.
 
 
+### API Development
+To develop a new endpoint, follow these steps:
+1. Locate the correct files to edit. This is based on the first URL parameter of your endpoit.
+For example, if you're developing an endpoint that starts with `/projects`, you will edit the `projects.py` controller
+and the `test_projects.py` test file.
+2. Write comprehensive test cases for the endpoint you want to implement.
+3. Run the tests and observe them fail (as expected, since nothing has been implemented)
+4. Write code in the controller to perform the desired action for the new endpoint
+5. Test the code and rewrite as necessary to pass the tests
+6. Refactor your code for efficiency and correct style (use `pycodestyle`)
+7. Add a clear documentation of your endpoint to the README, following the standard for the other endpoints
+8. Only commit code that satisfies our style guidelines and passes all tests
+
+
 ## Getting Started
 ### Installing Dependencies
 #### Python 3.6 (or above)
@@ -475,6 +489,8 @@ which is used to extract the page title and content, both of which are saved in 
 If that is the case, the return status wil be 200 instead of 201, since no new source was created.
 - Request arguments (passed as JSON body):
     - `string` "url": the URL of the source that will be added *(Required)*
+    - `int` "x_position": the y position to apply to the source *(Optional)*
+    - `int` "y_position": the y position to apply to the source *(Optional)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `short source` object representing the newly created source (or the existing source if the URL is 
