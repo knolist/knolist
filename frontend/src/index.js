@@ -457,7 +457,7 @@ class NewSourceForm extends React.Component {
         if (!this.props.showNewSourceForm) return null;
 
         return (
-            <Modal full show onHide={this.close}>
+            <Modal show onHide={this.close}>
                 <Modal.Header>
                     <Modal.Title>
                         Insert the URL of the source you'd like to add.
@@ -624,7 +624,8 @@ class AppFooter extends React.Component {
                                 size="lg" onClick={this.props.fit}/>
                 </Whisper>
 
-                <Dropdown trigger={["click", "hover"]} placement="topEnd" renderTitle={this.newSourceButton}>
+                <Dropdown style={{marginRight: 15}} trigger={["click", "hover"]} placement="topEnd"
+                          renderTitle={this.newSourceButton}>
                     <Dropdown.Item onClick={() => Alert.warning("Feature coming soon...")}>
                         <Icon icon="file-o"/> Add File
                     </Dropdown.Item>
