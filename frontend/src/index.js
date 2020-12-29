@@ -37,8 +37,6 @@ import './index.css';
 import horizontalLogo from './images/horizontal_main.png';
 
 // Global variables
-const {Fade} = Animation;
-
 const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDkyMDQyNDksImV4cCI6MTYwOTI5MDY0OSwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.FExhb2ofcuRESwecK-fo7Ugk3yqqITxVS4AiiI1BihLc6QLv_w9M5zfZKb9FCYOXaT4UzEeHOv0h-pHrHAdYJJPPjLLnOJP31f9tKgA8pIXYoKKHCZ9Z1UzbUeA6JopGHWd9FZmMKWUcLiocMIDjIAVQEb_aCf5w8Q0wh_f9J3Je8aR53L8lUXk871CuDE1tTSSsFwSBW0oxPwC2EjyIHdD7jUjubAL7muFL793GQp2KEotHQ4Z_7CHbMj1SWGLAubUGD4WRRhtCtILmB9q1CgUIW31Jw-xi-xYFVGclLW9EHrDEG-1Oe9bh6jyYWcKK-idclf6XZ7XId2qVa7zKJg";
 // const baseUrl = "https://knolist-api.herokuapp.com";
 const baseUrl = "http://localhost:5000";
@@ -491,7 +489,6 @@ class SourceView extends React.Component {
         super(props);
         this.state = {
             sourceDetails: null,
-            loadingSource: false,
             confirmDelete: false,
             loadingDelete: false
         }
@@ -517,24 +514,21 @@ class SourceView extends React.Component {
         })
     }
 
-    setLoadingSource = (val) => {
-        this.setState({loadingSource: val});
-    }
-
     close = () => {
         this.props.setSelectedNode(null);
     }
 
-    getSourceDetails = async () => {
+    getSourceDetails = async (callback) => {
         if (this.props.selectedNode === null) {
             this.setState({sourceDetails: null});
             return;
         }
 
-        this.setLoadingSource(true);
         const endpoint = "/sources/" + this.props.selectedNode;
         const response = await utils.makeHttpRequest(endpoint);
-        this.setState({sourceDetails: response.body.source}, () => this.setLoadingSource(false));
+        this.setState({sourceDetails: response.body.source}, () => {
+            if (typeof callback === "function") callback()
+        });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -550,40 +544,43 @@ class SourceView extends React.Component {
     render() {
         if (this.props.selectedNode === null) return null;
 
-        if (this.state.loadingSource || this.state.sourceDetails === null) return <Loader size="lg" backdrop center/>;
+        if (this.state.sourceDetails !== null) {
+            const source = this.state.sourceDetails;
+            return (
+                <div>
+                    <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
+                                           resetDelete={() => this.setConfirmDelete(false)}
+                                           title={source.title} delete={this.deleteSource}
+                                           loading={this.state.loadingDelete}/>
+                    <Modal full show onHide={this.close}>
+                        <Modal.Header>
+                            <Modal.Title>
+                                <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>
+                            </Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <HighlightsList highlights={source.highlights}/>
+                            <Divider/>
+                            <NotesList notes={source.notes} sourceId={source.id}
+                                       getSourceDetails={this.getSourceDetails}/>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Source</Tooltip>}
+                                     placement="bottom">
+                                <IconButton icon={<Icon icon="edit2"/>} size="lg"/>
+                            </Whisper>
+                            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
+                                     placement="bottom">
+                                <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
+                                            size="lg"/>
+                            </Whisper>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+            );
+        }
 
-        const source = this.state.sourceDetails;
-        return (
-            <div>
-                <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
-                                       resetDelete={() => this.setConfirmDelete(false)}
-                                       title={source.title} delete={this.deleteSource}
-                                       loading={this.state.loadingDelete}/>
-                <Modal full show onHide={this.close}>
-                    <Modal.Header>
-                        <Modal.Title>
-                            <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>
-                        </Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <HighlightsList highlights={source.highlights}/>
-                        <Divider/>
-                        <NotesList notes={source.notes}/>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Source</Tooltip>}
-                                 placement="bottom">
-                            <IconButton icon={<Icon icon="edit2"/>} size="lg"/>
-                        </Whisper>
-                        <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
-                                 placement="bottom">
-                            <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
-                                        size="lg"/>
-                        </Whisper>
-                    </Modal.Footer>
-                </Modal>
-            </div>
-        );
+        return <Loader size="lg" backdrop center/>;
     }
 }
 
@@ -607,15 +604,95 @@ function HighlightsList(props) {
     )
 }
 
-function NotesList(props) {
-    return (
-        <div>
-            <h6 className="source-view-subtitle">{props.notes.length > 0 ? "My Notes" : "You haven't added any notes yet."}</h6>
-            <ul>
-                {props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
-            </ul>
-        </div>
-    )
+class NotesList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showNewNotesForm: false,
+            loading: false,
+            newNotesInputId: "new-notes-input"
+        }
+    }
+
+    setShowNewNotesForm = (val) => {
+        this.setState({showNewNotesForm: val});
+    }
+
+    setLoading = (val) => {
+        this.setState({loading: val});
+    }
+
+    addNotes = () => {
+        this.setLoading(true);
+        const newNotes = document.getElementById(this.state.newNotesInputId).value;
+        const endpoint = "/sources/" + this.props.sourceId + "/notes";
+        const params = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "note": newNotes
+            })
+        }
+        utils.makeHttpRequest(endpoint, params).then(() => {
+            // Update source
+            const callback = () => {
+                this.setShowNewNotesForm(false);
+                this.setLoading(false);
+            }
+            this.props.getSourceDetails(callback);
+        });
+    }
+
+    renderNewNotesButton = () => {
+        const buttonSize = "xs";
+        let buttonAppearance = "default";
+        if (this.props.notes.length === 0) buttonAppearance = "primary";
+
+        if (this.state.showNewNotesForm) {
+            return <Button onClick={() => this.setShowNewNotesForm(false)}
+                           size={buttonSize}>Cancel</Button>
+        } else {
+            return (
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Add Notes</Tooltip>} placement="top">
+                    <IconButton appearance={buttonAppearance} onClick={() => this.setShowNewNotesForm(true)}
+                                icon={<Icon icon="plus"/>} size={buttonSize}/>
+                </Whisper>
+            );
+        }
+    }
+
+    renderNewNotesForm = () => {
+        if (!this.state.showNewNotesForm) return null;
+
+        const fontSize = 14;
+        return (
+            <Form style={{display: "flex"}} onSubmit={this.addNotes}>
+                <Input style={{fontSize: fontSize, width: 400, marginRight: 10}} id={this.state.newNotesInputId}
+                       placeholder="Insert Notes" autoFocus required/>
+                <Button style={{fontSize: fontSize}} type="submit"
+                        appearance="primary" loading={this.state.loading}>Add Note</Button>
+            </Form>
+        );
+    }
+
+    render() {
+        return (
+            <div>
+                <div style={{display: "flex"}} className="source-view-subtitle">
+                    <h6 style={{marginRight: 10}}>
+                        {this.props.notes.length > 0 ? "My Notes" : "You haven't added any notes yet."}
+                    </h6>
+                    {this.renderNewNotesButton()}
+                </div>
+                <ul>
+                    {this.props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
+                </ul>
+                {this.renderNewNotesForm()}
+            </div>
+        );
+    }
 }
 
 function AppHeader(props) {
@@ -869,13 +946,13 @@ class NewProjectForm extends React.Component {
         // if (!this.props.show) return null;
 
         return (
-            <Fade in={this.props.show}>
+            <Animation.Fade in={this.props.show}>
                 <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
                     <Input autoFocus required id={this.state.inputId} placeholder="New Project Name"/>
                     <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
                             type="submit">Create</Button>
                 </Form>
-            </Fade>
+            </Animation.Fade>
         );
     }
 }
