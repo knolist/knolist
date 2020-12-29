@@ -21,7 +21,8 @@ import {
     Modal,
     Placeholder,
     Loader,
-    Animation
+    Animation,
+    Alert
 } from 'rsuite';
 import {Network, DataSet} from 'vis-network/standalone';
 
@@ -417,9 +418,11 @@ class NewSourceForm extends React.Component {
         utils.makeHttpRequest(endpoint, params).then((response) => {
             if (response.status === 200) {
                 // Alert that the source already exists in this project
+                Alert.info('This URL already exists in this project.');
             } else if (response.status === 201) {
                 // Update sources
                 this.props.renderNetwork();
+                Alert.success('Source added successfully.');
             }
             this.props.switchShowNewSourceForm();
         });

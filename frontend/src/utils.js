@@ -1,3 +1,5 @@
+import {Alert} from 'rsuite';
+
 export default class Utils {
     constructor(jwt, baseUrl) {
         this.jwt = jwt;
@@ -23,7 +25,7 @@ export default class Utils {
         const responseStatus = response.status;
         const responseBody = await response.json();
         if (!responseBody.success) {
-            alert("Something went wrong!");
+            Alert.error("Something went wrong!");
         }
         return {
             status: responseStatus,
