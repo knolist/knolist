@@ -9,6 +9,7 @@ import {
     Icon,
     IconButton,
     ButtonToolbar,
+    ButtonGroup,
     Input,
     InputGroup,
     Form,
@@ -565,10 +566,6 @@ class SourceView extends React.Component {
                                        getSourceDetails={this.getSourceDetails}/>
                         </Modal.Body>
                         <Modal.Footer>
-                            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Source</Tooltip>}
-                                     placement="bottom">
-                                <IconButton icon={<Icon icon="edit2"/>} size="lg"/>
-                            </Whisper>
                             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
                                      placement="bottom">
                                 <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
@@ -584,38 +581,114 @@ class SourceView extends React.Component {
     }
 }
 
-function HighlightsList(props) {
-    // TODO: include link to the Chrome Extension on the store.
-    const chromeExtensionLink = "https://chrome.google.com/webstore/category/extensions?utm_source=chrome-ntp-icon";
-    return (
-        <div>
-            <h6 className="source-view-subtitle">{props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
-            {
-                props.highlights.length === 0 ?
-                    <p>To add highlights, use the <a rel="noopener noreferrer" target="_blank"
-                                                     href={chromeExtensionLink}>Knolist Chrome Extension</a>.
-                        Select text on a page, right-click, then click on "Highlight with Knolist".</p> :
-                    null
-            }
-            <ul>
-                {props.highlights.map((highlight, index) => <li key={index}>{highlight}</li>)}
-            </ul>
-        </div>
-    )
+function EditSourceItemButton(props) {
+    if (props.hide) return null;
+
+    const buttonSize = "xs";
+    if (props.editMode) {
+        return <Button onClick={() => props.setEditMode(false)} size={buttonSize}>Done</Button>
+    } else {
+        return (
+            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit {props.type}</Tooltip>} placement="top">
+                <IconButton onClick={() => props.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
+            </Whisper>
+        );
+    }
+}
+
+class HighlightsList extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            editMode: false
+        }
+    }
+
+    setEditMode = (val) => {
+        this.setState({editMode: val});
+    }
+
+    renderAddHighlightsMessage = () => {
+        if (this.props.highlights.length > 0) return null;
+
+        // TODO: include link to the Chrome Extension on the store.
+        const chromeExtensionLink = "https://chrome.google.com/webstore/category/extensions?utm_source=chrome-ntp-icon";
+        return <p>To add highlights, use the <a rel="noopener noreferrer" target="_blank"
+                                                href={chromeExtensionLink}>Knolist Chrome Extension</a>.
+            Select text on a page, right-click, then click on "Highlight with Knolist".</p>
+    }
+
+    renderEditHighlightsButton = () => {
+        if (this.props.highlights.length === 0) return null;
+
+        const buttonSize = "xs";
+        if (this.state.editMode) {
+            return <Button onClick={() => this.setEditMode(false)} size={buttonSize}>Done</Button>
+        } else {
+            return (
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Highlights</Tooltip>} placement="top">
+                    <IconButton onClick={() => this.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
+                </Whisper>
+            );
+        }
+    }
+
+    render() {
+
+        return (
+            <div>
+                <div style={{display: "flex"}} className="source-view-subtitle">
+                    <h6 style={{marginRight: 10}}>{this.props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
+                    <EditSourceItemButton hide={this.props.highlights.length === 0} editMode={this.state.editMode}
+                                          setEditMode={this.setEditMode} type="Highlights"/>
+                </div>
+                {this.renderAddHighlightsMessage()}
+                <ul>
+                    {this.props.highlights.map((highlight, index) => <li key={index}>{highlight}</li>)}
+                </ul>
+            </div>
+        );
+    }
 }
 
 class NotesList extends React.Component {
     constructor(props) {
         super(props);
+        const modes = {
+            NULL: null,
+            EDIT: "edit",
+            ADD: "add"
+        }
         this.state = {
-            showNewNotesForm: false,
             loading: false,
+            mode: modes.NULL,
+            modes: modes,
             newNotesInputId: "new-notes-input"
         }
     }
 
+    setMode = (val) => {
+        if (Object.values(this.state.modes).includes(val)) {
+            this.setState({mode: val});
+        }
+    }
+
+    isEditMode = () => {
+        return this.state.mode === this.state.modes.EDIT;
+    }
+
+    isAddMode = () => {
+        return this.state.mode === this.state.modes.ADD;
+    }
+
+    setEditMode = (val) => {
+        if (val) this.setMode(this.state.modes.EDIT);
+        else this.setMode(this.state.modes.NULL);
+    }
+
     setShowNewNotesForm = (val) => {
-        this.setState({showNewNotesForm: val});
+        if (val) this.setMode(this.state.modes.ADD);
+        else this.setMode(this.state.modes.NULL);
     }
 
     setLoading = (val) => {
@@ -650,7 +723,7 @@ class NotesList extends React.Component {
         let buttonAppearance = "default";
         if (this.props.notes.length === 0) buttonAppearance = "primary";
 
-        if (this.state.showNewNotesForm) {
+        if (this.isAddMode()) {
             return <Button onClick={() => this.setShowNewNotesForm(false)}
                            size={buttonSize}>Cancel</Button>
         } else {
@@ -664,7 +737,7 @@ class NotesList extends React.Component {
     }
 
     renderNewNotesForm = () => {
-        if (!this.state.showNewNotesForm) return null;
+        if (!this.isAddMode()) return null;
 
         const fontSize = 14;
         return (
@@ -684,7 +757,11 @@ class NotesList extends React.Component {
                     <h6 style={{marginRight: 10}}>
                         {this.props.notes.length > 0 ? "My Notes" : "You haven't added any notes yet."}
                     </h6>
-                    {this.renderNewNotesButton()}
+                    <ButtonGroup>
+                        {this.renderNewNotesButton()}
+                        <EditSourceItemButton hide={this.props.notes.length === 0} editMode={this.isEditMode()}
+                                              setEditMode={this.setEditMode} type="Notes"/>
+                    </ButtonGroup>
                 </div>
                 <ul>
                     {this.props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
