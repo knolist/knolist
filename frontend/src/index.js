@@ -453,6 +453,12 @@ class NewSourceForm extends React.Component {
         });
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.showNewSourceForm !== this.props.showNewSourceForm && this.props.showNewSourceForm) {
+            this.setLoading(false);
+        }
+    }
+
     render() {
         if (!this.props.showNewSourceForm) return null;
 
