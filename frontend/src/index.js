@@ -394,7 +394,8 @@ class MindMap extends React.Component {
             <div>
                 <div id="mindmap"/>
                 <SourceView selectedNode={this.state.selectedNode}
-                            setSelectedNode={this.setSelectedNode}/>
+                            setSelectedNode={this.setSelectedNode}
+                            renderNetwork={this.renderNetwork}/>
                 <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
                                newSourceData={this.state.newSourceData}
                                curProject={this.props.curProject}
@@ -490,13 +491,34 @@ class SourceView extends React.Component {
         super(props);
         this.state = {
             sourceDetails: null,
-            loading: false
+            loadingSource: false,
+            confirmDelete: false,
+            loadingDelete: false
         }
-
     }
 
-    setLoading = (val) => {
-        this.setState({loading: val});
+    setConfirmDelete = (val) => {
+        this.setState({confirmDelete: val});
+    }
+
+    setLoadingDelete = (val) => {
+        this.setState({loadingDelete: val});
+    }
+
+    deleteSource = () => {
+        this.setLoadingDelete(true);
+        const endpoint = "/sources/" + this.state.sourceDetails.id;
+        const params = {
+            method: "DELETE"
+        }
+        utils.makeHttpRequest(endpoint, params).then(() => {
+            this.close();
+            this.props.renderNetwork();
+        })
+    }
+
+    setLoadingSource = (val) => {
+        this.setState({loadingSource: val});
     }
 
     close = () => {
@@ -509,10 +531,10 @@ class SourceView extends React.Component {
             return;
         }
 
-        this.setLoading(true);
+        this.setLoadingSource(true);
         const endpoint = "/sources/" + this.props.selectedNode;
         const response = await utils.makeHttpRequest(endpoint);
-        this.setState({sourceDetails: response.body.source}, () => this.setLoading(false));
+        this.setState({sourceDetails: response.body.source}, () => this.setLoadingSource(false));
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -528,32 +550,39 @@ class SourceView extends React.Component {
     render() {
         if (this.props.selectedNode === null) return null;
 
-        if (this.state.loading || this.state.sourceDetails === null) return <Loader size="lg" backdrop center/>;
+        if (this.state.loadingSource || this.state.sourceDetails === null) return <Loader size="lg" backdrop center/>;
 
         const source = this.state.sourceDetails;
         return (
-            <Modal full show onHide={this.close}>
-                <Modal.Header>
-                    <Modal.Title>
-                        <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <HighlightsList highlights={source.highlights}/>
-                    <Divider/>
-                    <NotesList notes={source.notes}/>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Source</Tooltip>}
-                             placement="bottom">
-                        <IconButton icon={<Icon icon="edit2"/>} size="lg"/>
-                    </Whisper>
-                    <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
-                             placement="bottom">
-                        <IconButton icon={<Icon icon="trash"/>} size="lg"/>
-                    </Whisper>
-                </Modal.Footer>
-            </Modal>
+            <div>
+                <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
+                                       resetDelete={() => this.setConfirmDelete(false)}
+                                       title={source.title} delete={this.deleteSource}
+                                       loading={this.state.loadingDelete}/>
+                <Modal full show onHide={this.close}>
+                    <Modal.Header>
+                        <Modal.Title>
+                            <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <HighlightsList highlights={source.highlights}/>
+                        <Divider/>
+                        <NotesList notes={source.notes}/>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Source</Tooltip>}
+                                 placement="bottom">
+                            <IconButton icon={<Icon icon="edit2"/>} size="lg"/>
+                        </Whisper>
+                        <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
+                                 placement="bottom">
+                            <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
+                                        size="lg"/>
+                        </Whisper>
+                    </Modal.Footer>
+                </Modal>
+            </div>
         );
     }
 }
@@ -862,6 +891,28 @@ function ProjectsList(props) {
     );
 }
 
+function ConfirmDeletionWindow(props) {
+    return (
+        <Modal backdrop="static" show={props.confirmDelete} onHide={props.resetDelete} size="xs">
+            <Modal.Body>
+                <Icon icon="remind" style={{color: '#ffb300', fontSize: 24}}/>
+                {'  '}
+                Are you sure you want to delete "{props.title}"?
+                <br/>
+                <b>This action cannot be undone.</b>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={props.delete} appearance="primary" loading={props.loading}>
+                    Delete
+                </Button>
+                <Button onClick={props.resetDelete} appearance="default">
+                    Cancel
+                </Button>
+            </Modal.Footer>
+        </Modal>
+    )
+}
+
 class Project extends React.Component {
     constructor(props) {
         super(props);
@@ -932,38 +983,12 @@ class Project extends React.Component {
         });
     }
 
-    generateConfirmDeletionWindow = () => {
-        return (
-            <Modal backdrop="static" show={this.state.confirmDelete} onHide={this.resetDeleteProject} size="xs">
-                <Modal.Body>
-                    <Icon
-                        icon="remind"
-                        style={{
-                            color: '#ffb300',
-                            fontSize: 24
-                        }}
-                    />
-                    {'  '}
-                    Are you sure you want to delete "{this.props.project.title}"?
-                    <br/>
-                    <b>This action cannot be undone.</b>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={this.deleteProject} appearance="primary" loading={this.state.loading}>
-                        Delete
-                    </Button>
-                    <Button onClick={this.resetDeleteProject} appearance="default">
-                        Cancel
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        )
-    }
-
     render() {
         return (
             <div>
-                {this.generateConfirmDeletionWindow()}
+                <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete} resetDelete={this.resetDeleteProject}
+                                       title={this.props.project.title} delete={this.deleteProject}
+                                       loading={this.state.loading}/>
                 <Nav.Item onSelect={this.props.onSelect} eventKey={this.props.eventKey} active={this.props.active}>
                     <FlexboxGrid justify="space-between">
                         <FlexboxGrid.Item>
