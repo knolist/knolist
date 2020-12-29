@@ -11,7 +11,7 @@ AUTH0_DOMAIN = os.environ.get('AUTH0_DOMAIN')
 ALGORITHMS = os.environ.get('ALGORITHMS')
 API_AUDIENCE = os.environ.get('API_AUDIENCE')
 if AUTH0_DOMAIN is None or ALGORITHMS is None or API_AUDIENCE is None:
-    print("ALERT: PLEASE ENSURE THAT YOU RAN `setup.sh`")
+    raise Exception("Please ensure that you ran `setup.sh`")
 
 
 # AuthError Exception
