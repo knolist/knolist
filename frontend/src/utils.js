@@ -8,7 +8,7 @@ export default class Utils {
      * Used to make standard requests to the Knolist API. Includes authorization.
      * @param endpoint The request endpoint (including the first slash). E.g., "/projects"
      * @param params The request parameters that would be used in the fetch call.
-     * @returns {Promise<void>}
+     * @returns {Promise<{body: any, status: number}>}
      */
     makeHttpRequest = async (endpoint, params = {}) => {
         const url = this.baseUrl + endpoint;
@@ -19,11 +19,16 @@ export default class Utils {
         params["headers"]["Authorization"] = "Bearer " + this.jwt;
 
         // Make request
-        const response = await fetch(url, params).then(response => response.json())
-        if (!response.success) {
+        const response = await fetch(url, params);
+        const responseStatus = response.status;
+        const responseBody = await response.json();
+        if (!responseBody.success) {
             alert("Something went wrong!");
         }
-        return response;
+        return {
+            status: responseStatus,
+            body: responseBody
+        };
     }
 
     /**

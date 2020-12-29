@@ -56,7 +56,7 @@ class App extends React.Component {
 
     getProjects = async () => {
         const response = await utils.makeHttpRequest("/projects");
-        return response.projects;
+        return response.body.projects;
     }
 
     updateProjects = (callback) => {
@@ -135,7 +135,9 @@ class MindMap extends React.Component {
             visEdges: null,
             selectedNode: null,
             sources: null,
-            loading: false
+            loading: false,
+            showNewSourceForm: false,
+            newSourceData: null
         }
     }
 
@@ -169,7 +171,7 @@ class MindMap extends React.Component {
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
         const response = await utils.makeHttpRequest(endpoint);
         this.setLoading(false);
-        this.setState({sources: response.sources}, callback);
+        this.setState({sources: response.body.sources}, callback);
     }
 
     updateSourcePosition = async (sourceId, x, y) => {
@@ -191,6 +193,22 @@ class MindMap extends React.Component {
         if (this.state.network !== null) {
             this.state.network.fit()
         }
+    }
+
+    switchShowNewSourceForm = () => {
+        this.setState({showNewSourceForm: !this.state.showNewSourceForm}, () => {
+            // Get out of edit mode if necessary
+            if (!this.state.showNewSourceForm && this.state.network) {
+                this.state.network.disableEditMode()
+            }
+        });
+    }
+
+    addSource = (nodeData, callback) => {
+        this.switchShowNewSourceForm();
+        this.setState({
+            newSourceData: nodeData
+        });
     }
 
     /* Helper function to generate position for nodes
@@ -293,6 +311,10 @@ class MindMap extends React.Component {
                     selectConnectedEdges: false,
                     hover: true,
                     hoverConnectedEdges: false
+                },
+                manipulation: {
+                    enabled: false,
+                    addNode: this.addSource
                 }
             };
 
@@ -347,9 +369,84 @@ class MindMap extends React.Component {
                 <div id="mindmap"/>
                 <SourceView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}/>
-                <AppFooter fit={this.fitNetworkToScreen}/>
+                <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
+                               newSourceData={this.state.newSourceData}
+                               curProject={this.props.curProject}
+                               renderNetwork={this.renderNetwork}
+                               switchShowNewSourceForm={this.switchShowNewSourceForm}/>
+                <AppFooter fit={this.fitNetworkToScreen} network={this.state.network}/>
             </div>
 
+        );
+    }
+}
+
+class NewSourceForm extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            newSourceUrlId: "new-source-url",
+            loading: false
+        }
+    }
+
+    close = () => {
+        this.props.switchShowNewSourceForm()
+    }
+
+    setLoading = (val) => {
+        this.setState({loading: val})
+    }
+
+    addNewSource = () => {
+        this.setLoading(true);
+        const url = document.getElementById(this.state.newSourceUrlId).value;
+        const {x, y} = this.props.newSourceData;
+        const endpoint = "/projects/" + this.props.curProject.id + "/sources"
+        const params = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "url": url,
+                "x_position": x,
+                "y_position": y
+            })
+        }
+        utils.makeHttpRequest(endpoint, params).then((response) => {
+            if (response.status === 200) {
+                // Alert that the source already exists in this project
+            } else if (response.status === 201) {
+                // Update sources
+                this.props.renderNetwork();
+            }
+            this.props.switchShowNewSourceForm();
+        });
+    }
+
+    render() {
+        if (!this.props.showNewSourceForm) return null;
+
+        return (
+            <Modal full show onHide={this.close}>
+                <Modal.Header>
+                    <Modal.Title>
+                        Insert the URL of the source you'd like to add.
+                    </Modal.Title>
+                </Modal.Header>
+                <Form onSubmit={this.addNewSource}>
+                    <Modal.Body>
+                        <Input autoFocus type="url" required id={this.state.newSourceUrlId}
+                               placeholder="New Source URL"/>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button type="submit" loading={this.state.loading} appearance="primary">
+                            Add Source
+                        </Button>
+                    </Modal.Footer>
+                </Form>
+            </Modal>
         );
     }
 }
@@ -381,7 +478,7 @@ class SourceView extends React.Component {
         this.setLoading(true);
         const endpoint = "/sources/" + this.props.selectedNode;
         const response = await utils.makeHttpRequest(endpoint);
-        this.setState({sourceDetails: response.source}, () => this.setLoading(false));
+        this.setState({sourceDetails: response.body.source}, () => this.setLoading(false));
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -423,7 +520,6 @@ class SourceView extends React.Component {
                     </Whisper>
                 </Modal.Footer>
             </Modal>
-
         );
     }
 }
@@ -484,6 +580,10 @@ function AppHeader(props) {
 }
 
 class AppFooter extends React.Component {
+    startAddSourceMode = () => {
+        if (this.props.network) this.props.network.addNodeMode()
+    }
+
     newSourceButton = () => {
         return (
             <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="plus"/>}
@@ -504,7 +604,7 @@ class AppFooter extends React.Component {
                     <Dropdown.Item>
                         <Icon icon="file-o"/> Add File
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={() => console.log('yeet')}>
+                    <Dropdown.Item onClick={this.startAddSourceMode}>
                         <Icon icon="globe2"/> Add Web Page
                     </Dropdown.Item>
                 </Dropdown>
@@ -711,9 +811,9 @@ class NewProjectForm extends React.Component {
         return (
             <Fade in={this.props.show}>
                 <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
-                    <Input id={this.state.inputId} placeholder="New Project Name"/>
+                    <Input autoFocus required id={this.state.inputId} placeholder="New Project Name"/>
                     <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
-                            onClick={this.submit}>Create</Button>
+                            type="submit">Create</Button>
                 </Form>
             </Fade>
         );
@@ -801,12 +901,6 @@ class Project extends React.Component {
         });
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.editing !== this.state.editing && this.state.editing) {
-            document.getElementById(this.state.updatedProjectNameFormId).focus();
-        }
-    }
-
     generateConfirmDeletionWindow = () => {
         return (
             <Modal backdrop="static" show={this.state.confirmDelete} onHide={this.resetDeleteProject} size="xs">
@@ -845,7 +939,7 @@ class Project extends React.Component {
                             {
                                 this.state.editing ?
                                     <Form onSubmit={this.updateProjectName}>
-                                        <Input id={this.state.updatedProjectNameFormId}
+                                        <Input autoFocus required id={this.state.updatedProjectNameFormId}
                                                onClick={(e) => e.stopPropagation()}
                                                onBlur={(e) => this.cancelEditing(e)}
                                                defaultValue={this.props.project.title}/>

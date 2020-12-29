@@ -489,8 +489,8 @@ which is used to extract the page title and content, both of which are saved in 
 If that is the case, the return status wil be 200 instead of 201, since no new source was created.
 - Request arguments (passed as JSON body):
     - `string` "url": the URL of the source that will be added *(Required)*
-    - `int` "x_position": the y position to apply to the source *(Optional)*
-    - `int` "y_position": the y position to apply to the source *(Optional)*
+    - `float` "x_position": the y position to apply to the source *(Optional)*
+    - `float` "y_position": the y position to apply to the source *(Optional)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `short source` object representing the newly created source (or the existing source if the URL is 
@@ -620,8 +620,8 @@ signify that.
 - Request arguments (passed as JSON body, at least one is required):
     - `string` "title": the new title to apply to the source *(Optional)*
     - `string` "content": the new content to apply to the source *(Optional)*
-    - `int` "x_position": the new x position to apply to the source *(Optional)*
-    - `int` "y_position": the new y position to apply to the source *(Optional)*
+    - `float` "x_position": the new x position to apply to the source *(Optional)*
+    - `float` "y_position": the new y position to apply to the source *(Optional)*
     - `array` of `string` "highlights": the new array of highlights to apply to the source *(Optional)*
     - `array` of `string` "notes": the new array of notes to apply to the source *(Optional)*
     - `int` "project_id": the ID of the new project that this source will belong to. It must be a valid ID of an 
