@@ -15,15 +15,14 @@ def create_app(config_name):
     db.init_app(app)
 
     # Set up CORS
-    CORS(app, resources={r'/*': {'origins': '*'}})
-
-    @app.after_request
-    def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers',
-                             'Content-Type, Authorization, true')
-        response.headers.add('Access-Control-Allow-Methods',
-                             'GET, POST, PATCH, DELETE, OPTIONS')
-        return response
+    cors_config = {
+        'origins': ['http://localhost:3000',
+                    'http://knolist.herokuapp.com',
+                    'http://knolist-api.herokuapp.com'],
+        'methods': ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+        'allow_headers': ['Content-Type', 'Authorization', 'true']
+    }
+    CORS(app, resources={r'/*': cors_config})
 
     set_routes(app)
     set_error_handlers(app)
