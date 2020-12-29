@@ -138,6 +138,7 @@ class MindMap extends React.Component {
             sources: null,
             loading: false,
             showNewSourceForm: false,
+            showNewSourceHelperMessage: false,
             newSourceData: null
         }
     }
@@ -196,20 +197,35 @@ class MindMap extends React.Component {
         }
     }
 
+    disableEditMode = () => {
+        this.setShowNewSourceHelperMessage(false);
+        if (this.state.network) this.state.network.disableEditMode()
+    }
+
     switchShowNewSourceForm = () => {
         this.setState({showNewSourceForm: !this.state.showNewSourceForm}, () => {
             // Get out of edit mode if necessary
-            if (!this.state.showNewSourceForm && this.state.network) {
-                this.state.network.disableEditMode()
+            if (!this.state.showNewSourceForm) {
+                this.disableEditMode()
             }
         });
     }
 
+    setShowNewSourceHelperMessage = (val) => {
+        this.setState({showNewSourceHelperMessage: val});
+    }
+
     addSource = (nodeData, callback) => {
         this.switchShowNewSourceForm();
+        this.setShowNewSourceHelperMessage(false);
         this.setState({
             newSourceData: nodeData
         });
+    }
+
+    setAddSourceMode = () => {
+        this.setShowNewSourceHelperMessage(true);
+        if (this.state.network) this.state.network.addNodeMode();
     }
 
     /* Helper function to generate position for nodes
@@ -352,9 +368,18 @@ class MindMap extends React.Component {
         })
     }
 
-    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.curProject !== this.props.curProject) {
             this.renderNetwork();
+        }
+
+        if (prevState.showNewSourceHelperMessage !== this.state.showNewSourceHelperMessage) {
+            if (this.state.showNewSourceHelperMessage) {
+                Alert.info("Click on an empty space to add your new source.",
+                    0, this.disableEditMode);
+            } else {
+                Alert.close();
+            }
         }
     }
 
@@ -375,7 +400,7 @@ class MindMap extends React.Component {
                                curProject={this.props.curProject}
                                renderNetwork={this.renderNetwork}
                                switchShowNewSourceForm={this.switchShowNewSourceForm}/>
-                <AppFooter fit={this.fitNetworkToScreen} network={this.state.network}/>
+                <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
 
         );
@@ -583,10 +608,6 @@ function AppHeader(props) {
 }
 
 class AppFooter extends React.Component {
-    startAddSourceMode = () => {
-        if (this.props.network) this.props.network.addNodeMode()
-    }
-
     newSourceButton = () => {
         return (
             <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="plus"/>}
@@ -604,10 +625,10 @@ class AppFooter extends React.Component {
                 </Whisper>
 
                 <Dropdown trigger={["click", "hover"]} placement="topEnd" renderTitle={this.newSourceButton}>
-                    <Dropdown.Item>
+                    <Dropdown.Item onClick={() => Alert.warning("Feature coming soon...")}>
                         <Icon icon="file-o"/> Add File
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={this.startAddSourceMode}>
+                    <Dropdown.Item onClick={this.props.setAddSourceMode}>
                         <Icon icon="globe2"/> Add Web Page
                     </Dropdown.Item>
                 </Dropdown>
