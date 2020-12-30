@@ -402,7 +402,6 @@ class MindMap extends React.Component {
                                switchShowNewSourceForm={this.switchShowNewSourceForm}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
-
         );
     }
 }
@@ -556,7 +555,7 @@ class SourceView extends React.Component {
                     <Modal full show onHide={this.close}>
                         <Modal.Header>
                             <Modal.Title>
-                                <a target="_blank" rel="noopener noreferrer" href={source.url}>{source.title}</a>
+                                <SourceTitle source={source} getSourceDetails={this.getSourceDetails} renderNetwork={this.props.renderNetwork}/>
                             </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
@@ -586,12 +585,81 @@ function EditSourceItemButton(props) {
 
     const buttonSize = "xs";
     if (props.editMode) {
-        return <Button onClick={() => props.setEditMode(false)} size={buttonSize}>Done</Button>
+        return <Button onClick={() => props.setEditMode(false)} loading={props.loading} size={buttonSize}>Done</Button>
     } else {
         return (
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit {props.type}</Tooltip>} placement="top">
                 <IconButton onClick={() => props.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
             </Whisper>
+        );
+    }
+}
+
+class SourceTitle extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            editMode: false,
+            loading: false,
+            newSourceTitleInputId: "new-source-title-input"
+        }
+    }
+
+    setLoading = (val) => {
+        this.setState({loading: val});
+    }
+
+    updateTitle = (callback) => {
+        const newTitle = document.getElementById(this.state.newSourceTitleInputId).value;
+        if (newTitle === this.props.source.title) {
+            callback();
+            return;
+        }
+        this.setLoading(true);
+        const endpoint = "/sources/" + this.props.source.id;
+        const params = {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                "title": newTitle
+            })
+        }
+        utils.makeHttpRequest(endpoint, params).then(() => {
+            // this.props.renderNetwork();
+            this.props.getSourceDetails(() => {
+                this.setLoading(false);
+                callback();
+            });
+        });
+    }
+
+    setEditMode = (val) => {
+        if (!val) {
+            this.updateTitle(() => this.setState({editMode: val}));
+        } else {
+            this.setState({editMode: val});
+        }
+    }
+
+    renderTitle = () => {
+        if (this.state.editMode) {
+            return <Input style={{width: 400, marginRight: 10}} defaultValue={this.props.source.title}
+                          id={this.state.newSourceTitleInputId} autoFocus required/>
+        } else {
+            return <a target="_blank" rel="noopener noreferrer" style={{marginRight: 10}}
+                      href={this.props.source.url}>{this.props.source.title}</a>
+        }
+    }
+
+    render() {
+        return (
+            <div style={{display: "flex"}}>
+                {this.renderTitle()}
+                <EditSourceItemButton hide={false} editMode={this.state.editMode} loading={this.state.loading}
+                                      setEditMode={this.setEditMode} type="Title"/>
+            </div>
         );
     }
 }
@@ -618,23 +686,7 @@ class HighlightsList extends React.Component {
             Select text on a page, right-click, then click on "Highlight with Knolist".</p>
     }
 
-    renderEditHighlightsButton = () => {
-        if (this.props.highlights.length === 0) return null;
-
-        const buttonSize = "xs";
-        if (this.state.editMode) {
-            return <Button onClick={() => this.setEditMode(false)} size={buttonSize}>Done</Button>
-        } else {
-            return (
-                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Highlights</Tooltip>} placement="top">
-                    <IconButton onClick={() => this.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
-                </Whisper>
-            );
-        }
-    }
-
     render() {
-
         return (
             <div>
                 <div style={{display: "flex"}} className="source-view-subtitle">
