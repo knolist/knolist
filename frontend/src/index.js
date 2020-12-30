@@ -369,7 +369,8 @@ class MindMap extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.curProject !== this.props.curProject) {
-            this.renderNetwork();
+            // Set sources to null before updating to show loading icon
+            this.setState({sources: null}, this.renderNetwork);
         }
 
         if (prevState.showNewSourceHelperMessage !== this.state.showNewSourceHelperMessage) {
@@ -387,7 +388,9 @@ class MindMap extends React.Component {
     }
 
     render() {
-        if (this.props.curProject === null || this.state.loading) return <Loader size="lg" backdrop center/>
+        if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
+            return <Loader size="lg" backdrop center/>
+        }
 
         return (
             <div>
@@ -588,7 +591,7 @@ function EditSourceItemButton(props) {
         return <Button onClick={() => props.setEditMode(false)} loading={props.loading} size={buttonSize}>Done</Button>
     } else {
         return (
-            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit {props.type}</Tooltip>} placement="top">
+            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>{props.tooltipText}</Tooltip>} placement="top">
                 <IconButton onClick={() => props.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
             </Whisper>
         );
@@ -627,7 +630,7 @@ class SourceTitle extends React.Component {
             })
         }
         utils.makeHttpRequest(endpoint, params).then(() => {
-            // this.props.renderNetwork();
+            this.props.renderNetwork();
             this.props.getSourceDetails(() => {
                 this.setLoading(false);
                 callback();
@@ -658,7 +661,7 @@ class SourceTitle extends React.Component {
             <div style={{display: "flex"}}>
                 {this.renderTitle()}
                 <EditSourceItemButton hide={false} editMode={this.state.editMode} loading={this.state.loading}
-                                      setEditMode={this.setEditMode} type="Title"/>
+                                      setEditMode={this.setEditMode} tooltipText="Rename"/>
             </div>
         );
     }
@@ -692,7 +695,7 @@ class HighlightsList extends React.Component {
                 <div style={{display: "flex"}} className="source-view-subtitle">
                     <h6 style={{marginRight: 10}}>{this.props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
                     <EditSourceItemButton hide={this.props.highlights.length === 0} editMode={this.state.editMode}
-                                          setEditMode={this.setEditMode} type="Highlights"/>
+                                          setEditMode={this.setEditMode} tooltipText="Edit Highlights"/>
                 </div>
                 {this.renderAddHighlightsMessage()}
                 <ul>
@@ -812,7 +815,7 @@ class NotesList extends React.Component {
                     <ButtonGroup>
                         {this.renderNewNotesButton()}
                         <EditSourceItemButton hide={this.props.notes.length === 0} editMode={this.isEditMode()}
-                                              setEditMode={this.setEditMode} type="Notes"/>
+                                              setEditMode={this.setEditMode} tooltipText="Edit Notes"/>
                     </ButtonGroup>
                 </div>
                 <ul>
