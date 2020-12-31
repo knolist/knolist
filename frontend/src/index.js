@@ -9,7 +9,6 @@ import {
     Icon,
     IconButton,
     ButtonToolbar,
-    ButtonGroup,
     Input,
     InputGroup,
     Form,
@@ -38,7 +37,7 @@ import './index.css';
 import horizontalLogo from './images/horizontal_main.png';
 
 // Global variables
-const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDkyMDQyNDksImV4cCI6MTYwOTI5MDY0OSwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.FExhb2ofcuRESwecK-fo7Ugk3yqqITxVS4AiiI1BihLc6QLv_w9M5zfZKb9FCYOXaT4UzEeHOv0h-pHrHAdYJJPPjLLnOJP31f9tKgA8pIXYoKKHCZ9Z1UzbUeA6JopGHWd9FZmMKWUcLiocMIDjIAVQEb_aCf5w8Q0wh_f9J3Je8aR53L8lUXk871CuDE1tTSSsFwSBW0oxPwC2EjyIHdD7jUjubAL7muFL793GQp2KEotHQ4Z_7CHbMj1SWGLAubUGD4WRRhtCtILmB9q1CgUIW31Jw-xi-xYFVGclLW9EHrDEG-1Oe9bh6jyYWcKK-idclf6XZ7XId2qVa7zKJg";
+const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDkzNzI2MzksImV4cCI6MTYwOTQ1OTAzOSwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.ktB_CLKs1Mm5aGkMN3pBozUPr-dIUnLmRtMPqUOKxcGDgcU9xLtr6Q9js4wyikmQkQ2hADXTx4IJ5mL9mQWqVBCkzyiCBiE7adnpAGWLpi8QKLJi2bY6sfupwnzJl2Xczy2XIgNdmvyzdgOGDTrlGbhg1Rw9xsGRxYfMcvfNaPc7XZOBUqNAKNs_IL06MW-Udw_oVPy3u5aLYHq9JFbTWxZ1u-ngApp28AZ_mb3plkPMrcPyjDlFBfdowzfFxK33thGqB9DJb1cUM5rxM_fbedXMnFsviS7jUIqbBbzS1sRVU0p_dUG8BDcies7mCCD9OoJzAVkZOkfLxX2XEYmMpA";
 // const baseUrl = "https://knolist-api.herokuapp.com";
 const baseUrl = "http://localhost:5000";
 
@@ -177,17 +176,11 @@ class MindMap extends React.Component {
 
     updateSourcePosition = async (sourceId, x, y) => {
         const endpoint = "/sources/" + sourceId;
-        const params = {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "x_position": x,
-                "y_position": y
-            })
+        const body = {
+            "x_position": x,
+            "y_position": y
         }
-        await utils.makeHttpRequest(endpoint, params);
+        await utils.makeHttpRequest(endpoint, "PATCH", body);
     }
 
     fitNetworkToScreen = () => {
@@ -431,18 +424,13 @@ class NewSourceForm extends React.Component {
         const url = document.getElementById(this.state.newSourceUrlId).value;
         const {x, y} = this.props.newSourceData;
         const endpoint = "/projects/" + this.props.curProject.id + "/sources"
-        const params = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "url": url,
-                "x_position": x,
-                "y_position": y
-            })
+        const body = {
+            "url": url,
+            "x_position": x,
+            "y_position": y
         }
-        utils.makeHttpRequest(endpoint, params).then((response) => {
+
+        utils.makeHttpRequest(endpoint, "POST", body).then((response) => {
             if (response.status === 200) {
                 // Alert that the source already exists in this project
                 Alert.info('This URL already exists in this project.');
@@ -508,10 +496,7 @@ class SourceView extends React.Component {
     deleteSource = () => {
         this.setLoadingDelete(true);
         const endpoint = "/sources/" + this.state.sourceDetails.id;
-        const params = {
-            method: "DELETE"
-        }
-        utils.makeHttpRequest(endpoint, params).then(() => {
+        utils.makeHttpRequest(endpoint, "DELETE").then(() => {
             this.close();
             this.props.renderNetwork();
         })
@@ -558,11 +543,13 @@ class SourceView extends React.Component {
                     <Modal full show onHide={this.close}>
                         <Modal.Header>
                             <Modal.Title>
-                                <SourceTitle source={source} getSourceDetails={this.getSourceDetails} renderNetwork={this.props.renderNetwork}/>
+                                <SourceTitle source={source} getSourceDetails={this.getSourceDetails}
+                                             renderNetwork={this.props.renderNetwork}/>
                             </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <HighlightsList highlights={source.highlights}/>
+                            <HighlightsList highlights={source.highlights} sourceId={source.id}
+                                            getSourceDetails={this.getSourceDetails}/>
                             <Divider/>
                             <NotesList notes={source.notes} sourceId={source.id}
                                        getSourceDetails={this.getSourceDetails}/>
@@ -620,16 +607,11 @@ class SourceTitle extends React.Component {
         }
         this.setLoading(true);
         const endpoint = "/sources/" + this.props.source.id;
-        const params = {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "title": newTitle
-            })
+        const body = {
+            "title": newTitle
         }
-        utils.makeHttpRequest(endpoint, params).then(() => {
+
+        utils.makeHttpRequest(endpoint, "PATCH", body).then(() => {
             this.props.renderNetwork();
             this.props.getSourceDetails(() => {
                 this.setLoading(false);
@@ -671,12 +653,37 @@ class HighlightsList extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            editMode: false
+            editMode: false,
+            selectedHighlights: [],
+            loading: false
         }
     }
 
+    setLoading = (val) => {
+        this.setState({loading: val});
+    }
+
     setEditMode = (val) => {
-        this.setState({editMode: val});
+        this.setState({editMode: val}, () => this.setSelectedHighlights([]));
+    }
+
+    setSelectedHighlights = (arr) => {
+        this.setState({selectedHighlights: arr})
+    }
+
+    deleteSelectedHighlights = () => {
+        this.setLoading(true);
+        const endpoint = "/sources/" + this.props.sourceId + "/highlights";
+        const body = {
+            delete: this.state.selectedHighlights
+        }
+
+        utils.makeHttpRequest(endpoint, "DELETE", body).then(() => {
+            this.props.getSourceDetails(() => {
+                this.setEditMode(false);
+                this.setLoading(false);
+            });
+        })
     }
 
     renderAddHighlightsMessage = () => {
@@ -689,18 +696,43 @@ class HighlightsList extends React.Component {
             Select text on a page, right-click, then click on "Highlight with Knolist".</p>
     }
 
+    renderHighlightsList = () => {
+        if (!this.state.editMode) {
+            return (
+                <ul>
+                    {this.props.highlights.map((highlight, index) => <li key={index}>{highlight}</li>)}
+                </ul>
+            )
+        }
+        return (
+            <CheckboxGroup onChange={this.setSelectedHighlights} value={this.state.selectedHighlights}>
+                {this.props.highlights.map((highlight, index) => <Checkbox key={index}
+                                                                           value={index}>{highlight}</Checkbox>)}
+            </CheckboxGroup>
+        )
+    }
+
+    renderDeleteHighlightsButton = () => {
+        if (this.state.selectedHighlights.length === 0) return null;
+
+        return <Button onClick={this.deleteSelectedHighlights} size="xs" loading={this.state.loading}>
+            Delete Selected Highlights
+        </Button>
+    }
+
     render() {
         return (
             <div>
                 <div style={{display: "flex"}} className="source-view-subtitle">
-                    <h6 style={{marginRight: 10}}>{this.props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet."}</h6>
-                    <EditSourceItemButton hide={this.props.highlights.length === 0} editMode={this.state.editMode}
-                                          setEditMode={this.setEditMode} tooltipText="Edit Highlights"/>
+                    <h6 style={{marginRight: 10}}>{this.props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet"}</h6>
+                    <ButtonToolbar>
+                        <EditSourceItemButton hide={this.props.highlights.length === 0} editMode={this.state.editMode}
+                                              setEditMode={this.setEditMode} tooltipText="Edit Highlights"/>
+                        {this.renderDeleteHighlightsButton()}
+                    </ButtonToolbar>
                 </div>
                 {this.renderAddHighlightsMessage()}
-                <ul>
-                    {this.props.highlights.map((highlight, index) => <li key={index}>{highlight}</li>)}
-                </ul>
+                {this.renderHighlightsList()}
             </div>
         );
     }
@@ -754,16 +786,11 @@ class NotesList extends React.Component {
         this.setLoading(true);
         const newNotes = document.getElementById(this.state.newNotesInputId).value;
         const endpoint = "/sources/" + this.props.sourceId + "/notes";
-        const params = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "note": newNotes
-            })
+        const body = {
+            "note": newNotes
         }
-        utils.makeHttpRequest(endpoint, params).then(() => {
+
+        utils.makeHttpRequest(endpoint, "POST", body).then(() => {
             // Update source
             const callback = () => {
                 this.setShowNewNotesForm(false);
@@ -810,13 +837,13 @@ class NotesList extends React.Component {
             <div>
                 <div style={{display: "flex"}} className="source-view-subtitle">
                     <h6 style={{marginRight: 10}}>
-                        {this.props.notes.length > 0 ? "My Notes" : "You haven't added any notes yet."}
+                        {this.props.notes.length > 0 ? "My Notes" : "You haven't added any notes yet"}
                     </h6>
-                    <ButtonGroup>
+                    <ButtonToolbar>
                         {this.renderNewNotesButton()}
                         <EditSourceItemButton hide={this.props.notes.length === 0} editMode={this.isEditMode()}
                                               setEditMode={this.setEditMode} tooltipText="Edit Notes"/>
-                    </ButtonGroup>
+                    </ButtonToolbar>
                 </div>
                 <ul>
                     {this.props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
@@ -901,11 +928,9 @@ class SearchAndFilter extends React.Component {
             value: filterCategories,
             filterCategories: filterCategories
         };
-        this.handleCheckAll = this.handleCheckAll.bind(this);
-        this.handleChange = this.handleChange.bind(this);
     }
 
-    handleCheckAll(value, checked) {
+    handleCheckAll = (value, checked) => {
         const nextValue = checked ? this.state.filterCategories : [];
         this.setState({
             value: nextValue,
@@ -914,7 +939,7 @@ class SearchAndFilter extends React.Component {
         });
     }
 
-    handleChange(value) {
+    handleChange = (value) => {
         this.setState({
             value: value,
             indeterminate: value.length > 0 && value.length < this.state.filterCategories.length,
@@ -1055,16 +1080,11 @@ class NewProjectForm extends React.Component {
         let projectName = document.getElementById(this.state.inputId).value;
         projectName = utils.trimString(projectName);
         const endpoint = "/projects";
-        const params = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "title": projectName
-            })
+        const body = {
+            "title": projectName
         }
-        utils.makeHttpRequest(endpoint, params).then(() => {
+
+        utils.makeHttpRequest(endpoint, "POST", body).then(() => {
             // Update projects
             const callback = () => {
                 this.props.setShowNewProjectForm(false);
@@ -1160,10 +1180,7 @@ class Project extends React.Component {
     deleteProject = () => {
         this.setLoading(true);
         const endpoint = "/projects/" + this.props.project.id;
-        const params = {
-            method: "DELETE"
-        }
-        utils.makeHttpRequest(endpoint, params).then(() => {
+        utils.makeHttpRequest(endpoint, "DELETE").then(() => {
             // Reset the current project if the deleted is active
             let callback;
             if (this.props.active) callback = () => this.props.setCurProject(null);
@@ -1175,16 +1192,11 @@ class Project extends React.Component {
         this.setLoading(true);
         const updatedProjectName = utils.trimString(document.getElementById(this.state.updatedProjectNameFormId).value);
         const endpoint = "/projects/" + this.props.project.id;
-        const params = {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "title": updatedProjectName
-            })
+        const body = {
+            "title": updatedProjectName
         }
-        utils.makeHttpRequest(endpoint, params).then(() => {
+
+        utils.makeHttpRequest(endpoint, "PATCH", body).then(() => {
             this.props.updateProjects(() => {
                 this.setEditing(false);
                 this.setLoading(false);
