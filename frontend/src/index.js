@@ -273,7 +273,7 @@ class MindMap extends React.Component {
         return [nodes, edges];
     }
 
-    renderNetwork = () => {
+    renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
 
         this.getSources(() => {
@@ -356,7 +356,7 @@ class MindMap extends React.Component {
             network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
 
             // Store the network
-            this.setState({network: network});
+            this.setState({network: network}, callback);
         })
     }
 
@@ -486,7 +486,7 @@ class SourceView extends React.Component {
     }
 
     setConfirmDelete = (val) => {
-        this.setState({confirmDelete: val});
+        this.setState({confirmDelete: val}, () => this.setLoadingDelete(false));
     }
 
     setLoadingDelete = (val) => {
@@ -497,8 +497,10 @@ class SourceView extends React.Component {
         this.setLoadingDelete(true);
         const endpoint = "/sources/" + this.state.sourceDetails.id;
         utils.makeHttpRequest(endpoint, "DELETE").then(() => {
-            this.close();
-            this.props.renderNetwork();
+            this.props.renderNetwork(() => {
+                this.close();
+                this.setConfirmDelete(false);
+            });
         })
     }
 
@@ -506,7 +508,7 @@ class SourceView extends React.Component {
         this.props.setSelectedNode(null);
     }
 
-    getSourceDetails = async (callback) => {
+    getSourceDetails = async () => {
         if (this.props.selectedNode === null) {
             this.setState({sourceDetails: null});
             return;
@@ -514,9 +516,7 @@ class SourceView extends React.Component {
 
         const endpoint = "/sources/" + this.props.selectedNode;
         const response = await utils.makeHttpRequest(endpoint);
-        this.setState({sourceDetails: response.body.source}, () => {
-            if (typeof callback === "function") callback()
-        });
+        this.setState({sourceDetails: response.body.source});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -612,10 +612,11 @@ class SourceTitle extends React.Component {
         }
 
         utils.makeHttpRequest(endpoint, "PATCH", body).then(() => {
-            this.props.renderNetwork();
-            this.props.getSourceDetails(() => {
-                this.setLoading(false);
-                callback();
+            this.props.renderNetwork(() => {
+                this.props.getSourceDetails().then(() => {
+                    this.setLoading(false);
+                    callback();
+                });
             });
         });
     }
@@ -679,7 +680,7 @@ class HighlightsList extends React.Component {
         }
 
         utils.makeHttpRequest(endpoint, "DELETE", body).then(() => {
-            this.props.getSourceDetails(() => {
+            this.props.getSourceDetails().then(() => {
                 this.setEditMode(false);
                 this.setLoading(false);
             });
@@ -810,11 +811,10 @@ class NotesList extends React.Component {
 
         utils.makeHttpRequest(endpoint, "POST", body).then(() => {
             // Update source
-            const callback = () => {
+            this.props.getSourceDetails().then(() => {
                 this.setShowNewNotesForm(false);
                 this.setLoading(false);
-            }
-            this.props.getSourceDetails(callback);
+            });
         });
     }
 
@@ -828,8 +828,7 @@ class NotesList extends React.Component {
                 "new_content": value
             }
             utils.makeHttpRequest(endpoint, "PATCH", body).then(() => {
-                this.props.getSourceDetails();
-                this.setLoadingNoteUpdate(false);
+                this.props.getSourceDetails().then(() => this.setLoadingNoteUpdate(false));
             })
         }
     }
@@ -842,7 +841,7 @@ class NotesList extends React.Component {
         }
 
         utils.makeHttpRequest(endpoint, "DELETE", body).then(() => {
-            this.props.getSourceDetails(() => {
+            this.props.getSourceDetails().then(() => {
                 this.setMode(this.state.modes.NULL);
                 this.setLoading(false);
             });
