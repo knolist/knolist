@@ -668,7 +668,7 @@ class HighlightsList extends React.Component {
     }
 
     setSelectedHighlights = (arr) => {
-        this.setState({selectedHighlights: arr})
+        this.setState({selectedHighlights: arr});
     }
 
     deleteSelectedHighlights = () => {
@@ -748,15 +748,29 @@ class NotesList extends React.Component {
         }
         this.state = {
             loading: false,
+            loadingNoteUpdate: false,
             mode: modes.NULL,
             modes: modes,
-            newNotesInputId: "new-notes-input"
+            newNotesInputId: "new-notes-input",
+            selectedNotes: []
         }
+    }
+
+    setSelectedNotes = (arr) => {
+        this.setState({selectedNotes: arr});
     }
 
     setMode = (val) => {
         if (Object.values(this.state.modes).includes(val)) {
-            this.setState({mode: val});
+            // If a note is being updated, wait for that to be over
+            if (this.state.loadingNoteUpdate) {
+                this.setLoading(true);
+                setTimeout(() => this.setMode(val), 50); // Wait 50 milliseconds then recheck
+                return;
+            }
+            this.setLoading(false);
+
+            this.setState({mode: val}, () => this.setSelectedNotes([]));
         }
     }
 
@@ -782,6 +796,10 @@ class NotesList extends React.Component {
         this.setState({loading: val});
     }
 
+    setLoadingNoteUpdate = (val) => {
+        this.setState({loadingNoteUpdate: val});
+    }
+
     addNotes = () => {
         this.setLoading(true);
         const newNotes = document.getElementById(this.state.newNotesInputId).value;
@@ -800,6 +818,37 @@ class NotesList extends React.Component {
         });
     }
 
+    updateNotes = (index, value) => {
+        // Only update if it's different
+        if (this.props.notes[index] !== value) {
+            this.setLoadingNoteUpdate(true);
+            const endpoint = "/sources/" + this.props.sourceId + "/notes";
+            const body = {
+                "note_index": index,
+                "new_content": value
+            }
+            utils.makeHttpRequest(endpoint, "PATCH", body).then(() => {
+                this.props.getSourceDetails();
+                this.setLoadingNoteUpdate(false);
+            })
+        }
+    }
+
+    deleteSelectedNotes = () => {
+        this.setLoading(true);
+        const endpoint = "/sources/" + this.props.sourceId + "/notes";
+        const body = {
+            delete: this.state.selectedNotes
+        }
+
+        utils.makeHttpRequest(endpoint, "DELETE", body).then(() => {
+            this.props.getSourceDetails(() => {
+                this.setMode(this.state.modes.NULL);
+                this.setLoading(false);
+            });
+        })
+    }
+
     renderNewNotesButton = () => {
         const buttonSize = "xs";
         let buttonAppearance = "default";
@@ -816,6 +865,33 @@ class NotesList extends React.Component {
                 </Whisper>
             );
         }
+    }
+
+    renderDeleteNotesButton = () => {
+        if (this.state.selectedNotes.length === 0) return null;
+
+        return <Button onClick={this.deleteSelectedNotes} size="xs" loading={this.state.loading}>
+            Delete Selected Notes
+        </Button>
+    }
+
+    renderNotesList = () => {
+        if (!this.isEditMode()) {
+            return (
+                <ul>
+                    {this.props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
+                </ul>
+            )
+        }
+        return (
+            <CheckboxGroup onChange={this.setSelectedNotes} value={this.state.selectedNotes}>
+                {this.props.notes.map((notes, index) => {
+                    return <Checkbox key={index} value={index}>
+                        <Input defaultValue={notes} onBlur={(e) => this.updateNotes(index, e.target.value)}/>
+                    </Checkbox>
+                })}
+            </CheckboxGroup>
+        )
     }
 
     renderNewNotesForm = () => {
@@ -842,12 +918,12 @@ class NotesList extends React.Component {
                     <ButtonToolbar>
                         {this.renderNewNotesButton()}
                         <EditSourceItemButton hide={this.props.notes.length === 0} editMode={this.isEditMode()}
-                                              setEditMode={this.setEditMode} tooltipText="Edit Notes"/>
+                                              setEditMode={this.setEditMode} loading={this.state.loading}
+                                              tooltipText="Edit Notes"/>
+                        {this.renderDeleteNotesButton()}
                     </ButtonToolbar>
                 </div>
-                <ul>
-                    {this.props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
-                </ul>
+                {this.renderNotesList()}
                 {this.renderNewNotesForm()}
             </div>
         );
