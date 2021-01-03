@@ -37,7 +37,7 @@ import './index.css';
 import horizontalLogo from './images/horizontal_main.png';
 
 // Global variables
-const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDkzNzI2MzksImV4cCI6MTYwOTQ1OTAzOSwiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.ktB_CLKs1Mm5aGkMN3pBozUPr-dIUnLmRtMPqUOKxcGDgcU9xLtr6Q9js4wyikmQkQ2hADXTx4IJ5mL9mQWqVBCkzyiCBiE7adnpAGWLpi8QKLJi2bY6sfupwnzJl2Xczy2XIgNdmvyzdgOGDTrlGbhg1Rw9xsGRxYfMcvfNaPc7XZOBUqNAKNs_IL06MW-Udw_oVPy3u5aLYHq9JFbTWxZ1u-ngApp28AZ_mb3plkPMrcPyjDlFBfdowzfFxK33thGqB9DJb1cUM5rxM_fbedXMnFsviS7jUIqbBbzS1sRVU0p_dUG8BDcies7mCCD9OoJzAVkZOkfLxX2XEYmMpA";
+const jwt = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkZYNkFEd1BWdUJpQ3g0UjhKMWxDTCJ9.eyJpc3MiOiJodHRwczovL2tub2xpc3QudXMuYXV0aDAuY29tLyIsInN1YiI6ImF1dGgwfDVmNDczN2VjOWM1MTA2MDA2ZGUxNjFiYyIsImF1ZCI6Imtub2xpc3QiLCJpYXQiOjE2MDk3MTI0MjMsImV4cCI6MTYwOTc5ODgyMywiYXpwIjoicEJ1NXVQNG1LVFFnQnR0VFcxM04wd0NWZ3N4OTBLTWkiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImNyZWF0ZTpjb25uZWN0aW9ucyIsImNyZWF0ZTpoaWdobGlnaHRzIiwiY3JlYXRlOm5vdGVzIiwiY3JlYXRlOnByb2plY3RzIiwiY3JlYXRlOnNvdXJjZXMiLCJkZWxldGU6Y29ubmVjdGlvbnMiLCJkZWxldGU6aGlnaGxpZ2h0cyIsImRlbGV0ZTpub3RlcyIsImRlbGV0ZTpwcm9qZWN0cyIsImRlbGV0ZTpzb3VyY2VzIiwicmVhZDpwcm9qZWN0cyIsInJlYWQ6c291cmNlcyIsInJlYWQ6c291cmNlcy1kZXRhaWwiLCJzZWFyY2g6c291cmNlcyIsInVwZGF0ZTpub3RlcyIsInVwZGF0ZTpwcm9qZWN0cyIsInVwZGF0ZTpzb3VyY2VzIl19.GBa10hWFVh-AUfHMLq77AQ_TpcA63oxAlXuqO6THFL1tNVapNUMX4TD3L5wuakD8EVyhFo1MGSq_Yw3VB-cJu_DPMSNvVpytqKKcndTJ6I0eIXd5zzRoEOyFKlDaofrmcB3NjF9f8PICK__-EG9Cm_I8dMUTyF8g9GWAgaUsWSKTFr5jk_vPmoCq0x4anlaFa4FZZ2JDLevC3KQ5xYO_OWWDwE4kyjslEMADHywmiSe0wkR-W7s2_7EYsrHmt2l8JVH8MRsX6stNxEBtjlBFQnPrbrcLcKOKF2lu8JgdSMLOK1j7E94f0C2lnAMngDA1-hGqu8Y0dYwZPXUQv2V6IQ";
 // const baseUrl = "https://knolist-api.herokuapp.com";
 const baseUrl = "http://localhost:5000";
 
@@ -53,27 +53,25 @@ class App extends React.Component {
         }
     }
 
-    getProjects = async () => {
-        const response = await utils.makeHttpRequest("/projects");
-        return response.body.projects;
-    }
-
     updateProjects = (callback) => {
-        this.getProjects().then(projects => {
+        utils.makeHttpRequest("/projects").then(response => {
+            // TODO: this is what indicates a user that isn't authenticated, implement login
+            if (!response.body.success) return;
+
+            const projects = response.body.projects;
             this.setState({projects: projects}, () => {
                 // Update current project
                 if (this.state.curProject !== null) {
                     this.setCurProject(this.state.curProject.id);
+                } else if (projects && projects.length > 0) {
+                    this.setState({curProject: projects[0]});
                 }
 
                 if (typeof callback === "function") {
                     callback();
                 }
-                if (projects.length > 0 && this.state.curProject === null) {
-                    this.setState({curProject: projects[0]});
-                }
             })
-        });
+        })
     }
 
     switchShowProjectsSidebar = () => {
