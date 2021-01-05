@@ -1,5 +1,6 @@
-# Knolist API
-This is the repository for the complete Knolist API. It is a Flask-based API that connects to a Postgres database.  
+# Knolist
+This is the repository for the complete Knolist App. It is a Flask-based API that connects to a Postgres database, 
+along with a React-based front end.  
 Knolist is a research-assistant tool that aims to revolutionize how you organize your sources and find new ideas for 
 your projects. It allows users to create projects and save their sources in a mind map style, where each source is 
 viewed as a node in a graph.
@@ -12,42 +13,58 @@ source.
 relate to each other.
 
 ## Project guidelines
-### Project structure highlights (as of 10/7/20)
+### Project structure highlights (as of 1/4/21)
 ```text
 .
 ├── Procfile --> File that contains deployment instructions for Heroku
 ├── README.md --> This file
 ├── app --> Folder that contains most of the backend source code
-│   ├── __init__.py
-│   ├── main
-│   │   ├── __init__.py
-│   │   ├── auth --> Package that handles auth using Auth0
-│   │   │   └── __init__.py
-│   │   ├── config.py --> Sets up environments configurations (dev, test, prod) and databases
-│   │   ├── controllers --> Sets the API endpoints
-│   │   │   ├── __init__.py --> General endpoints
-│   │   │   ├── connections.py --> Endpoints for /connections/...
-│   │   │   ├── projects.py --> Endpoints for /projects/...
-│   │   │   └── sources.py --> Endpoints for /sources/...
-│   │   ├── error_handlers --> Defines the Flask error handlers
-│   │   │   └── __init__.py
-│   │   └── models --> Defines the SQLAlchemy database models
-│   │       ├── __init__.py
-│   │       └── models.py
-│   └── test --> All test files
-│       ├── __init__.py
-│       ├── test_auth.py
-│       ├── test_config.py
-│       ├── test_connections.py
-│       ├── test_projects.py
-│       ├── test_rbac.py
-│       └── test_sources.py
+│   ├── __init__.py
+│   ├── main
+│   │   ├── __init__.py
+│   │   ├── auth --> Package that handles auth using Auth0
+│   │   │   └── __init__.py
+│   │   ├── config.py --> Sets up environments configurations (dev, test, prod) and databases
+│   │   ├── controllers --> Sets the API endpoints
+│   │   │   ├── __init__.py --> General endpoints
+│   │   │   ├── connections.py --> Endpoints for /connections/...
+│   │   │   ├── projects.py --> Endpoints for /projects/...
+│   │   │   └── sources.py --> Endpoints for /sources/...
+│   │   ├── error_handlers --> Defines the Flask error handlers
+│   │   │   └── __init__.py
+│   │   └── models --> Defines the SQLAlchemy database models
+│   │       ├── __init__.py
+│   │       └── models.py
+│   └── test --> All test files
+│       ├── __init__.py
+│       ├── test_auth.py
+│       ├── test_config.py
+│       ├── test_connections.py
+│       ├── test_projects.py
+│       ├── test_rbac.py
+│       └── test_sources.py
+├── frontend --> Folder tha contains all of the frontend code (React)
+│   ├── README.md --> Details how to run the frontend commands
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public --> Folder that contains public static files (.ico, manifest.json, index.html, etc)
+│   └── src --> Folder that contains the React source code
+│       ├── app --> Contains React components specific to the app (AppHeader, MindMap, SourceView, etc)
+│       ├── components --> Contains reusable components (ConfirmDeletionWindow, etc)
+│       ├── images --> Contains images that are imported by the React code (logos)
+│       ├── index.css --> Main stylesheet
+│       ├── index.js --> First file that is called, renders the App component
+│       └── services --> Collection of helpers
+│           ├── HttpRequest.js --> Contains the method we use to make HTTP calls (it includes some utilities like authorization)
+│           └── StringHelpers.js
 ├── knolist.postman_collection.json --> Postman test suite
 ├── manage.py --> Initiates the app, first script to be called
 ├── migrations --> Folder that contains the Flask-Migrate database migrations
 ├── requirements.txt --> Contains the necessary pip requirements
 └── setup.sh --> Defines the necessary environment variables
 ```
+- PS: Command to obtain tree:  
+`tree -I "build|node_modules|env|__pycache__"`
 
 ### GitHub guidelines
 We have 3 main branches on GitHub, with increasing importance and restrictions:
@@ -90,6 +107,25 @@ style rules. Code that fails at following those rules will not be accepted.
  
 To check if your code follows PEP 8, use the [`pycodestyle`](https://pypi.org/project/pycodestyle/) command.
 
+### API Development
+To develop a new endpoint, follow these steps:
+1. Locate the correct files to edit. This is based on the first URL parameter of your endpoit.
+For example, if you're developing an endpoint that starts with `/projects`, you will edit the `projects.py` controller
+and the `test_projects.py` test file.
+2. Write comprehensive test cases for the endpoint you want to implement.
+3. Run the tests and observe them fail (as expected, since nothing has been implemented)
+4. Write code in the controller to perform the desired action for the new endpoint
+5. If you need to make database updates, make the necessary documentation updates here and 
+use Flask-Migrate to run a database migration after making your updates to the Model classes:
+```bash
+python manage.py db migrate
+python manage.py db upgrade
+```
+6. Test the code and rewrite as necessary to pass the tests
+7. Refactor your code for efficiency and correct style (use `pycodestyle`)
+8. Add a clear documentation of your endpoint to the README, following the standard for the other endpoints
+9. Only commit code that satisfies our style guidelines and passes all tests
+
 
 ## Getting Started
 ### Installing Dependencies
@@ -103,7 +139,7 @@ Follow instructions to install the latest version of python for your platform in
 We recommend working within a virtual environment whenever using Python for projects. This keeps your dependencies 
 for each project separate and organized. To create a virtual environment, observe the following steps:
 1. Install `virtualenv` if you haven't done so yet: `pip3 install virtualenv`
-2. From the root directory, create a virtual environment called `env`: `python3 -m venv env`
+2. From the root directory, create a virtual environment called `env`: `python -m venv env`
 3. Activate the virtual environment: `source env/bin/activate`
 4. To deactivate the virtual environment, simply run: `deactivate`
 
@@ -113,12 +149,12 @@ Once you have your virtual environment setup and running, install dependencies b
 from the root directory:
 
 ```bash
-pip3 install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 This will install all of the required packages we selected within the `requirements.txt` file.
 
-##### Key Dependencies
+##### Key Backend Dependencies
 
 - [Flask](http://flask.pocoo.org/) is a lightweight backend microservices framework. 
 Flask is required to handle requests and responses.
@@ -136,6 +172,17 @@ Useful for encoding, decoding, and verifying JWTs.
 
 - [unittest](https://docs.python.org/3/library/unittest.html): The default Python unit testing framework, used for our
 automated test suite.
+
+#### Key Frontend Dependencies
+- [npm](https://www.npmjs.com/): Node Package Manager, used to install and manage dependencies for our frontend code.
+
+- [React.js](https://reactjs.org/): JavaScript library/framework for frontend development.
+
+- [Babel](https://babeljs.io/): JavaScript compiler that enables us to use [JSX](https://reactjs.org/docs/introducing-jsx.html) in React.
+
+- [React Suite](https://rsuitejs.com/): A suite of React components, sensible UI design, and a friendly development experience.
+
+- [vis-network](https://visjs.github.io/vis-network/docs/network/): A part of the [vis.js](https://visjs.org/) library used to display the graph structure of a project.
 
 ## Database Setup
 Install Postgres following [these instructions](https://www.postgresql.org/download/). 
@@ -157,7 +204,7 @@ createdb knolist_test
 
 Run the database migrations to create the schema of the `knolist` database:
 ```bash
-python3 manage.py db upgrade
+python manage.py db upgrade
 ```
 
 ### Data Modeling
@@ -198,7 +245,7 @@ source setup.sh
 
 To run the server, execute:
 ```bash
-python3 manage.py run
+python manage.py run
 ```
 By default, the server will be run on `localhost:5000`.
 
@@ -210,7 +257,7 @@ By changing the `$BOILERPLATE_ENV` environment variable in `setup.sh`, you can c
 ## Testing
 To run the `unittest` test suite, run the following command from the root directory:
 ```bash
-python3 manage.py test
+python manage.py test
 ```
 
 A [Postman collection](./knolist.postman_collection.json) with a valid JWT is also included to facilitate testing the 
@@ -475,6 +522,8 @@ which is used to extract the page title and content, both of which are saved in 
 If that is the case, the return status wil be 200 instead of 201, since no new source was created.
 - Request arguments (passed as JSON body):
     - `string` "url": the URL of the source that will be added *(Required)*
+    - `float` "x_position": the y position to apply to the source *(Optional)*
+    - `float` "y_position": the y position to apply to the source *(Optional)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "source": a `short source` object representing the newly created source (or the existing source if the URL is 
@@ -604,8 +653,8 @@ signify that.
 - Request arguments (passed as JSON body, at least one is required):
     - `string` "title": the new title to apply to the source *(Optional)*
     - `string` "content": the new content to apply to the source *(Optional)*
-    - `int` "x_position": the new x position to apply to the source *(Optional)*
-    - `int` "y_position": the new y position to apply to the source *(Optional)*
+    - `float` "x_position": the new x position to apply to the source *(Optional)*
+    - `float` "y_position": the new y position to apply to the source *(Optional)*
     - `array` of `string` "highlights": the new array of highlights to apply to the source *(Optional)*
     - `array` of `string` "notes": the new array of notes to apply to the source *(Optional)*
     - `int` "project_id": the ID of the new project that this source will belong to. It must be a valid ID of an 

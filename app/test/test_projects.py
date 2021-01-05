@@ -203,7 +203,9 @@ class TestProjectsEndpoints(unittest.TestCase):
     def test_create_source(self):
         old_total = len(Project.query.get(self.project_1.id).sources)
         res = self.client().post(f'/projects/{self.project_1.id}/sources',
-                                 json={'url': self.new_source_url},
+                                 json={'url': self.new_source_url,
+                                       'x_position': self.source_1.x_position,
+                                       'y_position': self.source_1.y_position},
                                  headers=auth_header)
         data = json.loads(res.data)
 
@@ -214,6 +216,8 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertIsNotNone(Source.query.get(added_source['id']))
         self.assertEqual(added_source['project_id'], self.project_1.id)
         self.assertEqual(added_source['url'], self.new_source_url)
+        self.assertEqual(added_source['x_position'], self.source_1.x_position)
+        self.assertEqual(added_source['y_position'], self.source_1.y_position)
         self.assertEqual(new_total, old_total + 1)
 
     def test_create_existing_source(self):

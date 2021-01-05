@@ -33,13 +33,14 @@ def extract_content_from_url(url):
         }
 
 
-def create_and_insert_source(url, project_id):
+def create_and_insert_source(url, project_id, x=None, y=None):
     extraction_results = extract_content_from_url(url)
     content = extraction_results['content']
     title = extraction_results['title']
 
     source = Source(url=url, title=title,
-                    content=content, project_id=project_id)
+                    content=content, project_id=project_id,
+                    x_position=x, y_position=y)
     source.insert()
 
     return source
@@ -183,6 +184,8 @@ def set_project_routes(app):
             abort(400)
 
         url = body.get('url', None)
+        x = body.get('x_position', None)
+        y = body.get('y_position', None)
         if url is None:
             abort(400)
 
@@ -197,7 +200,7 @@ def set_project_routes(app):
             })  # Status code 200 to represent that no new object was created
 
         # Extract content to create source object
-        source = create_and_insert_source(url, project_id)
+        source = create_and_insert_source(url, project_id, x, y)
 
         return jsonify({
             'success': True,

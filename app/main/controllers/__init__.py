@@ -1,4 +1,6 @@
-from flask import jsonify
+import os
+
+from flask import jsonify, send_from_directory
 
 from .projects import set_project_routes
 from .sources import set_source_routes
@@ -6,9 +8,14 @@ from .connections import set_connection_routes
 
 
 def set_routes(app):
-    @app.route('/')
-    def index():
-        return '<h1>Welcome to the Knolist API!</h1>'
+    # Serve React App
+    @app.route('/', defaults={'path': ''})
+    @app.route('/<path:path>')
+    def serve(path):
+        if path != "" and os.path.exists(app.static_folder + '/' + path):
+            return send_from_directory(app.static_folder, path)
+        else:
+            return send_from_directory(app.static_folder, 'index.html')
 
     @app.route('/auth/callback')
     def auth_callback():
