@@ -49,7 +49,7 @@ class App extends React.Component {
         this.setState({showProjectsSidebar: !this.state.showProjectsSidebar});
     }
 
-    setCurProject = async (projectId) => {
+    setCurProject = (projectId) => {
         if (projectId === null) this.setState({curProject: null})
         else {
             const project = this.state.projects.find(x => x.id === projectId);

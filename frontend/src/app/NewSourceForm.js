@@ -57,7 +57,7 @@ class NewSourceForm extends React.Component {
             <Modal show onHide={this.close}>
                 <Modal.Header>
                     <Modal.Title>
-                        Insert the URL of the source you'd like to add.
+                        Insert the URL of the source you'd like to add
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={this.addNewSource}>

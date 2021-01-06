@@ -184,6 +184,10 @@ automated test suite.
 
 - [vis-network](https://visjs.github.io/vis-network/docs/network/): A part of the [vis.js](https://visjs.org/) library used to display the graph structure of a project.
 
+
+#### Installing frontend dependencies
+From the `frontend` directory, run `npm install`
+
 ## Database Setup
 Install Postgres following [these instructions](https://www.postgresql.org/download/). 
 On Linux, you have to run:
@@ -263,6 +267,13 @@ python manage.py test
 A [Postman collection](./knolist.postman_collection.json) with a valid JWT is also included to facilitate testing the 
 endpoints. The collection doesn't have any tests, since those are done through unittest.
 The [setup.sh](./setup.sh) file contains two valid JWTs for local testing, as well.
+
+## Running the frontend
+After installing the frontend dependencies, run `npm start` from the `frontend` folder. The frontend will
+be accessible at `http://localhost:3000`.
+
+To create a build that can be accessed from the main Python server, run `npm run build`, then visit `http://localhost:5000`
+(with the backend running).
 
 # Knolist API Reference
 ## Getting Started
