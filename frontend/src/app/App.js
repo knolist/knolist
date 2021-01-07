@@ -6,6 +6,7 @@ import {Button} from 'rsuite';
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
+import BibWindow from "./BibWindow";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -20,7 +21,8 @@ class App extends React.Component {
         this.state = {
             curProject: JSON.parse(localStorage.getItem("curProject")),
             projects: null,
-            showProjectsSidebar: false
+            showProjectsSidebar: false,
+            showBib: false
         }
     }
 
@@ -65,6 +67,13 @@ class App extends React.Component {
         );
     }
 
+    // TODO: <BibWindow/> is rendered like MindMap in App.js if clicked on
+    setShowBib = (clicked) => {
+        this.setState({
+            showBib: clicked
+        });
+    }
+
     componentDidMount() {
         this.updateProjects()
     }
@@ -82,13 +91,14 @@ class App extends React.Component {
     render() {
         return (
             <div>
-                <AppHeader curProject={this.state.curProject}/>
+                <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                                  projects={this.state.projects}
                                  close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                                  setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
                 <MindMap curProject={this.state.curProject}/>
+                <BibWindow showBib={this.state.showBib} setShowBib={this.setShowBib}/>
             </div>
         );
     }

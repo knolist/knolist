@@ -23,34 +23,22 @@ function AppHeader(props) {
                     </span>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
-                    <SearchAndFilter/>
-                    <Bib/>
+                    <FlexboxGrid>
+                        <SearchAndFilter/>
+                        <BibButton setShowBib={props.setShowBib}/>
+                    </FlexboxGrid>
                 </FlexboxGrid.Item>
             </FlexboxGrid>
         </Navbar>
     );
 }
 
-class Bib extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            clicked: false
-        };
-    }
-
-    // TODO: <BibWindow/> is rendered like MindMap in App.js if clicked on
-    openWindow = (clicked) => {
-        this.state = {
-            clicked: true
-        };
-    }
-
+class BibButton extends React.Component {
     render() {
         return(
             <FlexboxGrid>
                 <FlexboxGrid.Item>
-                    <IconButton onClick={() => this.openWindow(true)} icon={<Icon icon="bibliography"/>}/>
+                    <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
                 </FlexboxGrid.Item>
             </FlexboxGrid>
         );

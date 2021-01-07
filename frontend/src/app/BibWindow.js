@@ -1,77 +1,29 @@
 import React from "react";
 import {
-    Alert,  Loader
+    Alert,  Loader, Modal
 } from "rsuite";
 import {Network, DataSet} from "vis-network/standalone";
-
-import bibliography from "./bibliography";
-// import SourceView from "./SourceView";
-// import NewSourceForm from "./NewSourceForm";
-import AppFooter from "./AppFooter";
 
 import makeHttpRequest from "../services/HttpRequest";
 
 class BibWindow extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            // network: null,
-            // visNodes: null,
-            // visEdges: null,
-            // selectedNode: null,
-            // sources: null,
-            // loading: false,
-            // showNewSourceForm: false,
-            // showNewSourceHelperMessage: false,
-            // newSourceData: null
-            bibWindow: null
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.curProject !== this.props.curProject) {
-            // Set sources to null before updating to show loading icon
-            this.setState({sources: null}, this.renderBibWindow);
-        }
-
-        // if (prevState.showNewSourceHelperMessage !== this.state.showNewSourceHelperMessage) {
-        //     if (this.state.showNewSourceHelperMessage) {
-        //         Alert.info("Click on an empty space to add your new source.",
-        //             0, this.disableEditMode);
-        //     } else {
-        //         Alert.close();
-        //     }
-        // }
-    }
-
-    componentDidMount() {
-        this.renderBibWindow();
-    }
 
     render() {
-        if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
-            return <Loader size="lg" backdrop center/>
-        }
-
         return (
-            <div>
-                <h1>Bibliography</h1>
-                // TODO: this is where source/citation interactions would be
-                <ul>
-                    <li>Citation</li>
-                    <li>Citation</li>
-                </ul>
-                // <div id="mindmap"/>
-                // <SourceView selectedNode={this.state.selectedNode}
-                //             setSelectedNode={this.setSelectedNode}
-                //             renderNetwork={this.renderNetwork}/>
-                // <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
-                //                newSourceData={this.state.newSourceData}
-                //                curProject={this.props.curProject}
-                //                renderNetwork={this.renderNetwork}
-                //                switchShowNewSourceForm={this.switchShowNewSourceForm}/>
-                // <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
-            </div>
+            <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
+                <Modal.Header>
+                    <Modal.Title>
+                    Bibliography
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/* TODO: this is where source/citation interactions would be*/}
+                    <ul>
+                        <li>Citation</li>
+                        <li>Citation</li>
+                    </ul>
+                </Modal.Body>
+            </Modal>
         );
     }
 
