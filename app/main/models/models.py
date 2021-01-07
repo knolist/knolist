@@ -58,6 +58,46 @@ class Project(BaseModel):
         }
 
 
+class Cluster(BaseModel):
+    """
+    Represents a specific cluster, which is a grouping of nodes.
+    """
+    __tablename__ = 'clusters'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    x_position = db.Column(db.Integer)
+    y_position = db.Column(db.Integer)
+    # The project that holds this source
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
+                           nullable=False)
+    parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'), nullable = True)
+    child_clusters = db.relationship('Cluster', backref=db.backref('parent_cluster', remote_side = [id]))
+    child_sources = db.relationship('Source', backref='cluster', cascade='all, delete-orphan', lazy=True)
+
+    def __repr__(self):
+        return f'<Cluster {self.id}: {self.name}>'
+
+    def format_long(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'x_position': self.x_position,
+            'y_position': self.y_position,
+            'project_id': self.project_id
+        }
+
+    def format_short(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'x_position': self.x_position,
+            'y_position': self.y_position,
+            'project_id': self.project_id
+        }
+
+
+
+
 class Source(BaseModel):
     """
     Represents a specific source, which is a node in a directed graph.
@@ -83,6 +123,7 @@ class Source(BaseModel):
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
                            nullable=False)
+    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
 
     # Self-referential many-to-many relationship
     next_sources = db.relationship('Source', secondary=edges,
@@ -120,3 +161,6 @@ class Source(BaseModel):
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
+
+
+
