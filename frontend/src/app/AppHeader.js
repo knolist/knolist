@@ -34,7 +34,6 @@ function AppHeader(props) {
 class Bib extends React.Component {
     constructor(props) {
         super(props);
-        // TODO: make backend endpoint to return the filter categories
         this.state = {
             clicked: false
         };
@@ -43,7 +42,7 @@ class Bib extends React.Component {
     // TODO: <BibWindow/> is rendered like MindMap in App.js if clicked on
     openWindow = (clicked) => {
         this.state = {
-            // TODO: what should go here?
+            clicked: true
         };
     }
 
