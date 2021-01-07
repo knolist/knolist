@@ -23,8 +23,11 @@ class AppFooter extends React.Component {
                     <Dropdown.Item onClick={() => Alert.warning("Feature coming soon...")}>
                         <Icon icon="file-o"/> Add File
                     </Dropdown.Item>
-                    <Dropdown.Item onClick={this.props.setAddSourceMode}>
+                    <Dropdown.Item onClick={() => this.props.setAddSourceMode("URL")}>
                         <Icon icon="globe2"/> Add Web Page
+                    </Dropdown.Item>
+                    <Dropdown.Item onClick={() => this.props.setAddSourceMode("Notes")}>
+                        <Icon icon="edit"/> Add Notes
                     </Dropdown.Item>
                 </Dropdown>
             </div>

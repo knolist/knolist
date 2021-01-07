@@ -5,7 +5,7 @@ import {
 import {Network, DataSet} from "vis-network/standalone";
 
 import SourceView from "./SourceView";
-import NewSourceForm from "./NewSourceForm";
+import NewSourceForm from "../components/NewSourceForm";
 import AppFooter from "./AppFooter";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -22,7 +22,8 @@ class MindMap extends React.Component {
             loading: false,
             showNewSourceForm: false,
             showNewSourceHelperMessage: false,
-            newSourceData: null
+            newSourceData: null,
+            newSourceFormType: null
         }
     }
 
@@ -100,7 +101,10 @@ class MindMap extends React.Component {
         });
     }
 
-    setAddSourceMode = () => {
+    setAddSourceMode = (newSourceFormType) => {
+        this.setState({
+            newSourceFormType: newSourceFormType 
+        });
         this.setShowNewSourceHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
     }
@@ -269,18 +273,39 @@ class MindMap extends React.Component {
         if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
             return <Loader size="lg" backdrop center/>
         }
-
+        let newSourceForm;
+        if (this.state.newSourceFormType === "URL") {
+            newSourceForm =
+                <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
+                    newSourceData={this.state.newSourceData}
+                    curProject={this.props.curProject}
+                    renderNetwork={this.renderNetwork}
+                    inputType={"URL"}
+                    header = {"URL of the source"}
+                    placeholder = {"New Source URL"}
+                    inputComponentClass={"input"}
+                    switchShowNewSourceForm={this.switchShowNewSourceForm}/>;
+        } else if (this.state.newSourceFormType === "Notes") {
+            newSourceForm = 
+                <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
+                    newSourceData={this.state.newSourceData}
+                    curProject={this.props.curProject}
+                    renderNetwork={this.renderNetwork}
+                    inputType={"Note"}
+                    header = {"Note of the source"}
+                    placeholder = {"New Note"}
+                    inputComponentClass={"textarea"}
+                    switchShowNewSourceForm={this.switchShowNewSourceForm}/>
+        } else {
+            newSourceForm = null;
+        }
         return (
             <div>
                 <div id="mindmap"/>
                 <SourceView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}
                             renderNetwork={this.renderNetwork}/>
-                <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
-                               newSourceData={this.state.newSourceData}
-                               curProject={this.props.curProject}
-                               renderNetwork={this.renderNetwork}
-                               switchShowNewSourceForm={this.switchShowNewSourceForm}/>
+                {newSourceForm}
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
         );

@@ -57,13 +57,13 @@ class NewSourceForm extends React.Component {
             <Modal show onHide={this.close}>
                 <Modal.Header>
                     <Modal.Title>
-                        Insert the URL of the source you'd like to add
+                        Insert the {this.props.header} you'd like to add.
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={this.addNewSource}>
                     <Modal.Body>
-                        <Input autoFocus type="url" required id={this.state.newSourceUrlId}
-                               placeholder="New Source URL"/>
+                        <Input autoFocus type={this.props.inputType} required id={this.state.newSourceUrlId}
+                               placeholder={this.props.placeholder} componentClass={this.props.inputComponentClass} rows={30}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button type="submit" loading={this.state.loading} appearance="primary">
