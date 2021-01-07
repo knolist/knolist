@@ -65,14 +65,22 @@ class Cluster(BaseModel):
     __tablename__ = 'clusters'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    #represents the cartesian coordinates of the center of the cluster
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
                            nullable=False)
-    parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'), nullable = True)
-    child_clusters = db.relationship('Cluster', backref=db.backref('parent_cluster', remote_side = [id]))
-    child_sources = db.relationship('Source', backref='cluster', cascade='all, delete-orphan', lazy=True)
+    parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'),
+                                  nullable=True)
+    #References to outermost clusters within a given cluster
+    child_clusters = db.relationship('Cluster',
+                                     backref=db.backref('parent_cluster',
+                                                        remote_side=[id]))
+    #References to sources not in another subcluster within a cluster
+    child_sources = db.relationship('Source', backref='cluster',
+                                    cascade='all, delete-orphan',
+                                    lazy=True)
 
     def __repr__(self):
         return f'<Cluster {self.id}: {self.name}>'
@@ -94,8 +102,6 @@ class Cluster(BaseModel):
             'y_position': self.y_position,
             'project_id': self.project_id
         }
-
-
 
 
 class Source(BaseModel):
@@ -161,6 +167,3 @@ class Source(BaseModel):
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
-
-
-
