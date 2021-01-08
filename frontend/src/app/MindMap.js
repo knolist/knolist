@@ -18,7 +18,7 @@ class MindMap extends React.Component {
             visNodes: null,
             visEdges: null,
             selectedNode: null,
-            nonSelectedNodesPos: null,
+            nonSelectedNodes: null,
             sources: null,
             loading: false,
             showNewSourceForm: false,
@@ -31,8 +31,8 @@ class MindMap extends React.Component {
         this.setState({selectedNode: id})
     }
 
-    setNonSelectedNodesPos = (id, network, nodes) => {
-        this.setState({nonSelectedNodesPos: network.getPositions(nodes.getIds().filter(element => element !== id))})
+    setNonSelectedNodes = (id, nodes) => {
+        this.setState({nonSelectedNodes: nodes.getIds().filter(element => element !== id)})
     }
 
     // Check if the network is in edit mode
@@ -50,8 +50,8 @@ class MindMap extends React.Component {
         // }
     }
 
-    handleDragStart = (id, network, nodes) => {
-        this.setNonSelectedNodesPos(id, network, nodes);
+    handleDragStart = (id, nodes) => {
+        this.setNonSelectedNodes(id, nodes);
     }
 
     setLoading = (val) => {
@@ -236,27 +236,22 @@ class MindMap extends React.Component {
             network.on("dragStart", (params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
                     const nodeId = params.nodes[0];
-                    this.handleDragStart(nodeId, network, nodes)
+                    this.handleDragStart(nodeId, nodes)
                 }
             });
 
-            //TODO: center-center distance can be uninituitive for long items, find a better metric
             let dt = 100 //ms
-            let min_dist = 50
             network.on("dragging", throttle((params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
                     const id = network.getSelectedNodes()[0];
-                    const position = network.getPosition(id);
-                    const x = position.x;
-                    const y = position.y;
-                    console.log(x, y)
-                    let otherNodes = this.state.nonSelectedNodesPos
-                    for (const node in otherNodes) {
-                        let pos = otherNodes[node]
-                        if (Math.abs(pos.x - x) < min_dist && Math.abs(pos.y - y) < min_dist) {
+                    const boundingBox = network.getBoundingBox(id)
+                    console.log(boundingBox)
+                    let otherNodes = this.state.nonSelectedNodes
+                    otherNodes.forEach(node => {
+                        if (isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
                             console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
                         }
-                    }
+                    })
                 }
             }, dt));
 
@@ -342,6 +337,11 @@ const throttle = (func, ms) => {
             }, ms - (Date.now() - lastRan))
         }
     }
+}
+
+const isOverlap = (rectA, rectB) => {
+    return (rectA.left < rectB.right && rectA.right > rectB.left &&
+        rectA.bottom > rectB.top && rectA.top < rectB.bottom)
 }
 
 export default MindMap;
