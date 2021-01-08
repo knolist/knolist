@@ -49,3 +49,29 @@
 #new-project-name {
     margin-bottom: 10px;
 }
+
+.myknolist-top-header-img {
+    position: absolute;
+    top: 1vw;
+    left: 1vw;
+    width: 8vh;
+}
+
+.myknolist-top-container {
+    display: flex;
+}
+
+.myknolist-top-container > div {
+    flex: 1;
+}
+
+.myknolist-top-input {
+    width: 50vw;
+    margin-top: 3vh
+}
+
+.myknolist-top-dropdown {
+    position: absolute;
+    top: 3vh;
+    right: 1vw;
+}
