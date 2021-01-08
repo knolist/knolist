@@ -10,7 +10,7 @@ function MyKnolistTop(props) {
         <img className="myknolist-top-header-img" src={knolistIcon} alt="Knolist" />
       </div>
       <div>
-        <Input placeholder="Search MyKnolist" className="myknolist-top-input" />
+        <Input placeholder="Search My Knolist" className="myknolist-top-input" style={{fontFamily:"Poppins"}}/>
       </div>
       <div>
         <Dropdown noCaret icon={<GiHamburgerMenu />}
