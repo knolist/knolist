@@ -220,9 +220,28 @@ class MindMap extends React.Component {
             network.on("click", (params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
                     const nodeId = params.nodes[0];
-                    this.handleClickedNode(nodeId);
+                    this.handleClickedNode(nodeId);                   
                 }
             });
+
+            let dt = 100 //ms
+            let min_dist = 50
+            network.on("dragging", throttle((params) => {
+                if (params.nodes !== undefined && params.nodes.length > 0) {
+                    const id = network.getSelectedNodes()[0];
+                    const position = network.getPosition(id);
+                    const x = position.x;
+                    const y = position.y;
+                    console.log(x, y)
+                    let otherNodes = network.getPositions(nodes.getIds().filter(element => element !== id)) //probably don't need to call every time...
+                    for (const node in otherNodes) {
+                        let pos = otherNodes[node]
+                        if (Math.abs(pos.x - x) < min_dist && Math.abs(pos.y - y) < min_dist) {
+                            console.log('cluster detected')
+                        }
+                    }
+                }
+            }, dt));
 
             // Update positions after dragging node
             network.on("dragEnd", () => {
@@ -284,6 +303,27 @@ class MindMap extends React.Component {
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
         );
+    }
+}
+
+const throttle = (func, ms) => {
+    let lastFunc
+    let lastRan
+    return function () {
+        const context = this
+        const args = arguments
+        if (!lastRan) {
+            func.apply(context, args)
+            lastRan = Date.now()
+        } else {
+            clearTimeout(lastFunc)
+            lastFunc = setTimeout(function () {
+                if ((Date.now() - lastRan) >= ms) {
+                    func.apply(context, args)
+                    lastRan = Date.now()
+                }
+            }, ms - (Date.now() - lastRan))
+        }
     }
 }
 
