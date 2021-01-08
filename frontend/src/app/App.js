@@ -67,8 +67,8 @@ class App extends React.Component {
         );
     }
 
-    // TODO: <BibWindow/> is rendered like MindMap in App.js if clicked on
     setShowBib = (clicked) => {
+        // Keeps track if Bibliography Generation Button clicked and Window should open
         this.setState({
             showBib: clicked
         });
