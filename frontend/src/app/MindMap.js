@@ -224,6 +224,7 @@ class MindMap extends React.Component {
                 }
             });
 
+            //TODO: center-center distance can be uninituitive for long items, find a better metric
             let dt = 100 //ms
             let min_dist = 50
             network.on("dragging", throttle((params) => {
@@ -233,11 +234,11 @@ class MindMap extends React.Component {
                     const x = position.x;
                     const y = position.y;
                     console.log(x, y)
-                    let otherNodes = network.getPositions(nodes.getIds().filter(element => element !== id)) //probably don't need to call every time...
+                    let otherNodes = network.getPositions(nodes.getIds().filter(element => element !== id)) //TODO: probably don't need to call every time...
                     for (const node in otherNodes) {
                         let pos = otherNodes[node]
                         if (Math.abs(pos.x - x) < min_dist && Math.abs(pos.y - y) < min_dist) {
-                            console.log('cluster detected')
+                            console.log('cluster detected between', nodes.get(id).label, 'and', nodes.get(parseInt(node)).label)
                         }
                     }
                 }
