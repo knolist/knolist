@@ -18,6 +18,7 @@ class MindMap extends React.Component {
             visNodes: null,
             visEdges: null,
             selectedNode: null,
+            nonSelectedNodesPos: null,
             sources: null,
             loading: false,
             showNewSourceForm: false,
@@ -28,6 +29,10 @@ class MindMap extends React.Component {
 
     setSelectedNode = (id) => {
         this.setState({selectedNode: id})
+    }
+
+    setNonSelectedNodesPos = (id, network, nodes) => {
+        this.setState({nonSelectedNodesPos: network.getPositions(nodes.getIds().filter(element => element !== id))})
     }
 
     // Check if the network is in edit mode
@@ -43,6 +48,10 @@ class MindMap extends React.Component {
         // if (this.isEditMode()) {
         //     this.setSelectedNode(id);
         // }
+    }
+
+    handleDragStart = (id, network, nodes) => {
+        this.setNonSelectedNodesPos(id, network, nodes);
     }
 
     setLoading = (val) => {
@@ -220,7 +229,14 @@ class MindMap extends React.Component {
             network.on("click", (params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
                     const nodeId = params.nodes[0];
-                    this.handleClickedNode(nodeId);                   
+                    this.handleClickedNode(nodeId);
+                }
+            });
+
+            network.on("dragStart", (params) => {
+                if (params.nodes !== undefined && params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    this.handleDragStart(nodeId, network, nodes)
                 }
             });
 
@@ -234,7 +250,7 @@ class MindMap extends React.Component {
                     const x = position.x;
                     const y = position.y;
                     console.log(x, y)
-                    let otherNodes = network.getPositions(nodes.getIds().filter(element => element !== id)) //TODO: probably don't need to call every time...
+                    let otherNodes = this.state.nonSelectedNodesPos
                     for (const node in otherNodes) {
                         let pos = otherNodes[node]
                         if (Math.abs(pos.x - x) < min_dist && Math.abs(pos.y - y) < min_dist) {
