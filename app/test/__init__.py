@@ -19,6 +19,7 @@ db.init_app(app)
 def create_starter_data():
     project_1 = Project('Test Project 1', user_id)
     project_2 = Project('Test Project 2', user_id)
+    project_3 = Project('Test Project 3', user_id)
 
     source_1 = Source(url='https://test1.com',
                       title='Test Source 1',
@@ -36,13 +37,19 @@ def create_starter_data():
                       title='Test Source 3',
                       content='This is the content of test source 3')
 
+    source_4 = Source(notes=['Test note'],
+                      highlights=['h1','h2'])
+
     project_1.sources.append(source_1)
     project_1.sources.append(source_2)
     project_2.sources.append(source_3)
+    project_3.sources.append(source_4)
     project_1.insert()
     project_2.insert()
+    project_3.insert()
     source_1.insert()
     source_2.insert()
     source_3.insert()
+    source_4.insert()
 
-    return project_1, project_2, source_1, source_2, source_3
+    return project_1, project_2, source_1, source_2, source_3, project_3, source_4
