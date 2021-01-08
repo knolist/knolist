@@ -16,7 +16,7 @@ class BibWindow extends React.Component {
     }
 
     getCitation = async () => {
-        const endpoint = "/sources/" + this.props.selectedNode;
+        const endpoint = "/sources/";
         const response = await makeHttpRequest(endpoint);
         this.setState({sourceInfo: response.body.source});
     }
@@ -34,9 +34,10 @@ class BibWindow extends React.Component {
                     {/* TODO: this is where source/citation interactions would be*/}
                     <ul>
                         <li>Citation</li>
-                        <li>
+                        <li>Citation</li>
+                        {/*<li>
                             <Citation source={source} getCitation={this.getCitation}/>
-                        </li>
+                        </li>*/}
                     </ul>
                 </Modal.Body>
             </Modal>
@@ -91,7 +92,7 @@ class Citation extends React.Component {
     render() {
         return (
             <div style={{display: "flex"}}>
-                <a target="_blank" rel="noopener noreferrer" style={{marginRight: 10}} href={this.props.url}>{this.props.title}</a>
+                <a target="_blank" rel="noopener noreferrer" style={{marginRight: 10}} href={this.props.source.url}>{this.props.source.title}</a>
             </div>
         );
     }
