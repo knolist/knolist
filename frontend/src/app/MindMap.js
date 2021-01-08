@@ -238,7 +238,7 @@ class MindMap extends React.Component {
                     for (const node in otherNodes) {
                         let pos = otherNodes[node]
                         if (Math.abs(pos.x - x) < min_dist && Math.abs(pos.y - y) < min_dist) {
-                            console.log('cluster detected between', nodes.get(id).label, 'and', nodes.get(parseInt(node)).label)
+                            console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
                         }
                     }
                 }
