@@ -1,7 +1,6 @@
 import React from "react";
 import knolistIcon from "../images/KNOLISTICON.png";
-import { Input, Dropdown } from "rsuite";
-import { GiHamburgerMenu } from "react-icons/gi"
+import { Input, Dropdown, Icon } from "rsuite";
 
 function MyKnolistTop(props) {
   return (
@@ -13,7 +12,7 @@ function MyKnolistTop(props) {
         <Input placeholder="Search My Knolist" className="myknolist-top-input" style={{fontFamily:"Poppins"}}/>
       </div>
       <div>
-        <Dropdown noCaret icon={<GiHamburgerMenu />}
+        <Dropdown noCaret icon={<Icon icon="bars" />}
           className="myknolist-top-dropdown"
           placement="bottomEnd">
           <Dropdown.Item>Settings</Dropdown.Item>

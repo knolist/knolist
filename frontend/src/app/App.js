@@ -7,7 +7,7 @@ import { Route, Switch } from "react-router";
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
-import MyKnolist from "./MyKnolist.js";
+import MyKnolist from "../my-knolist/MyKnolist.js";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
