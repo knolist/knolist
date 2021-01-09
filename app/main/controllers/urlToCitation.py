@@ -22,6 +22,7 @@ for url in sites:
     author1 = soup.find("meta",  name="twitter:data1")
     author2 = soup.find("meta",  name="dc.Creator")
     author3 = soup.find("meta",  name="author")
+    # TODO: If Author name (not "Staff") split into First and Last to order
 
     publishDate1 = soup.find("meta",  property="article:published_time")
     publishDate2 = soup.find("meta",  name="dc.Date")
