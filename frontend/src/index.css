@@ -49,3 +49,114 @@
 #new-project-name {
     margin-bottom: 10px;
 }
+
+.myknolist-top-header-img {
+    position: absolute;
+    top: 1vw;
+    left: 1vw;
+    width: 8vh;
+}
+
+.myknolist-top-container {
+    display: flex;
+}
+
+.myknolist-top-container > div {
+    flex: 1;
+}
+
+.myknolist-top-input {
+    width: 50vw;
+    margin-top: 3vh
+}
+
+.myknolist-top-dropdown {
+    position: absolute;
+    top: 3vh;
+    right: 2vw;
+}
+
+.myknolist-sidenav {
+    border-top-right-radius: 20px;
+    height: 88vh;
+    width: 19vw;
+    z-index: 1;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background-color: #00C0DE;
+    padding-top: 5vh;
+    padding-left: 3vw;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+
+.myknolist-sidenav > div {
+    font-family:  'Poppins', sans-serif;
+    font-size: 1em;
+    margin-bottom: 2vh;
+}
+
+.myknolist-main-container {
+    position: absolute;
+    left: 25vw;
+    top: 11vh;
+}
+
+.myknolist-main-title {
+    font-weight: bold;
+    font-size: 2em;
+    font-family: "Poppins";
+    float: left;
+}
+
+.myknolist-new-button {
+    float: left;
+    border-radius: 15px;
+    background-color: #00387F;
+    width: 10vw;
+    height: 4vh;
+    margin-left: 3.5vw;
+    padding: 5px;
+    margin-top: .8vh;
+    text-align: center;
+    padding: 4px;
+    color: white;
+}
+
+.myknolist-main-subtitle {
+    font-weight: bold;
+    font-size: 1em;
+    font-family: "Poppins";
+    margin-top: 10vh;
+}
+
+.myknolist-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 70vw;
+    margin-top: 2vh;
+}
+
+.myknolist-recent-card {
+    flex-direction: row;
+    flex-basis: 100%;
+    flex: 1;
+    background-color: black;
+    margin-right: 10px;
+    height: 100px;
+    border-radius: 15px;
+}
+
+.myknolist-all-list-info {
+    flex-direction: row;
+    flex-basis: 100%;
+    flex: 1;
+    font-family: "Poppins";
+}
+
+.myknolist-all-list {
+    flex-direction: column;
+    flex: 1;
+}
