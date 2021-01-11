@@ -25,10 +25,20 @@ class NewSourceForm extends React.Component {
         const url = document.getElementById(this.state.newSourceUrlId).value;
         const {x, y} = this.props.newSourceData;
         const endpoint = "/projects/" + this.props.curProject.id + "/sources"
+        
+        const accessDate = null
+        const sourceAuthor = null
+        const publishDate = null
+        const siteName = null
+
         const body = {
             "url": url,
             "x_position": x,
-            "y_position": y
+            "y_position": y,
+            "accessDate": accessDate,
+            "sourceAuthor": sourceAuthor,
+            "publishDate": publishDate,
+            "siteName": siteName
         }
 
         makeHttpRequest(endpoint, "POST", body).then((response) => {
