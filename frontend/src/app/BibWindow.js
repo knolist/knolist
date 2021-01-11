@@ -3,26 +3,17 @@ import {
     Modal
 } from "rsuite";
 
-import makeHttpRequest from "../services/HttpRequest";
-
 class BibWindow extends React.Component {
-    // constructor(props) {
-    //     super(props);
-    //     this.state = {
-    //         sourceInfo: null,
-    //         randomNode: 1
-    //     }
-    // }
-
-    // getCitation = async () => {
-    //     // const endpoint = "/sources/" + this.props.selectedNode;
-    //     const endpoint = "/sources/" + this.randomNode;
-    //     const response = await makeHttpRequest(endpoint);
-    //     this.setState({sourceInfo: response.body.source});
-    // }
+    constructor(props) {
+        super(props);
+        this.state = {
+            sourceInfo: null,
+            randomNode: 1
+        }
+    }
 
     render() {
-        // const source = this.state.sourceInfo;
+        if (this.props.sources === null) return null;
         return (
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
                 <Modal.Header>
@@ -31,13 +22,10 @@ class BibWindow extends React.Component {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {/* TODO: this is where source/citation interactions would be*/}
                     <ul>
                         <li>Citation</li>
                         <li>Citation</li>
-                        <li>
-                            {/*<a source={source} getCitation={this.getCitation}>{source}</a>*/}
-                        </li>
+                        {this.props.sources.map((source,index) => <li key={index}>{source.title},{source.url}</li>)}
                     </ul>
                 </Modal.Body>
             </Modal>

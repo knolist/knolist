@@ -36,11 +36,9 @@ function AppHeader(props) {
 class BibButton extends React.Component {
     render() {
         return(
-            <FlexboxGrid>
-                <FlexboxGrid.Item>
-                    <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
-                </FlexboxGrid.Item>
-            </FlexboxGrid>
+            <FlexboxGrid.Item>
+                <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
+            </FlexboxGrid.Item>
         );
     }
 }
