@@ -6,6 +6,7 @@ import {Button} from 'rsuite';
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
+import MiniGames from './Minigames';
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -88,6 +89,7 @@ class App extends React.Component {
                                  close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                                  setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
+                <MiniGames/>
                 <MindMap curProject={this.state.curProject}/>
             </div>
         );
