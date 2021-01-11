@@ -70,13 +70,13 @@ class Source(BaseModel):
     )
 
     id = db.Column(db.Integer, primary_key=True)
-    url = db.Column(db.String, nullable=True)
-    title = db.Column(db.String, nullable=True)
+    url = db.Column(db.String)
+    title = db.Column(db.String)
     # All of the content of the URL, only used for search purposes
-    content = db.Column(db.String, nullable=True)
+    content = db.Column(db.String)
     # Highlights and notes are stored as JSON arrays
     highlights = db.Column(db.String, default='[]')
-    notes = db.Column(db.String, default='[]', nullable=True)
+    notes = db.Column(db.String, default='[]')
     # x and y positions are used to represent the position of a node on a graph
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
