@@ -4,13 +4,6 @@ import {
 } from "rsuite";
 
 class BibWindow extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            sourceInfo: null,
-            randomNode: 1
-        }
-    }
 
     render() {
         if (this.props.sources === null) return null;
