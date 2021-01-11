@@ -35,10 +35,19 @@ async function makeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
     const response = await fetch(url, params);
     const responseStatus = response.status;
     const responseBody = await response.json();
+
+    // Build URL for redirecting to login
+    const auth0BaseUrl = "https://knolist.us.auth0.com";
+    const audience = "knolist";
+    const response_type = "token";
+    const client_id = "pBu5uP4mKTQgBttTW13N0wCVgsx90KMi";
+    const redirect_uri = "https://knolist-api.herokuapp.com/auth/callback";
+    const auth0Url = auth0BaseUrl + "/authorize?audience=" + audience + "&response_type=" + response_type + "&client_id=" + client_id + "&redirect_uri=" + redirect_uri;
+
     if (!responseBody.success) {
         Alert.error("Something went wrong!");
         if (responseStatus === 401 || responseStatus === 403) {
-            window.location.replace('https://knolist.us.auth0.com/authorize?audience=knolist&response_type=token&client_id=pBu5uP4mKTQgBttTW13N0wCVgsx90KMi&redirect_uri=https://knolist-api.herokuapp.com/auth/callback')
+            window.location.replace(auth0Url)
         }
     }
     return {
