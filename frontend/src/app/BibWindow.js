@@ -7,9 +7,15 @@ class BibWindow extends React.Component {
     constructor(props) {
         super(props);
         // citationsToExport = []
+        const formats = {
+            APA: "APA",
+            MLA: "MLA",
+            CHI: "Chicago"
+        }
         this.state = {
-            formatType: "APA",
-            copyBib: false
+            formatType: formats.APA,
+            copyBib: false,
+            formats: formats
         }
     }
 
@@ -34,7 +40,14 @@ class BibWindow extends React.Component {
         });
     }
 
+    renderFormatType = (source) => {
+        if (this.state.formatType === this.state.formats.APA){
+            return <p>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+        }
+    }
+
     render() {
+        const formats = this.state.formats
         if (this.props.sources === null) return null;
         return (
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
@@ -48,9 +61,9 @@ class BibWindow extends React.Component {
                         <Dropdown.Item eventKey="MLA" onClick={this.changeFormatType}>MLA</Dropdown.Item>
                         <Dropdown.Item eventKey="CHI" onClick={this.changeFormatType}>Chicago</Dropdown.Item>
                         */}
-                        <Dropdown.Item eventKey="APA">APA</Dropdown.Item>
-                        <Dropdown.Item eventKey="MLA">MLA</Dropdown.Item>
-                        <Dropdown.Item eventKey="CHI">Chicago</Dropdown.Item>
+                        <Dropdown.Item eventKey={formats.APA}>APA</Dropdown.Item>
+                        <Dropdown.Item eventKey={formats.MLA}>MLA</Dropdown.Item>
+                        <Dropdown.Item eventKey={formats.CHI}>Chicago</Dropdown.Item>
                     </Dropdown>
                     {/* TODO: Set copyBib state to "export"
                     <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
@@ -62,7 +75,7 @@ class BibWindow extends React.Component {
                         <p>Included</p>
                         {this.props.sources.map((source,index) => 
                             <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
-                            source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}. 
+                            {this.renderFormatType({source})}
                             {/*<Tooltip title="This source is missing a field">*/}
                             <Icon icon="exclamation-circle" color="#f5a623"/>
                             {/*<IconButton onClick={() => ())} icon={<Icon icon="exclamation-circle" color="#f5a623"/>}/>*/}
