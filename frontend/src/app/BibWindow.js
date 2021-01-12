@@ -20,19 +20,19 @@ class BibWindow extends React.Component {
         });
     }
 
-    // changeFormatType = (type) => {
-    //     this.setState({
+    changeFormatType = (type) => {
+        this.setState({
     //         formatType: type 
-    //     });
-    // }
+        });
+    }
 
     // if sources have fields as None, return True
     // {if(isMissingFields(this.props.sources)) {<Icon icon="exclamation-circle" color="#f5a623"/>}}
-    // isMissingFields = (sources) => {
-    //     this.setState({
+    isMissingFields = (sources) => {
+        this.setState({
 
-    //     });
-    // }
+        });
+    }
 
     render() {
         if (this.props.sources === null) return null;
@@ -63,18 +63,16 @@ class BibWindow extends React.Component {
                         {this.props.sources.map((source,index) => 
                             <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
                             source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}. 
+                            {/*<Tooltip title="This source is missing a field">*/}
                             <Icon icon="exclamation-circle" color="#f5a623"/>
+                            {/*<IconButton onClick={() => ())} icon={<Icon icon="exclamation-circle" color="#f5a623"/>}/>*/}
+                            {/*</Tooltip>*/}
                             </Checkbox>)}
                         <p>Not Included</p>
                     </CheckboxGroup>
                 </Modal.Body>
             </Modal>
         );
-
-        // {/*<Tooltip title="This source is missing a field">*/}
-        // <Icon icon="exclamation-circle" color="#f5a623"/>
-        //     {/*<IconButton onClick={() => ())} icon={<Icon icon="exclamation-circle" color="#f5a623"/>}/>*/}
-        // {/*</Tooltip>*/}
 
         // return (
         //     <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
