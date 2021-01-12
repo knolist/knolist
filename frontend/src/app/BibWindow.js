@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Modal, Dropdown, IconButton, Icon, Checkbox, CheckboxGroup
+    Modal, Dropdown, IconButton, Icon, Checkbox, CheckboxGroup, Tooltip
 } from "rsuite";
 
 class BibWindow extends React.Component {
@@ -70,6 +70,11 @@ class BibWindow extends React.Component {
                 </Modal.Body>
             </Modal>
         );
+
+        // {/*<Tooltip title="This source is missing a field">*/}
+        // <Icon icon="exclamation-circle" color="#f5a623"/>
+        //     {/*<IconButton onClick={() => ())} icon={<Icon icon="exclamation-circle" color="#f5a623"/>}/>*/}
+        // {/*</Tooltip>*/}
 
         // return (
         //     <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
