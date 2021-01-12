@@ -43,6 +43,8 @@ class Project(BaseModel):
     user_id = db.Column(db.String, nullable=False)
     sources = db.relationship('Source', backref='project',
                               cascade='all, delete-orphan', lazy=True)
+    clusters = db.relationship('Cluster', backref='project',
+                               cascade='all, delete-orphan', lazy=True)
 
     def __init__(self, title, user_id):
         self.title = title
@@ -57,6 +59,44 @@ class Project(BaseModel):
             'title': self.title
         }
 
+
+class Cluster(BaseModel):
+    """
+    Represents a specific cluster, which is a grouping of nodes.
+    """
+    __tablename__ = 'clusters'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+    #represents the cartesian coordinates of the center of the cluster
+    x_position = db.Column(db.Integer)
+    y_position = db.Column(db.Integer)
+    # The project that holds this source
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
+                           nullable=True)
+    parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'),
+                                  nullable=True)
+    #References to outermost clusters within a given cluster
+    child_clusters = db.relationship('Cluster',
+                                     backref=db.backref('parent_cluster',
+                                                        remote_side=[id]))
+    #References to sources not in another subcluster within a cluster
+    child_sources = db.relationship('Source', backref='cluster',
+                                    cascade='all, delete-orphan',
+                                    lazy=True)
+
+    def __repr__(self):
+        return f'<Cluster {self.id}: {self.name}>'
+
+    def format(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'x_position': self.x_position,
+            'y_position': self.y_position,
+            'project_id': self.project_id,
+            'child_clusters': [cluster.id for cluster in self.child_clusters],
+            'child_sources': [source.id for source in self.child_sources]
+        }
 
 class Source(BaseModel):
     """
@@ -82,7 +122,8 @@ class Source(BaseModel):
     y_position = db.Column(db.Integer)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
-                           nullable=False)
+                           nullable=True)
+    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
 
     # Self-referential many-to-many relationship
     next_sources = db.relationship('Source', secondary=edges,
