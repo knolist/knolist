@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Modal, Dropdown, IconButton, Icon, Checkbox
+    Modal, Dropdown, IconButton, Icon, Checkbox, CheckboxGroup
 } from "rsuite";
 
 class BibWindow extends React.Component {
@@ -16,8 +16,15 @@ class BibWindow extends React.Component {
     removeFromSaved = (value) => {
         this.setState({
             // citationsToExport removes that citation
+            // citation is moved down and greyed out
         });
     }
+
+    // changeFormatType = (type) => {
+    //     this.setState({
+    //         formatType: type 
+    //     });
+    // }
 
     render() {
         if (this.props.sources === null) return null;
@@ -28,9 +35,14 @@ class BibWindow extends React.Component {
                     Bibliography
                     </Modal.Title>
                     <Dropdown title={this.state.formatType} activeKey={this.state.formatType}>
-                        <Dropdown.Item eventKey="APA" onClick={() => this.state.formatType("APA")}>APA</Dropdown.Item>
-                        <Dropdown.Item eventKey="MLA" onClick={() => this.state.formatType("MLA")}>MLA</Dropdown.Item>
-                        <Dropdown.Item eventKey="CHI" onClick={() => this.state.formatType("CHI")}>Chicago</Dropdown.Item>
+                        {/*
+                        <Dropdown.Item eventKey="APA" onClick={this.changeFormatType}>APA</Dropdown.Item>
+                        <Dropdown.Item eventKey="MLA" onClick={this.changeFormatType}>MLA</Dropdown.Item>
+                        <Dropdown.Item eventKey="CHI" onClick={this.changeFormatType}>Chicago</Dropdown.Item>
+                        */}
+                        <Dropdown.Item eventKey="APA">APA</Dropdown.Item>
+                        <Dropdown.Item eventKey="MLA">MLA</Dropdown.Item>
+                        <Dropdown.Item eventKey="CHI">Chicago</Dropdown.Item>
                     </Dropdown>
                     {/* TODO: Set copyBib state to "export"
                     <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
@@ -38,7 +50,11 @@ class BibWindow extends React.Component {
                     <IconButton icon={<Icon icon="copy"/>}/>
                 </Modal.Header>
                 <Modal.Body>
-                    {this.props.sources.map((source,index) => <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}. </Checkbox>)}
+                    <CheckboxGroup name="checkboxList">
+                        <p>Included</p>
+                        {this.props.sources.map((source,index) => <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}. <Icon icon="exclamation-circle" color="#f5a623"/></Checkbox>)}
+                        <p>Not Included</p>
+                    </CheckboxGroup>
                 </Modal.Body>
             </Modal>
         );
