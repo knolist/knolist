@@ -22,7 +22,8 @@ class App extends React.Component {
         this.state = {
             curProject: JSON.parse(localStorage.getItem("curProject")),
             projects: null,
-            showProjectsSidebar: false
+            showProjectsSidebar: false,
+            showBib: false
         }
     }
 
@@ -67,6 +68,13 @@ class App extends React.Component {
         );
     }
 
+    setShowBib = (clicked) => {
+        // Keeps track if Bibliography Generation Button clicked and Window should open
+        this.setState({
+            showBib: clicked
+        });
+    }
+
     componentDidMount() {
         this.updateProjects()
     }
@@ -85,13 +93,13 @@ class App extends React.Component {
         return (
             <Switch>
                 <Route exact path="/">
-                    <AppHeader curProject={this.state.curProject} />
+                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib} />
                     <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                         projects={this.state.projects}
                         close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                         setCurProject={this.setCurProject} />
                     {this.projectsButton()}
-                    <MindMap curProject={this.state.curProject} />
+                    <MindMap curProject={this.state.curProject} showBib={this.state.showBib} setShowBib={this.setShowBib} />
                 </Route>
                 <Route path="/my-knolist">
                     <MyKnolist />

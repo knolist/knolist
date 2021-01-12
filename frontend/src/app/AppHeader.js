@@ -26,11 +26,24 @@ function AppHeader(props) {
                     </span>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
-                    <SearchAndFilter/>
+                    <FlexboxGrid>
+                        <SearchAndFilter/>
+                        <BibButton setShowBib={props.setShowBib}/>
+                    </FlexboxGrid>
                 </FlexboxGrid.Item>
             </FlexboxGrid>
         </Navbar>
     );
+}
+
+class BibButton extends React.Component {
+    render() {
+        return(
+            <FlexboxGrid.Item>
+                <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
+            </FlexboxGrid.Item>
+        );
+    }
 }
 
 class SearchAndFilter extends React.Component {

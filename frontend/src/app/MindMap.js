@@ -7,6 +7,7 @@ import {Network, DataSet} from "vis-network/standalone";
 import SourceView from "./SourceView";
 import NewSourceForm from "./NewSourceForm";
 import AppFooter from "./AppFooter";
+import BibWindow from "./BibWindow";
 
 import makeHttpRequest from "../services/HttpRequest";
 
@@ -281,6 +282,7 @@ class MindMap extends React.Component {
                                curProject={this.props.curProject}
                                renderNetwork={this.renderNetwork}
                                switchShowNewSourceForm={this.switchShowNewSourceForm}/>
+                <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib} sources={this.state.sources}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
         );
