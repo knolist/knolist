@@ -26,6 +26,14 @@ class BibWindow extends React.Component {
     //     });
     // }
 
+    // if sources have fields as None, return True
+    // {if(isMissingFields(this.props.sources)) {<Icon icon="exclamation-circle" color="#f5a623"/>}}
+    // isMissingFields = (sources) => {
+    //     this.setState({
+
+    //     });
+    // }
+
     render() {
         if (this.props.sources === null) return null;
         return (
@@ -52,7 +60,11 @@ class BibWindow extends React.Component {
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
                         <p>Included</p>
-                        {this.props.sources.map((source,index) => <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}. <Icon icon="exclamation-circle" color="#f5a623"/></Checkbox>)}
+                        {this.props.sources.map((source,index) => 
+                            <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
+                            source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}. 
+                            <Icon icon="exclamation-circle" color="#f5a623"/>
+                            </Checkbox>)}
                         <p>Not Included</p>
                     </CheckboxGroup>
                 </Modal.Body>
