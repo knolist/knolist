@@ -7,6 +7,7 @@ import {Network, DataSet} from "vis-network/standalone";
 import SourceView from "./SourceView";
 import NewSourceForm from "./NewSourceForm";
 import AppFooter from "./AppFooter";
+import MiniGames from "./MiniGames";
 
 import makeHttpRequest from "../services/HttpRequest";
 
@@ -273,6 +274,7 @@ class MindMap extends React.Component {
         return (
             <div>
                 <div id="mindmap"/>
+                <MiniGames/>
                 <SourceView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}
                             renderNetwork={this.renderNetwork}/>
