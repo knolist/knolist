@@ -3,6 +3,7 @@ import {
     Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Input, InputGroup,
     Navbar, Tooltip, Whisper
 } from "rsuite";
+import { Link } from "react-router-dom";
 
 import horizontalLogo from "../images/horizontal_main.png";
 
@@ -10,9 +11,11 @@ function AppHeader(props) {
     return (
         <Navbar style={{padding: "0 10px"}}>
             <FlexboxGrid justify="space-between" align="middle">
-                <Navbar.Header>
-                    <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
-                </Navbar.Header>
+                <Link to="/my-knolist">
+                    <Navbar.Header>
+                        <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
+                    </Navbar.Header>
+                </Link>
                 <FlexboxGrid.Item>
                     <span id="project-title">
                         {
