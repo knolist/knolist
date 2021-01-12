@@ -43,6 +43,8 @@ class Project(BaseModel):
     user_id = db.Column(db.String, nullable=False)
     sources = db.relationship('Source', backref='project',
                               cascade='all, delete-orphan', lazy=True)
+    clusters = db.relationship('Cluster', backref='project',
+                               cascade='all, delete-orphan', lazy=True)
 
     def __init__(self, title, user_id):
         self.title = title
@@ -70,7 +72,7 @@ class Cluster(BaseModel):
     y_position = db.Column(db.Integer)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
-                           nullable=False)
+                           nullable=True)
     parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'),
                                   nullable=True)
     #References to outermost clusters within a given cluster
@@ -85,24 +87,16 @@ class Cluster(BaseModel):
     def __repr__(self):
         return f'<Cluster {self.id}: {self.name}>'
 
-    def format_long(self):
+    def format(self):
         return {
             'id': self.id,
             'name': self.name,
             'x_position': self.x_position,
             'y_position': self.y_position,
-            'project_id': self.project_id
+            'project_id': self.project_id,
+            'child_clusters': [cluster.id for cluster in self.child_clusters],
+            'child_sources': [source.id for source in self.child_sources]
         }
-
-    def format_short(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'x_position': self.x_position,
-            'y_position': self.y_position,
-            'project_id': self.project_id
-        }
-
 
 class Source(BaseModel):
     """
@@ -128,7 +122,7 @@ class Source(BaseModel):
     y_position = db.Column(db.Integer)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
-                           nullable=False)
+                           nullable=True)
     cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
 
     # Self-referential many-to-many relationship
