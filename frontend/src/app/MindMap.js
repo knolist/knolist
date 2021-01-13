@@ -8,6 +8,7 @@ import SourceView from "./SourceView";
 import NewSourceForm from "./NewSourceForm";
 import AppFooter from "./AppFooter";
 import MiniGames from "./MiniGames";
+import GameWindow from "./MiniGameWindow";
 
 import makeHttpRequest from "../services/HttpRequest";
 
@@ -104,6 +105,19 @@ class MindMap extends React.Component {
     setAddSourceMode = () => {
         this.setShowNewSourceHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
+    }
+
+    // See if need to be be modified like above?
+    setShowGame = (clicked) => {
+        // Keeps track if Game Generation Button clicked and Window should open
+        if (this.state.network) { // Check that the network exists
+            this.setState({
+                showGame: clicked
+            });
+            console.log('Show Game should be shown?')
+            console.log(this.state.showGame)
+
+        }
     }
 
     /* Helper function to generate position for nodes
@@ -271,10 +285,20 @@ class MindMap extends React.Component {
             return <Loader size="lg" backdrop center/>
         }
 
+        console.log(this.showGame);
+        
         return (
             <div>
                 <div id="mindmap"/>
-                <MiniGames/>
+                <MiniGames 
+                // showNewMiniGame={this.state.showNewSourceForm}
+                    // newSourceData={this.state.newSourceData}
+                    curProject={this.props.curProject}
+                    // renderNetwork={this.renderNetwork}
+                    // switchShowNewSourceForm={this.switchShowNewSourceForm}
+                    setShowGame={this.setShowGame}
+                    />
+                <GameWindow showGame={this.state.showGame} setShowGame={this.setShowGame} sources={this.state.sources} />
                 <SourceView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}
                             renderNetwork={this.renderNetwork}/>
