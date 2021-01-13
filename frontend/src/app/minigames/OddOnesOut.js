@@ -16,9 +16,14 @@ class OddOnesOut extends React.Component {
         }
     }
     render() {
-
+        console.log(this.props)
         return (
+            <>
             <h1>OddOnesOut</h1>
+            <ul>
+                {this.props.sources.map((source, index) => <li key={index}>{source.title},{source.url}</li>)}
+            </ul>
+            </>          
         );
     }
 }

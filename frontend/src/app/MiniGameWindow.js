@@ -3,13 +3,6 @@ import {
     Modal
 } from "rsuite";
 
-// // Import all minigames
-// import OddOnesOut from "./minigames/OddOnesOut"
-// import MiniGames2 from "./minigames/minigame2"
-// import MiniGames3 from "./minigames/minigame3"
-// import MiniGames4 from "./minigames/minigame4"
-// import MiniGames5 from "./minigames/minigame5"
-
 class GameWindow extends React.Component {
     // eslint-disable-next-line
     constructor(props) {
@@ -29,7 +22,7 @@ class GameWindow extends React.Component {
             <Modal full show={this.props.showGame} onHide={() => this.props.setShowGame(false)}>
                 <Modal.Header>
                     <Modal.Title>
-                        Game liography
+                        MiniGames
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>

@@ -20,53 +20,13 @@ import GameWindow from "./MiniGameWindow"
 class MiniGames extends React.Component {
     constructor(props) {
         super(props);
+        // Cannot define the games as a state here due to lack of update
         this.state = {
-            games: [<OddOnesOut />, <MiniGames2 />, <MiniGames3 />, <MiniGames4 />, <MiniGames5 />],
-            // newSourceUrlId: "new-source-url",
             loading: false,
             selectedGame: null
         }
     }
-    //     // TODO: make backend endpoint to return the filter categories
-    //     // const filterCategories = [
-    //     //     "Page Content",
-    //     //     "URL",
-    //     //     "Title",
-    //     //     "Next Connections",
-    //     //     "Previous Connections",
-    //     //     "Highlights",
-    //     //     "Notes"
-    //     // ]
-    //     // this.state = {
-    //     //     indeterminate: false,
-    //     //     checkAll: true,
-    //     //     value: filterCategories,
-    //     //     filterCategories: filterCategories
-    //     // };
-    // }
 
-    // if (!this.props.showNewSourceForm) return null;
-
-    // return (
-    //     <Modal show onHide={this.close}>
-    //         <Modal.Header>
-    //             <Modal.Title>
-    //                 Insert the URL of the source you'd like to add
-    //             </Modal.Title>
-    //         </Modal.Header>
-    //         <Form onSubmit={this.addNewSource}>
-    //             <Modal.Body>
-    //                 <Input autoFocus type="url" required id={this.state.newSourceUrlId}
-    //                     placeholder="New Source URL" />
-    //             </Modal.Body>
-    //             <Modal.Footer>
-    //                 <Button type="submit" loading={this.state.loading} appearance="primary">
-    //                     Add Source
-    //                 </Button>
-    //             </Modal.Footer>
-    //         </Form>
-    //     </Modal>
-    // );
     randomizer = () => {
         this.setState({
             // clicked: true,
@@ -75,7 +35,14 @@ class MiniGames extends React.Component {
         })
     }
 
-    
+    updateGames= () => {
+        // Games need to be loaded here to have the most recent sources?
+        this.setState({
+            games: [<OddOnesOut sources={this.props.sources} />] // For testing OddOnesOut specifically
+            // games: [<OddOnesOut sources={this.props.sources} />, <MiniGames2 />, <MiniGames3 />, <MiniGames4 />, <MiniGames5 />],
+        },
+        this.randomizer)
+    }
     // See if need to be be modified like above?
     setShowGame = (clicked) => {
         // Keeps track if Game Generation Button clicked and Window should open
@@ -83,20 +50,21 @@ class MiniGames extends React.Component {
             this.setState({
                 showGame: clicked
             });
-            console.log('Show Game should be shown?')
-            console.log(this.state.showGame)
         }
     }
     
     handleClick = () => {
         this.setShowGame(true);
-        this.randomizer();
-        console.log(this.state.selectedGame)
+        this.updateGames();
+        // console.log(this.state.selectedGame)
+        console.log(this.state.games)
+        // this.randomizer();
+        console.log(this.props.sources)
     }
 
     render() {
 
-        console.log(this.state.showGame)
+        // console.log(this.state.showGame)
 
         return (
             <>
