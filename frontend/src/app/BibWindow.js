@@ -15,8 +15,7 @@ class BibWindow extends React.Component {
         this.state = {
             curFormat: formats.APA,
             copyBib: false,
-            formats: formats,
-            editMode: false
+            formats: formats
         }
     }
 
@@ -56,7 +55,7 @@ class BibWindow extends React.Component {
     }
 
     render() {
-        const formats = this.state.formats
+        const formats = this.state.formats;
         if (this.props.sources === null) return null;
         return (
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
@@ -90,13 +89,15 @@ class BibWindow extends React.Component {
     }
 }
 
-function EditCitationButton(props) {
-    if (props.hide) return null;
-
-    const buttonSize = "xs";
-    if (props.editMode) {
-        return <Button onClick={() => props.setEditMode(false)} loading={props.loading} size={buttonSize}>Done</Button>
-    } else {
+class EditCitationButton extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            editMode: false
+        }
+    }
+    render () {
+        const buttonSize = "xs";
         return (
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>{props.tooltipText}</Tooltip>} placement="top">
                 <IconButton onClick={() => props.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
