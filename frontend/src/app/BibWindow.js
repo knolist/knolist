@@ -6,7 +6,7 @@ import {
 class BibWindow extends React.Component {
     constructor(props) {
         super(props);
-        // citationsToExport = []
+        // citationsIncluded = []
         const formats = {
             APA: "APA",
             MLA: "MLA",
@@ -15,13 +15,13 @@ class BibWindow extends React.Component {
         this.state = {
             curFormat: formats.APA,
             copyBib: false,
-            formats: formats
+            formats: formats,
         }
     }
 
     removeFromSaved = (value) => {
         this.setState({
-            // citationsToExport removes that citation
+            // citationsIncluded removes that citation
             // citation is moved down and greyed out
         });
     }
@@ -50,8 +50,11 @@ class BibWindow extends React.Component {
         }
     }
 
-    setEditMode = (val) => {
-        this.setState({editMode: val});
+    setShowEditWindow = (clicked) => {
+        // Keeps track if Bibliography Generation Button clicked and Window should open
+        this.setState({
+            showEditWindow: clicked
+        });
     }
 
     render() {
@@ -62,12 +65,12 @@ class BibWindow extends React.Component {
                 <Modal.Header>
                     <Modal.Title>
                     Bibliography
-                    </Modal.Title>
-                    <SelectPicker labelKey={this.state.curFormat} labelValue={this.state.curFormat} data={[formats]} onChange={this.changeFormatType}/>
                     {/* TODO: Set copyBib state to "export"
                     <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
                     */}
                     <IconButton icon={<Icon icon="copy"/>}/>
+                    <SelectPicker labelKey={this.state.curFormat} labelValue={this.state.curFormat} data={[formats]} onChange={this.changeFormatType}/>
+                    </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
@@ -79,7 +82,7 @@ class BibWindow extends React.Component {
                                     <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
                                 </Whisper>
                                 <EditCitationButton hide={false} editMode={this.state.editMode}
-                                      setEditMode={this.setEditMode} tooltipText="Edit Citation Fields"/>
+                                      setEditMode={this.setEditMode}/>
                             </Checkbox>)}
                         <p>Not Included</p>
                     </CheckboxGroup>
@@ -96,11 +99,16 @@ class EditCitationButton extends React.Component{
             editMode: false
         }
     }
+
+    setEditMode = (val) => {
+        this.setState({editMode: val});
+    }
+
     render () {
         const buttonSize = "xs";
         return (
-            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>{props.tooltipText}</Tooltip>} placement="top">
-                <IconButton onClick={() => props.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
+            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Citation Fields</Tooltip>} placement="top">
+                <IconButton onClick={() => this.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
             </Whisper>
         );
     }
