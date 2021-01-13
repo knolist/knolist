@@ -7,7 +7,8 @@ import { Route, Switch } from "react-router";
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
-import Projects from "../my-knolist/Projects.js";
+import MyProjects from "../my-knolist/MyProjects.js";
+import Shared from "../my-knolist/Shared.js";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -94,7 +95,13 @@ class App extends React.Component {
                     <MindMap curProject={this.state.curProject} />
                 </Route>
                 <Route path="/my-projects">
-                    <Projects />
+                    <MyProjects />
+                </Route>
+                <Route path="/shared">
+                    <Shared />
+                </Route>
+                <Route path="/archived">
+                    <Shared />
                 </Route>
             </Switch>
         );

@@ -3,7 +3,7 @@ import React from "react";
 function MyKnolistAll() {
   return (
     <div>
-      <p className="myknolist-main-subtitle" style={{ marginTop: "7vh" }}>All</p>
+      <p className="myknolist-title" style={{ marginTop: "7vh" }}>Projects</p>
       <div className="myknolist-container" style={{ marginTop: "3vh" }}>
         <div className="myknolist-all-list-info">
           Name

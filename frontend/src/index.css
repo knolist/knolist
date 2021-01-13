@@ -60,36 +60,15 @@
 
 .myknolist-main-container {
     position: absolute;
-    left: 25vw;
+    left: 22vw;
     top: 11vh;
 }
 
-.myknolist-main-title {
+.myknolist-title {
     font-weight: bold;
     font-size: 2em;
     font-family: "Poppins";
     float: left;
-}
-
-.myknolist-new-button {
-    float: left;
-    border-radius: 15px;
-    background-color: #00387F;
-    width: 10vw;
-    height: 4vh;
-    margin-left: 3.5vw;
-    padding: 5px;
-    margin-top: .8vh;
-    text-align: center;
-    padding: 4px;
-    color: white;
-}
-
-.myknolist-main-subtitle {
-    font-weight: bold;
-    font-size: 1em;
-    font-family: "Poppins";
-    margin-top: 10vh;
 }
 
 .myknolist-container {

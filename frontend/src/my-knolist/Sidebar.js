@@ -1,27 +1,38 @@
 import React from "react";
 import { Sidenav, Icon, Nav } from "rsuite";
-import { NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar() {
+  let first = false;
+  let second = false;
+  let third = false;
+  const location = useLocation()["pathname"];
+
+  if (location === "/my-projects") first = true;
+  else if (location === "/shared") second = true;
+  else if (location === "./archived") third = true;
+
   return (
     <div style={{ width: "17vw", borderRight: "1px solid gray" }}>
-      <Sidenav defaultOpenKeys={['3', '4']} activeKey="1"
+      <Sidenav
         style={{ height: "100vh", fontFamily: "Poppins", paddingTop: "4vh", backgroundColor: "white" }}>
         <Sidenav.Body>
           <Nav style={{ color: "#ffffff" }}>
-            <Nav.Item eventKey="1" icon={<Icon icon="project" />}>
-              My Projects
-            </Nav.Item>
-            <NavLink to="/shared">
-              <Nav.Item eventKey="2" icon={<Icon icon="people-group" />}>
+            <Link to="/my-projects">
+              <Nav.Item active={first} icon={<Icon icon="project"/>}>
+                My Projects
+              </Nav.Item>
+            </Link>
+            <Link to="/shared">
+              <Nav.Item active={second} icon={<Icon icon="people-group" />}>
                 Shared with me
               </Nav.Item>
-            </NavLink>
-            <NavLink to="/archive">
-              <Nav.Item eventKey="3" icon={<Icon icon="archive" />}>
+            </Link>
+            <Link to="/archived">
+              <Nav.Item active={third} icon={<Icon icon="archive" />}>
                 Archived
               </Nav.Item>
-            </NavLink>
+            </Link>
           </Nav>
         </Sidenav.Body>
       </Sidenav>

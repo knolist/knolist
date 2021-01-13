@@ -1,16 +1,16 @@
 import React from "react";
 import Header from "./Header.js";
 import Sidebar from "./Sidebar.js";
-import MyKnolistMain from "./MyKnolistMain.js";
+import ProjectsDisplay from "./ProjectsDisplay.js";
 
-function Projects(props) {
+function MyProjects(props) {
   return(
     <div>
       <Header />
       <Sidebar />
-      <MyKnolistMain />
+      <ProjectsDisplay />
     </div>
   );
 }
 
-export default Projects;
+export default MyProjects;
