@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Modal, Dropdown, IconButton, Icon, Checkbox, CheckboxGroup, Tooltip
+    Modal, SelectPicker, IconButton, Icon, Checkbox, CheckboxGroup, Tooltip, Whisper
 } from "rsuite";
 
 class BibWindow extends React.Component {
@@ -55,16 +55,7 @@ class BibWindow extends React.Component {
                     <Modal.Title>
                     Bibliography
                     </Modal.Title>
-                    <Dropdown title={this.state.formatType} activeKey={this.state.formatType}>
-                        {/*
-                        <Dropdown.Item eventKey="APA" onClick={this.changeFormatType}>APA</Dropdown.Item>
-                        <Dropdown.Item eventKey="MLA" onClick={this.changeFormatType}>MLA</Dropdown.Item>
-                        <Dropdown.Item eventKey="CHI" onClick={this.changeFormatType}>Chicago</Dropdown.Item>
-                        */}
-                        <Dropdown.Item eventKey={formats.APA}>APA</Dropdown.Item>
-                        <Dropdown.Item eventKey={formats.MLA}>MLA</Dropdown.Item>
-                        <Dropdown.Item eventKey={formats.CHI}>Chicago</Dropdown.Item>
-                    </Dropdown>
+                    <SelectPicker data={formats}/>
                     {/* TODO: Set copyBib state to "export"
                     <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
                     */}
@@ -75,11 +66,10 @@ class BibWindow extends React.Component {
                         <p>Included</p>
                         {this.props.sources.map((source,index) => 
                             <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
-                            {this.renderFormatType({source})}
-                            {/*<Tooltip title="This source is missing a field">*/}
-                            <Icon icon="exclamation-circle" color="#f5a623"/>
-                            {/*<IconButton onClick={() => ())} icon={<Icon icon="exclamation-circle" color="#f5a623"/>}/>*/}
-                            {/*</Tooltip>*/}
+                                {this.renderFormatType({source})}
+                                <Whisper placement="bottomStart" trigger="hover"  speaker={<Tooltip>This source is missing a field</Tooltip>}>
+                                    <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
+                                </Whisper>
                             </Checkbox>)}
                         <p>Not Included</p>
                     </CheckboxGroup>
