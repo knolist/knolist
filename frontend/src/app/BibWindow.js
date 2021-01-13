@@ -16,6 +16,7 @@ class BibWindow extends React.Component {
             curFormat: formats.APA,
             copyBib: false,
             formats: formats,
+            setShowEditWindow: false
         }
     }
 
@@ -82,11 +83,12 @@ class BibWindow extends React.Component {
                                     <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
                                 </Whisper>
                                 <EditCitationButton hide={false} editMode={this.state.editMode}
-                                      setEditMode={this.setEditMode}/>
+                                      setEditMode={this.setEditMode} onClick={() => this.state.setShowEditWindow(true)}/>
                             </Checkbox>)}
                         <p>Not Included</p>
                     </CheckboxGroup>
                 </Modal.Body>
+            <EditWindow showEditWindow={this.state.showEditWindow} setShowEditWindow={this.props.setShowEditWindow} sources={this.props.sources}/>
             </Modal>
         );
     }
@@ -110,6 +112,30 @@ class EditCitationButton extends React.Component{
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Citation Fields</Tooltip>} placement="top">
                 <IconButton onClick={() => this.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
             </Whisper>
+        );
+    }
+}
+
+class EditWindow extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            editMode: false
+        }
+    }
+
+render() {
+        if (this.props.sources === null) return null;
+        return (
+            <Modal full show={this.props.showEditWindow} onHide={() => this.props.showEditWindow(false)}>
+                <Modal.Header>
+                    <Modal.Title>
+                    Edit Citation
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                </Modal.Body>
+            </Modal>
         );
     }
 }
