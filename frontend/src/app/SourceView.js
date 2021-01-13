@@ -17,7 +17,6 @@ class SourceView extends React.Component {
             loadingDelete: false
         }
     }
-
     setConfirmDelete = (val) => {
         this.setState({confirmDelete: val}, () => this.setLoadingDelete(false));
     }
@@ -37,6 +36,11 @@ class SourceView extends React.Component {
         })
     }
 
+    addNewNote = () => {
+        this.props.setAddSourceMode("Note",this.state.sourceDetails.url);
+        this.close();
+    }
+
     close = () => {
         this.props.setSelectedNode(null);
     }
@@ -48,8 +52,27 @@ class SourceView extends React.Component {
         }
 
         const endpoint = "/sources/" + this.props.selectedNode;
-        const response = await makeHttpRequest(endpoint);
-        this.setState({sourceDetails: response.body.source});
+        // const response = await makeHttpRequest(endpoint);
+        //this.setState({sourceDetails: response.body.source});
+;        this.setState({sourceDetails: {
+            "highlights": [
+                "This is a highlight",
+                "This is another highlight"
+            ],
+            "id": 1,
+            "next_sources": [],
+            "notes": [
+                "This is a note"
+            ],
+            "prev_sources": [
+            2
+            ],
+            "project_id": 1,
+            "title": "Robert Browning - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+            "x_position": null,
+            "y_position": null
+        }});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -93,6 +116,9 @@ class SourceView extends React.Component {
                                 <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
                                             size="lg"/>
                             </Whisper>
+                            <Button appearance="primary" onClick={this.addNewNote}>
+                                Add New Note
+                            </Button>
                         </Modal.Footer>
                     </Modal>
                 </div>
@@ -376,7 +402,7 @@ class NotesList extends React.Component {
                            size={buttonSize}>Cancel</Button>
         } else {
             return (
-                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Add Notes</Tooltip>} placement="top">
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Add Notes to URL</Tooltip>} placement="top">
                     <IconButton appearance={buttonAppearance} onClick={() => this.setShowNewNotesForm(true)}
                                 icon={<Icon icon="plus"/>} size={buttonSize}/>
                 </Whisper>

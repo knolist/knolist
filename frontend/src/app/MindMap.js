@@ -18,6 +18,21 @@ class MindMap extends React.Component {
             URL:"url",
             NOTES:"notes"
         };
+        const types = {
+            NULL:null,
+            PURESOURCE: "pureSource",
+            SOURCEANDNOTE: "sourceAndNote",
+            SOURCEANDHIGHLIGHT: "sourceAndHighlight",
+            PURENOTE: "pureNote"
+        }
+        const colors = {
+            NULL:null,
+            RED:"red",
+            BLUE:"blue",
+            GREEN:"green",
+            PURPLE:"purple",
+            ORANGE:"orange"
+    };
         this.state = {
             network: null,
             visNodes: null,
@@ -29,7 +44,12 @@ class MindMap extends React.Component {
             showNewSourceHelperMessage: false,
             newSourceData: modes.NULL,
             modes:modes,
-            newSourceFormType: null
+            newSourceFormType: null,
+            source: null,
+            types: types,
+            typeOfSource: types.NULL,
+            colors:colors,
+            showColor:colors.NULL
         };
     };
 
@@ -61,7 +81,66 @@ class MindMap extends React.Component {
         this.setLoading(true);
 
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        const response = await makeHttpRequest(endpoint);
+        // const response = await makeHttpRequest(endpoint);
+        const pureSource = {
+            id: 1,
+            next_sources: [],
+            prev_sources: [],
+            url: "https://en.wikipedia.org/wiki/Main_Page",
+            title: "wiki1",
+            project_id: 1,
+            is_note: false,
+            is_highlight: false,
+            content: null,
+            x_position: 150,
+            y_position: -30
+        }
+        const sourceAndNote = {
+            id: 2,
+            next_sources: [],
+            prev_sources: [],
+            url: "https://en.wikipedia.org/wiki/Main_Page",
+            title: "wiki2",
+            project_id: 1,
+            is_note: true,
+            is_highlight: false,
+            content: "This is a note",
+            x_position: 10,
+            y_position: -100
+        }
+        const sourceAndHighlight = {
+            id: 3,
+            next_sources: [],
+            prev_sources: [],
+            url: "https://en.wikipedia.org/wiki/Main_Page",
+            title:"wiki3",
+            project_id: 1,
+            is_note: false,
+            is_highlight: true,
+            content: "This is a highlight",
+            x_position: 50,
+            y_position: -30
+        }
+        const pureNote = {
+            id: 4,
+            next_sources: [],
+            prev_sources: [],
+            url: null,
+            title:"wiki4",
+            project_id: 1,
+            is_note: true,
+            is_highlight: false,
+            content: "This is a pure note",
+            x_position: 250,
+            y_position: -10
+        }
+        const sources = [pureSource, sourceAndNote, sourceAndHighlight, pureNote];
+        const response = {
+            body: {
+                sources: sources
+            },
+            status: 200
+        }
         this.setLoading(false);
         this.setState({sources: response.body.sources}, callback);
     }
@@ -107,9 +186,10 @@ class MindMap extends React.Component {
         });
     }
 
-    setAddSourceMode = (newSourceFormType) => {
+    setAddSourceMode = (newSourceFormType, source = null) => {
         this.setState({
-            newSourceFormType: newSourceFormType 
+            newSourceFormType: newSourceFormType,
+            source: source
         });
         this.setShowNewSourceHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
@@ -142,10 +222,15 @@ class MindMap extends React.Component {
         return [xRandom + xOffset, yRandom + yOffset];
     }
 
+    getNodeType = (node) => {
+        if (node.url === null) return this.state.types.PURESOURCE;
+    }
+
     // Helper function to setup the nodes and edges for the graph
     createNodesAndEdges() {
         let nodes = new DataSet();
         let edges = new DataSet();
+        
         // Iterate through each node in the graph and build the arrays of nodes and edges
         for (let index in this.state.sources) {
             let node = this.state.sources[index];
@@ -154,9 +239,14 @@ class MindMap extends React.Component {
                 // If position is still undefined, generate random x and y in interval [-300, 300]
                 const [x, y] = this.generateNodePositions(node);
                 this.updateSourcePosition(node.id, x, y);
-                nodes.add({id: node.id, label: node.title, x: x, y: y});
+                
+                // const nodeType = this.getNodeType(node);
+                // if (nodeType === this.state.nodeTypes.PURESOURCE) {
+                //     let title = node.content.trim(100);
+                // }
+                nodes.add({id: node.id, label: node.title, x: x, y: y, color:this.getColor(node)});
             } else {
-                nodes.add({id: node.id, label: node.title, x: node.x_position, y: node.y_position});
+                nodes.add({id: node.id, label: node.title, x: node.x_position, y: node.y_position, color:this.getColor(node)});
             }
             // Deal with edges
             for (let nextIndex in node.next_sources) {
@@ -167,6 +257,24 @@ class MindMap extends React.Component {
         this.setState({visNodes: nodes, visEdges: edges});
         return [nodes, edges];
     }
+
+    getColor = (source) => {
+        let color = this.state.colors.ORANGE;
+        if (source.url && !source.is_highlight && !source.is_note) {
+            // pure source
+            color = this.state.colors.RED;
+        } else if (source.url && !source.is_highlight && source.is_note) {
+            //note and source
+            color = this.state.colors.BLUE;
+        } else if (source.url && source.is_highlight && !source.is_note) {
+            //highlight and source
+            color = this.state.colors.PURPLE;
+        } else if (!source.url && !source.is_highlight && source.is_note) {
+            //pure note
+            color = this.state.colors.GREEN;
+        }
+        return color;
+     }
 
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
@@ -182,6 +290,7 @@ class MindMap extends React.Component {
                 nodes: nodes,
                 edges: edges
             };
+    
             const options = {
                 nodes: {
                     shape: "box",
@@ -194,8 +303,12 @@ class MindMap extends React.Component {
                         color: "white"
                     },
                     color: {
-                        background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                       background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
                     },
+                    // color: {
+                    //     border: this.getColor(),
+                    //     background: this.getColor()
+                    // },
                     widthConstraint: {
                         maximum: 500
                     }
@@ -225,12 +338,11 @@ class MindMap extends React.Component {
             // Initialize the network
             const network = new Network(container, data, options);
             network.fit()
-
             // Handle click vs drag
             network.on("click", (params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    this.handleClickedNode(nodeId);
+                    const nodeID = params.nodes[0];
+                    this.handleClickedNode(nodeID);
                 }
             });
 
@@ -280,46 +392,20 @@ class MindMap extends React.Component {
             return <Loader size="lg" backdrop center/>
         }
         
-        let newSourceForm;
-        let inputType;
-        let header;
-        let placeholder;
-        let newSourceData;
-        let inputComponentClass;
-        //set variables for changing parameters
-        if (this.state.newSourceFormType === "URL") {
-            newSourceData=this.state.modes.URL;
-            inputType="URL";
-            header = "URL of the source";
-            placeholder = "New Source URL";
-            inputComponentClass="input";
-        } else if (this.state.newSourceFormType === "Notes") {
-            newSourceData=this.state.modes.NOTES;
-            inputType="Note";
-            header = "Note of the source";
-            placeholder = "New Note";
-            inputComponentClass="textarea";
-        } else {
-            newSourceForm = null;
-        }
-        //Create a single instance of NewSourceForm
-        newSourceForm =
-        <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
-            newSourceData={newSourceData}
-            curProject={this.props.curProject}
-            renderNetwork={this.renderNetwork}
-            switchShowNewSourceForm={this.switchShowNewSourceForm}
-            inputType={inputType}
-            header = {header}
-            placeholder = {placeholder}
-            inputComponentClass={inputComponentClass}/>;
         return (
             <div>
                 <div id="mindmap"/>
                 <SourceView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}
-                            renderNetwork={this.renderNetwork}/>
-                {newSourceForm}
+                            renderNetwork={this.renderNetwork}
+                            setAddSourceMode={this.setAddSourceMode}/>
+                <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
+                            curProject={this.props.curProject}
+                            renderNetwork={this.renderNetwork}
+                            switchShowNewSourceForm={this.switchShowNewSourceForm}
+                            inputType={this.state.newSourceFormType}
+                            newSourceData={this.state.newSourceData}
+                            source={this.state.source} />
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
         );

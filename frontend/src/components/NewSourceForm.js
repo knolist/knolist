@@ -8,10 +8,10 @@ class NewSourceForm extends React.Component {
         super(props);
         this.state = {
             newSourceUrlId: "new-source-url",
+            newSourceNotesId: "new-source-notes",
             loading: false
-        }
+        };
     }
-
     close = () => {
         this.props.switchShowNewSourceForm()
     }
@@ -23,10 +23,12 @@ class NewSourceForm extends React.Component {
     addNewSource = () => {
         this.setLoading(true);
         const url = document.getElementById(this.state.newSourceUrlId).value;
+        const content = "This is a note lol";
         const {x, y} = this.props.newSourceData;
         const endpoint = "/projects/" + this.props.curProject.id + "/sources"
         const body = {
             "url": url,
+            "content":content,
             "x_position": x,
             "y_position": y
         }
@@ -52,18 +54,22 @@ class NewSourceForm extends React.Component {
 
     render() {
         if (!this.props.showNewSourceForm) return null;
-
+        
         return (
             <Modal show onHide={this.close}>
                 <Modal.Header>
                     <Modal.Title>
-                        Insert the {this.props.header} you'd like to add.
+                        Insert the {this.props.inputType} you'd like to add.
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={this.addNewSource}>
                     <Modal.Body>
-                        <Input autoFocus type={this.props.inputType} required id={this.state.newSourceUrlId}
-                               placeholder={this.props.placeholder} componentClass={this.props.inputComponentClass} rows={30}/>
+                        <Input autoFocus required={this.props.inputType === "URL"} type="URL" id={this.state.newSourceUrlId} placeholder="Add URL"/>
+                        {
+                            (this.props.inputType === "Note") &&
+                            <Input type={"Note"} required id={this.state.newSourceNotesId}
+                                placeholder="Add Note" componentClass="textarea" rows={30}/>
+                        }
                     </Modal.Body>
                     <Modal.Footer>
                         <Button type="submit" loading={this.state.loading} appearance="primary">
