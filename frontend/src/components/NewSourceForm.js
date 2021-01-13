@@ -22,13 +22,26 @@ class NewSourceForm extends React.Component {
 
     addNewSource = () => {
         this.setLoading(true);
-        const url = document.getElementById(this.state.newSourceUrlId).value;
-        const content = "This is a note lol";
+        let url;
+        if (!this.props.source) {
+            url = document.getElementById(this.state.newSourceUrlId).value;
+            if (url === "") {
+                url = null;
+            }
+        } else {
+            url = this.props.source;
+        }
+        let content;
+        if (this.props.inputType === "Note") {
+            content = document.getElementById(this.state.newSourceNotesId).value;
+        } else {
+            content = null;
+        }
         const {x, y} = this.props.newSourceData;
         const endpoint = "/projects/" + this.props.curProject.id + "/sources"
         const body = {
             "url": url,
-            "content":content,
+            "content": content,
             "x_position": x,
             "y_position": y
         }
@@ -64,7 +77,10 @@ class NewSourceForm extends React.Component {
                 </Modal.Header>
                 <Form onSubmit={this.addNewSource}>
                     <Modal.Body>
-                        <Input autoFocus required={this.props.inputType === "URL"} type="URL" id={this.state.newSourceUrlId} placeholder="Add URL"/>
+                        {
+                            (!this.props.source) &&
+                            <Input autoFocus required={this.props.inputType === "URL"} type="URL" id={this.state.newSourceUrlId} placeholder="Add URL"/>
+                        }
                         {
                             (this.props.inputType === "Note") &&
                             <Input type={"Note"} required id={this.state.newSourceNotesId}
