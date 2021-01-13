@@ -9,9 +9,9 @@ class BibWindow extends React.Component {
         super(props);
         // citationsIncluded = []
         const formats = {
-            APA: "APA",
-            MLA: "MLA",
-            CHI: "Chicago"
+            APA: "APA Reference List",
+            MLA: "MLA Works Cited",
+            CHI: "Chicago Bibliography Style"
         }
         this.state = {
             curFormat: formats.APA,
@@ -80,7 +80,7 @@ class BibWindow extends React.Component {
                         {this.props.sources.map((source,index) => 
                         <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
                             {this.renderFormatType(source)}
-                            <EditCitationButton hide={false} onClick={() => this.setEditSource(source)}/>
+                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
                             <Whisper placement="bottomStart" trigger="hover"  speaker={<Tooltip>This source is missing a field</Tooltip>}>
                                 <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
                             </Whisper>
@@ -98,7 +98,7 @@ class EditCitationButton extends React.Component{
         const buttonSize = "xs";
         return (
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Citation Fields</Tooltip>} placement="top">
-                <IconButton icon={<Icon icon="edit2"/>} size={buttonSize}/>
+                <IconButton icon={<Icon icon="edit2"/>} size={buttonSize} onClick={() => this.props.setEditSource(this.props.source)}/>
             </Whisper>
         );
     }
@@ -106,7 +106,15 @@ class EditCitationButton extends React.Component{
 
 class EditWindow extends React.Component{
 
-render() {
+    showField = (field) => {
+        if(field){
+            return (field);
+        } else {
+            return ("Not Found");
+        }
+    }
+
+    render() {
         if (this.props.source === null) return null;
         return (
             <Modal full show onHide={this.props.close}>
@@ -116,13 +124,13 @@ render() {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Input:  </p><Input placeholder="Not Found" />
-                    {/*<p>Author: </p><Input placeholder={if(source.author){source.author} else {"Not Found"}}/>
-                    <p>Title: </p><Input placeholder={if(source.title){source.title} else {"Not Found"}}/>
-                    <p>Publish Date: </p><Input placeholder={if(source.publishDate){source.publishDate} else {"Not Found"}}/>
-                    <p>Site Name: </p><Input placeholder={if(source.siteName){source.siteName} else {"Not Found"}}/>
-                    <p>Access Date: </p><Input placeholder={if(source.accessDate){source.accessDate} else {"Not Found"}}/>
-                    <p>URL: </p><Input placeholder={if(source.url){source.url} else {"Not Found"}}/>*/}
+                    <p>Input:</p><Input placeholder="Not Found" />
+                    <p>Author: </p><Input placeholder={this.showField(this.props.source.author)}/>
+                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)}/>
+                    <p>Publish Date: </p><Input placeholder={this.showField(this.props.source.publishDate)}/>
+                    <p>Site Name: </p><Input placeholder={this.showField(this.props.source.siteName)}/>
+                    <p>Access Date: </p><Input placeholder={this.showField(this.props.source.accessDate)}/>
+                    <p>URL: </p><Input placeholder={this.showField(this.props.source.url)}/>
                 </Modal.Body>
             </Modal>
         );
