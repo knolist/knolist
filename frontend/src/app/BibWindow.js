@@ -1,6 +1,7 @@
 import React from "react";
 import {
-    Modal, SelectPicker, IconButton, Icon, Checkbox, CheckboxGroup, Tooltip, Whisper
+    Modal, SelectPicker, IconButton, Icon, Checkbox, 
+    CheckboxGroup, Tooltip, Whisper, Input
 } from "rsuite";
 
 class BibWindow extends React.Component {
@@ -65,12 +66,12 @@ class BibWindow extends React.Component {
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
                 <Modal.Header>
                     <Modal.Title>
-                    Bibliography
+                    Bibliography  
                     {/* TODO: Set copyBib state to "export"
                     <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
                     */}
                     <IconButton icon={<Icon icon="copy"/>}/>
-                    <SelectPicker labelKey={this.state.curFormat} labelValue={this.state.curFormat} data={[formats]} onChange={this.changeFormatType}/>
+                    <SelectPicker labelKey={this.state.curFormat} labelValue={this.state.curFormat} data={[formats]} onChange={this.changeFormatType} style={{float: 'right'}}/>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -130,10 +131,17 @@ render() {
             <Modal full show={this.props.showEditWindow} onHide={() => this.props.showEditWindow(false)}>
                 <Modal.Header>
                     <Modal.Title>
-                    Edit Citation
+                    Edit Citation Fields
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <p>Input:  </p><Input placeholder="Not Found" />
+                    {/*<p>Author: </p><Input placeholder={if(source.author){source.author} else {"Not Found"}}/>
+                    <p>Title: </p><Input placeholder={if(source.title){source.title} else {"Not Found"}}/>
+                    <p>Publish Date: </p><Input placeholder={if(source.publishDate){source.publishDate} else {"Not Found"}}/>
+                    <p>Site Name: </p><Input placeholder={if(source.siteName){source.siteName} else {"Not Found"}}/>
+                    <p>Access Date: </p><Input placeholder={if(source.accessDate){source.accessDate} else {"Not Found"}}/>
+                    <p>URL: </p><Input placeholder={if(source.url){source.url} else {"Not Found"}}/>*/}
                 </Modal.Body>
             </Modal>
         );
