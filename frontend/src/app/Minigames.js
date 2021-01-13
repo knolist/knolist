@@ -29,7 +29,6 @@ class MiniGames extends React.Component {
 
     randomizer = () => {
         this.setState({
-            // clicked: true,
             selectedGame: this.state.games[Math.floor(Math.random() *
                 this.state.games.length)]
         })
@@ -57,14 +56,11 @@ class MiniGames extends React.Component {
         this.setShowGame(true);
         this.updateGames();
         // console.log(this.state.selectedGame)
-        console.log(this.state.games)
-        // this.randomizer();
-        console.log(this.props.sources)
+        // console.log(this.state.games)
+        // console.log(this.props.sources)
     }
 
     render() {
-
-        // console.log(this.state.showGame)
 
         return (
             <>
@@ -74,7 +70,6 @@ class MiniGames extends React.Component {
                 placement="topEnd">
                 <IconButton appearance="primary" icon={<Icon icon="gamepad" />} circle
                     size="lg" onClick={this.handleClick}
-                    // size="lg" onClick={() => this.props.setShowGame(true)}
                     style={{
                         top: '50%',
                         position: "absolute",
