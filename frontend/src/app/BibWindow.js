@@ -26,9 +26,9 @@ class BibWindow extends React.Component {
         });
     }
 
-    changeFormatType = (type) => {
+    changeFormatType = (value) => {
         this.setState({
-            curFormat: type 
+            curFormat: value
         });
     }
 
@@ -59,7 +59,7 @@ class BibWindow extends React.Component {
                     <Modal.Title>
                     Bibliography
                     </Modal.Title>
-                    <SelectPicker data={formats} onChange={this.changeFormatType}/>
+                    <SelectPicker labelKey={this.state.curFormat} labelValue={this.state.curFormat} data={[formats]} onChange={this.changeFormatType}/>
                     {/* TODO: Set copyBib state to "export"
                     <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
                     */}
