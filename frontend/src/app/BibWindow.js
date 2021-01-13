@@ -15,7 +15,8 @@ class BibWindow extends React.Component {
         this.state = {
             curFormat: formats.APA,
             copyBib: false,
-            formats: formats
+            formats: formats,
+            editMode: false
         }
     }
 
@@ -50,6 +51,10 @@ class BibWindow extends React.Component {
         }
     }
 
+    setEditMode = (val) => {
+        this.setState({editMode: val});
+    }
+
     render() {
         const formats = this.state.formats
         if (this.props.sources === null) return null;
@@ -74,11 +79,28 @@ class BibWindow extends React.Component {
                                 <Whisper placement="bottomStart" trigger="hover"  speaker={<Tooltip>This source is missing a field</Tooltip>}>
                                     <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
                                 </Whisper>
+                                <EditCitationButton hide={false} editMode={this.state.editMode}
+                                      setEditMode={this.setEditMode} tooltipText="Edit Citation Fields"/>
                             </Checkbox>)}
                         <p>Not Included</p>
                     </CheckboxGroup>
                 </Modal.Body>
             </Modal>
+        );
+    }
+}
+
+function EditCitationButton(props) {
+    if (props.hide) return null;
+
+    const buttonSize = "xs";
+    if (props.editMode) {
+        return <Button onClick={() => props.setEditMode(false)} loading={props.loading} size={buttonSize}>Done</Button>
+    } else {
+        return (
+            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>{props.tooltipText}</Tooltip>} placement="top">
+                <IconButton onClick={() => props.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
+            </Whisper>
         );
     }
 }
