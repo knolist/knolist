@@ -124,13 +124,12 @@ class EditWindow extends React.Component{
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Input:</p><Input placeholder="Not Found" />
-                    <p>Author: </p><Input placeholder={this.showField(this.props.source.author)}/>
-                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)}/>
-                    <p>Publish Date: </p><Input placeholder={this.showField(this.props.source.publishDate)}/>
-                    <p>Site Name: </p><Input placeholder={this.showField(this.props.source.siteName)}/>
-                    <p>Access Date: </p><Input placeholder={this.showField(this.props.source.accessDate)}/>
-                    <p>URL: </p><Input placeholder={this.showField(this.props.source.url)}/>
+                    <p>Author: </p><Input placeholder={this.showField(this.props.source.author)} style={{ width: '300px' }}/>
+                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)} style={{ width: '400px' }}/>
+                    <p>Publish Date: </p><Input placeholder={this.showField(this.props.source.publishDate)} style={{ width: '200px' }}/>
+                    <p>Site Name: </p><Input placeholder={this.showField(this.props.source.siteName)} style={{ width: '300px' }}/>
+                    <p>Access Date: </p><Input placeholder={this.showField(this.props.source.accessDate)} style={{ width: '200px' }}/>
+                    <p>URL: </p><Input placeholder={this.showField(this.props.source.url)} style={{ width: '400px' }}/>
                 </Modal.Body>
             </Modal>
         );
