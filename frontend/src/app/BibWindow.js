@@ -17,7 +17,7 @@ class BibWindow extends React.Component {
             curFormat: formats.APA,
             copyBib: false,
             formats: formats,
-            setShowEditWindow: false
+            editSource: null
         }
     }
 
@@ -52,15 +52,16 @@ class BibWindow extends React.Component {
         }
     }
 
-    setShowEditWindow = (clicked) => {
+    setEditSource = (source) => {
         // Keeps track if Bibliography Generation Button clicked and Window should open
         this.setState({
-            showEditWindow: clicked
+            editSource: source
         });
     }
 
     render() {
         const formats = this.state.formats;
+        const dropdownData = [{value:formats.APA,label:formats.APA},{value:formats.MLA,label:formats.MLA},{value:formats.CHI,label:formats.CHI}]
         if (this.props.sources === null) return null;
         return (
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
@@ -71,64 +72,44 @@ class BibWindow extends React.Component {
                     <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
                     */}
                     <IconButton icon={<Icon icon="copy"/>}/>
-                    <SelectPicker labelKey={this.state.curFormat} labelValue={this.state.curFormat} data={[formats]} onChange={this.changeFormatType} style={{float: 'right'}}/>
+                    <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
-                        <p>Included</p>
                         {this.props.sources.map((source,index) => 
-                            <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
-                                {this.renderFormatType(source)}
-                                <Whisper placement="bottomStart" trigger="hover"  speaker={<Tooltip>This source is missing a field</Tooltip>}>
-                                    <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
-                                </Whisper>
-                                <EditCitationButton hide={false} editMode={this.state.editMode}
-                                      setEditMode={this.setEditMode} onClick={() => this.state.setShowEditWindow(true)}/>
-                            </Checkbox>)}
-                        <p>Not Included</p>
+                        <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
+                            {this.renderFormatType(source)}
+                            <EditCitationButton hide={false} onClick={() => this.setEditSource(source)}/>
+                            <Whisper placement="bottomStart" trigger="hover"  speaker={<Tooltip>This source is missing a field</Tooltip>}>
+                                <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
+                            </Whisper>
+                        </Checkbox>)}
                     </CheckboxGroup>
                 </Modal.Body>
-            <EditWindow showEditWindow={this.state.showEditWindow} setShowEditWindow={this.props.setShowEditWindow} sources={this.props.sources}/>
+            <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource}/>
             </Modal>
         );
     }
 }
 
 class EditCitationButton extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            editMode: false
-        }
-    }
-
-    setEditMode = (val) => {
-        this.setState({editMode: val});
-    }
-
     render () {
         const buttonSize = "xs";
         return (
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Citation Fields</Tooltip>} placement="top">
-                <IconButton onClick={() => this.setEditMode(true)} icon={<Icon icon="edit2"/>} size={buttonSize}/>
+                <IconButton icon={<Icon icon="edit2"/>} size={buttonSize}/>
             </Whisper>
         );
     }
 }
 
 class EditWindow extends React.Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            editMode: false
-        }
-    }
 
 render() {
-        if (this.props.sources === null) return null;
+        if (this.props.source === null) return null;
         return (
-            <Modal full show={this.props.showEditWindow} onHide={() => this.props.showEditWindow(false)}>
+            <Modal full show onHide={this.props.close}>
                 <Modal.Header>
                     <Modal.Title>
                     Edit Citation Fields
