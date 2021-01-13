@@ -7,7 +7,7 @@ import { Route, Switch } from "react-router";
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
-import MyKnolist from "../my-knolist/MyKnolist.js";
+import Projects from "../my-knolist/Projects.js";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -93,8 +93,8 @@ class App extends React.Component {
                     {this.projectsButton()}
                     <MindMap curProject={this.state.curProject} />
                 </Route>
-                <Route path="/my-knolist">
-                    <MyKnolist />
+                <Route path="/my-projects">
+                    <Projects />
                 </Route>
             </Switch>
         );

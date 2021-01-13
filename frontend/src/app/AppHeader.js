@@ -12,7 +12,7 @@ function AppHeader(props) {
     return (
         <Navbar style={{ padding: "0 10px" }}>
             <FlexboxGrid justify="space-between" align="middle">
-                <Link to="/my-knolist">
+                <Link to="/my-projects">
                     <Navbar.Header>
                         <img className="limit-height" src={horizontalLogo} alt="Knolist" />
                     </Navbar.Header>

@@ -3,7 +3,7 @@ import horizontalLogo from "../images/horizontal_main.png";
 import SearchBar from "../components/SearchBar.js";
 import { Navbar, FlexboxGrid, Dropdown, Icon } from "rsuite";
 
-function MyKnolistHeader(props) {
+function Header() {
   return (
     <Navbar style={{ padding: "0 10px" }}>
       <FlexboxGrid justify="space-between" align="middle">
@@ -34,4 +34,4 @@ function MyKnolistHeader(props) {
   );
 }
 
-export default MyKnolistHeader;
+export default Header;
