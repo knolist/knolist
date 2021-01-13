@@ -50,11 +50,10 @@
     margin-bottom: 10px;
 }
 
-.myknolist-top-header-img {
-    position: absolute;
-    top: 1vw;
-    left: 1vw;
-    width: 8vh;
+#my-knolist-header-img {
+    width: 12vw;
+    display: inline-block;
+    margin-left: 1vw;
 }
 
 .myknolist-top-container {

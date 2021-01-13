@@ -1,19 +1,20 @@
 import React from 'react';
 import {
-    Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Input, InputGroup,
-    Navbar, Tooltip, Whisper
+    Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Navbar,
+    Tooltip, Whisper
 } from "rsuite";
 import { Link } from "react-router-dom";
 
 import horizontalLogo from "../images/horizontal_main.png";
+import SearchBar from "../components/SearchBar.js";
 
 function AppHeader(props) {
     return (
-        <Navbar style={{padding: "0 10px"}}>
+        <Navbar style={{ padding: "0 10px" }}>
             <FlexboxGrid justify="space-between" align="middle">
                 <Link to="/my-knolist">
                     <Navbar.Header>
-                        <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
+                        <img className="limit-height" src={horizontalLogo} alt="Knolist" />
                     </Navbar.Header>
                 </Link>
                 <FlexboxGrid.Item>
@@ -26,7 +27,7 @@ function AppHeader(props) {
                     </span>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
-                    <SearchAndFilter/>
+                    <SearchAndFilter />
                 </FlexboxGrid.Item>
             </FlexboxGrid>
         </Navbar>
@@ -45,7 +46,7 @@ class SearchAndFilter extends React.Component {
             "Previous Connections",
             "Highlights",
             "Notes"
-        ]
+        ];
         this.state = {
             indeterminate: false,
             checkAll: true,
@@ -74,19 +75,19 @@ class SearchAndFilter extends React.Component {
     render() {
         return (
             <FlexboxGrid>
-                <FlexboxGrid.Item><SearchBar/></FlexboxGrid.Item>
+                <FlexboxGrid.Item><SearchBar /></FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
-                             placement="bottomEnd">
-                        <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter"/>}/>}>
-                            <div style={{width: 200}}>
+                        placement="bottomEnd">
+                        <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter" />} />}>
+                            <div style={{ width: 200 }}>
                                 <Checkbox indeterminate={this.state.indeterminate} checked={this.state.checkAll}
-                                          onChange={this.handleCheckAll}>
+                                    onChange={this.handleCheckAll}>
                                     Select all
                                 </Checkbox>
-                                <Divider style={{margin: "5px 0"}}/>
+                                <Divider style={{ margin: "5px 0" }} />
                                 <CheckboxGroup name="checkboxList" value={this.state.value}
-                                               onChange={this.handleChange}>
+                                    onChange={this.handleChange}>
                                     {this.state.filterCategories.map(filter => {
                                         return <Checkbox key={filter} value={filter}>{filter}</Checkbox>
                                     })}
@@ -98,17 +99,6 @@ class SearchAndFilter extends React.Component {
             </FlexboxGrid>
         );
     }
-}
-
-function SearchBar() {
-    return (
-        <InputGroup style={{marginRight: 15}}>
-            <Input placeholder="Search through your project"/>
-            <InputGroup.Button>
-                <Icon icon="search"/>
-            </InputGroup.Button>
-        </InputGroup>
-    );
 }
 
 export default AppHeader;
