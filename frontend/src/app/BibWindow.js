@@ -44,10 +44,18 @@ class BibWindow extends React.Component {
         });
     }
 
-    // if sources have fields as None, return True
-    // {if(isMissingFields(this.props.sources)) {<Icon icon="exclamation-circle" color="#f5a623"/>}}
-    isMissingFields = (sources) => {
-        
+    showMissingIcon = (source) => {
+        // for standup display, else use commented out line
+        if(source.title && source.url && false) {
+        // if(source.title && source.url) {
+            return null;
+        } else {
+            return(
+                <Whisper placement="bottomStart" trigger="hover" speaker={<Tooltip>This source is missing a field</Tooltip>}>
+                    <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
+                </Whisper>
+            );
+        }
     }
 
     renderFormatType = (source) => {
@@ -86,9 +94,7 @@ class BibWindow extends React.Component {
                         {this.props.sources.map((source,index) => 
                         <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
                             {this.renderFormatType(source)}
-                            <Whisper placement="bottomStart" trigger="hover" speaker={<Tooltip>This source is missing a field</Tooltip>}>
-                                <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
-                            </Whisper>
+                            {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
                         </Checkbox>)}
                     </CheckboxGroup>
@@ -97,9 +103,7 @@ class BibWindow extends React.Component {
                         {this.props.sources.map((source,index) => 
                         <Checkbox defaultChecked={false} onChange={this.addToSaved} key={index}>
                             {this.renderFormatType(source)}
-                            <Whisper placement="bottomStart" trigger="hover" speaker={<Tooltip>This source is missing a field</Tooltip>}>
-                                <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
-                            </Whisper>
+                            {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
                         </Checkbox>)}
                     </CheckboxGroup>
