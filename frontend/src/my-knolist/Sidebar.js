@@ -19,17 +19,17 @@ function Sidebar() {
         <Sidenav.Body>
           <Nav >
             <Link to="/my-projects">
-              <Nav.Item active={first} icon={<Icon icon="project"/>}>
+              <Nav.Item active={first} icon={<Icon icon="project"/>} componentClass="span">
                 My Projects
               </Nav.Item>
             </Link>
             <Link to="/shared">
-              <Nav.Item active={second} icon={<Icon icon="people-group" />}>
+              <Nav.Item active={second} icon={<Icon icon="people-group" />} componentClass="span">
                 Shared with me
               </Nav.Item>
             </Link>
             <Link to="/archived">
-              <Nav.Item active={third} icon={<Icon icon="archive" />}>
+              <Nav.Item active={third} icon={<Icon icon="archive" />} componentClass="span">
                 Archived
               </Nav.Item>
             </Link>
