@@ -1,13 +1,13 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, 
-    CheckboxGroup, Tooltip, Whisper, Input
+    CheckboxGroup, Tooltip, Whisper, Input, Divider
 } from "rsuite";
 
 class BibWindow extends React.Component {
     constructor(props) {
         super(props);
-        // citationsIncluded = []
+        const citationsIncluded = this.props.sources
         const formats = {
             APA: "APA Reference List",
             MLA: "MLA Works Cited",
@@ -15,17 +15,27 @@ class BibWindow extends React.Component {
         }
         this.state = {
             curFormat: formats.APA,
-            copyBib: false,
             formats: formats,
             editSource: null
         }
     }
 
-    removeFromSaved = (value) => {
+    removeFromSaved = (source) => {
+        //this.citationsIncluded = this.citationsIncluded.remove(source)
         this.setState({
-            // citationsIncluded removes that citation
-            // citation is moved down and greyed out
+            
         });
+    }
+
+    addToSaved = (source) => {
+        //this.citationsIncluded = this.citationsIncluded.add(source)
+        this.setState({
+            
+        });
+    }
+
+    copyBib = () => {
+        // take citationsIncluded and copy to clipboard
     }
 
     changeFormatType = (value) => {
@@ -37,9 +47,7 @@ class BibWindow extends React.Component {
     // if sources have fields as None, return True
     // {if(isMissingFields(this.props.sources)) {<Icon icon="exclamation-circle" color="#f5a623"/>}}
     isMissingFields = (sources) => {
-        this.setState({
-
-        });
+        
     }
 
     renderFormatType = (source) => {
@@ -68,22 +76,31 @@ class BibWindow extends React.Component {
                 <Modal.Header>
                     <Modal.Title>
                     Bibliography  
-                    {/* TODO: Set copyBib state to "export"
-                    <IconButton onClick={() => this.state.copyBib(true)} icon={<Icon icon="copy"/>}/>
-                    */}
-                    <IconButton icon={<Icon icon="copy"/>}/>
+                    <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
+                        {/*TODO: eventually this for loop will call from citationsIncluded*/}
                         {this.props.sources.map((source,index) => 
                         <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
                             {this.renderFormatType(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
-                            <Whisper placement="bottomStart" trigger="hover"  speaker={<Tooltip>This source is missing a field</Tooltip>}>
+                            <Whisper placement="bottomStart" trigger="hover" speaker={<Tooltip>This source is missing a field</Tooltip>}>
                                 <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
                             </Whisper>
+                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
+                        </Checkbox>)}
+                    </CheckboxGroup>
+                    <Divider/>
+                    <CheckboxGroup name="checkboxList">
+                        {this.props.sources.map((source,index) => 
+                        <Checkbox defaultChecked={false} onChange={this.addToSaved} key={index}>
+                            {this.renderFormatType(source)}
+                            <Whisper placement="bottomStart" trigger="hover" speaker={<Tooltip>This source is missing a field</Tooltip>}>
+                                <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
+                            </Whisper>
+                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
                         </Checkbox>)}
                     </CheckboxGroup>
                 </Modal.Body>
@@ -125,7 +142,7 @@ class EditWindow extends React.Component{
                 </Modal.Header>
                 <Modal.Body>
                     <p>Author: </p><Input placeholder={this.showField(this.props.source.author)} style={{ width: '300px' }}/>
-                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)} style={{ width: '400px' }}/>
+                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)} style={{ width: '500px' }}/>
                     <p>Publish Date: </p><Input placeholder={this.showField(this.props.source.publishDate)} style={{ width: '200px' }}/>
                     <p>Site Name: </p><Input placeholder={this.showField(this.props.source.siteName)} style={{ width: '300px' }}/>
                     <p>Access Date: </p><Input placeholder={this.showField(this.props.source.accessDate)} style={{ width: '200px' }}/>
