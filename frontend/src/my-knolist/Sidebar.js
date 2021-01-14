@@ -13,11 +13,11 @@ function Sidebar() {
   else if (location === "./archived") third = true;
 
   return (
-    <div style={{ width: "17vw", borderRight: "1px solid gray" }}>
+    <div style={{ width: "17vw" }}>
       <Sidenav
-        style={{ height: "100vh", fontFamily: "Poppins", paddingTop: "4vh", backgroundColor: "white" }}>
+        style={{ height: "100vh", fontFamily: "Poppins", paddingTop: "3vh", paddingLeft: "1vh" }}>
         <Sidenav.Body>
-          <Nav style={{ color: "#ffffff" }}>
+          <Nav >
             <Link to="/my-projects">
               <Nav.Item active={first} icon={<Icon icon="project"/>}>
                 My Projects

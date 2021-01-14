@@ -56,6 +56,10 @@
     margin-left: 1vw;
 }
 
+body {
+    overflow: hidden;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
 
 .myknolist-main-container {

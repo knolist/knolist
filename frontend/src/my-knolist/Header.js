@@ -5,7 +5,7 @@ import { Navbar, FlexboxGrid, Dropdown, Icon } from "rsuite";
 
 function Header() {
   return (
-    <Navbar style={{ padding: "0 10px" }}>
+    <Navbar style={{ padding: "0 10px", borderBottom: ".1px solid #ededf0" }}>
       <FlexboxGrid justify="space-between" align="middle">
         <Navbar.Header>
           <img className="limit-height" src={horizontalLogo} alt="Knolist" />
