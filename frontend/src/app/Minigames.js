@@ -7,6 +7,7 @@ import {
 
 // Import all minigames
 import OddOnesOut from "./minigames/OddOnesOut"
+import FindCommonality from "./minigames/FindCommonality"
 import MiniGames2 from "./minigames/minigame2"
 import MiniGames3 from "./minigames/minigame3"
 import MiniGames4 from "./minigames/minigame4"
@@ -35,14 +36,15 @@ class MiniGames extends React.Component {
     }
 
     updateGames= () => {
-        // Games need to be loaded here to have the most recent sources?
+        // Games need to be loaded here to have the most recent sources, randomizer needs to be called after the games is updated
         this.setState({
-            games: [<OddOnesOut sources={this.props.sources} />] // For testing OddOnesOut specifically
+            games: [<FindCommonality sources={this.props.sources} />] // For testing Find Commonality specifically
+            // games: [<OddOnesOut sources={this.props.sources} />] // For testing OddOnesOut specifically
             // games: [<OddOnesOut sources={this.props.sources} />, <MiniGames2 />, <MiniGames3 />, <MiniGames4 />, <MiniGames5 />],
         },
         this.randomizer)
     }
-    // See if need to be be modified like above?
+
     setShowGame = (clicked) => {
         // Keeps track if Game Generation Button clicked and Window should open
         if (this.props.network) { // Check that the network exists
@@ -64,7 +66,8 @@ class MiniGames extends React.Component {
 
         return (
             <>
-            <GameWindow showGame={this.state.showGame} setShowGame={this.setShowGame} sources={this.props.sources} 
+            <GameWindow showGame={this.state.showGame} 
+            setShowGame={this.setShowGame} sources={this.props.sources} 
             selectedGame={this.state.selectedGame}/>
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Mini Games</Tooltip>}
                 placement="topEnd">

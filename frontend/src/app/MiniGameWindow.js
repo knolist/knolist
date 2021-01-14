@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Modal
+    Modal, Progress
 } from "rsuite";
 
 class GameWindow extends React.Component {
