@@ -6,11 +6,13 @@ const LogoutButton = () => {
   const { logout } = useAuth0();
   return (
     <Button color="red" appearance="ghost"
-      onClick={() =>
-        logout({
+      onClick={() => {
+        localStorage.removeItem("curProject");
+        logout({ 
           returnTo: window.location.origin,
-        })
+        });
       }
+    }
     >
       Log Out
     </Button>
