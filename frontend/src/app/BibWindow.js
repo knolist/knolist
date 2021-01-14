@@ -81,7 +81,7 @@ class BibWindow extends React.Component {
         if (this.props.sources === null) return null;
         return (
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
-                <Modal.Header>
+                <Modal.Header style={{marginRight: "5%"}}>
                     <Modal.Title>
                     Bibliography  
                     <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
