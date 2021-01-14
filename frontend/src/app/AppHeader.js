@@ -3,7 +3,7 @@ import {
     Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Input, InputGroup,
     Navbar, Tooltip, Whisper
 } from "rsuite";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 import horizontalLogo from "../images/horizontal_main.png";
 
@@ -17,13 +17,15 @@ function AppHeader(props) {
                     </Navbar.Header>
                 </Link>
                 <FlexboxGrid.Item>
-                    <span id="project-title">
-                        {
-                            props.curProject === null ?
-                                null :
-                                "Current Project: " + props.curProject.title
-                        }
-                    </span>
+                    {
+                        props.curProject === null ?
+                            null :
+                            <span style={{
+                                fontWeight: "bold",
+                                fontSize: "2em"
+                            }}>{props.curProject.title}</span>
+
+                    }
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
@@ -38,7 +40,7 @@ function AppHeader(props) {
 
 class BibButton extends React.Component {
     render() {
-        return(
+        return (
             <FlexboxGrid.Item>
                 <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
             </FlexboxGrid.Item>
@@ -87,30 +89,40 @@ class SearchAndFilter extends React.Component {
     render() {
         return (
             <FlexboxGrid>
-                <FlexboxGrid.Item><SearchBar/></FlexboxGrid.Item>
                 <FlexboxGrid.Item>
-                    <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
-                             placement="bottomEnd">
-                        <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter"/>}/>}>
-                            <div style={{width: 200}}>
-                                <Checkbox indeterminate={this.state.indeterminate} checked={this.state.checkAll}
-                                          onChange={this.handleCheckAll}>
-                                    Select all
-                                </Checkbox>
-                                <Divider style={{margin: "5px 0"}}/>
-                                <CheckboxGroup name="checkboxList" value={this.state.value}
-                                               onChange={this.handleChange}>
-                                    {this.state.filterCategories.map(filter => {
-                                        return <Checkbox key={filter} value={filter}>{filter}</Checkbox>
-                                    })}
-                                </CheckboxGroup>
-                            </div>
-                        </Dropdown>
-                    </Whisper>
+                    <SearchBar/>
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item>
+                    <FilterDropdown indeterminate={this.state.indeterminate} checkAll={this.state.checkAll}
+                                    value={this.state.value} filterCategories={this.state.filterCategories}
+                                    handleCheckAll={this.handleCheckAll} handleChange={this.handleChange}/>
                 </FlexboxGrid.Item>
             </FlexboxGrid>
         );
     }
+}
+
+function FilterDropdown(props) {
+    return (
+        <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
+                 placement="bottomEnd">
+            <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter"/>}/>}>
+                <div style={{width: 200}}>
+                    <Checkbox indeterminate={props.indeterminate} checked={props.checkAll}
+                              onChange={props.handleCheckAll}>
+                        Select all
+                    </Checkbox>
+                    <Divider style={{margin: "5px 0"}}/>
+                    <CheckboxGroup name="checkboxList" value={props.value}
+                                   onChange={props.handleChange}>
+                        {props.filterCategories.map(filter => {
+                            return <Checkbox key={filter} value={filter}>{filter}</Checkbox>
+                        })}
+                    </CheckboxGroup>
+                </div>
+            </Dropdown>
+        </Whisper>
+    );
 }
 
 function SearchBar() {
