@@ -2,7 +2,7 @@ import json
 
 from flask import request, abort, jsonify
 
-from ..models.models import Project, Source
+from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
 
 
@@ -19,6 +19,19 @@ def get_authorized_source(user_id, source_id):
 
     return source
 
+def get_authorized_item(user_id, item_id):
+    item = Item.query.get(item_id)
+    if item is None:
+        abort(404)
+
+    if item.project.user_id != user_id:
+        raise AuthError({
+            'code': 'invalid_user',
+            'description': 'This item does not belong to the requesting user'
+        }, 403)
+
+    return item
+
 
 def set_source_routes(app):
     """
@@ -34,6 +47,21 @@ def set_source_routes(app):
             'source': source.format_long()
         })
 
+
+    """
+    Reads the detailed information of a specific item.
+    """
+    @app.route('/items/<int:item_id>')
+    @requires_auth('read:items-detail')
+    def get_item_detaiil(user_id, item_id):
+        item = get_authorized_item(user_id, item_id)
+
+        return jsonify({
+            'success': True,
+            'item': item.format()
+        })
+
+
     """
     Deletes a source.
     """
@@ -48,6 +76,23 @@ def set_source_routes(app):
             'success': True,
             'deleted': source_id
         })
+
+
+    """
+    Deletes an item
+    """
+    @app.route('/items/<int:item_id>', methods=['DELETE'])
+    @requires_auth('delete:items')
+    def delete_item(user_id, item_id):
+        item = get_authorized_item(user_id, item_id)
+
+        item.delete()
+
+        return jsonify({
+            'success': True,
+            'deleted': item_id
+        })
+
 
     """
     Updates information in a source.
