@@ -1,13 +1,23 @@
 import React from "react";
-import { Panel } from "rsuite";
+import { Panel, Icon } from "rsuite";
 
 function ProjectCard(props) {
-  console.log(props.data)
+  /*if (props.project.shared) {
+    return (
+      <Panel shaded bordered header={props.data.title} style={{ width: "17vw", marginTop: "2vh" }}>
+        {props.data.id}
+        <Icon icon="people-group" />
+      </Panel>
+    );
+  } else {*/
   return (
-    <Panel shaded bordered header={props.data.title} style={{ width: "17vw" }}>
-      {props.data.id}
-    </Panel>
+    <div className="hover-animation">
+      <Panel shaded bordered header={props.data.title} style={{ width: "17vw", marginTop: "2vh" }}>
+        {props.data.id}
+      </Panel>
+    </div>
   );
+  //}
 }
 
 export default ProjectCard;

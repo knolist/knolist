@@ -12,15 +12,15 @@ function Recent(props) {
     return recent;
   };
 
-  if (props.show) {
+  if (props.show && props.projects.length > 0) {
     return (
       <div>
         <div className="myknolist-title">Recent</div>
         <div className="myknolist-container">
           <FlexboxGrid style={{marginLeft:"-6px", marginBottom:"5vh"}} justify="space-between">
-            {getFourRecent(props.projects).map((project) => {
+            {getFourRecent(props.projects).map((project, index) => {
               return (
-                <FlexboxGrid.Item componentClass={Col} md={6}>
+                <FlexboxGrid.Item componentClass={Col} md={6} key={index}>
                   <ProjectCard data={project} />
                 </FlexboxGrid.Item>);
             })}
