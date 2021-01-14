@@ -46,7 +46,7 @@ def urlToCitation(url):
     elif title1:
         citationFields["title"] = title1.string
     else:
-        citationFields["title"] = "Not found"
+        citationFields["title"] = None
 
     if author2:
         citationFields["author"] = author2["content"]
@@ -55,14 +55,14 @@ def urlToCitation(url):
     elif author1:
         citationFields["author"] = author1["content"]
     else:
-        citationFields["author"] = "Not found"
+        citationFields["author"] = None
 
     if publishDate1:
         citationFields["publishDate"] = publishDate1["content"]
     elif publishDate2:
         citationFields["publishDate"] = publishDate2["content"]
     else:
-        citationFields["publishDate"] = "Not found"
+        citationFields["publishDate"] = None
     
     if siteName1:
         citationFields["siteName"] = siteName1["content"]
@@ -71,6 +71,6 @@ def urlToCitation(url):
     elif siteName3:
         citationFields["siteName"] = siteName3["content"]
     else:
-        citationFields["siteName"] = "Not found"
+        citationFields["siteName"] = None
     
     return citationFields
