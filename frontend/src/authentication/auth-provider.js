@@ -5,6 +5,7 @@ import { Auth0Provider } from "@auth0/auth0-react";
 const KnolistAuthProvider = ({ children }) => {
   const domain = 'knolist.us.auth0.com';
   const clientId = 'pBu5uP4mKTQgBttTW13N0wCVgsx90KMi';
+  const audience = 'knolist';
 
   const history = useHistory();
 
@@ -18,6 +19,7 @@ const KnolistAuthProvider = ({ children }) => {
       clientId={clientId}
       redirectUri={window.location.origin}
       onRedirectCallback={onRedirectCallback}
+      audience={audience}
     >
       {children}
     </Auth0Provider>
