@@ -58,9 +58,9 @@ def urlToCitation(url):
         citationFields["author"] = None
 
     if publishDate1:
-        citationFields["publishDate"] = publishDate1["content"]
+        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate1["content"][0:10], "%Y-%m-%d"),"%m/%d/%Y")
     elif publishDate2:
-        citationFields["publishDate"] = publishDate2["content"]
+        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate2["content"][0:10], "%Y-%m-%d"),"%m/%d/%Y")
     else:
         citationFields["publishDate"] = None
     
