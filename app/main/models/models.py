@@ -45,6 +45,8 @@ class Project(BaseModel):
                               cascade='all, delete-orphan', lazy=True)
     clusters = db.relationship('Cluster', backref='project',
                                cascade='all, delete-orphan', lazy=True)
+    items = db.relationship('Item', backref='project',
+                            cascade='all, delete-orphan', lazy=True)
 
     def __init__(self, title, user_id):
         self.title = title
@@ -67,7 +69,7 @@ class Cluster(BaseModel):
     __tablename__ = 'clusters'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
-    #represents the cartesian coordinates of the center of the cluster
+    # represents the cartesian coordinates of the center of the cluster
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
     # The project that holds this source
@@ -75,12 +77,12 @@ class Cluster(BaseModel):
                            nullable=True)
     parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'),
                                   nullable=True)
-    #References to outermost clusters within a given cluster
+    # References to outermost clusters within a given cluster
     child_clusters = db.relationship('Cluster',
                                      backref=db.backref('parent_cluster',
                                                         remote_side=[id]))
-    #References to sources not in another subcluster within a cluster
-    child_sources = db.relationship('Source', backref='cluster',
+    # References to sources not in another subcluster within a cluster
+    child_items = db.relationship('Item', backref='cluster',
                                     cascade='all, delete-orphan',
                                     lazy=True)
 
@@ -95,7 +97,7 @@ class Cluster(BaseModel):
             'y_position': self.y_position,
             'project_id': self.project_id,
             'child_clusters': [cluster.id for cluster in self.child_clusters],
-            'child_sources': [source.id for source in self.child_sources]
+            'child_items': [item.id for item in self.child_items]
         }
 
 class Source(BaseModel):
@@ -115,16 +117,12 @@ class Source(BaseModel):
     # All of the content of the URL, only used for search purposes
     content = db.Column(db.String)
     # Highlights and notes are stored as JSON arrays
-    highlights = db.Column(db.String, default='[]')
-    notes = db.Column(db.String, default='[]')
     # x and y positions are used to represent the position of a node on a graph
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
                            nullable=True)
-    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
-
     # Self-referential many-to-many relationship
     next_sources = db.relationship('Source', secondary=edges,
                                    primaryjoin=(id == edges.c.from_id),
@@ -132,6 +130,9 @@ class Source(BaseModel):
                                    backref=db.backref('prev_sources',
                                                       lazy=True)
                                    )
+    child_items = db.relationship('Item', backref='source',
+                                    cascade='all, delete-orphan',
+                                    lazy=True)
 
     def __repr__(self):
         return f'<Source {self.id}: {self.url}>'
@@ -141,8 +142,6 @@ class Source(BaseModel):
             'id': self.id,
             'url': self.url,
             'title': self.title,
-            'highlights': json.loads(self.highlights),
-            'notes': json.loads(self.notes),
             'x_position': self.x_position,
             'y_position': self.y_position,
             'next_sources': [source.id for source in self.next_sources],
@@ -160,4 +159,41 @@ class Source(BaseModel):
             'next_sources': [source.id for source in self.next_sources],
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
+        }
+
+class Item(BaseModel):
+    """
+    Represents the different types of items.
+    """
+    __tablename__ = 'items'
+    # Ensure unique project
+    #__table_args__ = (
+    #    db.UniqueConstraint('project_id'),
+    #)
+    id = db.Column(db.Integer, primary_key=True)
+    source_id = db.Column(db.Integer, db.ForeignKey('sources.id'))
+    is_note = db.Column(db.BOOLEAN, nullable=False)
+    is_highlight = db.Column(db.BOOLEAN, nullable=False)
+    # The content of the highlight or note
+    content = db.Column(db.String)
+    # x and y positions are used to represent the position of a node on a graph
+    x_position = db.Column(db.Integer)
+    y_position = db.Column(db.Integer)
+    # The project that holds this source
+    parent_project = db.Column(db.Integer, db.ForeignKey('projects.id'),
+                               nullable=False)
+    # parent_cluster
+    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'),
+                               nullable=True)
+    def __repr__(self):
+        return f'<Item {self.id}: {self.content}>'
+
+    def format(self):
+        return {
+            'id': self.id,
+            'source_id': self.source_id,
+            'content': json.loads(self.content),
+            'x_position': self.x_position,
+            'y_position': self.y_position,
+            'parent_project': self.parent_project
         }

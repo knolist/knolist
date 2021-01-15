@@ -161,9 +161,8 @@ def set_project_routes(app):
         results = Source.query.filter(Source.project_id == project_id)\
             .filter(Source.url.ilike(pattern)
                     | Source.title.ilike(pattern)
-                    | Source.content.ilike(pattern)
-                    | Source.highlights.ilike(pattern)
-                    | Source.notes.ilike(pattern)).order_by(Source.id).all()
+                    | Source.content.ilike(pattern)).order_by(Source.id).all()
+
 
         return jsonify({
             'success': True,
@@ -252,3 +251,19 @@ def set_project_routes(app):
             'from_source': from_source.format_short(),
             'to_source': to_source.format_short()
         }), status_code
+
+    '''
+    
+    Gets all clusters within a project.
+    '''
+    @app.route('/projects/<int:project_id>/clusters')
+    @requires_auth('read:clusters')
+    def get_clusters(user_id, project_id):
+        # Will only get the top level clusters associated with the project
+        project = Project.query.filter(Project.user_id == user_id,
+                                        Project.id==project_id).first()
+        clusters = project.clusters
+        return jsonify({
+            'success': True,
+            'clusters': [cluster.format() for cluster in clusters]
+        })

@@ -5,6 +5,7 @@ from flask import jsonify, send_from_directory
 from .projects import set_project_routes
 from .sources import set_source_routes
 from .connections import set_connection_routes
+from .clusters import set_cluster_routes
 
 
 def set_routes(app):
@@ -27,3 +28,4 @@ def set_routes(app):
     set_project_routes(app)
     set_source_routes(app)
     set_connection_routes(app)
+    set_cluster_routes(app)

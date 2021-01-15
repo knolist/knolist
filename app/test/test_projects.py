@@ -3,7 +3,7 @@ import unittest
 from urllib.parse import quote
 
 from app.test import create_starter_data, auth_header, user_id, app, db
-from app.main.models.models import Project, Source
+from app.main.models.models import Project, Source, Cluster
 
 
 class TestProjectsEndpoints(unittest.TestCase):
@@ -359,3 +359,16 @@ class TestProjectsEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
+
+    def test_project_no_clusters(self):
+        # json_body = {}
+        res = self.client().get(f'/projects/{self.project_2.id}/clusters',
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertEqual(len(data['clusters']), 0)
+
+    def test_project_with_clusters(self):
+        res = self.client().get(f'/projects/{self.project_1.id}/clusters',
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertEqual(len(data['clusters']), 1)

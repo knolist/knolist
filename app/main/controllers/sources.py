@@ -111,9 +111,6 @@ def set_source_routes(app):
             else source.x_position
         source.y_position = y_position if y_position is not None \
             else source.y_position
-        source.highlights = json.dumps(highlights) if highlights is not None \
-            else source.highlights
-        source.notes = json.dumps(notes) if notes is not None else source.notes
         source.project_id = project_id if project_id is not None \
             else source.project_id
 
