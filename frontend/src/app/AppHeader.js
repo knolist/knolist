@@ -3,7 +3,7 @@ import {
     Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Input, InputGroup,
     Navbar, Tooltip, Whisper
 } from "rsuite";
-
+import AuthenticationButton from "../components/auth-button.js";
 import horizontalLogo from "../images/horizontal_main.png";
 
 function AppHeader(props) {
@@ -71,6 +71,7 @@ class SearchAndFilter extends React.Component {
     render() {
         return (
             <FlexboxGrid>
+                <FlexboxGrid.Item><AuthenticationButton/></FlexboxGrid.Item>
                 <FlexboxGrid.Item><SearchBar/></FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
