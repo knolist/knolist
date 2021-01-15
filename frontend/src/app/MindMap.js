@@ -263,7 +263,7 @@ class MindMap extends React.Component {
             });
 
             let dt = 100 //ms
-            let hold_time = 1000 //ms
+            let hold_time = 500 //ms
             network.on("dragging", throttle((params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
                     const id = network.getSelectedNodes()[0];
