@@ -194,7 +194,6 @@ def set_cluster_routes(app):
             if item.cluster != cluster.parent_cluster:
                 abort(400)
 
-
         item.cluster = cluster
 
         item.update()

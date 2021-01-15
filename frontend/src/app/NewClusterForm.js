@@ -7,7 +7,7 @@ class NewClusterForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            newClusterName: "new-cluster-name",
+            newClusterNameId: "new-cluster-name",
             loading: false
         }
     }
@@ -22,27 +22,27 @@ class NewClusterForm extends React.Component {
 
     addNewCluster = () => {
         this.setLoading(true);
-        //onst url = document.getElementById(this.state.newClusterName).value;
+        const item1_id = this.props.newClusterIDs.item1
+        const item2_id = this.props.newClusterIDs.item2
+        const name = document.getElementById(this.state.newClusterNameId).value
         const {x, y} = this.props.stationaryClusterSourceData;
-        console.log(x, y)
-        //const endpoint = "/projects/" + this.props.curProject.id + "/sources"
-        // const body = {
-        //     "url": url,
-        //     "x_position": x,
-        //     "y_position": y
-        // }
+        const endpoint = "/clusters/create_new"
+        const body = {
+            "item1_id": item1_id,
+            "item2_id": item2_id,
+            "x_position": x,
+            "y_position": y,
+            "name": name,
+        }
+        console.log(body)
 
-        // makeHttpRequest(endpoint, "POST", body).then((response) => {
-        //     if (response.status === 200) {
-        //         // Alert that the source already exists in this project
-        //         Alert.info('This URL already exists in this project.');
-        //     } else if (response.status === 201) {
-        //         // Update sources
-        //         this.props.renderNetwork();
-        //         Alert.success('Source added successfully.');
-        //     }
-        //     this.props.switchShowNewSourceForm();
-        // });
+        makeHttpRequest(endpoint, "POST", body).then((response) => {
+            if (response.status === 200) {
+                this.props.renderNetwork();
+                Alert.success('Cluster created successfully.');
+            }
+            this.props.switchShowNewClusterForm();
+        });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -63,7 +63,7 @@ class NewClusterForm extends React.Component {
                 </Modal.Header>
                 <Form onSubmit={this.addNewCluster}>
                     <Modal.Body>
-                        <Input autoFocus type="text" required id={this.state.newClusterName}
+                        <Input autoFocus type="text" required id={this.state.newClusterNameId}
                                placeholder="New Cluster Name"/>
                     </Modal.Body>
                     <Modal.Footer>

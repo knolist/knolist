@@ -26,7 +26,8 @@ class MindMap extends React.Component {
             showNewClusterForm : false,
             showNewSourceHelperMessage: false,
             newSourceData: null,
-            stationaryClusterSourceData: null
+            stationaryClusterSourceData: null,
+            newClusterIDs: null,
         }
     }
 
@@ -276,6 +277,7 @@ class MindMap extends React.Component {
                                     setTimeout(this.disableInteraction.bind(null, network), 100)
                                     this.setState({showNewClusterForm: true});
                                     this.setState({stationaryClusterSourceData: network.getPosition(parseInt(node))})
+                                    this.setState({newClusterIDs: {"item1": id, "item2": parseInt(node)}})
                                     console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
                                 } 
                             })
@@ -346,6 +348,7 @@ class MindMap extends React.Component {
                                 stationaryClusterSourceData={this.state.stationaryClusterSourceData}
                                 curProject={this.props.curProject}
                                 renderNetwork={this.renderNetwork}
+                                newClusterIDs={this.state.newClusterIDs}
                                 switchShowNewClusterForm={this.switchShowNewClusterForm}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
@@ -373,16 +376,6 @@ const throttle = (func, ms) => {
         }
     }
 }
-
-const debounce = (func, ms) => {
-    let inDebounce
-    return function() {
-      const context = this
-      const args = arguments
-      clearTimeout(inDebounce)
-      inDebounce = setTimeout(() => func.apply(context, args), ms)
-    }
-  }
 
 const isOverlap = (rectA, rectB) => {
     return (rectA.left < rectB.right && rectA.right > rectB.left &&
