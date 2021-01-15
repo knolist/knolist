@@ -83,7 +83,7 @@ class Cluster(BaseModel):
                                                         remote_side=[id]))
     # References to sources not in another subcluster within a cluster
     child_items = db.relationship('Item', backref='cluster',
-                                    cascade='all, delete-orphan',
+                                    cascade='all',
                                     lazy=True)
 
     def __repr__(self):

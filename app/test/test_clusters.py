@@ -2,7 +2,7 @@ import json
 import unittest
 
 from app.test import create_starter_data, auth_header, app, db
-from app.main.models.models import Cluster
+from app.main.models.models import Cluster, Item
 
 
 class TestClustersEndpoints(unittest.TestCase):
@@ -33,6 +33,11 @@ class TestClustersEndpoints(unittest.TestCase):
             'y_position': self.source_1.y_position + 100,
             'project_id': self.project_2.id
         }
+
+        self.extra_item = Item(is_note=True,
+                          is_highlight=False,
+                          content='Content of Extra Item')
+        self.extra_item.project = self.project_1
 
     def tearDown(self):
         """Executed after each test."""
@@ -147,9 +152,51 @@ class TestClustersEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         cluster = data['cluster']
         self.assertEqual(len(cluster['child_items']), 2)
+        self.assertEqual(len(self.extra_item.project.items), 3)
+
+        res = self.client()\
+            .patch(f'/clusters/{self.cluster_1.id}'
+                   f'/sources/'
+                   f'{self.extra_item.id}',
+                   headers=auth_header)
+        data = json.loads(res.data)
+        cluster = data['cluster']
+        self.assertEqual(len(cluster['child_items']), 3)
+
+        top_cluster_id = self.cluster_1.id
+        subcluster_id = self.source_2.child_items[0].project.id
+        print(top_cluster_id)
+        #print(subcluster_id)
+
+        res = self.client()\
+            .post(f'/clusters/create_new',
+                  json={'item1_id': self.cluster_1.child_items[0].id,
+                        'item2_id': self.cluster_1.child_items[1].id,
+                        'x_position': 400,
+                        'y_position': 300,
+                        'name': 'Subcluster'},
+                  headers=auth_header)
+        data = json.loads(res.data)
+        subcluster = data['cluster']
+        subcluster_id = subcluster['id']
+        print(subcluster_id)
+        self.assertEqual(len(subcluster['child_items']), 2)
+        res = self.client()\
+            .patch(f'/clusters/{subcluster_id}'
+                   f'/sources/'
+                   f'{self.extra_item.id}',
+                   headers=auth_header)
+
+        self.assertEqual(self.extra_item.cluster, self.source_2.child_items[0].cluster)
+        self.assertEqual(self.cluster_1.child_items, [])
+        self.assertEqual(len(self.cluster_1.child_clusters), 1)
+        subc = self.cluster_1.child_clusters[0]
+        self.assertEqual(len(subc.child_items), 3)
+        self.assertEqual(len(subc.child_clusters), 0)
 
     def test_remove_from_existing_cluster(self):
         # After this removal, there should be nothing in the cluster
+        self.assertEqual(len(self.source_1.child_items), 1)
         res = self.client()\
             .patch(f'/clusters/{self.cluster_1.id}'
                    f'/sources/{self.source_1.child_items[0].id}'
@@ -159,9 +206,17 @@ class TestClustersEndpoints(unittest.TestCase):
         data = json.loads(res.data)
         self.assertTrue(data['success'])
         cluster = data['cluster']
-        print(cluster)
         self.assertEqual(len(cluster['child_items']), 0)
+        self.assertEqual(len(self.source_1.child_items), 1)
 
+        # Attempt to remove item that is not in cluster from cluster
+        res = self.client()\
+            .patch(f'/clusters/{self.cluster_1.id}'
+                   f'/sources/{self.source_1.child_items[0].id}'
+                   f'/remove',
+                   headers=auth_header)
+
+        self.assertEqual(res.status_code, 400)
 
 if __name__ == '__main__':
     unittest.main()
