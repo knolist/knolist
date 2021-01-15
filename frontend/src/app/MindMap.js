@@ -377,6 +377,16 @@ const throttle = (func, ms) => {
     }
 }
 
+const debounce = (func, ms) => {
+    let inDebounce
+    return function() {
+      const context = this
+      const args = arguments
+      clearTimeout(inDebounce)
+      inDebounce = setTimeout(() => func.apply(context, args), ms)
+    }
+  }
+
 const isOverlap = (rectA, rectB) => {
     return (rectA.left < rectB.right && rectA.right > rectB.left &&
         rectA.bottom > rectB.top && rectA.top < rectB.bottom)
