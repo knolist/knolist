@@ -38,12 +38,13 @@ class NewSourceForm extends React.Component {
             content = null;
         }
         const {x, y} = this.props.newSourceData;
-        const endpoint = "/projects/" + this.props.curProject.id + "/sources"
+        const endpoint = "/items";
         const body = {
             "url": url,
             "content": content,
             "x_position": x,
-            "y_position": y
+            "y_position": y,
+            "project_id": this.props.curProject.id,
         }
 
         makeHttpRequest(endpoint, "POST", body).then((response) => {
@@ -57,6 +58,7 @@ class NewSourceForm extends React.Component {
             }
             this.props.switchShowNewSourceForm();
         });
+
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -67,7 +69,27 @@ class NewSourceForm extends React.Component {
 
     render() {
         if (!this.props.showNewSourceForm) return null;
-        
+        console.log(this.props.source);
+        let body;
+        if (this.props.inputType === "URL") {
+            // New URL
+            body =
+                <Input autoFocus required type="URL" id={this.state.newSourceUrlId} placeholder="Add URL"/>;
+        } else if (this.props.inputType === "Note" && this.props.source) {
+            // New note created from a source node
+            body = 
+                <Input autoFocus type={"Note"} required id={this.state.newSourceNotesId}
+                    placeholder="Add Note" componentClass="textarea" rows={30}/>;
+        } else if (this.props.inputType === "Note" && !this.props.source) {
+            // New note without a source passed in
+            body = 
+                <div>
+                    <Input autoFocus type="URL" id={this.state.newSourceUrlId} placeholder="Add optional URL"/>
+                    <Input type={"Note"} required id={this.state.newSourceNotesId}
+                        placeholder="Add Note" componentClass="textarea" rows={30}/>
+                </div>;
+        }
+
         return (
             <Modal show onHide={this.close}>
                 <Modal.Header>
@@ -77,15 +99,7 @@ class NewSourceForm extends React.Component {
                 </Modal.Header>
                 <Form onSubmit={this.addNewSource}>
                     <Modal.Body>
-                        {
-                            (!this.props.source) &&
-                            <Input autoFocus required={this.props.inputType === "URL"} type="URL" id={this.state.newSourceUrlId} placeholder="Add URL"/>
-                        }
-                        {
-                            (this.props.inputType === "Note") &&
-                            <Input type={"Note"} required id={this.state.newSourceNotesId}
-                                placeholder="Add Note" componentClass="textarea" rows={30}/>
-                        }
+                        {body}
                     </Modal.Body>
                     <Modal.Footer>
                         <Button type="submit" loading={this.state.loading} appearance="primary">

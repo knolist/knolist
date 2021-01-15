@@ -241,7 +241,7 @@ def set_project_routes(app):
 
         url = body.get('url', None)
         content = body.get('content', None)
-        project_id = body.get('parent_project', None)
+        project_id = body.get('project_id', None)
         x = body.get('x_position', None)
         y = body.get('y_position', None)
         get_authorized_project(user_id, project_id)

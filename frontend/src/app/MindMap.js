@@ -47,7 +47,6 @@ class MindMap extends React.Component {
             newSourceFormType: null,
             source: null,
             types: types,
-            typeOfSource: types.NULL,
             colors:colors,
             showColor:colors.NULL
         };
@@ -79,13 +78,11 @@ class MindMap extends React.Component {
     getSources = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
-
-        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        // const response = await makeHttpRequest(endpoint);
+        const endpoint = "/projects/" + this.props.curProject.id + "/items"
+        //const endpoint = "/projects/" + this.props.curProject.id + "/sources";
+        //const response = await makeHttpRequest(endpoint);
         const pureSource = {
             id: 1,
-            next_sources: [],
-            prev_sources: [],
             url: "https://en.wikipedia.org/wiki/Main_Page",
             title: "wiki1",
             project_id: 1,
@@ -97,8 +94,6 @@ class MindMap extends React.Component {
         }
         const sourceAndNote = {
             id: 2,
-            next_sources: [],
-            prev_sources: [],
             url: "https://en.wikipedia.org/wiki/Main_Page",
             title: "wiki2",
             project_id: 1,
@@ -110,8 +105,6 @@ class MindMap extends React.Component {
         }
         const sourceAndHighlight = {
             id: 3,
-            next_sources: [],
-            prev_sources: [],
             url: "https://en.wikipedia.org/wiki/Main_Page",
             title:"wiki3",
             project_id: 1,
@@ -123,8 +116,6 @@ class MindMap extends React.Component {
         }
         const pureNote = {
             id: 4,
-            next_sources: [],
-            prev_sources: [],
             url: null,
             title:"wiki4",
             project_id: 1,
@@ -222,8 +213,27 @@ class MindMap extends React.Component {
         return [xRandom + xOffset, yRandom + yOffset];
     }
 
-    getNodeType = (node) => {
-        if (node.url === null) return this.state.types.PURESOURCE;
+    getNodeById = (nodeId) => {
+        for (let index in this.state.sources) {
+            if (nodeId === this.state.sources[index].id) {
+                return this.state.sources[index];
+            }
+        }
+    }
+
+    getNodeType = (nodeId) => {
+        if (!nodeId) {
+            return;
+        }
+        let node = this.getNodeById(nodeId);
+        //pure note
+        if (node.url === null) return this.state.types.PURENOTE;
+        //source and note
+        if (node.url != null && node.is_note) return this.state.types.SOURCEANDNOTE;
+        //source and highlight
+        if (node.url != null && node.is_highlight) return this.state.types.SOURCEANDHIGHLIGHT;
+        //pure source
+        if (node.url != null && !node.is_highlight && !node.is_note) return this.state.types.SOURCEANDNOTE;
     }
 
     // Helper function to setup the nodes and edges for the graph
@@ -240,10 +250,11 @@ class MindMap extends React.Component {
                 const [x, y] = this.generateNodePositions(node);
                 this.updateSourcePosition(node.id, x, y);
                 
-                // const nodeType = this.getNodeType(node);
-                // if (nodeType === this.state.nodeTypes.PURESOURCE) {
-                //     let title = node.content.trim(100);
-                // }
+                 const nodeType = this.getNodeType(node.id);
+                 if (nodeType === this.state.nodeTypes.PURESOURCE) {
+                     let title = node.content.trim(100);
+                 }
+                 
                 nodes.add({id: node.id, label: node.title, x: x, y: y, color:this.getColor(node)});
             } else {
                 nodes.add({id: node.id, label: node.title, x: node.x_position, y: node.y_position, color:this.getColor(node)});
@@ -388,6 +399,7 @@ class MindMap extends React.Component {
     }
 
     render() {
+        console.log(this.state.selectedNode);
         if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
             return <Loader size="lg" backdrop center/>
         }
@@ -398,7 +410,8 @@ class MindMap extends React.Component {
                 <SourceView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}
                             renderNetwork={this.renderNetwork}
-                            setAddSourceMode={this.setAddSourceMode}/>
+                            setAddSourceMode={this.setAddSourceMode}
+                            typeOfNode={this.getNodeType(this.state.selectedNode)}/>
                 <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
                             curProject={this.props.curProject}
                             renderNetwork={this.renderNetwork}

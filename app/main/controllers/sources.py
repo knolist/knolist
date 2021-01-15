@@ -121,7 +121,7 @@ def set_source_routes(app):
         })
 
 
-"""
+'''
     """
     # Adds a new highlight to a source's highlights.
     # The highlight is passed in a JSON body.
@@ -271,4 +271,4 @@ def set_source_routes(app):
             'success': True,
             'source': source.format_long()
         })
-"""
+'''

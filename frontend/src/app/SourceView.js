@@ -37,7 +37,7 @@ class SourceView extends React.Component {
     }
 
     addNewNote = () => {
-        this.props.setAddSourceMode("Note",this.state.sourceDetails.url);
+        this.props.setAddSourceMode("Note", this.state.sourceDetails.url);
         this.close();
     }
 
@@ -52,24 +52,20 @@ class SourceView extends React.Component {
         }
 
         const endpoint = "/sources/" + this.props.selectedNode;
-        // const response = await makeHttpRequest(endpoint);
-        //this.setState({sourceDetails: response.body.source});
-;        this.setState({sourceDetails: {
+        //const response = await makeHttpRequest(endpoint);
+        // this.setState({sourceDetails: response.body.source});
+        this.setState({sourceDetails: {
             "highlights": [
                 "This is a highlight",
                 "This is another highlight"
             ],
             "id": 1,
-            "next_sources": [],
             "notes": [
                 "This is a note"
             ],
-            "prev_sources": [
-            2
-            ],
             "project_id": 1,
             "title": "Robert Browning - Wikipedia",
-            "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+            "url": "https://en.wikipedia.org/wiki/horse",
             "x_position": null,
             "y_position": null
         }});
@@ -84,12 +80,26 @@ class SourceView extends React.Component {
     componentDidMount() {
         this.getSourceDetails();
     }
-
     render() {
         if (this.props.selectedNode === null) return null;
 
+        
+
         if (this.state.sourceDetails !== null) {
             const source = this.state.sourceDetails;
+
+            let list = <div />;
+            if (this.props.typeOfNode === "sourceAndNote") {
+                list = 
+                    <NotesList notes={source.notes} sourceId={source.id}
+                           getSourceDetails={this.getSourceDetails}/>
+            } else if (this.props.typeOfNode === "sourceAndHighlight") {
+                list = 
+                    <HighlightsList highlights={source.highlights} sourceId={source.id}
+                            getSourceDetails={this.getSourceDetails}/>
+            }
+                 
+
             return (
                 <div>
                     <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
@@ -104,11 +114,7 @@ class SourceView extends React.Component {
                             </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <HighlightsList highlights={source.highlights} sourceId={source.id}
-                                            getSourceDetails={this.getSourceDetails}/>
-                            <Divider/>
-                            <NotesList notes={source.notes} sourceId={source.id}
-                                       getSourceDetails={this.getSourceDetails}/>
+                            {list}
                         </Modal.Body>
                         <Modal.Footer>
                             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
@@ -128,6 +134,28 @@ class SourceView extends React.Component {
         return <Loader size="lg" backdrop center/>;
     }
 }
+
+// function PureNoteView(props) {
+//     return (
+//                         <Modal full show onHide={props.close}>
+//                     <Modal.Header>
+//                         <Modal.Title>
+//                         Note
+//                         </Modal.Title>
+//                     </Modal.Header>
+//                     <Modal.Body>
+//                         {props.selectedNode.content}
+//                     </Modal.Body>
+//                     <Modal.Footer>
+//                         <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
+//                                     placement="bottom">
+//                             <IconButton onClick={/*() => this.setConfirmDelete(true)*/} icon={<Icon icon="trash"/>}
+//                                         size="lg"/>
+//                         </Whisper>
+//                     </Modal.Footer>
+//                 </Modal> 
+//     )
+// }
 
 class SourceTitle extends React.Component {
     constructor(props) {
