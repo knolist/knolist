@@ -6,6 +6,7 @@ import {Network, DataSet} from "vis-network/standalone";
 
 import SourceView from "./SourceView";
 import NewSourceForm from "./NewSourceForm";
+import NewClusterForm from "./NewClusterForm"
 import AppFooter from "./AppFooter";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -22,8 +23,10 @@ class MindMap extends React.Component {
             sources: null,
             loading: false,
             showNewSourceForm: false,
+            showNewClusterForm : false,
             showNewSourceHelperMessage: false,
-            newSourceData: null
+            newSourceData: null,
+            stationaryClusterSourceData: null
         }
     }
 
@@ -88,10 +91,29 @@ class MindMap extends React.Component {
         if (this.state.network) this.state.network.disableEditMode()
     }
 
+    enableInteraction = (network) => {
+        network.setOptions({interaction: {dragNodes: true}})
+        network.setOptions({interaction: {dragView: true}})
+    }
+
+    disableInteraction = (network) => {
+        network.setOptions({interaction: {dragNodes: false}})
+        network.setOptions({interaction: {dragView: false}})
+    }
+ 
     switchShowNewSourceForm = () => {
         this.setState({showNewSourceForm: !this.state.showNewSourceForm}, () => {
             // Get out of edit mode if necessary
             if (!this.state.showNewSourceForm) {
+                this.disableEditMode()
+            }
+        });
+    }
+
+    switchShowNewClusterForm = () => {
+        this.setState({showNewClusterForm: !this.state.showNewClusterForm}, () => {
+            // Get out of edit mode if necessary
+            if (!this.state.showNewClusterForm) {
                 this.disableEditMode()
             }
         });
@@ -241,22 +263,30 @@ class MindMap extends React.Component {
             });
 
             let dt = 100 //ms
+            let hold_time = 1000 //ms
             network.on("dragging", throttle((params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
                     const id = network.getSelectedNodes()[0];
                     const boundingBox = network.getBoundingBox(id)
-                    console.log(boundingBox)
                     let otherNodes = this.state.nonSelectedNodes
-                    otherNodes.forEach(node => {
-                        if (isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
-                            console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
+                    setTimeout(function() {
+                        if (!this.state.showNewClusterForm) {
+                            otherNodes.forEach(node => {
+                                if (isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
+                                    setTimeout(this.disableInteraction.bind(null, network), 100)
+                                    this.setState({showNewClusterForm: true});
+                                    this.setState({stationaryClusterSourceData: network.getPosition(parseInt(node))})
+                                    console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
+                                } 
+                            })
                         }
-                    })
+                    }.bind(this), hold_time)
                 }
             }, dt));
 
             // Update positions after dragging node
             network.on("dragEnd", () => {
+                this.enableInteraction(network)
                 // Only update positions if there is a selected node
                 if (network.getSelectedNodes().length !== 0) {
                     const id = network.getSelectedNodes()[0];
@@ -312,6 +342,11 @@ class MindMap extends React.Component {
                                curProject={this.props.curProject}
                                renderNetwork={this.renderNetwork}
                                switchShowNewSourceForm={this.switchShowNewSourceForm}/>
+                <NewClusterForm showNewClusterForm={this.state.showNewClusterForm}
+                                stationaryClusterSourceData={this.state.stationaryClusterSourceData}
+                                curProject={this.props.curProject}
+                                renderNetwork={this.renderNetwork}
+                                switchShowNewClusterForm={this.switchShowNewClusterForm}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
         );
@@ -338,6 +373,16 @@ const throttle = (func, ms) => {
         }
     }
 }
+
+const debounce = (func, ms) => {
+    let inDebounce
+    return function() {
+      const context = this
+      const args = arguments
+      clearTimeout(inDebounce)
+      inDebounce = setTimeout(() => func.apply(context, args), ms)
+    }
+  }
 
 const isOverlap = (rectA, rectB) => {
     return (rectA.left < rectB.right && rectA.right > rectB.left &&
