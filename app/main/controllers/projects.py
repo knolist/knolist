@@ -51,7 +51,7 @@ def create_and_insert_item(content, project_id, source_id, x=None, y=None):
     is_highlight = check_if_highlight(content)
     is_note = not is_highlight
 
-    item = Item(source_id=source_id, isnote=is_note,
+    item = Item(source_id=source_id, is_note=is_note,
                 is_highlight=is_highlight, content=content,
                 x_position=x, parent_project=project_id,
                 y_position=y)
@@ -163,12 +163,45 @@ def set_project_routes(app):
             'deleted': project_id
         })
 
+
     """
     Gets all the sources of a given project
     or searches through them if a search query is passed.
     Search looks at all text fields of a source.
     """
-    @app.route('/items')
+    @app.route('/projects/<int:project_id>/sources')
+    @requires_auth('read:sources')
+    def get_project_sources(user_id, project_id):
+        project = get_authorized_project(user_id, project_id)
+
+        search_query = request.args.get('query', None)
+        if search_query is None:
+            # Returns all sources
+            return jsonify({
+                'success': True,
+                'sources': [s.format_short() for s in project.sources]
+            })
+
+        pattern = '%' + search_query + '%'
+        results = Source.query.filter(Source.project_id == project_id) \
+            .filter(Source.url.ilike(pattern)
+                    | Source.title.ilike(pattern)
+                    | Source.content.ilike(pattern)
+                    | Source.child_items.ilike(pattern)).order_by(Source.id).all()
+
+        return jsonify({
+            'success': True,
+            'sources': [source.format_short() for source in results]
+        })
+
+
+
+    """
+    Gets all the items of a given project
+    or searches through them if a search query is passed.
+    Search looks at all text fields of a source.
+    """
+    @app.route('/projects/<int:project_id>/items')
     @requires_auth('read:items')
     def get_project_items(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
@@ -186,12 +219,11 @@ def set_project_routes(app):
             .filter(Item.source.url.ilike(pattern)
                     | Item.source.title.ilike(pattern)
                     | Item.source.content.ilike(pattern)
-                    | Item.source.highlights.ilike(pattern)
                     | Item.content.ilike(pattern)).order_by(Item.source.id).all()
 
         return jsonify({
             'success': True,
-            'sources': [item.format() for item in results]
+            'items': [item.format() for item in results]
         })
 
     """
@@ -201,8 +233,7 @@ def set_project_routes(app):
 
     @app.route('/items', methods=['POST'])
     @requires_auth('create:items')
-    def create_items(user_id, project_id):
-        get_authorized_project(user_id, project_id)
+    def create_items(user_id):
 
         body = request.get_json()
         if body is None:
@@ -210,8 +241,11 @@ def set_project_routes(app):
 
         url = body.get('url', None)
         content = body.get('content', None)
+        project_id = body.get('parent_project', None)
         x = body.get('x_position', None)
         y = body.get('y_position', None)
+        get_authorized_project(user_id, project_id)
+
         if url is None and content is None:
             abort(400)
         # Creating Item just note

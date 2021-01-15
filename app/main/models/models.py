@@ -155,11 +155,16 @@ class Item(BaseModel):
     def format(self):
         return {
             'id': self.id,
-            'source_id': self.source_id,
+            'next_sources': self.source.next_sources,
+            'prev_sources': self.source.prev_sources,
+            'url': self.source.url,
+            'title': self.source.title,
+            'parent_project': self.parent_project,
+            'is_note': self.is_note,
+            'is_highlight': self.is_highlight,
             'content': json.loads(self.content),
             'x_position': self.x_position,
             'y_position': self.y_position,
-            'parent_project': self.parent_project
         }
 
 
