@@ -26,10 +26,14 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.source_1 = items[2]
         self.source_2 = items[3]
         self.source_3 = items[4]
+        self.project_3 = items[5]
+        self.project_4 = items[6]
 
         self.new_project_title = 'New Project'
 
         self.new_source_url = 'https://en.wikipedia.org/wiki/Test'
+
+        self.new_note_source = ['NOTE TEST']
 
     def tearDown(self):
         """Executed after each test."""
@@ -45,7 +49,8 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
         projects = data['projects']
-        self.assertEqual(len(projects), 2)
+        # 2
+        self.assertEqual(len(projects), 3)
         self.assertEqual(projects[0]['id'], self.project_1.id)
         self.assertEqual(projects[0]['title'], self.project_1.title)
         self.assertEqual(projects[1]['id'], self.project_2.id)
@@ -189,6 +194,20 @@ class TestProjectsEndpoints(unittest.TestCase):
         for source in data['sources']:
             self.assertEqual(source['project_id'], self.project_1.id)
 
+    # GET '/projects/{project_id}/sources' #
+    def test_get_sources_and_notes(self):
+        res = self.client().get(f'/projects/{self.project_3.id}/sources',
+                                headers=auth_header)
+        data = json.loads(res.data)
+
+        expected_sources = Project.query.get(self.project_3.id).sources
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sources']), len(expected_sources))
+        # Assert that only sources from this project were obtained
+        for source in data['sources']:
+            self.assertEqual(source['project_id'], self.project_3.id)
+
     def test_search_sources(self):
         query = quote('test1')
         path_str = f'/projects/{self.project_1.id}/sources?query={query}'
@@ -220,6 +239,26 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(added_source['y_position'], self.source_1.y_position)
         self.assertEqual(new_total, old_total + 1)
 
+    def test_create_note_source(self):
+        old_total = len(Project.query.get(self.project_3.id).sources)
+        res = self.client().post(f'/projects/{self.project_3.id}/sources',
+                                 json={'notes': self.new_note_source,
+                                       'x_position': self.source_1.x_position,
+                                       'y_position': self.source_1.y_position},
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_3.id).sources)
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_source = data['source']
+        self.assertIsNotNone(Source.query.get(added_source['id']))
+        self.assertEqual(added_source['project_id'], self.project_3.id)
+        self.assertEqual(added_source['notes'], self.new_note_source)
+        self.assertEqual(added_source['x_position'], self.source_1.x_position)
+        self.assertEqual(added_source['y_position'], self.source_1.y_position)
+        self.assertEqual(new_total, old_total + 1)
+
     def test_create_existing_source(self):
         old_total = len(Project.query.get(self.project_1.id).sources)
         res = self.client().post(f'/projects/{self.project_1.id}/sources',
@@ -232,6 +271,20 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
         self.assertEqual(data['source']['id'], self.source_1.id)
+        self.assertEqual(new_total, old_total)
+
+    def test_create_existing_note(self):
+        old_total = len(Project.query.get(self.project_3.id).sources)
+        res = self.client().post(f'/projects/{self.project_3.id}/sources',
+                                 json={'url': self.source_4.url},
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_3.id).sources)
+        # Status code 200 since no new source was created
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['source']['id'], self.source4.id)
         self.assertEqual(new_total, old_total)
 
     def test_create_source_no_body(self):
