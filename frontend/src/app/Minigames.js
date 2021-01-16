@@ -7,6 +7,7 @@ import {
 
 // Import all minigames
 import OddOnesOut from "./minigames/OddOnesOut"
+import FindCommonality from "./minigames/FindCommonality"
 import MiniGames2 from "./minigames/minigame2"
 import MiniGames3 from "./minigames/minigame3"
 import MiniGames4 from "./minigames/minigame4"
@@ -29,21 +30,21 @@ class MiniGames extends React.Component {
 
     randomizer = () => {
         this.setState({
-            // clicked: true,
             selectedGame: this.state.games[Math.floor(Math.random() *
                 this.state.games.length)]
         })
     }
 
     updateGames= () => {
-        // Games need to be loaded here to have the most recent sources?
+        // Games need to be loaded here to have the most recent sources, randomizer needs to be called after the games is updated
         this.setState({
-            games: [<OddOnesOut sources={this.props.sources} />] // For testing OddOnesOut specifically
+            games: [<FindCommonality sources={this.props.sources} />] // For testing Find Commonality specifically
+            // games: [<OddOnesOut sources={this.props.sources} />] // For testing OddOnesOut specifically
             // games: [<OddOnesOut sources={this.props.sources} />, <MiniGames2 />, <MiniGames3 />, <MiniGames4 />, <MiniGames5 />],
         },
         this.randomizer)
     }
-    // See if need to be be modified like above?
+
     setShowGame = (clicked) => {
         // Keeps track if Game Generation Button clicked and Window should open
         if (this.props.network) { // Check that the network exists
@@ -57,24 +58,21 @@ class MiniGames extends React.Component {
         this.setShowGame(true);
         this.updateGames();
         // console.log(this.state.selectedGame)
-        console.log(this.state.games)
-        // this.randomizer();
-        console.log(this.props.sources)
+        // console.log(this.state.games)
+        // console.log(this.props.sources)
     }
 
     render() {
 
-        // console.log(this.state.showGame)
-
         return (
             <>
-            <GameWindow showGame={this.state.showGame} setShowGame={this.setShowGame} sources={this.props.sources} 
+            <GameWindow showGame={this.state.showGame} 
+            setShowGame={this.setShowGame} sources={this.props.sources} 
             selectedGame={this.state.selectedGame}/>
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Mini Games</Tooltip>}
                 placement="topEnd">
                 <IconButton appearance="primary" icon={<Icon icon="gamepad" />} circle
                     size="lg" onClick={this.handleClick}
-                    // size="lg" onClick={() => this.props.setShowGame(true)}
                     style={{
                         top: '50%',
                         position: "absolute",
