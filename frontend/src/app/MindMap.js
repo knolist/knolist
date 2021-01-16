@@ -8,6 +8,8 @@ import SourceView from "./SourceView";
 import NewSourceForm from "./NewSourceForm";
 import AppFooter from "./AppFooter";
 import MiniGames from "./MiniGames";
+// eslint-disable-next-line
+import GameWindow from "./MiniGameWindow";
 
 import makeHttpRequest from "../services/HttpRequest";
 
@@ -105,6 +107,18 @@ class MindMap extends React.Component {
         this.setShowNewSourceHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
     }
+
+    // // See if need to be be modified like above?
+    // setShowGame = (clicked) => {
+    //     // Keeps track if Game Generation Button clicked and Window should open
+    //     if (this.state.network) { // Check that the network exists
+    //         this.setState({
+    //             showGame: clicked
+    //         });
+    //         console.log('Show Game should be shown?')
+    //         console.log(this.state.showGame)
+    //     }
+    // }
 
     /* Helper function to generate position for nodes
     This function adds an offset to  the randomly generated position based on the
@@ -274,7 +288,12 @@ class MindMap extends React.Component {
         return (
             <div>
                 <div id="mindmap"/>
-                <MiniGames/>
+                <MiniGames 
+                    curProject={this.props.curProject}
+                    setShowGame={this.setShowGame}
+                    sources={this.state.sources}
+                    network={this.state.network}
+                    />
                 <SourceView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}
                             renderNetwork={this.renderNetwork}/>
