@@ -21,6 +21,7 @@ class MindMap extends React.Component {
             selectedNode: null,
             nonSelectedNodes: null,
             sources: null,
+            clusters: null,
             loading: false,
             showNewSourceForm: false,
             showNewClusterForm : false,
@@ -70,6 +71,16 @@ class MindMap extends React.Component {
         const response = await makeHttpRequest(endpoint);
         this.setLoading(false);
         this.setState({sources: response.body.sources}, callback);
+    }
+
+    getClusters = async (callback) => {
+        if (this.props.curProject === null) return null;
+        this.setLoading(true)
+
+        const endpoint = "/projects/" + this.props.curProject.id + "/clusters"
+        const response = await makeHttpRequest(endpoint)
+        this.setLoading(false)
+        this.setState({clusters: response.body.clusters}, callback)
     }
 
     updateSourcePosition = async (sourceId, x, y) => {
@@ -190,122 +201,131 @@ class MindMap extends React.Component {
         return [nodes, edges];
     }
 
+    // TODO: need to clean up
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
 
-        this.getSources(() => {
-            const [nodes, edges] = this.createNodesAndEdges();
+        this.getSources(function() {
+            this.getClusters(function() {
+                console.log(this.state.clusters)
+                const [nodes, edges] = this.createNodesAndEdges();
 
-            // create a network
-            const container = document.getElementById('mindmap');
+                // create a network
+                const container = document.getElementById('mindmap');
 
-            // provide the data in the vis format
-            const data = {
-                nodes: nodes,
-                edges: edges
-            };
-            const options = {
-                nodes: {
-                    shape: "box",
-                    size: 16,
-                    margin: 10,
-                    physics: false,
-                    chosen: false,
-                    font: {
-                        face: "Apple-System",
-                        color: "white"
+                // provide the data in the vis format
+                const data = {
+                    nodes: nodes,
+                    edges: edges
+                };
+                const options = {
+                    nodes: {
+                        shape: "box",
+                        size: 16,
+                        margin: 10,
+                        physics: false,
+                        chosen: false,
+                        font: {
+                            face: "Apple-System",
+                            color: "white"
+                        },
+                        color: {
+                            background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                        },
+                        widthConstraint: {
+                            maximum: 500
+                        }
                     },
-                    color: {
-                        background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                    edges: {
+                        arrows: {
+                            to: {
+                                enabled: true
+                            }
+                        },
+                        color: "black",
+                        physics: false,
+                        smooth: false,
+                        hoverWidth: 0
                     },
-                    widthConstraint: {
-                        maximum: 500
+                    interaction: {
+                        selectConnectedEdges: false,
+                        hover: true,
+                        hoverConnectedEdges: false
+                    },
+                    manipulation: {
+                        enabled: false,
+                        addNode: this.addSource
                     }
-                },
-                edges: {
-                    arrows: {
-                        to: {
-                            enabled: true
-                        }
-                    },
-                    color: "black",
-                    physics: false,
-                    smooth: false,
-                    hoverWidth: 0
-                },
-                interaction: {
-                    selectConnectedEdges: false,
-                    hover: true,
-                    hoverConnectedEdges: false
-                },
-                manipulation: {
-                    enabled: false,
-                    addNode: this.addSource
-                }
-            };
+                };
 
-            // Initialize the network
-            const network = new Network(container, data, options);
-            network.fit()
+                // Initialize the network
+                const network = new Network(container, data, options);
+                network.fit()
 
-            // Handle click vs drag
-            network.on("click", (params) => {
-                if (params.nodes !== undefined && params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    this.handleClickedNode(nodeId);
-                }
-            });
+                // Handle click vs drag
+                network.on("click", (params) => {
+                    if (params.nodes !== undefined && params.nodes.length > 0) {
+                        const nodeId = params.nodes[0];
+                        this.handleClickedNode(nodeId);
+                    }
+                });
 
-            network.on("dragStart", (params) => {
-                if (params.nodes !== undefined && params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    this.handleDragStart(nodeId, nodes)
-                }
-            });
+                network.on("dragStart", (params) => {
+                    if (params.nodes !== undefined && params.nodes.length > 0) {
+                        const nodeId = params.nodes[0];
+                        this.handleDragStart(nodeId, nodes)
+                    }
+                });
 
-            let dt = 100 //ms
-            let hold_time = 500 //ms
-            network.on("dragging", throttle((params) => {
-                if (params.nodes !== undefined && params.nodes.length > 0) {
-                    const id = network.getSelectedNodes()[0];
-                    const boundingBox = network.getBoundingBox(id)
-                    let otherNodes = this.state.nonSelectedNodes
-                    setTimeout(function() {
-                        if (!this.state.showNewClusterForm) {
-                            otherNodes.forEach(node => {
-                                if (isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
-                                    setTimeout(this.disableInteraction.bind(null, network), 100)
-                                    this.setState({showNewClusterForm: true});
-                                    this.setState({stationaryClusterSourceData: network.getPosition(parseInt(node))})
-                                    this.setState({newClusterIDs: {"item1": id, "item2": parseInt(node)}})
-                                    console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
-                                } 
-                            })
-                        }
-                    }.bind(this), hold_time)
-                }
-            }, dt));
+                let check_cluster
+                let delay_disable
+                let dt = 100 //ms
+                let hold_time = 500 //ms
+                network.on("dragging", throttle((params) => {
+                    if (params.nodes !== undefined && params.nodes.length > 0) {
+                        clearTimeout(check_cluster)
+                        clearTimeout(delay_disable)
+                        const id = network.getSelectedNodes()[0];
+                        const boundingBox = network.getBoundingBox(id)
+                        let otherNodes = this.state.nonSelectedNodes
+                        check_cluster = setTimeout(function() {
+                            if (!this.state.showNewClusterForm) {
+                                otherNodes.forEach(node => {
+                                    if (isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
+                                        delay_disable = setTimeout(this.disableInteraction.bind(null, network), 100)
+                                        this.setState({ showNewClusterForm: true });
+                                        this.setState({ stationaryClusterSourceData: network.getPosition(parseInt(node)) })
+                                        this.setState({ newClusterIDs: { "item1": id, "item2": parseInt(node) } })
+                                        // console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
+                                    }
+                                })
+                            }
+                        }.bind(this), hold_time)
+                    }
+                }, dt));
 
-            // Update positions after dragging node
-            network.on("dragEnd", () => {
-                this.enableInteraction(network)
-                // Only update positions if there is a selected node
-                if (network.getSelectedNodes().length !== 0) {
-                    const id = network.getSelectedNodes()[0];
-                    const position = network.getPosition(id);
-                    const x = position.x;
-                    const y = position.y;
-                    this.updateSourcePosition(id, x, y);
-                }
-            });
+                // Update positions after dragging node
+                network.on("dragEnd", () => {
+                    this.enableInteraction(network)
+                    // Only update positions if there is a selected node
+                    if (network.getSelectedNodes().length !== 0) {
+                        const id = network.getSelectedNodes()[0];
+                        const position = network.getPosition(id);
+                        const x = position.x;
+                        const y = position.y;
+                        this.updateSourcePosition(id, x, y);
+                    }
+                });
 
-            // Set cursor to pointer when hovering over a node
-            network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
-            network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
+                // Set cursor to pointer when hovering over a node
+                network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
+                network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
 
-            // Store the network
-            this.setState({network: network}, callback);
-        })
+                // Store the network
+                this.setState({ network: network }, callback);
+
+            }.bind(this))
+        }.bind(this))
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -376,16 +396,6 @@ const throttle = (func, ms) => {
         }
     }
 }
-
-const debounce = (func, ms) => {
-    let inDebounce
-    return function() {
-      const context = this
-      const args = arguments
-      clearTimeout(inDebounce)
-      inDebounce = setTimeout(() => func.apply(context, args), ms)
-    }
-  }
 
 const isOverlap = (rectA, rectB) => {
     return (rectA.left < rectB.right && rectA.right > rectB.left &&

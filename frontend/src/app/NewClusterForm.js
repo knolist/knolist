@@ -34,7 +34,6 @@ class NewClusterForm extends React.Component {
             "y_position": y,
             "name": name,
         }
-        console.log(body)
 
         makeHttpRequest(endpoint, "POST", body).then((response) => {
             if (response.status === 200) {
