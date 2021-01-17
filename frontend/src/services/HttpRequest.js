@@ -1,4 +1,4 @@
-import {Alert} from 'rsuite';
+// import {Alert} from 'rsuite';
 import createAuth0Client from '@auth0/auth0-spa-js';
 
 // The Auth0 client for obtaining JWT's
@@ -15,7 +15,7 @@ const baseUrl = "http://localhost:5000";
  * @param jsonBody A JS object that will be the JSON body of the request. E.g, {title: "New Project"}
  * @returns {Promise<{body: any, status: number}>}
  */
-async function MakeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
+async function makeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
 
     // Configure Auth0 Client
     auth0 = await createAuth0Client({
@@ -56,4 +56,4 @@ async function MakeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
     };
 }
 
-export default MakeHttpRequest;
+export default makeHttpRequest;
