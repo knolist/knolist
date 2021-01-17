@@ -38,7 +38,9 @@ function All(props) {
     return (
       <div>
         <div style={{ fontWeight: "bold", fontSize: "2em", fontFamily: "Poppins" }}>No projects!</div>
-        <div style={{ fontSize: "1em", fontFamily: "Poppins", marginTop: "15px" }}>Add a new project to get started.</div>
+        <div style={{ fontSize: "1em", fontFamily: "Poppins", marginTop: "15px" }}>
+          Add a new project to get started.
+        </div>
       </div>
     );
   }

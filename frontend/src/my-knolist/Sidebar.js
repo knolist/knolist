@@ -10,7 +10,7 @@ function Sidebar() {
 
   if (location === "/my-projects") first = true;
   else if (location === "/shared") second = true;
-  else if (location === "./archived") third = true;
+  else if (location === "/archived") third = true;
 
   return (
     <div style={{ width: "17vw" }}>

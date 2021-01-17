@@ -26,9 +26,9 @@ function NewProjectModal(props) {
       </Modal.Body>
       <Modal.Footer>
         <Button onClick={() => setShow(false)} appearance="primary">
-          Ok
+          Create
           </Button>
-        <Button onClick={() => setShow(false)} appearance="subtle">
+        <Button onClick={() => setShow(false)} appearance="default">
           Cancel
           </Button>
       </Modal.Footer>
