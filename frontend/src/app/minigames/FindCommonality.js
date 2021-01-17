@@ -53,7 +53,7 @@ class FindCommonality extends React.Component {
         if (this.state.numPlayed < 5)
             return (
                 <>
-                    <h1>Find the Commonality</h1>
+                    <h1>What comes to mind?</h1>
                         <h3>Round {this.state.numPlayed + 1}</h3>
                         <Line percent={this.state.numPlayed / 5 * 100} status='active' />
                         <h5>What is the commonality between the following?</h5>
@@ -71,7 +71,7 @@ class FindCommonality extends React.Component {
             else {
                 return (
                     <>
-                    <h1>Find the Commonality</h1>
+                    <h1>What comes to mind?</h1>
                     <h3>Well Done!</h3>
                     <h5>Hope you found some inspirations to explore more!</h5>
                     <h5>Here are the common themes you have identified:</h5>

@@ -38,7 +38,7 @@ class MiniGames extends React.Component {
     updateGames= () => {
         // Games need to be loaded here to have the most recent sources, randomizer needs to be called after the games is updated
         this.setState({
-            games: [<FindCommonality sources={this.props.sources} />] // For testing Find Commonality specifically
+            games: [<FindCommonality sources={this.props.sources} />, <OddOnesOut sources={this.props.sources} />] // For testing Find Commonality specifically
             // games: [<OddOnesOut sources={this.props.sources} />] // For testing OddOnesOut specifically
             // games: [<OddOnesOut sources={this.props.sources} />, <MiniGames2 />, <MiniGames3 />, <MiniGames4 />, <MiniGames5 />],
         },

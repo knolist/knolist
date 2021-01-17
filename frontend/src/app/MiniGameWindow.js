@@ -20,7 +20,7 @@ class GameWindow extends React.Component {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <> {this.props.selectedGame}</>
+                    {this.props.selectedGame}
                 </Modal.Body>
             </Modal>
         );
