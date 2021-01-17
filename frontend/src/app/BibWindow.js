@@ -7,7 +7,10 @@ import {
 class BibWindow extends React.Component {
     constructor(props) {
         super(props);
-        const citationsIncluded = this.props.sources
+        const citationsIncluded = [];
+        const citationsNotIncluded = [];
+        //{this.props.sources.map((source,index) => {if (source.isIncluded === true) {citationsIncluded.add(source)} else {citationsNotIncluded.add(source)}})}
+
         const formats = {
             APA: "APA Reference List",
             MLA: "MLA Works Cited",
@@ -21,17 +24,15 @@ class BibWindow extends React.Component {
     }
 
     removeFromSaved = (source) => {
-        //this.citationsIncluded = this.citationsIncluded.remove(source)
-        this.setState({
-            
-        });
+        // citationsIncluded.remove(source);
+        // source.isIncluded = false;
+        // Rerender
     }
 
     addToSaved = (source) => {
-        //this.citationsIncluded = this.citationsIncluded.add(source)
-        this.setState({
-            
-        });
+        // citationsIncluded.add(source);
+        // source.isIncluded = true;
+        // Rerender
     }
 
     copyBib = () => {
@@ -45,9 +46,8 @@ class BibWindow extends React.Component {
     }
 
     showMissingIcon = (source) => {
-        // for standup display, else use commented out line
-        if(source.title && source.url && false) {
-        // if(source.title && source.url) {
+        // TODO: add other metadata fields
+        if(source.title && source.url) {
             return null;
         } else {
             return(
@@ -100,8 +100,9 @@ class BibWindow extends React.Component {
                     </CheckboxGroup>
                     <Divider/>
                     <CheckboxGroup name="checkboxList">
+                        {/*TODO: eventually this for loop will call from citationsNotIncluded*/}
                         {this.props.sources.map((source,index) => 
-                        <Checkbox defaultChecked={false} onChange={this.addToSaved} key={index}>
+                        <Checkbox defaultChecked={false} onChange={this.addToSaved} key={index} style={{color: '#d3d3d3'}}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
@@ -135,6 +136,30 @@ class EditWindow extends React.Component{
         }
     }
 
+    changeAuthor = (value) => {
+        this.props.source.author = value
+    }
+
+    changeTitle = (value) => {
+        this.props.source.title = value
+    }
+
+    changePublishDate = (value) => {
+        this.props.source.publishDate = value
+    }
+
+    changeSiteName = (value) => {
+        this.props.source.siteName = value
+    }
+
+    changeAccessDate = (value) => {
+        this.props.source.accessDate = value
+    }
+
+    changeURL = (value) => {
+        this.props.source.url = value
+    }
+
     render() {
         if (this.props.source === null) return null;
         return (
@@ -145,12 +170,12 @@ class EditWindow extends React.Component{
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Author: </p><Input placeholder={this.showField(this.props.source.author)} style={{ width: '300px' }}/>
-                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)} style={{ width: '500px' }}/>
-                    <p>Publish Date: </p><Input placeholder={this.showField(this.props.source.publishDate)} style={{ width: '200px' }}/>
-                    <p>Site Name: </p><Input placeholder={this.showField(this.props.source.siteName)} style={{ width: '300px' }}/>
-                    <p>Access Date: </p><Input placeholder={this.showField(this.props.source.accessDate)} style={{ width: '200px' }}/>
-                    <p>URL: </p><Input placeholder={this.showField(this.props.source.url)} style={{ width: '400px' }}/>
+                    <p>Author: </p><Input placeholder={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
+                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/>
+                    <p>Publish Date: </p><Input placeholder={this.showField(this.props.source.publishDate)} onChange={this.changePublishDate} style={{ width: '200px' }}/>
+                    <p>Site Name: </p><Input placeholder={this.showField(this.props.source.siteName)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
+                    <p>Access Date: </p><Input placeholder={this.showField(this.props.source.accessDate)} onChange={this.changeAccessDate} style={{ width: '200px' }}/>
+                    <p>URL: </p><Input placeholder={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/>
                 </Modal.Body>
             </Modal>
         );
