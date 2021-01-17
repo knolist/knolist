@@ -1,8 +1,9 @@
 import json
 
 from flask import request, abort, jsonify
-from sqlalchemy import String, BOOLEAN
+from sqlalchemy import String, Boolean
 
+from .projects import get_authorized_project, create_and_insert_source
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
 
@@ -21,7 +22,71 @@ def get_authorized_item(user_id, item_id):
     return item
 
 
+def create_and_insert_item(content, is_note,
+                           is_highlight, project_id,
+                           source_id, x=None, y=None):
+    item = Item(source_id=source_id, is_note=is_note,
+                is_highlight=is_highlight, content=content,
+                x_position=x, project_id=project_id,
+                y_position=y)
+    item.insert()
+
+    return item
+
+
 def set_item_routes(app):
+    """
+    Creates a new item inside an existing project.
+    The necessary data is passed as a JSON body.
+    """
+
+    @app.route('/items', methods=['POST'])
+    @requires_auth('create:items')
+    def create_item(user_id):
+
+        body = request.get_json()
+        if body is None:
+            abort(400)
+
+        url = body.get('url', None)
+        content = body.get('content', None)
+        project_id = body.get('project_id', None)
+        x = body.get('x_position', None)
+        y = body.get('y_position', None)
+        is_note = body.get('is_note', None)
+        is_highlight = body.get('is_highlight', None)
+        get_authorized_project(user_id, project_id)
+
+        if url is None and content is None:
+            # Neither url nor content, so abort
+            abort(400)
+        if url is None and is_highlight is True:
+            # Highlight without url is not allowed
+            abort(400)
+        # Referenced source is by default None
+        source_id_temp = None
+        # Check if source already exists in sources table
+        temp_filter = Source.query.filter(Source.url == url,
+                                          Source.project_id == project_id)
+        existing_source = temp_filter.first()
+        if existing_source is not None:
+            # Create new item (highlight or note or none)
+            # and refer to existing source
+            source_id_temp = existing_source.id
+        elif url is not None and existing_source is None:
+            source = create_and_insert_source(url, project_id, x, y)
+            source_id_temp = source.id
+        elif url is None and is_note is True:
+            # Regular Note
+            source_id_temp = None
+        item = create_and_insert_item(content, is_note,
+                                      is_highlight, project_id,
+                                      source_id_temp, x, y)
+        return jsonify({
+            'success': True,
+            'item': item.format()
+        }), 201
+
     """
     Reads the detailed information of a specific item.
     """
@@ -35,7 +100,6 @@ def set_item_routes(app):
             'success': True,
             'item': item.format()
         })
-
 
     """
     Deletes an item
@@ -58,7 +122,7 @@ def set_item_routes(app):
     The information to be updated is passed in a JSON body.
     """
 
-    @app.route('/item/<int:item_id>', methods=['PATCH'])
+    @app.route('/items/<int:item_id>', methods=['PATCH'])
     @requires_auth('update:items')
     def update_item(user_id, item_id):
         item = get_authorized_item(user_id, item_id)
@@ -81,7 +145,8 @@ def set_item_routes(app):
         # Verify that at least one parameter was passed
         cond_1 = is_note is None and is_highlight is None
         cond_2 = content is None and x_position is None
-        cond_3 = y_position is None and source_id is None and project_id is None
+        cond_3 = y_position is None and \
+            source_id is None and project_id is None
         if cond_1 and cond_2 and cond_3:
             abort(400)
 
@@ -90,11 +155,11 @@ def set_item_routes(app):
             abort(422)
         if y_position is not None and type(y_position) is not int:
             abort(422)
-        if content is not None and type(content) is not String:
+        if content is not None and type(content) is not str:
             abort(422)
-        if is_note is not None and type(is_note) is not BOOLEAN:
+        if is_note is not None and type(is_note) is not bool:
             abort(422)
-        if is_highlight is not None and type(is_highlight) is not BOOLEAN:
+        if is_highlight is not None and type(is_highlight) is not bool:
             abort(422)
 
         if project_id is not None:
@@ -111,15 +176,20 @@ def set_item_routes(app):
         # Update values that are not None
         item.source_id = source_id if source_id is not None else item.source_id
         item.is_note = is_note if is_note is not None else item.is_note
-        item.is_highlight = is_highlight if is_highlight is not None else item.is_highlight
-        item.content = content if content is not None else item.content
-        item.x_position = x_position if x_position is not None else item.x_position
-        item.y_position = y_position if y_position is not None else item.y_position
-        item.parent_project = project_id if project_id is not None else item.parent_project
+        item.is_highlight = is_highlight if \
+            is_highlight is not None else item.is_highlight
+        item.content = content if content \
+            is not None else item.content
+        item.x_position = x_position if x_position \
+            is not None else item.x_position
+        item.y_position = y_position if y_position \
+            is not None else item.y_position
+        item.project_id = project_id if project_id \
+            is not None else item.project_id
 
         item.update()
 
         return jsonify({
             'success': True,
-            'source': item.format()
+            'item': item.format()
         })
