@@ -87,16 +87,16 @@ def set_cluster_routes(app):
         # Set source parent cluster equal to the parent cluster
         # of the cluster being deleted(could be none)
         cluster_parent = cluster.parent_cluster
-        for item in cluster.child_items:
+        for source in cluster.child_items:
             if cluster_parent is None:
                 # items now just belong to the project -
-                cluster.project.items.append(item)
-                item.cluster_id = None
+                cluster.project.sources.append(source)
+                source.cluster_id = None
             else:
-                cluster_parent.child_items.append(item)
+                cluster_parent.child_items.append(source)
                 # I may not need to explicitly do this
-                item.cluster_id = cluster_parent.id
-            item.update()
+                source.cluster_id = cluster_parent.id
+            source.update()
 
         if cluster_parent is None:
             cluster.project.update()
@@ -143,15 +143,15 @@ def set_cluster_routes(app):
         body = request.get_json()
         if body is None:
             abort(400)
-
+        #hello
         item1_id = body.get('item1_id', None)
         item2_id = body.get('item2_id', None)
         if item1_id is None or item2_id is None:
             abort(400)
 
         # Get sources and create them if necessary
-        item1 = get_authorized_item(user_id, item1_id)
-        item2 = get_authorized_item(user_id, item2_id)
+        item1 = get_authorized_source(user_id, item1_id)
+        item2 = get_authorized_source(user_id, item2_id)
         if item1 is None or item2 is None:
             abort(400)
 
@@ -186,7 +186,7 @@ def set_cluster_routes(app):
     @requires_auth('update:clusters')
     def add_to_existing_cluster(user_id, cluster_id, item_id):
         cluster = get_authorized_cluster(user_id, cluster_id)
-        item = get_authorized_item(user_id, item_id)
+        item = get_authorized_source(user_id, item_id)
 
         if item.cluster == cluster:
             abort(400)
@@ -211,7 +211,7 @@ def set_cluster_routes(app):
     @requires_auth('update:clusters')
     def remove_from_existing_cluster(user_id, cluster_id, item_id):
         cluster = get_authorized_cluster(user_id, cluster_id)
-        item = get_authorized_item(user_id, item_id)
+        item = get_authorized_source(user_id, item_id)
 
         if item.cluster != cluster:
             abort(400)

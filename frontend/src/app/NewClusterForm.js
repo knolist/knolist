@@ -26,7 +26,6 @@ class NewClusterForm extends React.Component {
         const item2_id = this.props.newClusterIDs.item2
         const name = document.getElementById(this.state.newClusterNameId).value
         const {x, y} = this.props.stationaryClusterSourceData;
-        const endpoint = "/clusters/create_new"
         const body = {
             "item1_id": item1_id,
             "item2_id": item2_id,
@@ -34,14 +33,22 @@ class NewClusterForm extends React.Component {
             "y_position": y,
             "name": name,
         }
-
+        const endpoint = "/clusters/create_new"
         makeHttpRequest(endpoint, "POST", body).then((response) => {
-            if (response.status === 200) {
+            if (response.status === 201) {
                 this.props.renderNetwork();
                 Alert.success('Cluster created successfully.');
             }
             this.props.switchShowNewClusterForm();
         });
+        // const endpoint = "/clusters/3"
+        // makeHttpRequest(endpoint, "DELETE").then((response) => {
+        //     if (response.status === 200) {
+        //         this.props.renderNetwork();
+        //         Alert.success('Cluster deleted successfully.');
+        //     }
+        //     this.props.switchShowNewClusterForm();
+        // });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
