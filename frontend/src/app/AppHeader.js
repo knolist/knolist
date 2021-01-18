@@ -5,6 +5,7 @@ import {
 } from "rsuite";
 import {Link} from "react-router-dom";
 
+import AuthenticationButton from "../components/auth-button.js";
 import horizontalLogo from "../images/horizontal_main.png";
 
 function AppHeader(props) {
@@ -89,6 +90,9 @@ class SearchAndFilter extends React.Component {
     render() {
         return (
             <FlexboxGrid>
+                <FlexboxGrid.Item>
+                    <AuthenticationButton/>
+                </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <SearchBar/>
                 </FlexboxGrid.Item>

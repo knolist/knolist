@@ -1,7 +1,8 @@
 // Import from npm libraries
 import React from 'react';
-import { Button } from 'rsuite';
-import { Route, Switch } from "react-router";
+import {Route, Switch} from "react-router";
+import {Button, Loader} from 'rsuite';
+import {withAuthenticationRequired} from "@auth0/auth0-react";
 
 // Import React Components
 import AppHeader from "./AppHeader";
@@ -109,4 +110,6 @@ class App extends React.Component {
     }
 }
 
-export default App;
+export default withAuthenticationRequired(App, {
+    onRedirecting: () => <Loader size="lg" backdrop center/>,
+  });
