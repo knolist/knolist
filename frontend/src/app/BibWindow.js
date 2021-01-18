@@ -7,24 +7,31 @@ import {
 class BibWindow extends React.Component {
     constructor(props) {
         super(props);
-        const citationsIncluded = [];
-        const citationsNotIncluded = [];
-        //{this.props.sources.map((source,index) => {if (source.isIncluded === true) {citationsIncluded.add(source)} else {citationsNotIncluded.add(source)}})}
-
         const formats = {
             APA: "APA Reference List",
             MLA: "MLA Works Cited",
             CHI: "Chicago Bibliography Style"
         }
         this.state = {
+            // sources from API call (getSources)
             curFormat: formats.APA,
             formats: formats,
             editSource: null
         }
     }
 
+    /*
+    componentDidUpdate
+        if (prevProps.curProject !== this.props.curProject &&) {
+            // Set sources to null before updating to show loading icon
+            this.setState({sources: null}, this.renderNetwork);
+        }
+    */
+
     removeFromSaved = (source) => {
         // citationsIncluded.remove(source);
+        // Make API call to get, then post after changing
+        // check getSources in Mindmap
         // source.isIncluded = false;
         // Rerender
     }
@@ -46,8 +53,9 @@ class BibWindow extends React.Component {
     }
 
     showMissingIcon = (source) => {
-        // TODO: add other metadata fields
-        if(source.title && source.url) {
+        if(source.title && source.url && source.author 
+            && source.publishDate && source.siteName 
+            && source.accessDate) {
             return null;
         } else {
             return(
@@ -75,6 +83,32 @@ class BibWindow extends React.Component {
         });
     }
 
+    renderIncluded = (included) => {
+        {this.props.sources.map((source,index) => 
+            {if (source.isIncluded === included) {
+                return(
+                    <CheckboxGroup name="checkboxList">
+                        <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
+                            {this.renderFormatType(source)}
+                            {this.showMissingIcon(source)}
+                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
+                        </Checkbox>
+                    </CheckboxGroup>
+                );
+            } else {
+                return(
+                    <CheckboxGroup name="checkboxList">
+                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}}  onChange={this.addToSaved} key={index}>
+                            {this.renderFormatType(source)}
+                            {this.showMissingIcon(source)}
+                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
+                        </Checkbox>
+                    </CheckboxGroup>
+                );
+            }}
+        )}
+    }
+
     render() {
         const formats = this.state.formats;
         const dropdownData = [{value:formats.APA,label:formats.APA},{value:formats.MLA,label:formats.MLA},{value:formats.CHI,label:formats.CHI}]
@@ -89,8 +123,12 @@ class BibWindow extends React.Component {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    {this.renderIncluded(true)}
+                    <Divider/>
+                    {this.renderIncluded(false)}
+                </Modal.Body>
+                {/*<Modal.Body>
                     <CheckboxGroup name="checkboxList">
-                        {/*TODO: eventually this for loop will call from citationsIncluded*/}
                         {this.props.sources.map((source,index) => 
                         <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
                             {this.renderFormatType(source)}
@@ -100,15 +138,14 @@ class BibWindow extends React.Component {
                     </CheckboxGroup>
                     <Divider/>
                     <CheckboxGroup name="checkboxList">
-                        {/*TODO: eventually this for loop will call from citationsNotIncluded*/}
                         {this.props.sources.map((source,index) => 
-                        <Checkbox defaultChecked={false} onChange={this.addToSaved} key={index} style={{color: '#d3d3d3'}}>
+                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={this.addToSaved} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
                         </Checkbox>)}
                     </CheckboxGroup>
-                </Modal.Body>
+                </Modal.Body>*/}
             <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource}/>
             </Modal>
         );

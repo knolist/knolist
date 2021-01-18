@@ -49,11 +49,53 @@ def urlToCitation(url):
         citationFields["title"] = None
 
     if author2:
-        citationFields["author"] = author2["content"]
+        authorFormatted = ""
+        authorArray = author2["content"].split()
+        if (len(authorArray) == 2):
+            firstName = authorArray[0]
+            lastName = authorArray[1]
+            authorFormatted = lastName + ", " + firstName[0] + "."
+        elif (len(authorArray) == 3):
+            firstName = authorArray[0]
+            middle = authorArray[1]
+            lastName = authorArray[2]
+            authorFormatted = lastName + ", " + firstName[0] + ". " + middle[0] + "."
+        ## elif ("Staff" in authorArray) or ("staff" in authorArray):
+        else:
+            authorFormatted = author2["content"] 
+        citationFields["author"] = authorFormatted
     elif author3:
-        citationFields["author"] = author3["content"]
+        authorFormatted = ""
+        authorArray = author3["content"].split()
+        if (len(authorArray) == 2):
+            firstName = authorArray[0]
+            lastName = authorArray[1]
+            authorFormatted = lastName + ", " + firstName[0] + "."
+        elif (len(authorArray) == 3):
+            firstName = authorArray[0]
+            middle = authorArray[1]
+            lastName = authorArray[2]
+            authorFormatted = lastName + ", " + firstName[0] + ". " + middle[0] + "."
+        ## elif ("Staff" in authorArray) or ("staff" in authorArray):
+        else:
+            authorFormatted = author3["content"] 
+        citationFields["author"] = authorFormatted
     elif author1:
-        citationFields["author"] = author1["content"]
+        authorFormatted = ""
+        authorArray = author1["content"].split()
+        if (len(authorArray) == 2):
+            firstName = authorArray[0]
+            lastName = authorArray[1]
+            authorFormatted = lastName + ", " + firstName[0] + "."
+        elif (len(authorArray) == 3):
+            firstName = authorArray[0]
+            middle = authorArray[1]
+            lastName = authorArray[2]
+            authorFormatted = lastName + ", " + firstName[0] + ". " + middle[0] + "."
+        ## elif ("Staff" in authorArray) or ("staff" in authorArray):
+        else:
+            authorFormatted = author1["content"] 
+        citationFields["author"] = authorFormatted
     else:
         citationFields["author"] = None
 
