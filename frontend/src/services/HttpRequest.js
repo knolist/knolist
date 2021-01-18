@@ -1,10 +1,12 @@
-import {Alert} from 'rsuite';
+// import {Alert} from 'rsuite';
+import createAuth0Client from '@auth0/auth0-spa-js';
+
+// The Auth0 client for obtaining JWT's
+let auth0 = null;
 
 
-// purposely use invalid token to test redirection to login page
-const jwt = "";
 // const baseUrl = "https://knolist-api.herokuapp.com";
-const baseUrl = "http://localhost:5000"
+const baseUrl = "http://localhost:5000";
 
 /**
  * Used to make standard requests to the Knolist API. Includes authorization.
@@ -14,6 +16,18 @@ const baseUrl = "http://localhost:5000"
  * @returns {Promise<{body: any, status: number}>}
  */
 async function makeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
+
+    // Configure Auth0 Client
+    auth0 = await createAuth0Client({
+        domain: 'knolist.us.auth0.com',
+        client_id: 'pBu5uP4mKTQgBttTW13N0wCVgsx90KMi',
+        audience: 'knolist',
+      });
+      
+
+    // Grab the access token from the authentication workflow
+    const jwt = await auth0.getTokenSilently();
+
     const url = baseUrl + endpoint;
     // Build params object
     let params = {}
@@ -36,20 +50,6 @@ async function makeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
     const responseStatus = response.status;
     const responseBody = await response.json();
 
-    // Build URL for redirecting to login
-    const auth0BaseUrl = "https://knolist.us.auth0.com";
-    const audience = "knolist";
-    const response_type = "token";
-    const client_id = "pBu5uP4mKTQgBttTW13N0wCVgsx90KMi";
-    const redirect_uri = "https://knolist-api.herokuapp.com/auth/callback";
-    const auth0Url = auth0BaseUrl + "/authorize?audience=" + audience + "&response_type=" + response_type + "&client_id=" + client_id + "&redirect_uri=" + redirect_uri;
-
-    if (!responseBody.success) {
-        Alert.error("Something went wrong!");
-        if (responseStatus === 401 || responseStatus === 403) {
-            window.location.replace(auth0Url)
-        }
-    }
     return {
         status: responseStatus,
         body: responseBody
