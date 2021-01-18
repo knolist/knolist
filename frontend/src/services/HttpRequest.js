@@ -4,7 +4,6 @@ import createAuth0Client from '@auth0/auth0-spa-js';
 // The Auth0 client for obtaining JWT's
 let auth0 = null;
 
-
 // const baseUrl = "https://knolist-api.herokuapp.com";
 const baseUrl = "http://localhost:5000";
 

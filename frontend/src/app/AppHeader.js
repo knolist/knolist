@@ -1,20 +1,21 @@
 import React from 'react';
 import {
-    Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Input, InputGroup,
-    Navbar, Tooltip, Whisper
+    Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Navbar,
+    Tooltip, Whisper
 } from "rsuite";
 import {Link} from "react-router-dom";
 
 import AuthenticationButton from "../components/auth-button.js";
 import horizontalLogo from "../images/horizontal_main.png";
+import SearchBar from "../components/SearchBar.js";
 
 function AppHeader(props) {
     return (
-        <Navbar style={{padding: "0 10px"}}>
+        <Navbar style={{ padding: "0 10px" }}>
             <FlexboxGrid justify="space-between" align="middle">
-                <Link to="/my-knolist">
+                <Link to="/my-projects">
                     <Navbar.Header>
-                        <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
+                        <img className="limit-height" src={horizontalLogo} alt="Knolist" />
                     </Navbar.Header>
                 </Link>
                 <FlexboxGrid.Item>
@@ -30,7 +31,7 @@ function AppHeader(props) {
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
-                        <SearchAndFilter/>
+                        <SearchAndFilter />
                         <BibButton setShowBib={props.setShowBib}/>
                     </FlexboxGrid>
                 </FlexboxGrid.Item>
@@ -61,7 +62,7 @@ class SearchAndFilter extends React.Component {
             "Previous Connections",
             "Highlights",
             "Notes"
-        ]
+        ];
         this.state = {
             indeterminate: false,
             checkAll: true,
@@ -126,17 +127,6 @@ function FilterDropdown(props) {
                 </div>
             </Dropdown>
         </Whisper>
-    );
-}
-
-function SearchBar() {
-    return (
-        <InputGroup style={{marginRight: 15}}>
-            <Input placeholder="Search through your project"/>
-            <InputGroup.Button>
-                <Icon icon="search"/>
-            </InputGroup.Button>
-        </InputGroup>
     );
 }
 

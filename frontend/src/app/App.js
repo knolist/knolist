@@ -8,7 +8,7 @@ import {withAuthenticationRequired} from "@auth0/auth0-react";
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
-import MyKnolist from "../my-knolist/MyKnolist.js";
+import Page from "../my-knolist/Page.js";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -102,8 +102,14 @@ class App extends React.Component {
                     {this.projectsButton()}
                     <MindMap curProject={this.state.curProject} showBib={this.state.showBib} setShowBib={this.setShowBib} />
                 </Route>
-                <Route path="/my-knolist">
-                    <MyKnolist />
+                <Route path="/my-projects">
+                    <Page url={"/my-projects"}/>
+                </Route>
+                <Route path="/shared">
+                    <Page url={"/shared"}/>
+                </Route>
+                <Route path="/archived">
+                    <Page url={"/archived"}/>
                 </Route>
             </Switch>
         );
