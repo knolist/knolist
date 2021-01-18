@@ -7,7 +7,7 @@ import {
 class BibWindow extends React.Component {
     constructor(props) {
         super(props);
-        const citationsIncluded = this.props.sources
+        // const citationsIncluded = this.props.sources
         const formats = {
             APA: "APA Reference List",
             MLA: "MLA Works Cited",
