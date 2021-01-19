@@ -282,7 +282,7 @@ class MindMap extends React.Component {
                                curProject={this.props.curProject}
                                renderNetwork={this.renderNetwork}
                                switchShowNewSourceForm={this.switchShowNewSourceForm}/>
-                <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib} sources={this.state.sources}/>
+                <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib} curProject={this.props.curProject}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
             </div>
         );

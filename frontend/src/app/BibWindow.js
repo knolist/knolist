@@ -4,7 +4,6 @@ import {
     CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert
 } from "rsuite";
 
-//import MindMap from "./MindMap";
 import makeHttpRequest from "../services/HttpRequest";
 
 class BibWindow extends React.Component {
@@ -25,7 +24,7 @@ class BibWindow extends React.Component {
         }
     }
 
-    getSources = async (callback) => {
+    getBibSources = async (callback) => {
         if (this.props.curProject === null) return null;
         // this.setLoading(true);
 
@@ -37,12 +36,12 @@ class BibWindow extends React.Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.showBib !== this.props.showBib && this.props.showBib) {
-            this.getSources();
+            this.getBibSources();
         }
     }
 
     componentDidMount() {
-        this.getSources();
+        this.getBibSources();
     }
 
     removeFromSaved = (source) => {
