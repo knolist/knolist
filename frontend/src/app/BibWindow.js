@@ -66,8 +66,8 @@ class BibWindow extends React.Component {
         for (var i=0; i < citationArray.length; i++) {
             selectText = selectText.concat('\n');
             selectText = selectText.concat(citationArray[i].innerText);
+            selectText = selectText.concat('\n');
         }
-
         // Create an input
         var input = document.createElement('input');
         // Set it's value to the text to copy, the input type doesn't matter
@@ -109,6 +109,24 @@ class BibWindow extends React.Component {
             return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
             return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
+        }
+        // Sets className to copyText if citation is included to copy to clipboard
+        // Else sets className to undefined
+        // Uncomment when isIncluded is added to backend
+        /*if (this.state.curFormat === this.state.formats.APA){
+            return <p className={isIncludedClassName(source.isIncluded)}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+        } else if (this.state.curFormat === this.state.formats.CHI){
+            return <p className={isIncludedClassName(source.isIncluded)}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
+        } else if (this.state.curFormat === this.state.formats.MLA) {
+            return <p className={isIncludedClassName(source.isIncluded)}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
+        }*/
+    }
+
+    isIncludedClassName = (included) => {
+        if (included) {
+            return ('copyText');
+        } else {
+            return (undefined);
         }
     }
 
@@ -159,7 +177,8 @@ class BibWindow extends React.Component {
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
-                {/*<Modal.Body>
+                {/* Uncomment when isIncluded Backend is finished
+                <Modal.Body>
                     {this.renderIncluded(true)}
                     <Divider/>
                     {this.renderIncluded(false)}
@@ -220,8 +239,7 @@ class EditWindow extends React.Component{
     }
 
     changeAuthor = (value) => {
-        // TODO: how to get sourceId from a props.source
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "author" : value
         // }
@@ -230,7 +248,7 @@ class EditWindow extends React.Component{
     }
 
     changeTitle = (value) => {
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "title" : value
         // }
@@ -239,7 +257,7 @@ class EditWindow extends React.Component{
     }
 
     changePublishDate = (value) => {
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "publishDate" : value
         // }
@@ -248,7 +266,7 @@ class EditWindow extends React.Component{
     }
 
     changeSiteName = (value) => {
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "siteName" : value
         // }
@@ -257,7 +275,7 @@ class EditWindow extends React.Component{
     }
 
     changeAccessDate = (value) => {
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "accessDate" : value
         // }
@@ -266,7 +284,7 @@ class EditWindow extends React.Component{
     }
 
     changeURL = (value) => {
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "url" : value
         // }
@@ -285,12 +303,11 @@ class EditWindow extends React.Component{
                 </Modal.Header>
                 <Modal.Body>
                     <p>Author: </p><Input defaultValue={this.showField(this.props.source.author, false)} placeholder={this.showField(this.props.source.author, true)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
-                    {/*<p>Author: </p><Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/>*/}
-                    <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/>
-                    <p>Publish Date: </p><Input defaultValue={this.showField(this.props.source.publishDate)} onChange={this.changePublishDate} style={{ width: '200px' }}/>
-                    <p>Site Name: </p><Input defaultValue={this.showField(this.props.source.siteName)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
-                    <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.accessDate)} onChange={this.changeAccessDate} style={{ width: '200px' }}/>
-                    <p>URL: </p><Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/>
+                    <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} placeholder={this.showField(this.props.source.title, true)}onChange={this.changeTitle} style={{ width: '500px' }}/>
+                    <p>Publish Date: </p><Input defaultValue={this.showField(this.props.source.publishDate)} placeholder={this.showField(this.props.source.publishDate, true)} onChange={this.changePublishDate} style={{ width: '200px' }}/>
+                    <p>Site Name: </p><Input defaultValue={this.showField(this.props.source.siteName)} placeholder={this.showField(this.props.source.siteName, true)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
+                    <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.accessDate)} placeholder={this.showField(this.props.source.accessDate, true)} onChange={this.changeAccessDate} style={{ width: '200px' }}/>
+                    <p>URL: </p><Input defaultValue={this.showField(this.props.source.url)} placeholder={this.showField(this.props.source.url, true)} onChange={this.changeURL} style={{ width: '400px' }}/>
                 </Modal.Body>
             </Modal>
         );
