@@ -13,11 +13,6 @@
     box-shadow: 0 0 10px #ffffff;
 }
 
-#project-title {
-    font-weight: bold;
-    font-size: 2em;
-}
-
 #mindmap {
     height: 665px;
 }
@@ -50,113 +45,45 @@
     margin-bottom: 10px;
 }
 
-.myknolist-top-header-img {
+/* My Knolist styling */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+
+
+#my-knolist-header-img {
+    width: 12vw;
+    display: inline-block;
+    margin-left: 1vw;
+}
+
+body {
+    overflow: hidden; /* Avoids the entire page shifting on modal opening */
+}
+
+#myknolist-main-container {
     position: absolute;
-    top: 1vw;
-    left: 1vw;
-    width: 8vh;
-}
-
-.myknolist-top-container {
-    display: flex;
-}
-
-.myknolist-top-container > div {
-    flex: 1;
-}
-
-.myknolist-top-input {
-    width: 50vw;
-    margin-top: 3vh
-}
-
-.myknolist-top-dropdown {
-    position: absolute;
-    top: 3vh;
+    left: 21vw;
+    top: 11.5vh;
     right: 2vw;
 }
 
-.myknolist-sidenav {
-    border-top-right-radius: 20px;
-    height: 88vh;
-    width: 19vw;
-    z-index: 1;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    background-color: #00C0DE;
-    padding-top: 5vh;
-    padding-left: 3vw;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
-
-.myknolist-sidenav > div {
-    font-family:  'Poppins', sans-serif;
-    font-size: 1em;
-    margin-bottom: 2vh;
-}
-
-.myknolist-main-container {
-    position: absolute;
-    left: 25vw;
-    top: 11vh;
-}
-
-.myknolist-main-title {
+.myknolist-title {
     font-weight: bold;
     font-size: 2em;
     font-family: "Poppins";
     float: left;
 }
 
-.myknolist-new-button {
-    float: left;
-    border-radius: 15px;
-    background-color: #00387F;
-    width: 10vw;
-    height: 4vh;
-    margin-left: 3.5vw;
-    padding: 5px;
-    margin-top: .8vh;
-    text-align: center;
-    padding: 4px;
-    color: white;
-}
-
-.myknolist-main-subtitle {
-    font-weight: bold;
-    font-size: 1em;
-    font-family: "Poppins";
-    margin-top: 10vh;
-}
-
 .myknolist-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 70vw;
-    margin-top: 2vh;
+    width: 100%;
+    float: left;
 }
 
-.myknolist-recent-card {
-    flex-direction: row;
-    flex-basis: 100%;
-    flex: 1;
-    background-color: black;
-    margin-right: 10px;
-    height: 100px;
-    border-radius: 15px;
+.hover-animation {
+    transition-duration: 0.3s;
+    transition: all 0.2s ease-in-out;
 }
 
-.myknolist-all-list-info {
-    flex-direction: row;
-    flex-basis: 100%;
-    flex: 1;
-    font-family: "Poppins";
-}
-
-.myknolist-all-list {
-    flex-direction: column;
-    flex: 1;
+.hover-animation:hover {
+    transform: scale(1.02);
+    cursor: pointer;
 }
