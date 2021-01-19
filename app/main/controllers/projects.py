@@ -158,17 +158,32 @@ def set_project_routes(app):
             })
 
         pattern = '%' + search_query + '%'
-        results = Source.query.filter(Source.project_id == project_id)\
-            .filter(Source.url.ilike(pattern)
-                    | Source.title.ilike(pattern)
-                    | Source.content.ilike(pattern)
-                    | Source.highlights.ilike(pattern)
-                    | Source.notes.ilike(pattern)).order_by(Source.id).all()
+        filter_query = request.args.getlist('filter', None)
+        if not filter_query:
+            results = Source.query.filter(Source.project_id == project_id)\
+                .filter(Source.url.ilike(pattern)
+                        | Source.title.ilike(pattern)
+                        | Source.content.ilike(pattern)
+                        | Source.highlights.ilike(pattern)
+                        | Source.notes
+                                .ilike(pattern)).order_by(Source.id).all()
+            return jsonify({
+                'success': True,
+                'sources': [source.format_short() for source in results]
+            })
 
+        results = []
+        for filter_type in filter_query:
+            temp = Source.query.filter(Source.project_id == project_id)\
+                .filter(getattr(Source, filter_type)
+                        .ilike(pattern)).order_by(Source.id).all()
+            for sources in temp:
+                if sources not in results:
+                    results.append(sources)
         return jsonify({
             'success': True,
             'sources': [source.format_short() for source in results]
-        })
+            })
 
     """
     Creates a new source inside an existing project.

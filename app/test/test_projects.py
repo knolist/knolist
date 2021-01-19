@@ -199,6 +199,53 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         self.assertEqual(len(data['sources']), 1)  # Only source 1
 
+    def test_single_filter_search_sources(self):
+        query = quote('Source')
+        filter = quote('title')
+        path_str = f'/projects/{self.project_1.id}/sources?query={query}&filter={filter}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sources']), 2)  # All sources of project 1
+
+    def test_single_filter_search_sources_no_match(self):
+        query = quote('a')
+        filter = quote('highlights')
+        path_str = f'/projects/{self.project_1.id}/sources?query={query}&filter={filter}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sources']), 0)  # None of the sources
+
+    def test_multiple_filter_search_sources(self):
+        query = quote('first')
+        filter_one = quote('content')
+        filter_two = quote('highlights')
+        path_str = f'/projects/{self.project_1.id}/sources?query={query}&filter={filter_one}&filter={filter_two}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sources']), 1)  # Only source 1
+
+    def test_multiple_filter_search_sources_no_match(self):
+        query = quote('knolist')
+        filter_one = quote('url')
+        filter_two = quote('notes')
+        filter_three = quote('content')
+        path_str = f'/projects/{self.project_1.id}/sources?query={query}&filter={filter_one}&filter={filter_two}&filter={filter_three}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['sources']), 0)  # No sources have knolist
+
     # POST '/projects/{project_id}/sources' #
     def test_create_source(self):
         old_total = len(Project.query.get(self.project_1.id).sources)
