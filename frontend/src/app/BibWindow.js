@@ -19,8 +19,7 @@ class BibWindow extends React.Component {
             sources: null,
             curFormat: formats.APA,
             formats: formats,
-            editSource: null,
-            copySucess: false
+            editSource: null
         }
     }
 
@@ -60,27 +59,23 @@ class BibWindow extends React.Component {
         // await makeHttpRequest(endpoint, "PATCH", body);
     }
 
-    copyBib = () => {
+    copyBib() {
         const citationArray = document.getElementsByClassName('copyText')
         var selectText = "";
         for (var i=0; i < citationArray.length; i++) {
-            selectText = selectText.concat('\n');
-            selectText = selectText.concat(citationArray[i].innerText);
-            selectText = selectText.concat('\n');
+            selectText = selectText.concat(citationArray[i].innerHTML);
+            selectText = selectText.concat('<br><br>');
         }
-        // Create an input
-        var input = document.createElement('input');
-        // Set it's value to the text to copy, the input type doesn't matter
-        input.value = selectText;
-        // Add it to the document
-        document.body.appendChild(input);
-        // Call select(); on input which performs a user like selection  
-        input.select();
-        document.execCommand('copy');
-        this.setState({copySucess:true})
-        input.remove();
+        function listener(e) {
+            e.clipboardData.setData("text/html", selectText);
+            e.clipboardData.setData("text/plain", selectText);
+            e.preventDefault();
+        }
+        document.addEventListener("copy", listener);
+        document.execCommand("copy");
+        document.removeEventListener("copy", listener);
         Alert.info('Copied Citations to Clipboard');
-    }
+    };
 
     changeFormatType = (value) => {
         this.setState({
@@ -104,11 +99,11 @@ class BibWindow extends React.Component {
 
     renderFormatType = (source) => {
         if (this.state.curFormat === this.state.formats.APA){
-            return <p className={'copyText'}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+            return <p className={'copyText'} id={'foo'}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
-            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
+            return <p className={'copyText'} id={'foo'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
-            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
+            return <p className={'copyText'} id={'foo'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
         }
         // Sets className to copyText if citation is included to copy to clipboard
         // Else sets className to undefined
@@ -173,7 +168,7 @@ class BibWindow extends React.Component {
                 <Modal.Header style={{marginRight: "5%"}}>
                     <Modal.Title>
                     Bibliography 
-                    <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
+                    <IconButton onClick={this.copyBib()} icon={<Icon icon="copy"/>}/>
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
