@@ -1,6 +1,7 @@
 from flask import request, abort, jsonify
 from justext import justext, get_stoplist
 from requests import get as requests_get
+from sqlalchemy import String
 
 from ..models.models import Project, Source, Item, Cluster
 from ..auth import requires_auth, AuthError
@@ -44,27 +45,6 @@ def create_and_insert_source(url, project_id, x=None, y=None):
     source.insert()
 
     return source
-
-
-def create_and_insert_item(content, project_id, source_id, x=None, y=None):
-    # note and highlight booleans
-    is_highlight = check_if_highlight(content)
-    is_note = not is_highlight
-
-    item = Item(source_id=source_id, is_note=is_note,
-                is_highlight=is_highlight, content=content,
-                x_position=x, parent_project=project_id,
-                y_position=y)
-    item.insert()
-
-    return item
-
-
-def check_if_highlight(content):
-    if content[0] == '"' and content[-1] == '"':
-        return True
-    else:
-        return False
 
 
 def get_authorized_project(user_id, project_id):
@@ -163,7 +143,6 @@ def set_project_routes(app):
             'deleted': project_id
         })
 
-
     """
     Gets all the sources of a given project
     or searches through them if a search query is passed.
@@ -186,15 +165,12 @@ def set_project_routes(app):
         results = Source.query.filter(Source.project_id == project_id) \
             .filter(Source.url.ilike(pattern)
                     | Source.title.ilike(pattern)
-                    | Source.content.ilike(pattern)
-                    | Source.child_items.ilike(pattern)).order_by(Source.id).all()
+                    | Source.content.ilike(pattern)).order_by(Source.id).all()
 
         return jsonify({
             'success': True,
             'sources': [source.format_short() for source in results]
         })
-
-
 
     """
     Gets all the items of a given project
@@ -211,77 +187,21 @@ def set_project_routes(app):
             # Returns all items
             return jsonify({
                 'success': True,
-                'sources': [i.format() for i in project.items]
+                'items': [i.format() for i in project.items]
             })
 
         pattern = '%' + search_query + '%'
-        results = Item.query.filter(Item.parent_project == project_id) \
+        results = Item.query.filter(Item.project_id == project_id) \
             .filter(Item.source.url.ilike(pattern)
                     | Item.source.title.ilike(pattern)
                     | Item.source.content.ilike(pattern)
-                    | Item.content.ilike(pattern)).order_by(Item.source.id).all()
+                    | Item.content.ilike(pattern)).\
+            order_by(Item.source.id).all()
 
         return jsonify({
             'success': True,
             'items': [item.format() for item in results]
         })
-
-    """
-    Creates a new item inside an existing project.
-    The necessary data is passed as a JSON body.
-    """
-
-    @app.route('/items', methods=['POST'])
-    @requires_auth('create:items')
-    def create_items(user_id):
-
-        body = request.get_json()
-        if body is None:
-            abort(400)
-
-        url = body.get('url', None)
-        content = body.get('content', None)
-        project_id = body.get('project_id', None)
-        x = body.get('x_position', None)
-        y = body.get('y_position', None)
-        get_authorized_project(user_id, project_id)
-
-        if url is None and content is None:
-            abort(400)
-        # Creating Item just note
-        if url is None:
-            item = create_and_insert_item(content, project_id, None, x, y)
-            return jsonify({
-                'success': True,
-                'item': item.format()
-            }), 201
-
-        # Check if source already exists in sources table
-        temp_filter = Source.query.filter(Source.url == url,
-                                          Source.project_id == project_id)
-        existing_source = temp_filter.first()
-        if existing_source is not None:
-            if content is not None:
-                item = create_and_insert_item(content, project_id, existing_source.id, x, y)
-                return jsonify({
-                    'success': True,
-                    'item': item.format()
-                }), 201  # Item is being created
-            return jsonify({
-                'success': True,
-                'source': existing_source.format_short()
-            })  # 200 since no object was created
-
-        if url is not None and content is not None:
-            # Extract content to create source object
-            source = create_and_insert_source(url, project_id, x, y)
-            # Create Item object linked to the new source
-            item = create_and_insert_item(content, project_id, source.id, x, y)
-
-            return jsonify({
-                'success': True,
-                'source': item.format()
-            }), 201
 
     """
     Adds a new connection to a project.
