@@ -1,10 +1,11 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, 
-    CheckboxGroup, Tooltip, Whisper, Input, Divider
+    CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert
 } from "rsuite";
 
-import MindMap from "./MindMap";
+//import MindMap from "./MindMap";
+import makeHttpRequest from "../services/HttpRequest";
 
 class BibWindow extends React.Component {
     constructor(props) {
@@ -16,7 +17,7 @@ class BibWindow extends React.Component {
         }
         this.state = {
             // sources from API call (getSources)
-            // sources: MindMap.getSources(),
+            sources: null,
             curFormat: formats.APA,
             formats: formats,
             editSource: null,
@@ -24,52 +25,62 @@ class BibWindow extends React.Component {
         }
     }
 
+    getSources = async (callback) => {
+        if (this.props.curProject === null) return null;
+        // this.setLoading(true);
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.showBib !== this.props.showBib) {
-            // MindMap.getSources();
+        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
+        const response = await makeHttpRequest(endpoint);
+        //this.setLoading(false);
+        this.setState({sources: response.body.sources}, callback);
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.showBib !== this.props.showBib && this.props.showBib) {
+            this.getSources();
         }
     }
 
+    componentDidMount() {
+        this.getSources();
+    }
+
     removeFromSaved = (source) => {
-        // Make API call to get, then post after changing
-        // check getSources in Mindmap
-        // TODO: get sourceId from API call?
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "isIncluded" : false
         // }
         // await makeHttpRequest(endpoint, "PATCH", body);
-        // source.isIncluded = false;
-        // Rerender
     }
 
     addToSaved = (source) => {
-        // source.isIncluded = true;
-        // const endpoint = "/sources/" + sourceId;
+        // const endpoint = "/sources/" + source.id;
         // const body = {
         //     "isIncluded" : true
         // }
         // await makeHttpRequest(endpoint, "PATCH", body);
-        // Rerender
     }
 
     copyBib = () => {
-        // TODO: how to get text to copy from
-        // Get the desired text to copy
-        var selectText = document.getElementById('copyText').innerHTML;
+        const citationArray = document.getElementsByClassName('copyText')
+        var selectText = "";
+        for (var i=0; i < citationArray.length; i++) {
+            selectText = selectText.concat('\n');
+            selectText = selectText.concat(citationArray[i].innerText);
+        }
+
         // Create an input
         var input = document.createElement('input');
         // Set it's value to the text to copy, the input type doesn't matter
         input.value = selectText;
-        // add it to the document
+        // Add it to the document
         document.body.appendChild(input);
-        // call select(); on input which performs a user like selection  
+        // Call select(); on input which performs a user like selection  
         input.select();
-        //this.checkboxList.select();
         document.execCommand('copy');
         this.setState({copySucess:true})
-        //return(Alert.info('Copied Citations to Clipboard'));
+        input.remove();
+        Alert.info('Copied Citations to Clipboard');
     }
 
     changeFormatType = (value) => {
@@ -94,11 +105,11 @@ class BibWindow extends React.Component {
 
     renderFormatType = (source) => {
         if (this.state.curFormat === this.state.formats.APA){
-            return <p id={"copyText"}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+            return <p className={'copyText'}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
-            return <p id={"copyText"}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
+            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
-            return <p id={"copyText"}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
+            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
         }
     }
 
@@ -110,7 +121,6 @@ class BibWindow extends React.Component {
     }
 
     renderIncluded = (included) => {
-        // {this.state.sources.map((source,index) => 
         // eslint-disable-next-line
         {this.props.sources.map((source,index) => 
             {if (source.isIncluded === included) {
@@ -140,8 +150,7 @@ class BibWindow extends React.Component {
     render() {
         const formats = this.state.formats;
         const dropdownData = [{value:formats.APA,label:formats.APA},{value:formats.MLA,label:formats.MLA},{value:formats.CHI,label:formats.CHI}]
-        // if (this.state.sources === null) return null;
-        if (this.props.sources === null) return null;
+        if (this.state.sources === null) return null;
         return (
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
                 <Modal.Header style={{marginRight: "5%"}}>
@@ -158,7 +167,7 @@ class BibWindow extends React.Component {
                 </Modal.Body>*/}
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
-                        {this.props.sources.map((source,index) => 
+                        {this.state.sources.map((source,index) => 
                         <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
@@ -167,7 +176,7 @@ class BibWindow extends React.Component {
                     </CheckboxGroup>
                     <Divider/>
                     <CheckboxGroup name="checkboxList">
-                        {this.props.sources.map((source,index) => 
+                        {this.state.sources.map((source,index) => 
                         <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={this.addToSaved} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
@@ -194,12 +203,21 @@ class EditCitationButton extends React.Component{
 
 class EditWindow extends React.Component{
 
-    showField = (field) => {
-        if(field){
-            return (field);
+    showField = (field, placeholder) => {
+        if (placeholder) {        
+            if(field){
+                return (undefined);
+            } else {
+                return (field);
+            }
         } else {
-            return ("Not Found");
+            if(field){
+                return (field);
+            } else {
+                return (undefined);
+            }
         }
+
     }
 
     changeAuthor = (value) => {
@@ -267,7 +285,8 @@ class EditWindow extends React.Component{
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Author: </p><Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
+                    <p>Author: </p><Input defaultValue={this.showField(this.props.source.author, false)} placeholder={this.showField(this.props.source.author, true)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
+                    {/*<p>Author: </p><Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/>*/}
                     <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/>
                     <p>Publish Date: </p><Input defaultValue={this.showField(this.props.source.publishDate)} onChange={this.changePublishDate} style={{ width: '200px' }}/>
                     <p>Site Name: </p><Input defaultValue={this.showField(this.props.source.siteName)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
