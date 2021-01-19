@@ -99,11 +99,11 @@ class BibWindow extends React.Component {
 
     renderFormatType = (source) => {
         if (this.state.curFormat === this.state.formats.APA){
-            return <p className={'copyText'} id={'foo'}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+            return <p className={'copyText'}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
-            return <p className={'copyText'} id={'foo'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
+            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
-            return <p className={'copyText'} id={'foo'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
+            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
         }
         // Sets className to copyText if citation is included to copy to clipboard
         // Else sets className to undefined
@@ -168,7 +168,7 @@ class BibWindow extends React.Component {
                 <Modal.Header style={{marginRight: "5%"}}>
                     <Modal.Title>
                     Bibliography 
-                    <IconButton onClick={this.copyBib()} icon={<Icon icon="copy"/>}/>
+                    <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
