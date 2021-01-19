@@ -19,7 +19,8 @@ class BibWindow extends React.Component {
             // sources: this.getSources(),
             curFormat: formats.APA,
             formats: formats,
-            editSource: null
+            editSource: null,
+            copySucess: false
         }
     }
 
@@ -55,9 +56,20 @@ class BibWindow extends React.Component {
 
     copyBib = () => {
         // TODO: how to get text to copy from
-        this.checkboxList.select();
+        // Get the desired text to copy
+        var selectText = document.getElementById('copyText').innerHTML;
+        // Create an input
+        var input = document.createElement('input');
+        // Set it's value to the text to copy, the input type doesn't matter
+        input.value = selectText;
+        // add it to the document
+        document.body.appendChild(input);
+        // call select(); on input which performs a user like selection  
+        input.select();
+        //this.checkboxList.select();
         document.execCommand('copy');
-        return(Alert.info('Copied Citations to Clipboard'));
+        this.setState({copySucess:true})
+        //return(Alert.info('Copied Citations to Clipboard'));
     }
 
     changeFormatType = (value) => {
@@ -134,8 +146,10 @@ class BibWindow extends React.Component {
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
                 <Modal.Header style={{marginRight: "5%"}}>
                     <Modal.Title>
-                    Bibliography  
+                    Bibliography 
+                    <p id={"copyText"}>Text to copy</p>
                     <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
+                    {/*this.state.copySucess ? () => Alert.info('Copied Citations to Clipboard')*/}
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
