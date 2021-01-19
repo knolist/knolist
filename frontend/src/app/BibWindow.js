@@ -1,10 +1,10 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, 
-    CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert
+    CheckboxGroup, Tooltip, Whisper, Input, Divider
 } from "rsuite";
 
-//import MindMap from "./MindMap";
+import MindMap from "./MindMap";
 
 class BibWindow extends React.Component {
     constructor(props) {
@@ -16,7 +16,7 @@ class BibWindow extends React.Component {
         }
         this.state = {
             // sources from API call (getSources)
-            // sources: this.getSources(),
+            // sources: MindMap.getSources(),
             curFormat: formats.APA,
             formats: formats,
             editSource: null,
@@ -27,7 +27,7 @@ class BibWindow extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.showBib !== this.props.showBib) {
-            // this.getSources();
+            // MindMap.getSources();
         }
     }
 
@@ -94,11 +94,11 @@ class BibWindow extends React.Component {
 
     renderFormatType = (source) => {
         if (this.state.curFormat === this.state.formats.APA){
-            return <p>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+            return <p id={"copyText"}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
-            return <p>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
+            return <p id={"copyText"}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
-            return <p>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
+            return <p id={"copyText"}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
         }
     }
 
@@ -147,18 +147,16 @@ class BibWindow extends React.Component {
                 <Modal.Header style={{marginRight: "5%"}}>
                     <Modal.Title>
                     Bibliography 
-                    <p id={"copyText"}>Text to copy</p>
                     <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
-                    {/*this.state.copySucess ? () => Alert.info('Copied Citations to Clipboard')*/}
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                {/*<Modal.Body>
                     {this.renderIncluded(true)}
                     <Divider/>
                     {this.renderIncluded(false)}
-                </Modal.Body>
-                {/*<Modal.Body>
+                </Modal.Body>*/}
+                <Modal.Body>
                     <CheckboxGroup name="checkboxList">
                         {this.props.sources.map((source,index) => 
                         <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
@@ -176,7 +174,7 @@ class BibWindow extends React.Component {
                             <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
                         </Checkbox>)}
                     </CheckboxGroup>
-                </Modal.Body>*/}
+                </Modal.Body>
             <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource}/>
             </Modal>
         );
@@ -269,12 +267,12 @@ class EditWindow extends React.Component{
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Author: </p><Input placeholder={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
-                    <p>Title: </p><Input placeholder={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/>
-                    <p>Publish Date: </p><Input placeholder={this.showField(this.props.source.publishDate)} onChange={this.changePublishDate} style={{ width: '200px' }}/>
-                    <p>Site Name: </p><Input placeholder={this.showField(this.props.source.siteName)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
-                    <p>Access Date: </p><Input placeholder={this.showField(this.props.source.accessDate)} onChange={this.changeAccessDate} style={{ width: '200px' }}/>
-                    <p>URL: </p><Input placeholder={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/>
+                    <p>Author: </p><Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
+                    <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/>
+                    <p>Publish Date: </p><Input defaultValue={this.showField(this.props.source.publishDate)} onChange={this.changePublishDate} style={{ width: '200px' }}/>
+                    <p>Site Name: </p><Input defaultValue={this.showField(this.props.source.siteName)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
+                    <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.accessDate)} onChange={this.changeAccessDate} style={{ width: '200px' }}/>
+                    <p>URL: </p><Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/>
                 </Modal.Body>
             </Modal>
         );
