@@ -11,7 +11,7 @@ def urlToCitation(url):
         "publishDate": "", 
         "siteName": "", 
         # Set accessDate to time of creating source (future TODO: update with access history)
-        "accessDate": today.strftime("%m/%d/%Y"), 
+        "accessDate": today.strftime("%B %d, %Y"), 
     }
 
     r = requests.get(url)
@@ -54,12 +54,12 @@ def urlToCitation(url):
         if (len(authorArray) == 2):
             firstName = authorArray[0]
             lastName = authorArray[1]
-            authorFormatted = lastName + ", " + firstName[0] + "."
+            authorFormatted = lastName + ", " + firstName
         elif (len(authorArray) == 3):
             firstName = authorArray[0]
             middle = authorArray[1]
             lastName = authorArray[2]
-            authorFormatted = lastName + ", " + firstName[0] + ". " + middle[0] + "."
+            authorFormatted = lastName + ", " + firstName + " " + middle[0] + "."
         ## elif ("Staff" in authorArray) or ("staff" in authorArray):
         else:
             authorFormatted = author2["content"] 
@@ -70,12 +70,12 @@ def urlToCitation(url):
         if (len(authorArray) == 2):
             firstName = authorArray[0]
             lastName = authorArray[1]
-            authorFormatted = lastName + ", " + firstName[0] + "."
+            authorFormatted = lastName + ", " + firstName
         elif (len(authorArray) == 3):
             firstName = authorArray[0]
             middle = authorArray[1]
             lastName = authorArray[2]
-            authorFormatted = lastName + ", " + firstName[0] + ". " + middle[0] + "."
+            authorFormatted = lastName + ", " + firstName + " " + middle[0] + "."
         ## elif ("Staff" in authorArray) or ("staff" in authorArray):
         else:
             authorFormatted = author3["content"] 
@@ -86,12 +86,12 @@ def urlToCitation(url):
         if (len(authorArray) == 2):
             firstName = authorArray[0]
             lastName = authorArray[1]
-            authorFormatted = lastName + ", " + firstName[0] + "."
+            authorFormatted = lastName + ", " + firstName
         elif (len(authorArray) == 3):
             firstName = authorArray[0]
             middle = authorArray[1]
             lastName = authorArray[2]
-            authorFormatted = lastName + ", " + firstName[0] + ". " + middle[0] + "."
+            authorFormatted = lastName + ", " + firstName + " " + middle[0] + "."
         ## elif ("Staff" in authorArray) or ("staff" in authorArray):
         else:
             authorFormatted = author1["content"] 
@@ -100,9 +100,9 @@ def urlToCitation(url):
         citationFields["author"] = None
 
     if publishDate1:
-        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate1["content"][0:10], "%Y-%m-%d"),"%m/%d/%Y")
+        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate1["content"][0:10], "%Y-%m-%d"),"%B %d, %Y")
     elif publishDate2:
-        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate2["content"][0:10], "%Y-%m-%d"),"%m/%d/%Y")
+        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate2["content"][0:10], "%Y-%m-%d"),"%B %d, %Y")
     else:
         citationFields["publishDate"] = None
     

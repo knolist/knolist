@@ -99,9 +99,10 @@ class BibWindow extends React.Component {
 
     renderFormatType = (source) => {
         if (this.state.curFormat === this.state.formats.APA){
+            // if publishDate None, use accessDate
             return <p className={'copyText'}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
-            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
+            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate.year. source.accessDate. {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
             return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
         }
