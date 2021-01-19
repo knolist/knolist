@@ -526,6 +526,53 @@ Assume that all `curl` calls include the following:
 }
 ```
 
+3. Search through specific fields of the sources.
+    - Searches through all sources of the given project. The search is case-insensitive and looks through the
+    fields of the sources as specified by the user.
+    - Request arguments:
+        - `query`: a string passed as a query parameter, indicating the query to be searched *(Required)*
+        - `filter`: a list of fields passed as a filter parameter, indicating the fields to be searched *(Required)*
+    - Returns: A JSON object with the following keys:
+        - "success": holds `true` if the request was successful
+        - "sources": an array of `short source` objects representing all the sources in the project
+         that contain the given query in any of the fields specified
+    - Sample: `curl https://knolist-api.herokuapp.com/projects/1/sources?query=Duchess&filter=title&filter=content`
+```
+200 OK
+```
+```json
+{
+  "sources": [
+    {
+      "id": 1,
+      "next_sources": [],
+      "prev_sources": [
+        2
+      ],
+      "project_id": 1,
+      "title": "Robert Browning - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+      "x_position": null,
+      "y_position": null
+    },
+    {
+      "id": 2,
+      "next_sources": [
+        4,
+        1
+      ],
+      "prev_sources": [],
+      "project_id": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+
 ### POST '/projects/{project_id}/sources'
 - Creates a new source and adds it to the given project (based on the ID). The source is created based on its URL, 
 which is used to extract the page title and content, both of which are saved in the database.
