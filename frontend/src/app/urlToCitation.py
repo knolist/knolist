@@ -11,7 +11,7 @@ def urlToCitation(url):
         "publishDate": "", 
         "siteName": "", 
         # Set accessDate to time of creating source (future TODO: update with access history)
-        "accessDate": today.strftime("%B %d, %Y"), 
+        "accessDate": date.today() 
     }
 
     r = requests.get(url)
@@ -100,9 +100,9 @@ def urlToCitation(url):
         citationFields["author"] = None
 
     if publishDate1:
-        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate1["content"][0:10], "%Y-%m-%d"),"%B %d, %Y")
+        citationFields["publishDate"] = datetime.datetime.strptime(publishDate1["content"][0:10], "%Y-%m-%d"),"%B %d, %Y"
     elif publishDate2:
-        citationFields["publishDate"] = datetime.datetime.strftime(datetime.datetime.strptime(publishDate2["content"][0:10], "%Y-%m-%d"),"%B %d, %Y")
+        citationFields["publishDate"] = datetime.datetime.strptime(publishDate2["content"][0:10], "%Y-%m-%d"),"%B %d, %Y"
     else:
         citationFields["publishDate"] = None
     
