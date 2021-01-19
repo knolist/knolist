@@ -13,11 +13,6 @@
     box-shadow: 0 0 10px #ffffff;
 }
 
-#project-title {
-    font-weight: bold;
-    font-size: 2em;
-}
-
 #mindmap {
     height: 665px;
 }
@@ -48,4 +43,47 @@
 
 #new-project-name {
     margin-bottom: 10px;
+}
+
+/* My Knolist styling */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap');
+
+
+#my-knolist-header-img {
+    width: 12vw;
+    display: inline-block;
+    margin-left: 1vw;
+}
+
+body {
+    overflow: hidden; /* Avoids the entire page shifting on modal opening */
+}
+
+#myknolist-main-container {
+    position: absolute;
+    left: 21vw;
+    top: 11.5vh;
+    right: 2vw;
+}
+
+.myknolist-title {
+    font-weight: bold;
+    font-size: 2em;
+    font-family: "Poppins";
+    float: left;
+}
+
+.myknolist-container {
+    width: 100%;
+    float: left;
+}
+
+.hover-animation {
+    transition-duration: 0.3s;
+    transition: all 0.2s ease-in-out;
+}
+
+.hover-animation:hover {
+    transform: scale(1.02);
+    cursor: pointer;
 }

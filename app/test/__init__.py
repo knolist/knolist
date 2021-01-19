@@ -1,12 +1,15 @@
 import os
 
 from app.main.models.models import Source, Project, Item, Cluster
+from app.main.auth import verify_decode_jwt
 from manage import app, db
 
 # Set variables for all tests
 # First user has premium user role
-user_id = 'auth0|5f4737ec9c5106006de161bc'
 jwt = os.environ.get('PREMIUM_USER_JWT')
+# Get user_id from JWT
+jwt_payload = verify_decode_jwt(jwt)
+user_id = jwt_payload['sub']
 auth_header = {'Authorization': f'Bearer {jwt}'}
 # User with regular user role
 other_user_jwt = os.environ.get('GENERAL_USER_JWT')
