@@ -4,7 +4,7 @@ import {
     CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert
 } from "rsuite";
 
-import MindMap from "./MindMap";
+//import MindMap from "./MindMap";
 
 class BibWindow extends React.Component {
     constructor(props) {
@@ -35,9 +35,9 @@ class BibWindow extends React.Component {
         // check getSources in Mindmap
         // TODO: get sourceId from API call?
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "isIncluded" : false
-        }
+        // const body = {
+        //     "isIncluded" : false
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         // source.isIncluded = false;
         // Rerender
@@ -46,9 +46,9 @@ class BibWindow extends React.Component {
     addToSaved = (source) => {
         // source.isIncluded = true;
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "isIncluded" : true
-        }
+        // const body = {
+        //     "isIncluded" : true
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         // Rerender
     }
@@ -99,6 +99,7 @@ class BibWindow extends React.Component {
 
     renderIncluded = (included) => {
         // {this.state.sources.map((source,index) => 
+        // eslint-disable-next-line
         {this.props.sources.map((source,index) => 
             {if (source.isIncluded === included) {
                 return(
@@ -192,54 +193,54 @@ class EditWindow extends React.Component{
     changeAuthor = (value) => {
         // TODO: how to get sourceId from a props.source
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "author" : value
-        }
+        // const body = {
+        //     "author" : value
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.author = value
     }
 
     changeTitle = (value) => {
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "title" : value
-        }
+        // const body = {
+        //     "title" : value
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.title = value
     }
 
     changePublishDate = (value) => {
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "publishDate" : value
-        }
+        // const body = {
+        //     "publishDate" : value
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.publishDate = value
     }
 
     changeSiteName = (value) => {
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "siteName" : value
-        }
+        // const body = {
+        //     "siteName" : value
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.siteName = value
     }
 
     changeAccessDate = (value) => {
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "accessDate" : value
-        }
+        // const body = {
+        //     "accessDate" : value
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.accessDate = value
     }
 
     changeURL = (value) => {
         // const endpoint = "/sources/" + sourceId;
-        const body = {
-            "url" : value
-        }
+        // const body = {
+        //     "url" : value
+        // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.url = value
     }
