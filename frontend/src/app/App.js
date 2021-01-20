@@ -1,7 +1,7 @@
 // Import from npm libraries
 import React from 'react';
 import {Route, Switch} from "react-router";
-import {Alert, Button, Loader} from 'rsuite';
+import {Button, Loader} from 'rsuite';
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 
 // Import React Components

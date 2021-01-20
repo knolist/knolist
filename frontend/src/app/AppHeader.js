@@ -8,7 +8,6 @@ import {Link} from "react-router-dom";
 import AuthenticationButton from "../components/auth-button.js";
 import horizontalLogo from "../images/horizontal_main.png";
 import SearchBar from "../components/SearchBar.js";
-import { Alert } from 'rsuite';
 
 function AppHeader(props) {
     return (
@@ -68,7 +67,7 @@ class SearchAndFilter extends React.Component {
             indeterminate: false,
             checkAll: true,
             value: filterCategories,
-            filterCategories: filterCategories,
+            filterCategories: filterCategories
         };
     }
 

@@ -23,7 +23,7 @@ class MindMap extends React.Component {
             loading: false,
             showNewSourceForm: false,
             showNewSourceHelperMessage: false,
-            newSourceData: null,
+            newSourceData: null
         }
     }
 
@@ -279,6 +279,7 @@ class MindMap extends React.Component {
         if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
             return <Loader size="lg" backdrop center/>
         }
+        
         return (
             <div>
                 <div id="mindmap"/>
