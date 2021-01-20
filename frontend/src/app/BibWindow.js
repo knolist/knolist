@@ -100,6 +100,8 @@ class BibWindow extends React.Component {
     renderFormatType = (source) => {
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         var formattedDate = "";
+        var title = "";
+        var author = "";
         var publishDateJS = new Date(source.publishDate);
         var accessDateJS = new Date(source.accessDate);
         if (this.state.curFormat === this.state.formats.APA){
@@ -121,7 +123,15 @@ class BibWindow extends React.Component {
                 formattedDate = formattedDate.concat(accessDateJS.getDate());
                 formattedDate = formattedDate.concat(").");
             }
-            return <p className={'copyText'}>source.author. {formattedDate} "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+            if (source.title) {
+                title = title.concat(source.title);
+                title = title.concat(".");
+            }
+            if (source.author) {
+                author = author.concat(source.author);
+                author = author.concat(".");
+            }
+            return <p className={'copyText'}>{author} {formattedDate} <i>{title}</i> source.siteName. {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
             // if publishDate None, use accessDate
             if (source.publishDate) {
@@ -139,7 +149,16 @@ class BibWindow extends React.Component {
                 formattedDate = formattedDate.concat(accessDateJS.getFullYear());
                 formattedDate = formattedDate.concat(".");
             }
-            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, {formattedDate} {source.url}.</p>
+            if (source.title) {
+                title = title.concat("\"");
+                title = title.concat(source.title);
+                title = title.concat(".\"");
+            }
+            if (source.author) {
+                author = author.concat(source.author);
+                author = author.concat(".");
+            }
+            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
             if (source.publishDate) {
                 formattedDate = formattedDate.concat(publishDateJS.getDate());
@@ -151,6 +170,7 @@ class BibWindow extends React.Component {
             }
             var formattedDate2 = "";
             if (source.accessDate) {
+                formattedDate2 = formattedDate2.concat("Accessed ");
                 formattedDate2 = formattedDate2.concat(accessDateJS.getDate());
                 formattedDate2 = formattedDate2.concat(" ");
                 formattedDate2 = formattedDate2.concat(months[accessDateJS.getMonth()]);
@@ -158,7 +178,16 @@ class BibWindow extends React.Component {
                 formattedDate2 = formattedDate2.concat(accessDateJS.getFullYear());
                 formattedDate2 = formattedDate2.concat(".");
             }
-            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, {formattedDate} {source.url}. Accessed {formattedDate2} </p>
+            if (source.title) {
+                title = title.concat("\"");
+                title = title.concat(source.title);
+                title = title.concat(".\"");
+            }
+            if (source.author) {
+                author = author.concat(source.author);
+                author = author.concat(".");
+            }
+            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} {source.url}. {formattedDate2} </p>
         }
         // Sets className to copyText if citation is included to copy to clipboard
         // Else sets className to undefined
