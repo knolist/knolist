@@ -1050,7 +1050,7 @@ no new connection is created, and a 200 status code is returned to signify that
 }
 ```
 
-## POST '/clusters/create_new'
+## POST '/clusters'
 - Adds a new cluster from scratch when given 2 items coming from the same cluster (no previous cluster is ok too)
 - Request arguments (passed as JSON body):
     - `id` "item1_id": The id of one of the items that will be part of the cluster *(Required)*
@@ -1083,7 +1083,7 @@ no new connection is created, and a 200 status code is returned to signify that
 }
 ```
 
-## PATCH '/clusters/{cluster_id}/sources/{item_id}'
+## POST '/clusters/{cluster_id}/items/{item_id}'
 - Adds a new item to an existing cluster
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
@@ -1112,7 +1112,7 @@ no new connection is created, and a 200 status code is returned to signify that
 }
 ```
 
-## PATCH '/clusters/{cluster_id}/sources/{item_id}/remove'
+## DELETE '/clusters/{cluster_id}/items/{item_id}'
 - Removes specified item from the cluster
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
