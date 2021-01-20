@@ -1,7 +1,7 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, 
-    CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert
+    CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert, Button
 } from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -15,7 +15,6 @@ class BibWindow extends React.Component {
             CHI: "Chicago Bibliography Style"
         }
         this.state = {
-            // sources from API call (getSources)
             sources: null,
             curFormat: formats.APA,
             formats: formats,
@@ -131,6 +130,8 @@ class BibWindow extends React.Component {
                 author = author.concat(source.author);
                 author = author.concat(".");
             }
+            // TODO: uncomment when IsIncluded is added
+            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {formattedDate} <i>{title}</i> source.siteName. {source.url}.</p> 
             return <p className={'copyText'}>{author} {formattedDate} <i>{title}</i> source.siteName. {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
             // if publishDate None, use accessDate
@@ -158,6 +159,8 @@ class BibWindow extends React.Component {
                 author = author.concat(source.author);
                 author = author.concat(".");
             }
+            // TODO: uncomment when IsIncluded is added
+            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} {source.url}.</p>
             return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
             if (source.publishDate) {
@@ -187,20 +190,15 @@ class BibWindow extends React.Component {
                 author = author.concat(source.author);
                 author = author.concat(".");
             }
+            // TODO: uncomment when IsIncluded is added
+            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} {source.url}. {formattedDate2} </p>
             return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} {source.url}. {formattedDate2} </p>
         }
-        // Sets className to copyText if citation is included to copy to clipboard
-        // Else sets className to undefined
-        // Uncomment when isIncluded is added to backend
-        /*if (this.state.curFormat === this.state.formats.APA){
-            return <p className={isIncludedClassName(source.isIncluded)}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
-        } else if (this.state.curFormat === this.state.formats.CHI){
-            return <p className={isIncludedClassName(source.isIncluded)}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate. source.accessDate. {source.url}.</p>
-        } else if (this.state.curFormat === this.state.formats.MLA) {
-            return <p className={isIncludedClassName(source.isIncluded)}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
-        }*/
     }
 
+    // Sets className to copyText if citation is included to copy to clipboard
+    // Else sets className to undefined
+    // Uncomment when isIncluded is added to backend
     isIncludedClassName = (included) => {
         if (included) {
             return ('copyText');
@@ -388,6 +386,9 @@ class EditWindow extends React.Component{
                     <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.accessDate)} placeholder={this.showField(this.props.source.accessDate, true)} onChange={this.changeAccessDate} style={{ width: '200px' }}/>
                     <p>URL: </p><Input defaultValue={this.showField(this.props.source.url)} placeholder={this.showField(this.props.source.url, true)} onChange={this.changeURL} style={{ width: '400px' }}/>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button onClick={this.props.close}>Save</Button>
+                </Modal.Footer>
             </Modal>
         );
     }
