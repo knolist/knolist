@@ -89,7 +89,7 @@ class BibWindow extends React.Component {
             return null;
         } else {
             const citationFields = ['title ', 'URL ', 'author ', 'publish date ', 'site name ', 'access date ']
-            const missing = ""
+            var missing = ""
             if (!source.title) {
                 missing = missing.concat(citationFields[0])
             }
