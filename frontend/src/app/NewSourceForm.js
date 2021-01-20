@@ -2,6 +2,7 @@ import React from "react";
 import {Alert, Button, Form, Input, Modal} from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
+//import urlToCitation from "../../../app/main/urlToCitation.py";
 
 class NewSourceForm extends React.Component {
     constructor(props) {
@@ -25,20 +26,27 @@ class NewSourceForm extends React.Component {
         const url = document.getElementById(this.state.newSourceUrlId).value;
         const {x, y} = this.props.newSourceData;
         const endpoint = "/projects/" + this.props.curProject.id + "/sources"
-        
-        // const accessDate = null
-        // const sourceAuthor = null
-        // const publishDate = null
-        // const siteName = null
+    
+        /*
+        const citation = urlToCitation(url);
+        const title = citation["title"]
+        const author = citation["author"]
+        const publishDate = citation["publishDate"]
+        const siteName = citation["siteName"]
+        const accessDate = citation["accessDate"]
+        */
 
         const body = {
             "url": url,
             "x_position": x,
             "y_position": y,
-            // "accessDate": accessDate,
-            // "sourceAuthor": sourceAuthor,
-            // "publishDate": publishDate,
-            // "siteName": siteName
+            /*
+            "access_date": accessDate,
+            "author": author,
+            "published_date": publishDate,
+            "site_name": siteName,
+            "title": title
+            */
         }
 
         makeHttpRequest(endpoint, "POST", body).then((response) => {

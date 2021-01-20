@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from datetime import date
+import datetime
 
 # Takes list of string urls
 def urlToCitation(url):
@@ -11,7 +11,7 @@ def urlToCitation(url):
         "publishDate": "", 
         "siteName": "", 
         # Set accessDate to time of creating source (future TODO: update with access history)
-        "accessDate": date.today() 
+        "accessDate": today.strftime("%Y-%m-%d") 
     }
 
     r = requests.get(url)
@@ -101,9 +101,9 @@ def urlToCitation(url):
         citationFields["author"] = None
 
     if publishDate1:
-        citationFields["publishDate"] = datetime.datetime.strptime(publishDate1["content"][0:10], "%Y-%m-%d")
+        citationFields["publishDate"] = publishDate1["content"][0:10]
     elif publishDate2:
-        citationFields["publishDate"] = datetime.datetime.strptime(publishDate2["content"][0:10], "%Y-%m-%d")
+        citationFields["publishDate"] = publishDate2["content"][0:10]
     else:
         citationFields["publishDate"] = None
     
