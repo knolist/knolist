@@ -37,14 +37,12 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.new_item_only_note = {
             'content': 'This is a new pure note item',
             'is_note': True,
-            'is_highlight': False,
             'project_id': self.project_1.id
         }
 
         self.new_item_only_highlight = {
             'content': '"This is a new highlight item"',
             'is_note': False,
-            'is_highlight': True,
             'project_id': self.project_1.id
         }
 
@@ -52,7 +50,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': 'https://en.wikipedia.org/wiki/WandaVision',
             'content': 'This is a first note',
             'project_id': self.project_1.id,
-            'is_highlight': False,
             'is_note': True
         }
 
@@ -60,7 +57,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': 'https://en.wikipedia.org/wiki/WandaVision',
             'content': 'This is a new note url item',
             'project_id': self.project_1.id,
-            'is_highlight': False,
             'is_note': True
         }
 
@@ -68,7 +64,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': 'https://en.wikipedia.org/wiki/Aunty_Donna',
             'content': 'This is a new note and a new url item',
             'project_id': self.project_1.id,
-            'is_highlight': False,
             'is_note': True
         }
 
@@ -77,7 +72,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': 'https://en.wikipedia.org/wiki/Odunlade_Adekola',
             'content': '"This is a new highlight url item first"',
             'project_id': self.project_2.id,
-            'is_highlight': False,
             'is_note': False
         }
 
@@ -85,7 +79,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': 'https://en.wikipedia.org/wiki/Odunlade_Adekola',
             'content': '"This is a new highlight url item"',
             'project_id': self.project_2.id,
-            'is_highlight': True,
             'is_note': False
         }
 
@@ -94,7 +87,6 @@ class TestProjectsEndpoints(unittest.TestCase):
                    'wiki/Michael_Jackson%27s_Thriller',
             'content': '"This is a highlight item with a new url"',
             'project_id': self.project_2.id,
-            'is_highlight': False,
             'is_note': True
         }
 
@@ -102,7 +94,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': 'https://en.wikipedia.org/wiki/George_Michael',
             'content': None,
             'project_id': self.project_1.id,
-            'is_highlight': False,
             'is_note': False
         }
 
@@ -110,7 +101,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': self.source_1.url,
             'content': None,
             'project_id': self.project_1.id,
-            'is_highlight': False,
             'is_note': False
         }
 
@@ -118,7 +108,6 @@ class TestProjectsEndpoints(unittest.TestCase):
             'url': None,
             'content': self.item_1.content,
             'project_id': self.project_1.id,
-            'is_highlight': False,
             'is_note': True
         }
 

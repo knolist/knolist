@@ -85,14 +85,6 @@ class Source(BaseModel):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
                            nullable=False)
 
-    # Self-referential many-to-many relationship
-    next_sources = db.relationship('Source', secondary=edges,
-                                   primaryjoin=(id == edges.c.from_id),
-                                   secondaryjoin=(id == edges.c.to_id),
-                                   backref=db.backref('prev_sources',
-                                                      lazy=True)
-                                   )
-
     child_items = db.relationship('Item', backref='source',
                                   cascade='all, delete-orphan',
                                   lazy=True)
@@ -107,8 +99,6 @@ class Source(BaseModel):
             'title': self.title,
             'x_position': self.x_position,
             'y_position': self.y_position,
-            'next_sources': [source.id for source in self.next_sources],
-            'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
 
@@ -119,8 +109,6 @@ class Source(BaseModel):
             'title': self.title,
             'x_position': self.x_position,
             'y_position': self.y_position,
-            'next_sources': [source.id for source in self.next_sources],
-            'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
 
@@ -134,7 +122,6 @@ class Item(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('sources.id'))
     is_note = db.Column(db.Boolean)
-    is_highlight = db.Column(db.Boolean)
     # The content of the highlight or note
     content = db.Column(db.String)
     # x and y positions are used to represent the position of a node on a graph
@@ -153,13 +140,10 @@ class Item(BaseModel):
         if self.source is not None:
             return {
                 'id': self.id,
-                'next_sources': self.source.next_sources,
-                'prev_sources': self.source.prev_sources,
                 'url': self.source.url,
                 'title': self.source.title,
                 'project_id': self.project_id,
                 'is_note': self.is_note,
-                'is_highlight': self.is_highlight,
                 'content': self.content,
                 'x_position': self.x_position,
                 'y_position': self.y_position,
@@ -167,13 +151,10 @@ class Item(BaseModel):
         else:
             return {
                 'id': self.id,
-                'next_sources': None,
-                'prev_sources': None,
                 'url': None,
                 'title': None,
                 'project_id': self.project_id,
                 'is_note': self.is_note,
-                'is_highlight': self.is_highlight,
                 'content': self.content,
                 'x_position': self.x_position,
                 'y_position': self.y_position,
