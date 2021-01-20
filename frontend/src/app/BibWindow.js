@@ -45,7 +45,7 @@ class BibWindow extends React.Component {
     removeFromSaved = (source) => {
         // const endpoint = "/sources/" + source.id;
         // const body = {
-        //     "isIncluded" : false
+        //     "is_included" : false
         // }
         // await makeHttpRequest(endpoint, "PATCH", body);
     }
@@ -53,7 +53,7 @@ class BibWindow extends React.Component {
     addToSaved = (source) => {
         // const endpoint = "/sources/" + source.id;
         // const body = {
-        //     "isIncluded" : true
+        //     "is_included" : true
         // }
         // await makeHttpRequest(endpoint, "PATCH", body);
     }
@@ -356,7 +356,7 @@ class EditWindow extends React.Component{
     changePublishDate = (value) => {
         // const endpoint = "/sources/" + source.id;
         // const body = {
-        //     "publishDate" : value
+        //     "published_date" : value
         // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.publishDate = value
@@ -365,7 +365,7 @@ class EditWindow extends React.Component{
     changeSiteName = (value) => {
         // const endpoint = "/sources/" + source.id;
         // const body = {
-        //     "siteName" : value
+        //     "site_name" : value
         // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.siteName = value
@@ -374,7 +374,7 @@ class EditWindow extends React.Component{
     changeAccessDate = (value) => {
         // const endpoint = "/sources/" + source.id;
         // const body = {
-        //     "accessDate" : value
+        //     "access_date" : value
         // }
         // await makeHttpRequest(endpoint, "PATCH", body);
         this.props.source.accessDate = value
