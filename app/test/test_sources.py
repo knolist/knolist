@@ -208,6 +208,25 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
 
+    def test_get_by_good_url(self):
+        good_url = 'https://test1.com'
 
-    def test_get_by_url(self):
-        pass
+        res = self.client().get(f'/sources',
+                                json={'url': good_url},
+                                headers=auth_header)
+
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        source = data['source']
+        self.assertEqual(source['url'], good_url)
+
+    def test_get_by_nonexistent_url(self):
+        bad_url = 'https://test100.com'
+        res = self.client().get(f'/sources',
+                                json={'url': bad_url},
+                                headers=auth_header)
+
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 404)
+
+
