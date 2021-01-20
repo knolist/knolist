@@ -22,7 +22,7 @@ function All(props) {
             <div>
                 <div className="myknolist-title">All</div>
                 <div className="myknolist-container">
-                    <FlexboxGrid style={{marginLeft: "-6px", marginBottom: "5vh"}} justify="space-between">
+                    <FlexboxGrid style={{marginLeft: "-6px", marginBottom: "5vh"}} justify="start">
                         {props.projects.map((project, index) => {
                             return (
                                 <FlexboxGrid.Item componentClass={Col} md={6} key={index}>

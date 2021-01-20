@@ -36,17 +36,10 @@ function Main(props) {
                     <AddButton/>
                 </div>
 
-<<<<<<< HEAD
-        <NewProjectModal show={show} setShow={setShow}/>
-      </div>
-    );
-  } else return <Loader size="lg" center/>;
-=======
                 <NewProjectModal show={show} setShow={setShow}/>
             </div>
         );
-    } else return null;
->>>>>>> 7fccfaaff74932dc53a2613c3b758986a535fca9
+    } else return <Loader size="lg" center/>;
 }
 
 export default Main;
