@@ -1,7 +1,8 @@
 // Import from npm libraries
 import React from 'react';
-import { Button } from 'rsuite';
-import { Route, Switch } from "react-router";
+import {Route, Switch} from "react-router";
+import {Button, Loader} from 'rsuite';
+import {withAuthenticationRequired} from "@auth0/auth0-react";
 
 // Import React Components
 import AppHeader from "./AppHeader";
@@ -22,7 +23,8 @@ class App extends React.Component {
         this.state = {
             curProject: JSON.parse(localStorage.getItem("curProject")),
             projects: null,
-            showProjectsSidebar: false
+            showProjectsSidebar: false,
+            showBib: false
         }
     }
 
@@ -67,6 +69,13 @@ class App extends React.Component {
         );
     }
 
+    setShowBib = (clicked) => {
+        // Keeps track if Bibliography Generation Button clicked and Window should open
+        this.setState({
+            showBib: clicked
+        });
+    }
+
     componentDidMount() {
         this.updateProjects()
     }
@@ -85,13 +94,13 @@ class App extends React.Component {
         return (
             <Switch>
                 <Route exact path="/">
-                    <AppHeader curProject={this.state.curProject} />
+                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib} />
                     <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                         projects={this.state.projects}
                         close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                         setCurProject={this.setCurProject} />
                     {this.projectsButton()}
-                    <MindMap curProject={this.state.curProject} />
+                    <MindMap curProject={this.state.curProject} showBib={this.state.showBib} setShowBib={this.setShowBib} />
                 </Route>
                 <Route path="/my-projects">
                     <Page url={"/my-projects"}/>
@@ -107,4 +116,6 @@ class App extends React.Component {
     }
 }
 
-export default App;
+export default withAuthenticationRequired(App, {
+    onRedirecting: () => <Loader size="lg" backdrop center/>,
+  });
