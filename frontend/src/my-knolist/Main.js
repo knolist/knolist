@@ -4,6 +4,7 @@ import All from "./All.js";
 import AddButton from "../components/AddButton.js";
 import makeHttpRequest from "../services/HttpRequest.js";
 import NewProjectModal from "./NewProjectModal.js";
+import { Loader } from "rsuite";
 
 function Main(props) {
   const [show, setShow] = useState(false);
@@ -38,7 +39,7 @@ function Main(props) {
         <NewProjectModal show={show} setShow={setShow}/>
       </div>
     );
-  } else return null;
+  } else return <Loader size="lg" center/>;
 }
 
 export default Main;
