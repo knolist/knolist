@@ -1,6 +1,6 @@
 import os
 
-from app.main.models.models import Source, Project
+from app.main.models.models import Source, Project, Item
 from manage import app, db
 
 # Set variables for all tests
@@ -19,13 +19,10 @@ db.init_app(app)
 def create_starter_data():
     project_1 = Project('Test Project 1', user_id)
     project_2 = Project('Test Project 2', user_id)
-    project_3 = Project('Test Project 3', user_id)
 
     source_1 = Source(url='https://test1.com',
                       title='Test Source 1',
                       content='This is the content of test source 1',
-                      highlights='["First highlight", "Second highlight"]',
-                      notes='["First note", "Second note"]',
                       x_position=100,
                       y_position=-30)
 
@@ -37,19 +34,33 @@ def create_starter_data():
                       title='Test Source 3',
                       content='This is the content of test source 3')
 
-    source_4 = Source(notes=['Test note'],
-                      highlights=['h1','h2'])
+    item_1 = Item(content='This is a note',
+                  is_note=True,
+                  is_highlight=False
+                  )
+    item_2 = Item(content='"This is a highlight"',
+                  is_note=False,
+                  is_highlight=True
+                  )
+    item_3 = Item(content='This is a note 2',
+                  is_note=True,
+                  is_highlight=False
+                  )
 
     project_1.sources.append(source_1)
     project_1.sources.append(source_2)
+    project_1.items.append(item_1)
+    project_1.items.append(item_3)
     project_2.sources.append(source_3)
-    project_3.sources.append(source_4)
+    project_2.items.append(item_2)
     project_1.insert()
     project_2.insert()
-    project_3.insert()
     source_1.insert()
     source_2.insert()
     source_3.insert()
-    source_4.insert()
+    item_1.insert()
+    item_2.insert()
+    item_3.insert()
 
-    return project_1, project_2, source_1, source_2, source_3, project_3, source_4
+    return project_1, project_2, source_1, source_2, \
+        source_3, item_1, item_2, item_3
