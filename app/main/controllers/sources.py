@@ -88,7 +88,7 @@ def set_source_routes(app):
         content = body.get('content', None)
         x_position = body.get('x_position', None)
         y_position = body.get('y_position', None)
-        is_including = body.get('is_including', None)
+        is_included = body.get('is_included', None)
         author = body.get('author', None)
         published_date = body.get('published_date', None)
         access_date = body.get('access_date', None)
@@ -104,7 +104,7 @@ def set_source_routes(app):
         cond_1 = title is None and content is None
         cond_2 = x_position is None and y_position is None
         cond_3 = highlights is None and notes is None and project_id is None
-        cond_4 = is_including is None
+        cond_4 = is_included is None
         cond_5 = published_date is None and access_date is None
         cond_6 = site_name is None and author is None
         if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
@@ -119,7 +119,7 @@ def set_source_routes(app):
             abort(422)
         if notes is not None and type(notes) is not list:
             abort(422)
-        if is_including is not None and type(is_including) is not bool:
+        if is_included is not None and type(is_included) is not bool:
             abort(422)
         if author is not None and type(author) is not str:
             abort(422)
@@ -150,7 +150,7 @@ def set_source_routes(app):
         source.project_id = project_id if project_id is not None \
             else source.project_id
 
-        source.is_including = is_including if is_including is not None else source.is_including
+        source.is_included = is_included if is_included is not None else source.is_included
         source.author = author if author is not None else source.author
         source.site_name = site_name if site_name is not None else source.site_name
         fmt = '%a, %d %b %Y %H:%M:%S %z'
