@@ -4,6 +4,7 @@ from flask import request, abort, jsonify
 
 from ..models.models import Project, Source
 from ..auth import requires_auth, AuthError
+from datetime import datetime
 
 
 def get_authorized_source(user_id, source_id):
@@ -49,6 +50,26 @@ def set_source_routes(app):
             'deleted': source_id
         })
 
+
+    """
+    Gets a source by URL.
+    """
+    @app.route('/sources')
+    @requires_auth('read:sources-detail')
+    def get_source_by_url(user_id):
+        body = request.get_json()
+        by_url = body.get('url', None)
+        if not by_url:
+            abort(400)
+        if type(by_url) is not str:
+            abort(422)
+        final_source = Source.query.filter(Source.url == by_url).first()
+        if final_source is None:
+            abort(404)
+        return jsonify({
+            'success': True,
+            'source': final_source.format_long()
+        })
     """
     Updates information in a source.
     The information to be updated is passed in a JSON body.
@@ -67,6 +88,12 @@ def set_source_routes(app):
         content = body.get('content', None)
         x_position = body.get('x_position', None)
         y_position = body.get('y_position', None)
+        is_including = body.get('is_including', None)
+        author = body.get('author', None)
+        published_date = body.get('published_date', None)
+        access_date = body.get('access_date', None)
+        site_name = body.get('site_name', None)
+
         # Obtain JSON list attributes
         highlights = body.get('highlights', None)
         notes = body.get('notes', None)
@@ -77,7 +104,10 @@ def set_source_routes(app):
         cond_1 = title is None and content is None
         cond_2 = x_position is None and y_position is None
         cond_3 = highlights is None and notes is None and project_id is None
-        if cond_1 and cond_2 and cond_3:
+        cond_4 = is_including is None
+        cond_5 = published_date is None and access_date is None
+        cond_6 = site_name is None and author is None
+        if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
             abort(400)
 
         # Verify that parameters are correctly formatted
@@ -88,6 +118,16 @@ def set_source_routes(app):
         if highlights is not None and type(highlights) is not list:
             abort(422)
         if notes is not None and type(notes) is not list:
+            abort(422)
+        if is_including is not None and type(is_including) is not bool:
+            abort(422)
+        if author is not None and type(author) is not str:
+            abort(422)
+        if site_name is not None and type(site_name) is not str:
+            abort(422)
+        if published_date is not None and type(published_date) is not str:
+            abort(422)
+        if access_date is not None and type(access_date) is not str:
             abort(422)
         if project_id is not None:
             project = Project.query.get(project_id)
@@ -110,6 +150,14 @@ def set_source_routes(app):
         source.project_id = project_id if project_id is not None \
             else source.project_id
 
+        source.is_including = is_including if is_including is not None else source.is_including
+        source.author = author if author is not None else source.author
+        source.site_name = site_name if site_name is not None else source.site_name
+        fmt = '%a, %d %b %Y %H:%M:%S %z'
+        source.published_date = datetime.strptime(published_date, fmt)\
+            if published_date is not None else source.published_date
+        source.access_date = datetime.strptime(access_date, fmt)\
+            if access_date is not None else source.access_date
         source.update()
 
         return jsonify({
