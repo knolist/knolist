@@ -1,11 +1,11 @@
 import React from "react";
 import {Alert, Dropdown, Icon, IconButton, Tooltip, Whisper} from "rsuite";
+import AddButton from "../components/AddButton.js";
 
 class AppFooter extends React.Component {
     newSourceButton = () => {
         return (
-            <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="plus"/>}
-                        circle size="lg"/>
+            <AddButton />
         )
     }
 

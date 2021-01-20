@@ -48,6 +48,7 @@ class ProjectsSidebar extends React.Component {
                     {this.renderProjectsList()}
                     <NewProjectForm show={this.state.showNewProjectForm}
                                     setShowNewProjectForm={this.setShowNewProjectForm}
+                                    setCurProject={this.props.setCurProject}
                                     updateProjects={this.props.updateProjects}/>
                 </Drawer.Body>
                 <Drawer.Footer>
@@ -103,10 +104,11 @@ class NewProjectForm extends React.Component {
             "title": projectName
         }
 
-        makeHttpRequest(endpoint, "POST", body).then(() => {
+        makeHttpRequest(endpoint, "POST", body).then((response) => {
             // Update projects
             const callback = () => {
                 this.props.setShowNewProjectForm(false);
+                this.props.setCurProject(response.body.project.id);
                 this.setLoading(false);
             }
             this.props.updateProjects(callback);
