@@ -42,20 +42,20 @@ class BibWindow extends React.Component {
         this.getBibSources();
     }
 
-    removeFromSaved = (source) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "is_included" : false
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
+    removeFromSaved = async (source) => {
+        const endpoint = "/sources/" + source.id;
+        const body = {
+            "is_included" : false
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
-    addToSaved = (source) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "is_included" : true
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
+    addToSaved = async (source) => {
+        const endpoint = "/sources/" + source.id;
+        const body = {
+            "is_included" : true
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
     copyBib() {
@@ -150,9 +150,7 @@ class BibWindow extends React.Component {
                 author = author.concat(source.author);
                 author = author.concat(".");
             }
-            // TODO: uncomment when IsIncluded is added
-            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {formattedDate} <i>{title}</i> source.siteName. <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p> 
-            return <p className={'copyText'}>{author} {formattedDate} <i>{title}</i> source.siteName. <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p> 
+            return <p className={this.isIncludedClassName(source.is_included)}>{source.is_included} {author} {formattedDate} <i>{title}</i> {source.siteName}. <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
             // if publishDate None, use accessDate
             if (source.publishDate) {
@@ -179,9 +177,7 @@ class BibWindow extends React.Component {
                 author = author.concat(source.author);
                 author = author.concat(".");
             }
-            // TODO: uncomment when IsIncluded is added
-            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p>
-            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p>
+            return <p className={this.isIncludedClassName(source.is_included)}>{source.is_included} {author} {title} <i>{source.siteName}</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
             if (source.publishDate) {
                 formattedDate = formattedDate.concat(publishDateJS.getDate());
@@ -210,15 +206,12 @@ class BibWindow extends React.Component {
                 author = author.concat(source.author);
                 author = author.concat(".");
             }
-            // TODO: uncomment when IsIncluded is added
-            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a> {formattedDate2} </p>
-            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a> {formattedDate2} </p>
+            return <p className={this.isIncludedClassName(source.is_included)}>{source.is_included} {author} {title} <i>{source.siteName}</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a> {formattedDate2} </p>
         }
     }
 
     // Sets className to copyText if citation is included to copy to clipboard
     // Else sets className to undefined
-    // Uncomment when isIncluded is added to backend
     isIncludedClassName = (included) => {
         if (included) {
             return ('copyText');
@@ -236,14 +229,14 @@ class BibWindow extends React.Component {
 
     renderIncluded = (included) => {
         // eslint-disable-next-line
-        {this.props.sources.map((source,index) => 
-            {if (source.isIncluded === included) {
+        {this.state.sources.map((source,index) => 
+            {if (source.is_included === included) {
                 return(
                     <CheckboxGroup name="checkboxList">
                         <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
+                            <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
                         </Checkbox>
                     </CheckboxGroup>
                 );
@@ -253,7 +246,7 @@ class BibWindow extends React.Component {
                         <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}}  onChange={this.addToSaved} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
+                            <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
                         </Checkbox>
                     </CheckboxGroup>
                 );
@@ -274,12 +267,12 @@ class BibWindow extends React.Component {
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
-                {/* Uncomment when isIncluded Backend is finished
-                <Modal.Body>
+                {/*<Modal.Body>
                     {this.renderIncluded(true)}
                     <Divider/>
                     {this.renderIncluded(false)}
-                </Modal.Body>*/}
+                </Modal.Body>
+            */}
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
                         {this.state.sources.map((source,index) => 
@@ -295,7 +288,7 @@ class BibWindow extends React.Component {
                         <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={this.addToSaved} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
+                            <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
                         </Checkbox>)}
                     </CheckboxGroup>
                 </Modal.Body>
@@ -317,7 +310,6 @@ class EditCitationButton extends React.Component{
 }
 
 class EditWindow extends React.Component{
-
     showField = (field, placeholder) => {
         if (placeholder) {        
             if(field){
@@ -335,58 +327,52 @@ class EditWindow extends React.Component{
 
     }
 
-    changeAuthor = (value) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "author" : value
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.source.author = value
+    changeAuthor = async (value) => {
+        const endpoint = "/sources/" + this.props.source.id;
+        const body = {
+            "author" : value
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
-    changeTitle = (value) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "title" : value
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.source.title = value
+    changeTitle = async (value) => {
+        const endpoint = "/sources/" + this.props.source.id;
+        const body = {
+            "title" : value
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
-    changePublishDate = (value) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "published_date" : value
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.source.publishDate = value
+    changePublishDate = async (value) => {
+        const endpoint = "/sources/" + this.props.source.id;
+        const body = {
+            "published_date" : value
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
-    changeSiteName = (value) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "site_name" : value
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.source.siteName = value
+    changeSiteName = async (value) => {
+        const endpoint = "/sources/" + this.props.source.id;
+        const body = {
+            "site_name" : value
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
-    changeAccessDate = (value) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "access_date" : value
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.source.accessDate = value
+    changeAccessDate = async (value) => {
+        const endpoint = "/sources/" + this.props.source.id;
+        const body = {
+            "access_date" : value
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
-    changeURL = (value) => {
-        // const endpoint = "/sources/" + source.id;
-        // const body = {
-        //     "url" : value
-        // }
-        // await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.source.url = value
+    changeURL = async (value) => {
+        const endpoint = "/sources/" + this.props.source.id;
+        const body = {
+            "url" : value
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
     }
 
     render() {
