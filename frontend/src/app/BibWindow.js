@@ -22,6 +22,7 @@ class BibWindow extends React.Component {
         }
     }
 
+    // Make API call to get all sources 
     getBibSources = async (callback) => {
         if (this.props.curProject === null) return null;
         // this.setLoading(true);
@@ -42,6 +43,8 @@ class BibWindow extends React.Component {
         this.getBibSources();
     }
 
+    // Called when checkbox is unchecked
+    // Removes citation from top section aka those copied onto clipboard
     removeFromSaved = async (source) => {
         const endpoint = "/sources/" + source.id;
         const body = {
@@ -50,6 +53,8 @@ class BibWindow extends React.Component {
         await makeHttpRequest(endpoint, "PATCH", body);
     }
 
+    // Called when checkbox is checked
+    // Add citation top top section aka those copied onto clipboard
     addToSaved = async (source) => {
         const endpoint = "/sources/" + source.id;
         const body = {
@@ -58,6 +63,8 @@ class BibWindow extends React.Component {
         await makeHttpRequest(endpoint, "PATCH", body);
     }
 
+    // Copies citations in top section (those with is_included === true)
+    // onto clipboard with formatting
     copyBib() {
         const citationArray = document.getElementsByClassName('copyText')
         var selectText = "";
@@ -82,6 +89,8 @@ class BibWindow extends React.Component {
         });
     }
 
+    // Check if citation has all source fields present
+    // Displays a Missing! icon if not
     showMissingIcon = (source) => {
         if(source.title && source.url && source.author 
             && source.publishDate && source.siteName 
@@ -116,6 +125,7 @@ class BibWindow extends React.Component {
         }
     }
 
+    // Renders citation in APA, MLA, or Chicago format
     renderFormatType = (source) => {
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         var formattedDate = "";
@@ -220,13 +230,15 @@ class BibWindow extends React.Component {
         }
     }
 
+    // Keeps track if Bibliography Generation Button clicked and Window should open
     setEditSource = (source) => {
-        // Keeps track if Bibliography Generation Button clicked and Window should open
         this.setState({
             editSource: source
         });
     }
 
+    // Renders top and botton section of citations (those included in clipboard copy) 
+    // depending on whether included parameter boolean is true or false
     renderIncluded = (included) => {
         // eslint-disable-next-line
         {this.state.sources.map((source,index) => 
@@ -276,7 +288,7 @@ class BibWindow extends React.Component {
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
                         {this.state.sources.map((source,index) => 
-                        <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
+                        <Checkbox defaultChecked onChange={this.removeFromSaved(source)} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
@@ -285,7 +297,7 @@ class BibWindow extends React.Component {
                     <Divider/>
                     <CheckboxGroup name="checkboxList">
                         {this.state.sources.map((source,index) => 
-                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={this.addToSaved} key={index}>
+                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={this.addToSaved(source)} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
@@ -310,6 +322,7 @@ class EditCitationButton extends React.Component{
 }
 
 class EditWindow extends React.Component{
+    // Show DefaultValue or Placeholder in Edit Input
     showField = (field, placeholder) => {
         if (placeholder) {        
             if(field){
@@ -327,6 +340,7 @@ class EditWindow extends React.Component{
 
     }
 
+    // Make API call to update citation fields
     changeAuthor = async (value) => {
         const endpoint = "/sources/" + this.props.source.id;
         const body = {
