@@ -98,13 +98,67 @@ class BibWindow extends React.Component {
     }
 
     renderFormatType = (source) => {
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        var formattedDate = "";
+        var publishDateJS = new Date(source.publishDate);
+        var accessDateJS = new Date(source.accessDate);
         if (this.state.curFormat === this.state.formats.APA){
             // if publishDate None, use accessDate
-            return <p className={'copyText'}>source.author. (source.publishDate). "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
+            if (source.publishDate) {
+                formattedDate = formattedDate.concat("(");
+                formattedDate = formattedDate.concat(publishDateJS.getFullYear());
+                formattedDate = formattedDate.concat(", ");
+                formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
+                formattedDate = formattedDate.concat(" ");
+                formattedDate = formattedDate.concat(publishDateJS.getDate());
+                formattedDate = formattedDate.concat(").");
+            } else {
+                formattedDate = formattedDate.concat("(");
+                formattedDate = formattedDate.concat(accessDateJS.getFullYear());
+                formattedDate = formattedDate.concat(", ");
+                formattedDate = formattedDate.concat(months[accessDateJS.getMonth()]);
+                formattedDate = formattedDate.concat(" ");
+                formattedDate = formattedDate.concat(accessDateJS.getDate());
+                formattedDate = formattedDate.concat(").");
+            }
+            return <p className={'copyText'}>source.author. {formattedDate} "{source.title}." <i>source.siteName</i>, {source.url}.</p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
-            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate.year. source.accessDate. {source.url}.</p>
+            // if publishDate None, use accessDate
+            if (source.publishDate) {
+                formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
+                formattedDate = formattedDate.concat(" ");
+                formattedDate = formattedDate.concat(publishDateJS.getDate());
+                formattedDate = formattedDate.concat(", ");
+                formattedDate = formattedDate.concat(publishDateJS.getFullYear());
+                formattedDate = formattedDate.concat(".");
+            } else {
+                formattedDate = formattedDate.concat(months[accessDateJS.getMonth()]);
+                formattedDate = formattedDate.concat(" ");
+                formattedDate = formattedDate.concat(accessDateJS.getDate());
+                formattedDate = formattedDate.concat(", ");
+                formattedDate = formattedDate.concat(accessDateJS.getFullYear());
+                formattedDate = formattedDate.concat(".");
+            }
+            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, {formattedDate} {source.url}.</p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
-            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, source.publishDate, {source.url}. Accessed source.accessDate. </p>
+            if (source.publishDate) {
+                formattedDate = formattedDate.concat(publishDateJS.getDate());
+                formattedDate = formattedDate.concat(" ");
+                formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
+                formattedDate = formattedDate.concat(" ");
+                formattedDate = formattedDate.concat(publishDateJS.getFullYear());
+                formattedDate = formattedDate.concat(".");
+            }
+            var formattedDate2 = "";
+            if (source.accessDate) {
+                formattedDate2 = formattedDate2.concat(accessDateJS.getDate());
+                formattedDate2 = formattedDate2.concat(" ");
+                formattedDate2 = formattedDate2.concat(months[accessDateJS.getMonth()]);
+                formattedDate2 = formattedDate2.concat(" ");
+                formattedDate2 = formattedDate2.concat(accessDateJS.getFullYear());
+                formattedDate2 = formattedDate2.concat(".");
+            }
+            return <p className={'copyText'}>source.author. "{source.title}." <i>source.siteName</i>, {formattedDate} {source.url}. Accessed {formattedDate2} </p>
         }
         // Sets className to copyText if citation is included to copy to clipboard
         // Else sets className to undefined
