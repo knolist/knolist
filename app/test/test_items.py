@@ -31,7 +31,6 @@ class TestItemsEndpoints(unittest.TestCase):
 
         self.new_item_note = {
             'is_note': True,
-            'is_highlight': False,
             'content': 'New content',
             'x_position': self.source_1.x_position + 100,
             'y_position': self.source_1.y_position + 100,
@@ -40,7 +39,6 @@ class TestItemsEndpoints(unittest.TestCase):
 
         self.new_item_highlight = {
             'is_note': False,
-            'is_highlight': True,
             'content': '"New highlight"',
             'x_position': self.source_1.x_position + 50,
             'y_position': self.source_1.y_position + 50,

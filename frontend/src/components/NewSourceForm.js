@@ -45,6 +45,7 @@ class NewSourceForm extends React.Component {
             "x_position": x,
             "y_position": y,
             "project_id": this.props.curProject.id,
+            "is_note": true
         }
 
         makeHttpRequest(endpoint, "POST", body).then((response) => {
@@ -69,7 +70,6 @@ class NewSourceForm extends React.Component {
 
     render() {
         if (!this.props.showNewSourceForm) return null;
-        console.log(this.props.source);
         let body;
         if (this.props.inputType === "URL") {
             // New URL

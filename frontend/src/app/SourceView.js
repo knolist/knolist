@@ -27,10 +27,10 @@ class SourceView extends React.Component {
 
     deleteSource = () => {
         this.setLoadingDelete(true);
-        const endpoint = "/sources/" + this.state.sourceDetails.id;
+        const endpoint = "/items/" + this.state.sourceDetails.id;
         makeHttpRequest(endpoint, "DELETE").then(() => {
+            this.close();
             this.props.renderNetwork(() => {
-                this.close();
                 this.setConfirmDelete(false);
             });
         })
@@ -51,24 +51,9 @@ class SourceView extends React.Component {
             return;
         }
 
-        const endpoint = "/sources/" + this.props.selectedNode;
-        //const response = await makeHttpRequest(endpoint);
-        // this.setState({sourceDetails: response.body.source});
-        this.setState({sourceDetails: {
-            "highlights": [
-                "This is a highlight",
-                "This is another highlight"
-            ],
-            "id": 1,
-            "notes": [
-                "This is a note"
-            ],
-            "project_id": 1,
-            "title": "Robert Browning - Wikipedia",
-            "url": "https://en.wikipedia.org/wiki/horse",
-            "x_position": null,
-            "y_position": null
-        }});
+        const endpoint = "/items/" + this.props.selectedNode;
+        const response = await makeHttpRequest(endpoint);
+        this.setState({sourceDetails: response.body.item});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -84,22 +69,29 @@ class SourceView extends React.Component {
         if (this.props.selectedNode === null) return null;
 
         
-
+        
         if (this.state.sourceDetails !== null) {
             const source = this.state.sourceDetails;
 
-            let list = <div />;
+            let modalHeaderAndBody = <div />;
             if (this.props.typeOfNode === "sourceAndNote") {
-                list = 
-                    <NotesList notes={source.notes} sourceId={source.id}
-                           getSourceDetails={this.getSourceDetails}/>
+                modalHeaderAndBody = 
+                    <SourceAndNoteView source={source} getSourceDetails={this.getSourceDetails}
+                            renderNetwork={this.props.renderNetwork} />
             } else if (this.props.typeOfNode === "sourceAndHighlight") {
-                list = 
-                    <HighlightsList highlights={source.highlights} sourceId={source.id}
-                            getSourceDetails={this.getSourceDetails}/>
+                modalHeaderAndBody = 
+                    <SourceAndHighlightView source={source} getSourceDetails={this.getSourceDetails}
+                            renderNetwork={this.props.renderNetwork} />
+            } else if (this.props.typeOfNode === "pureNote") {
+                modalHeaderAndBody = 
+                    <PureNoteView source={source} getSourceDetails={this.getSourceDetails}
+                            renderNetwork={this.props.renderNetwork} />
+            } else if (this.props.typeOfNode === "pureSource") {
+                modalHeaderAndBody =
+                    <PureSourceView source={source} getSourceDetails={this.getSourceDetails}
+                            renderNetwork={this.props.renderNetwork} />
             }
                  
-
             return (
                 <div>
                     <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
@@ -107,15 +99,7 @@ class SourceView extends React.Component {
                                            title={source.title} delete={this.deleteSource}
                                            loading={this.state.loadingDelete}/>
                     <Modal full show onHide={this.close}>
-                        <Modal.Header>
-                            <Modal.Title>
-                                <SourceTitle source={source} getSourceDetails={this.getSourceDetails}
-                                             renderNetwork={this.props.renderNetwork}/>
-                            </Modal.Title>
-                        </Modal.Header>
-                        <Modal.Body>
-                            {list}
-                        </Modal.Body>
+                        {modalHeaderAndBody}
                         <Modal.Footer>
                             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
                                      placement="bottom">
@@ -135,27 +119,71 @@ class SourceView extends React.Component {
     }
 }
 
-// function PureNoteView(props) {
-//     return (
-//                         <Modal full show onHide={props.close}>
-//                     <Modal.Header>
-//                         <Modal.Title>
-//                         Note
-//                         </Modal.Title>
-//                     </Modal.Header>
-//                     <Modal.Body>
-//                         {props.selectedNode.content}
-//                     </Modal.Body>
-//                     <Modal.Footer>
-//                         <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
-//                                     placement="bottom">
-//                             <IconButton onClick={/*() => this.setConfirmDelete(true)*/} icon={<Icon icon="trash"/>}
-//                                         size="lg"/>
-//                         </Whisper>
-//                     </Modal.Footer>
-//                 </Modal> 
-//     )
-// }
+ function PureNoteView(props) {
+    return (
+        <div>
+            <Modal.Header>
+                <Modal.Title>
+                    {props.source.content.trim(100)}
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <NoteContent source={props.source} getSourceDetails={props.getSourceDetails}
+                                    renderNetwork={props.renderNetwork}/>
+            </Modal.Body>
+        </div>
+    )
+ }
+
+ function SourceAndHighlightView(props) {
+    return (
+        <div>
+            <Modal.Header>
+                <Modal.Title>
+                    <SourceTitle source={props.source} getSourceDetails={props.getSourceDetails}
+                                    renderNetwork={props.renderNetwork}/>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                {props.source.content}
+            </Modal.Body>
+        </div>
+    )
+ }
+
+function SourceAndNoteView(props) {
+    return (
+            <div>
+            <Modal.Header>
+                <Modal.Title>
+                    <SourceTitle source={props.source} getSourceDetails={props.getSourceDetails}
+                                    renderNetwork={props.renderNetwork}/>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <NoteContent source={props.source} getSourceDetails={props.getSourceDetails}
+                                    renderNetwork={props.renderNetwork}/>
+            </Modal.Body>
+            </div>
+    )
+}
+
+ function PureSourceView(props) {
+    return (
+            <div>
+            <Modal.Header>
+                <Modal.Title>
+                    <SourceTitle source={props.source} getSourceDetails={props.getSourceDetails}
+                                    renderNetwork={props.renderNetwork}/>
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+            </Modal.Body>
+            </div>
+    )
+ }
+
+
 
 class SourceTitle extends React.Component {
     constructor(props) {
@@ -178,7 +206,7 @@ class SourceTitle extends React.Component {
             return;
         }
         this.setLoading(true);
-        const endpoint = "/sources/" + this.props.source.id;
+        const endpoint = "/items/" + this.props.source.id;
         const body = {
             "title": newTitle
         }
@@ -222,280 +250,69 @@ class SourceTitle extends React.Component {
     }
 }
 
-class HighlightsList extends React.Component {
+class NoteContent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             editMode: false,
-            selectedHighlights: [],
-            loading: false
-        }
-    }
-
-    setLoading = (val) => {
-        this.setState({loading: val});
-    }
-
-    setEditMode = (val) => {
-        this.setState({editMode: val}, () => this.setSelectedHighlights([]));
-    }
-
-    setSelectedHighlights = (arr) => {
-        this.setState({selectedHighlights: arr});
-    }
-
-    deleteSelectedHighlights = () => {
-        this.setLoading(true);
-        const endpoint = "/sources/" + this.props.sourceId + "/highlights";
-        const body = {
-            delete: this.state.selectedHighlights
-        }
-
-        makeHttpRequest(endpoint, "DELETE", body).then(() => {
-            this.props.getSourceDetails().then(() => {
-                this.setEditMode(false);
-                this.setLoading(false);
-            });
-        })
-    }
-
-    renderAddHighlightsMessage = () => {
-        if (this.props.highlights.length > 0) return null;
-
-        // TODO: include link to the Chrome Extension on the store.
-        const chromeExtensionLink = "https://chrome.google.com/webstore/category/extensions?utm_source=chrome-ntp-icon";
-        return <p>To add highlights, use the <a rel="noopener noreferrer" target="_blank"
-                                                href={chromeExtensionLink}>Knolist Chrome Extension</a>.
-            Select text on a page, right-click, then click on "Highlight with Knolist".</p>
-    }
-
-    renderHighlightsList = () => {
-        if (!this.state.editMode) {
-            return (
-                <ul>
-                    {this.props.highlights.map((highlight, index) => <li key={index}>{highlight}</li>)}
-                </ul>
-            )
-        }
-        return (
-            <CheckboxGroup onChange={this.setSelectedHighlights} value={this.state.selectedHighlights}>
-                {this.props.highlights.map((highlight, index) => <Checkbox key={index}
-                                                                           value={index}>{highlight}</Checkbox>)}
-            </CheckboxGroup>
-        )
-    }
-
-    renderDeleteHighlightsButton = () => {
-        if (this.state.selectedHighlights.length === 0) return null;
-
-        return <Button onClick={this.deleteSelectedHighlights} size="xs" loading={this.state.loading}>
-            Delete Selected Highlights
-        </Button>
-    }
-
-    render() {
-        return (
-            <div>
-                <div style={{display: "flex"}} className="source-view-subtitle">
-                    <h6 style={{marginRight: 10}}>{this.props.highlights.length > 0 ? "My Highlights" : "You haven't added any highlights yet"}</h6>
-                    <ButtonToolbar>
-                        <EditSourceItemButton hide={this.props.highlights.length === 0} editMode={this.state.editMode}
-                                              setEditMode={this.setEditMode} tooltipText="Edit Highlights"/>
-                        {this.renderDeleteHighlightsButton()}
-                    </ButtonToolbar>
-                </div>
-                {this.renderAddHighlightsMessage()}
-                {this.renderHighlightsList()}
-            </div>
-        );
-    }
-}
-
-class NotesList extends React.Component {
-    constructor(props) {
-        super(props);
-        const modes = {
-            NULL: null,
-            EDIT: "edit",
-            ADD: "add"
-        }
-        this.state = {
             loading: false,
-            loadingNoteUpdate: false,
-            mode: modes.NULL,
-            modes: modes,
-            newNotesInputId: "new-notes-input",
-            selectedNotes: []
+            noteContentId: "note-content-input"
         }
-    }
-
-    setSelectedNotes = (arr) => {
-        this.setState({selectedNotes: arr});
-    }
-
-    setMode = (val) => {
-        if (Object.values(this.state.modes).includes(val)) {
-            // If a note is being updated, wait for that to be over
-            if (this.state.loadingNoteUpdate) {
-                this.setLoading(true);
-                setTimeout(() => this.setMode(val), 50); // Wait 50 milliseconds then recheck
-                return;
-            }
-            this.setLoading(false);
-
-            this.setState({mode: val}, () => this.setSelectedNotes([]));
-        }
-    }
-
-    isEditMode = () => {
-        return this.state.mode === this.state.modes.EDIT;
-    }
-
-    isAddMode = () => {
-        return this.state.mode === this.state.modes.ADD;
-    }
-
-    setEditMode = (val) => {
-        if (val) this.setMode(this.state.modes.EDIT);
-        else this.setMode(this.state.modes.NULL);
-    }
-
-    setShowNewNotesForm = (val) => {
-        if (val) this.setMode(this.state.modes.ADD);
-        else this.setMode(this.state.modes.NULL);
     }
 
     setLoading = (val) => {
         this.setState({loading: val});
     }
 
-    setLoadingNoteUpdate = (val) => {
-        this.setState({loadingNoteUpdate: val});
-    }
-
-    addNotes = () => {
+    updateContent = (callback) => {
+        const newContent = document.getElementById(this.state.noteContentId).value;
+        if (newContent === this.props.source.content) {
+            callback();
+            return;
+        }
         this.setLoading(true);
-        const newNotes = document.getElementById(this.state.newNotesInputId).value;
-        const endpoint = "/sources/" + this.props.sourceId + "/notes";
+        const endpoint = "/items/" + this.props.source.id;
         const body = {
-            "note": newNotes
+            "content": newContent
         }
 
-        makeHttpRequest(endpoint, "POST", body).then(() => {
-            // Update source
-            this.props.getSourceDetails().then(() => {
-                this.setShowNewNotesForm(false);
-                this.setLoading(false);
+        makeHttpRequest(endpoint, "PATCH", body).then(() => {
+            this.props.renderNetwork(() => {
+                this.props.getSourceDetails().then(() => {
+                    this.setLoading(false);
+                    callback();
+                });
             });
         });
     }
 
-    updateNotes = (index, value) => {
-        // Only update if it's different
-        if (this.props.notes[index] !== value) {
-            this.setLoadingNoteUpdate(true);
-            const endpoint = "/sources/" + this.props.sourceId + "/notes";
-            const body = {
-                "note_index": index,
-                "new_content": value
-            }
-            makeHttpRequest(endpoint, "PATCH", body).then(() => {
-                this.props.getSourceDetails().then(() => this.setLoadingNoteUpdate(false));
-            })
+    setEditMode = (val) => {
+        if (!val) {
+            this.updateContent(() => this.setState({editMode: val}));
+        } else {
+            this.setState({editMode: val});
         }
     }
 
-    deleteSelectedNotes = () => {
-        this.setLoading(true);
-        const endpoint = "/sources/" + this.props.sourceId + "/notes";
-        const body = {
-            delete: this.state.selectedNotes
-        }
-
-        makeHttpRequest(endpoint, "DELETE", body).then(() => {
-            this.props.getSourceDetails().then(() => {
-                this.setMode(this.state.modes.NULL);
-                this.setLoading(false);
-            });
-        })
-    }
-
-    renderNewNotesButton = () => {
-        const buttonSize = "xs";
-        let buttonAppearance = "default";
-        if (this.props.notes.length === 0) buttonAppearance = "primary";
-
-        if (this.isAddMode()) {
-            return <Button onClick={() => this.setShowNewNotesForm(false)}
-                           size={buttonSize}>Cancel</Button>
+    renderContent = () => {
+        if (this.state.editMode) {
+            return <Input style={{width: 400, marginRight: 10}} defaultValue={this.props.source.content}
+                          id={this.state.noteContentId} autoFocus required/>
         } else {
             return (
-                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Add Notes to URL</Tooltip>} placement="top">
-                    <IconButton appearance={buttonAppearance} onClick={() => this.setShowNewNotesForm(true)}
-                                icon={<Icon icon="plus"/>} size={buttonSize}/>
-                </Whisper>
-            );
-        }
-    }
-
-    renderDeleteNotesButton = () => {
-        if (this.state.selectedNotes.length === 0) return null;
-
-        return <Button onClick={this.deleteSelectedNotes} size="xs" loading={this.state.loading}>
-            Delete Selected Notes
-        </Button>
-    }
-
-    renderNotesList = () => {
-        if (!this.isEditMode()) {
-            return (
-                <ul>
-                    {this.props.notes.map((notes, index) => <li key={index}>{notes}</li>)}
-                </ul>
+                <div>
+                    {this.props.source.content}
+                </div>
             )
         }
-        return (
-            <CheckboxGroup onChange={this.setSelectedNotes} value={this.state.selectedNotes}>
-                {this.props.notes.map((notes, index) => {
-                    return <Checkbox key={index} value={index}>
-                        <Input defaultValue={notes} onBlur={(e) => this.updateNotes(index, e.target.value)}/>
-                    </Checkbox>
-                })}
-            </CheckboxGroup>
-        )
-    }
-
-    renderNewNotesForm = () => {
-        if (!this.isAddMode()) return null;
-
-        const fontSize = 14;
-        return (
-            <Form style={{display: "flex"}} onSubmit={this.addNotes}>
-                <Input style={{fontSize: fontSize, width: 400, marginRight: 10}} id={this.state.newNotesInputId}
-                       placeholder="Insert Notes" autoFocus required/>
-                <Button style={{fontSize: fontSize}} type="submit"
-                        appearance="primary" loading={this.state.loading}>Add Note</Button>
-            </Form>
-        );
     }
 
     render() {
         return (
-            <div>
-                <div style={{display: "flex"}} className="source-view-subtitle">
-                    <h6 style={{marginRight: 10}}>
-                        {this.props.notes.length > 0 ? "My Notes" : "You haven't added any notes yet"}
-                    </h6>
-                    <ButtonToolbar>
-                        {this.renderNewNotesButton()}
-                        <EditSourceItemButton hide={this.props.notes.length === 0} editMode={this.isEditMode()}
-                                              setEditMode={this.setEditMode} loading={this.state.loading}
-                                              tooltipText="Edit Notes"/>
-                        {this.renderDeleteNotesButton()}
-                    </ButtonToolbar>
-                </div>
-                {this.renderNotesList()}
-                {this.renderNewNotesForm()}
+            <div style={{display: "flex"}}>
+                {this.renderContent()}
+                <EditSourceItemButton hide={false} editMode={this.state.editMode} loading={this.state.loading}
+                                      setEditMode={this.setEditMode} tooltipText="Edit"/>
             </div>
         );
     }

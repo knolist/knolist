@@ -25,14 +25,14 @@ class MindMap extends React.Component {
             SOURCEANDHIGHLIGHT: "sourceAndHighlight",
             PURENOTE: "pureNote"
         }
-        const colors = {
+        const nodeColors = {
             NULL:null,
-            RED:"red",
-            BLUE:"blue",
-            GREEN:"green",
-            PURPLE:"purple",
-            ORANGE:"orange"
-    };
+            [types.PURESOURCE]:"red",
+            [types.SOURCEANDNOTE]:"blue",
+            [types.SOURCEANDHIGHLIGHT]:"green",
+            [types.PURENOTE]:"purple",
+            [types.NEITHER]:"orange"
+        };
         this.state = {
             network: null,
             visNodes: null,
@@ -47,8 +47,8 @@ class MindMap extends React.Component {
             newSourceFormType: null,
             source: null,
             types: types,
-            colors:colors,
-            showColor:colors.NULL
+            nodeColors: nodeColors,
+            showColor: nodeColors.NULL
         };
     };
 
@@ -79,65 +79,14 @@ class MindMap extends React.Component {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
         const endpoint = "/projects/" + this.props.curProject.id + "/items"
-        //const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        //const response = await makeHttpRequest(endpoint);
-        const pureSource = {
-            id: 1,
-            url: "https://en.wikipedia.org/wiki/Main_Page",
-            title: "wiki1",
-            project_id: 1,
-            is_note: false,
-            is_highlight: false,
-            content: null,
-            x_position: 150,
-            y_position: -30
-        }
-        const sourceAndNote = {
-            id: 2,
-            url: "https://en.wikipedia.org/wiki/Main_Page",
-            title: "wiki2",
-            project_id: 1,
-            is_note: true,
-            is_highlight: false,
-            content: "This is a note",
-            x_position: 10,
-            y_position: -100
-        }
-        const sourceAndHighlight = {
-            id: 3,
-            url: "https://en.wikipedia.org/wiki/Main_Page",
-            title:"wiki3",
-            project_id: 1,
-            is_note: false,
-            is_highlight: true,
-            content: "This is a highlight",
-            x_position: 50,
-            y_position: -30
-        }
-        const pureNote = {
-            id: 4,
-            url: null,
-            title:"wiki4",
-            project_id: 1,
-            is_note: true,
-            is_highlight: false,
-            content: "This is a pure note",
-            x_position: 250,
-            y_position: -10
-        }
-        const sources = [pureSource, sourceAndNote, sourceAndHighlight, pureNote];
-        const response = {
-            body: {
-                sources: sources
-            },
-            status: 200
-        }
+        const response = await makeHttpRequest(endpoint);
+        
         this.setLoading(false);
-        this.setState({sources: response.body.sources}, callback);
+        this.setState({sources: response.body.items}, callback);
     }
 
     updateSourcePosition = async (sourceId, x, y) => {
-        const endpoint = "/sources/" + sourceId;
+        const endpoint = "/items/" + sourceId;
         const body = {
             "x_position": x,
             "y_position": y
@@ -227,13 +176,13 @@ class MindMap extends React.Component {
         }
         let node = this.getNodeById(nodeId);
         //pure note
-        if (node.url === null) return this.state.types.PURENOTE;
+        if (!node.url) return this.state.types.PURENOTE;
         //source and note
-        if (node.url != null && node.is_note) return this.state.types.SOURCEANDNOTE;
+        if (node.url && node.is_note && node.content) return this.state.types.SOURCEANDNOTE;
         //source and highlight
-        if (node.url != null && node.is_highlight) return this.state.types.SOURCEANDHIGHLIGHT;
+        if (node.url && !node.is_note && node.content) return this.state.types.SOURCEANDHIGHLIGHT;
         //pure source
-        if (node.url != null && !node.is_highlight && !node.is_note) return this.state.types.SOURCEANDNOTE;
+        if (node.url && !node.content) return this.state.types.PURESOURCE;
     }
 
     // Helper function to setup the nodes and edges for the graph
@@ -244,20 +193,20 @@ class MindMap extends React.Component {
         // Iterate through each node in the graph and build the arrays of nodes and edges
         for (let index in this.state.sources) {
             let node = this.state.sources[index];
+            let title = node.title;
+            const nodeType = this.getNodeType(node.id);
+            if (nodeType != this.state.types.PURESOURCE) {
+                title = node.content.trim(100);
+            }
             // Deal with positions
             if (node.x_position === null || node.y_position === null) {
                 // If position is still undefined, generate random x and y in interval [-300, 300]
                 const [x, y] = this.generateNodePositions(node);
                 this.updateSourcePosition(node.id, x, y);
                 
-                 const nodeType = this.getNodeType(node.id);
-                 if (nodeType === this.state.nodeTypes.PURESOURCE) {
-                     let title = node.content.trim(100);
-                 }
-                 
-                nodes.add({id: node.id, label: node.title, x: x, y: y, color:this.getColor(node)});
+                nodes.add({id: node.id, label: title, x: x, y: y, color:this.getColor(node)});
             } else {
-                nodes.add({id: node.id, label: node.title, x: node.x_position, y: node.y_position, color:this.getColor(node)});
+                nodes.add({id: node.id, label: title, x: node.x_position, y: node.y_position, color:this.getColor(node)});
             }
             // Deal with edges
             for (let nextIndex in node.next_sources) {
@@ -270,21 +219,8 @@ class MindMap extends React.Component {
     }
 
     getColor = (source) => {
-        let color = this.state.colors.ORANGE;
-        if (source.url && !source.is_highlight && !source.is_note) {
-            // pure source
-            color = this.state.colors.RED;
-        } else if (source.url && !source.is_highlight && source.is_note) {
-            //note and source
-            color = this.state.colors.BLUE;
-        } else if (source.url && source.is_highlight && !source.is_note) {
-            //highlight and source
-            color = this.state.colors.PURPLE;
-        } else if (!source.url && !source.is_highlight && source.is_note) {
-            //pure note
-            color = this.state.colors.GREEN;
-        }
-        return color;
+        const nodeType = this.getNodeType(source.id); // foo
+        return this.state.nodeColors[nodeType];
      }
 
     renderNetwork = (callback) => {
@@ -399,7 +335,6 @@ class MindMap extends React.Component {
     }
 
     render() {
-        console.log(this.state.selectedNode);
         if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
             return <Loader size="lg" backdrop center/>
         }
