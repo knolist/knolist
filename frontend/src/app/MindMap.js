@@ -40,6 +40,8 @@ class MindMap extends React.Component {
             visEdges: null,
             selectedNode: null,
             items: null,
+            nonSelectedNodes: null,
+            sources: null,
             loading: false,
             showNewItemForm: false,
             showNewItemHelperMessage: false,
@@ -57,6 +59,10 @@ class MindMap extends React.Component {
         this.setState({selectedNode: id})
     }
 
+    setNonSelectedNodes = (id, nodes) => {
+        this.setState({nonSelectedNodes: nodes.getIds().filter(element => element !== id)})
+    }
+
     // Check if the network is in edit mode
     // isEditMode = () => {
     //     const visCloseButton = document.getElementsByClassName("vis-close")[0];
@@ -70,6 +76,10 @@ class MindMap extends React.Component {
         // if (this.isEditMode()) {
         //     this.setSelectedNode(id);
         // }
+    }
+
+    handleDragStart = (id, nodes) => {
+        this.setNonSelectedNodes(id, nodes);
     }
 
     setLoading = (val) => {
@@ -294,6 +304,28 @@ class MindMap extends React.Component {
                 }
             });
 
+            network.on("dragStart", (params) => {
+                if (params.nodes !== undefined && params.nodes.length > 0) {
+                    const nodeId = params.nodes[0];
+                    this.handleDragStart(nodeId, nodes)
+                }
+            });
+
+            let dt = 100 //ms
+            network.on("dragging", throttle((params) => {
+                if (params.nodes !== undefined && params.nodes.length > 0) {
+                    const id = network.getSelectedNodes()[0];
+                    const boundingBox = network.getBoundingBox(id)
+                    console.log(boundingBox)
+                    let otherNodes = this.state.nonSelectedNodes
+                    otherNodes.forEach(node => {
+                        if (isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
+                            console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
+                        }
+                    })
+                }
+            }, dt));
+
             // Update positions after dragging node
             network.on("dragEnd", () => {
                 // Only update positions if there is a selected node
@@ -360,6 +392,32 @@ class MindMap extends React.Component {
             </div>
         );
     }
+}
+
+const throttle = (func, ms) => {
+    let lastFunc
+    let lastRan
+    return function () {
+        const context = this
+        const args = arguments
+        if (!lastRan) {
+            func.apply(context, args)
+            lastRan = Date.now()
+        } else {
+            clearTimeout(lastFunc)
+            lastFunc = setTimeout(function () {
+                if ((Date.now() - lastRan) >= ms) {
+                    func.apply(context, args)
+                    lastRan = Date.now()
+                }
+            }, ms - (Date.now() - lastRan))
+        }
+    }
+}
+
+const isOverlap = (rectA, rectB) => {
+    return (rectA.left < rectB.right && rectA.right > rectB.left &&
+        rectA.bottom > rectB.top && rectA.top < rectB.bottom)
 }
 
 export default MindMap;

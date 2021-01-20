@@ -28,8 +28,7 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.new_source = {
             'title': 'New title',
-            'x_position': self.source_1.x_position + 100,
-            'y_position': self.source_1.y_position + 100,
+            'content': 'New content',
             'project_id': self.project_2.id
         }
 
@@ -49,8 +48,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(source['id'], self.source_1.id)
         self.assertEqual(source['url'], self.source_1.url)
         self.assertEqual(source['title'], self.source_1.title)
-        self.assertEqual(source['x_position'], self.source_1.x_position)
-        self.assertEqual(source['y_position'], self.source_1.y_position)
         self.assertEqual(source['project_id'], self.source_1.project_id)
 
     def test_get_source_detail_nonexistent_source(self):
@@ -102,9 +99,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         source = data['source']
         self.assertEqual(source['title'], self.new_source['title'])
-
-        self.assertEqual(source['x_position'], self.new_source['x_position'])
-        self.assertEqual(source['y_position'], self.new_source['y_position'])
         self.assertEqual(source['project_id'], self.new_source['project_id'])
         self.assertTrue(self.source_1 in self.project_2.sources)
         self.assertTrue(self.source_1 not in self.project_1.sources)

@@ -106,10 +106,7 @@ def set_source_routes(app):
 
         # Update values that are not None
         source.title = title if title is not None else source.title
-        source.x_position = x_position if x_position is not None \
-            else source.x_position
-        source.y_position = y_position if y_position is not None \
-            else source.y_position
+        source.content = content if content is not None else source.content
         source.project_id = project_id if project_id is not None \
             else source.project_id
 
