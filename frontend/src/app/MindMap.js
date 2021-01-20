@@ -23,7 +23,7 @@ class MindMap extends React.Component {
             loading: false,
             showNewSourceForm: false,
             showNewSourceHelperMessage: false,
-            newSourceData: null
+            newSourceData: null,
         }
     }
 
@@ -54,7 +54,12 @@ class MindMap extends React.Component {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
 
-        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
+        let endpoint = "/projects/" + this.props.curProject.id + "/sources";
+
+        if (this.props.searchQuery !== '') {
+            endpoint = endpoint + "?query=" + this.props.searchQuery;
+        }
+
         const response = await makeHttpRequest(endpoint);
         this.setLoading(false);
         this.setState({sources: response.body.sources}, callback);
@@ -260,6 +265,10 @@ class MindMap extends React.Component {
                 Alert.close();
             }
         }
+
+        if (prevProps.searchQuery !== this.props.searchQuery) {
+             this.renderNetwork(null);
+        }
     }
 
     componentDidMount() {
@@ -270,7 +279,6 @@ class MindMap extends React.Component {
         if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
             return <Loader size="lg" backdrop center/>
         }
-
         return (
             <div>
                 <div id="mindmap"/>
