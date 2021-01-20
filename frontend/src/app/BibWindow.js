@@ -131,8 +131,8 @@ class BibWindow extends React.Component {
                 author = author.concat(".");
             }
             // TODO: uncomment when IsIncluded is added
-            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {formattedDate} <i>{title}</i> source.siteName. <a href={source.url} target="_blank">{source.url}.</a></p> 
-            return <p className={'copyText'}>{author} {formattedDate} <i>{title}</i> source.siteName. <a href={source.url} target="_blank">{source.url}.</a></p> 
+            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {formattedDate} <i>{title}</i> source.siteName. <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p> 
+            return <p className={'copyText'}>{author} {formattedDate} <i>{title}</i> source.siteName. <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
             // if publishDate None, use accessDate
             if (source.publishDate) {
@@ -160,8 +160,8 @@ class BibWindow extends React.Component {
                 author = author.concat(".");
             }
             // TODO: uncomment when IsIncluded is added
-            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank">{source.url}.</a></p>
-            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank">{source.url}.</a></p>
+            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p>
+            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
             if (source.publishDate) {
                 formattedDate = formattedDate.concat(publishDateJS.getDate());
@@ -191,8 +191,8 @@ class BibWindow extends React.Component {
                 author = author.concat(".");
             }
             // TODO: uncomment when IsIncluded is added
-            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank">{source.url}.</a> {formattedDate2} </p>
-            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank">{source.url}.</a> {formattedDate2} </p>
+            // return <p className={isIncludedClassName(source.isIncluded)}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a> {formattedDate2} </p>
+            return <p className={'copyText'}>{author} {title} <i>source.siteName</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a> {formattedDate2} </p>
         }
     }
 
