@@ -29,13 +29,10 @@ class TestClustersEndpoints(unittest.TestCase):
         self.new_source = {
             'title': 'New title',
             'content': 'New content',
-            'x_position': self.source_1.x_position + 100,
-            'y_position': self.source_1.y_position + 100,
             'project_id': self.project_2.id
         }
 
         self.extra_item = Item(is_note=True,
-                          is_highlight=False,
                           content='Content of Extra Item')
         self.extra_item.project = self.project_1
 
@@ -84,7 +81,7 @@ class TestClustersEndpoints(unittest.TestCase):
     def test_create_cluster_from_scratch(self):
         # We will try and put item_3 and item_4 into a cluster
         res = self.client()\
-            .post(f'/clusters/create_new',
+            .post(f'/clusters',
                   json={'item1_id': self.source_3.child_items[0].id,
                         'item2_id': self.source_3.child_items[1].id,
                         'x_position': 400,
@@ -102,7 +99,7 @@ class TestClustersEndpoints(unittest.TestCase):
 
         # Add another sub-cluster to this one
         res = self.client()\
-            .post(f'/clusters/create_new',
+            .post(f'/clusters',
                   json={'item1_id': self.source_3.child_items[0].id,
                         'item2_id': self.source_3.child_items[1].id,
                         'x_position': 200,
@@ -144,8 +141,8 @@ class TestClustersEndpoints(unittest.TestCase):
 
     def test_adding_to_existing_cluster(self):
         res = self.client()\
-            .patch(f'/clusters/{self.cluster_1.id}'
-                   f'/sources/'
+            .post(f'/clusters/{self.cluster_1.id}'
+                   f'/items/'
                    f'{self.source_2.child_items[0].id}',
                    headers=auth_header)
         data = json.loads(res.data)
@@ -155,8 +152,8 @@ class TestClustersEndpoints(unittest.TestCase):
         self.assertEqual(len(self.extra_item.project.items), 3)
 
         res = self.client()\
-            .patch(f'/clusters/{self.cluster_1.id}'
-                   f'/sources/'
+            .post(f'/clusters/{self.cluster_1.id}'
+                   f'/items/'
                    f'{self.extra_item.id}',
                    headers=auth_header)
         data = json.loads(res.data)
@@ -169,7 +166,7 @@ class TestClustersEndpoints(unittest.TestCase):
         #print(subcluster_id)
 
         res = self.client()\
-            .post(f'/clusters/create_new',
+            .post(f'/clusters',
                   json={'item1_id': self.cluster_1.child_items[0].id,
                         'item2_id': self.cluster_1.child_items[1].id,
                         'x_position': 400,
@@ -182,8 +179,8 @@ class TestClustersEndpoints(unittest.TestCase):
         print(subcluster_id)
         self.assertEqual(len(subcluster['child_items']), 2)
         res = self.client()\
-            .patch(f'/clusters/{subcluster_id}'
-                   f'/sources/'
+            .post(f'/clusters/{subcluster_id}'
+                   f'/items/'
                    f'{self.extra_item.id}',
                    headers=auth_header)
 
@@ -198,9 +195,8 @@ class TestClustersEndpoints(unittest.TestCase):
         # After this removal, there should be nothing in the cluster
         self.assertEqual(len(self.source_1.child_items), 1)
         res = self.client()\
-            .patch(f'/clusters/{self.cluster_1.id}'
-                   f'/sources/{self.source_1.child_items[0].id}'
-                   f'/remove',
+            .delete(f'/clusters/{self.cluster_1.id}'
+                   f'/items/{self.source_1.child_items[0].id}',
                    headers=auth_header)
 
         data = json.loads(res.data)
@@ -211,9 +207,8 @@ class TestClustersEndpoints(unittest.TestCase):
 
         # Attempt to remove item that is not in cluster from cluster
         res = self.client()\
-            .patch(f'/clusters/{self.cluster_1.id}'
-                   f'/sources/{self.source_1.child_items[0].id}'
-                   f'/remove',
+            .delete(f'/clusters/{self.cluster_1.id}'
+                   f'/items/{self.source_1.child_items[0].id}',
                    headers=auth_header)
 
         self.assertEqual(res.status_code, 400)

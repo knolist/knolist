@@ -25,11 +25,10 @@ def create_starter_data():
 
     source_1 = Source(url='https://test1.com',
                       title='Test Source 1',
-                      content='This is the content of test source 1',
+                      content='This is the content of test source 1')
                       #highlights='["First highlight", "Second highlight"]',
                       #notes='["First note", "Second note"]',
-                      x_position=100,
-                      y_position=-30)
+
 
     source_2 = Source(url='https://test2.com',
                       title='Test Source 2',
@@ -40,23 +39,18 @@ def create_starter_data():
                       content='This is the content of test source 3')
 
     item_1 = Item(is_note=True,
-                  is_highlight=False,
                   content="Content of item 1")
 
     item_2 = Item(is_note=True,
-                  is_highlight=False,
                   content="Content of item 2")
 
     item_3 = Item(is_note=False,
-                  is_highlight=True,
                   content="Content of item 3")
 
     item_4 = Item(is_note=False,
-                  is_highlight=True,
                   content="Content of item 4")
 
     extra_item = Item(is_note=True,
-                      is_highlight=False,
                       content='Content of Extra Item')
     source_1.child_items.append(item_1)
     source_2.child_items.append(item_2)

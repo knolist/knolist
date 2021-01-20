@@ -2,7 +2,8 @@ from flask import request, abort, jsonify
 from justext import justext, get_stoplist
 from requests import get as requests_get
 
-from ..models.models import Project, Source, Cluster, Item
+#from . import get_authorized_cluster, get_authorized_item
+from ..models.models import Cluster, Project, Item, Source
 from ..auth import requires_auth, AuthError
 
 
@@ -49,25 +50,38 @@ def get_authorized_source(user_id, source_id):
 
     return source
 
-
 def get_authorized_item(user_id, item_id):
     item = Item.query.get(item_id)
 
     if item is None:
         abort(404)
-    if item.project.user_id != user_id:
-        raise AuthError({
-            'code': 'invalid_user',
-            'description': 'This item does not belong to the requesting user.'
-        }, 403)
+
+    if not item.project and not item.cluster:
+        abort(400)
+    if item.project:
+        if item.project.user_id != user_id:
+            raise AuthError({
+                'code': 'invalid_user',
+                'description': 'This item does not belong to the requesting user.'
+            }, 403)
+
+    else:
+        temp_cluster = item.cluster
+        while (temp_cluster):
+            if (temp_cluster.parent_cluster):
+                temp_cluster = temp_cluster.parent_cluster
+            else:
+                if temp_cluster.project.user_id != user_id:
+                    raise AuthError({
+                        'code': 'invalid_user',
+                        'description': 'This item does not belong to the requesting user'
+                    }, 403)
+                break
 
     return item
 
-
 def set_cluster_routes(app):
-    '''
-    Displays clusters and items of a cluster
-    '''
+    # Displays clusters and items of a cluster
     @app.route('/clusters/<int:cluster_id>')
     @requires_auth('read:clusters')
     def get_cluster_info(user_id, cluster_id):
@@ -91,11 +105,11 @@ def set_cluster_routes(app):
             if cluster_parent is None:
                 # items now just belong to the project -
                 cluster.project.items.append(item)
-                item.cluster_id = None
+                item.parent_cluster = None
             else:
                 cluster_parent.child_items.append(item)
                 # I may not need to explicitly do this
-                item.cluster_id = cluster_parent.id
+                item.parent_cluster = cluster_parent.id
             item.update()
 
         if cluster_parent is None:
@@ -135,7 +149,7 @@ def set_cluster_routes(app):
     '''
     Creates a new cluster from scratch (two sources come near each other)
     '''
-    @app.route('/clusters/create_new', methods=['POST'])
+    @app.route('/clusters', methods=['POST'])
     @requires_auth('create:clusters')
     def create_cluster_from_scratch(user_id):
         # Check to ensure user is authorized to make changes
@@ -181,8 +195,8 @@ def set_cluster_routes(app):
             'cluster': cluster.format()
         }), status_code
 
-    @app.route('/clusters/<int:cluster_id>/sources/<int:item_id>',
-               methods=['PATCH'])
+    @app.route('/clusters/<int:cluster_id>/items/<int:item_id>',
+               methods=['POST'])
     @requires_auth('update:clusters')
     def add_to_existing_cluster(user_id, cluster_id, item_id):
         cluster = get_authorized_cluster(user_id, cluster_id)
@@ -193,7 +207,6 @@ def set_cluster_routes(app):
         if cluster.parent_cluster is not None:
             if item.cluster != cluster.parent_cluster:
                 abort(400)
-
 
         item.cluster = cluster
 
@@ -207,8 +220,8 @@ def set_cluster_routes(app):
             'cluster': cluster.format()
         }), status_code
 
-    @app.route('/clusters/<int:cluster_id>/sources/<int:item_id>/remove',
-               methods=['PATCH'])
+    @app.route('/clusters/<int:cluster_id>/items/<int:item_id>',
+               methods=['DELETE'])
     @requires_auth('update:clusters')
     def remove_from_existing_cluster(user_id, cluster_id, item_id):
         cluster = get_authorized_cluster(user_id, cluster_id)

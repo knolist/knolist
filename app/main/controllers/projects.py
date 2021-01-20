@@ -39,8 +39,7 @@ def create_and_insert_source(url, project_id, x=None, y=None):
     title = extraction_results['title']
 
     source = Source(url=url, title=title,
-                    content=content, project_id=project_id,
-                    x_position=x, y_position=y)
+                    content=content, project_id=project_id)
     source.insert()
 
     return source

@@ -67,6 +67,10 @@ class Cluster(BaseModel):
     Represents a specific cluster, which is a grouping of nodes.
     """
     __tablename__ = 'clusters'
+    __table_args__ = (
+        db.CheckConstraint('(NOT(project_id IS NULL AND parent_cluster_id IS NULL)) AND'
+                           '(NOT(project_id IS NOT NULL AND parent_cluster_id IS NOT NULL))'),
+    )
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
     # represents the cartesian coordinates of the center of the cluster
@@ -117,9 +121,6 @@ class Source(BaseModel):
     # All of the content of the URL, only used for search purposes
     content = db.Column(db.String)
     # Highlights and notes are stored as JSON arrays
-    # x and y positions are used to represent the position of a node on a graph
-    x_position = db.Column(db.Integer)
-    y_position = db.Column(db.Integer)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
                            nullable=True)
@@ -142,8 +143,6 @@ class Source(BaseModel):
             'id': self.id,
             'url': self.url,
             'title': self.title,
-            'x_position': self.x_position,
-            'y_position': self.y_position,
             'next_sources': [source.id for source in self.next_sources],
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
@@ -154,8 +153,6 @@ class Source(BaseModel):
             'id': self.id,
             'url': self.url,
             'title': self.title,
-            'x_position': self.x_position,
-            'y_position': self.y_position,
             'next_sources': [source.id for source in self.next_sources],
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
@@ -173,7 +170,6 @@ class Item(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('sources.id'))
     is_note = db.Column(db.BOOLEAN, nullable=False)
-    is_highlight = db.Column(db.BOOLEAN, nullable=False)
     # The content of the highlight or note
     content = db.Column(db.String)
     # x and y positions are used to represent the position of a node on a graph
@@ -183,8 +179,8 @@ class Item(BaseModel):
     parent_project = db.Column(db.Integer, db.ForeignKey('projects.id'),
                                nullable=False)
     # parent_cluster
-    cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'),
-                               nullable=True)
+    parent_cluster = db.Column(db.Integer, db.ForeignKey('clusters.id'))
+
     def __repr__(self):
         return f'<Item {self.id}: {self.content}>'
 
