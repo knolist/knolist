@@ -4,8 +4,8 @@ import {
 } from "rsuite";
 import {Network, DataSet} from "vis-network/standalone";
 
-import SourceView from "./SourceView";
-import NewSourceForm from "../components/NewSourceForm";
+import ItemView from "./ItemView";
+import NewItemForm from "../components/NewItemForm";
 import AppFooter from "./AppFooter";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -38,14 +38,14 @@ class MindMap extends React.Component {
             visNodes: null,
             visEdges: null,
             selectedNode: null,
-            sources: null,
+            items: null,
             loading: false,
-            showNewSourceForm: false,
-            showNewSourceHelperMessage: false,
-            newSourceData: modes.NULL,
+            showNewItemForm: false,
+            showNewItemHelperMessage: false,
+            newItemData: modes.NULL,
             modes:modes,
-            newSourceFormType: null,
-            source: null,
+            newItemFormType: null,
+            item: null,
             types: types,
             nodeColors: nodeColors,
             showColor: nodeColors.NULL
@@ -75,18 +75,18 @@ class MindMap extends React.Component {
         this.setState({loading: val});
     }
 
-    getSources = async (callback) => {
+    getItems = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
         const endpoint = "/projects/" + this.props.curProject.id + "/items"
         const response = await makeHttpRequest(endpoint);
         
         this.setLoading(false);
-        this.setState({sources: response.body.items}, callback);
+        this.setState({items: response.body.items}, callback);
     }
 
-    updateSourcePosition = async (sourceId, x, y) => {
-        const endpoint = "/items/" + sourceId;
+    updateItemPosition = async (itemId, x, y) => {
+        const endpoint = "/items/" + itemId;
         const body = {
             "x_position": x,
             "y_position": y
@@ -101,37 +101,37 @@ class MindMap extends React.Component {
     }
 
     disableEditMode = () => {
-        this.setShowNewSourceHelperMessage(false);
+        this.setShowNewItemHelperMessage(false);
         if (this.state.network) this.state.network.disableEditMode()
     }
 
-    switchShowNewSourceForm = () => {
-        this.setState({showNewSourceForm: !this.state.showNewSourceForm}, () => {
+    switchShowNewItemForm = () => {
+        this.setState({showNewItemForm: !this.state.showNewItemForm}, () => {
             // Get out of edit mode if necessary
-            if (!this.state.showNewSourceForm) {
+            if (!this.state.showNewItemForm) {
                 this.disableEditMode()
             }
         });
     }
 
-    setShowNewSourceHelperMessage = (val) => {
-        this.setState({showNewSourceHelperMessage: val});
+    setShowNewItemHelperMessage = (val) => {
+        this.setState({showNewItemHelperMessage: val});
     }
 
-    addSource = (nodeData, callback) => {
-        this.switchShowNewSourceForm();
-        this.setShowNewSourceHelperMessage(false);
+    addItem = (nodeData, callback) => {
+        this.switchShowNewItemForm();
+        this.setShowNewItemHelperMessage(false);
         this.setState({
-            newSourceData: nodeData
+            newItemData: nodeData
         });
     }
 
-    setAddSourceMode = (newSourceFormType, source = null) => {
+    setAddItemMode = (newItemFormType, item = null) => {
         this.setState({
-            newSourceFormType: newSourceFormType,
-            source: source
+            newItemFormType: newItemFormType,
+            item: item
         });
-        this.setShowNewSourceHelperMessage(true);
+        this.setShowNewItemHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
     }
 
@@ -145,7 +145,7 @@ class MindMap extends React.Component {
         // Update the offset if the node has a parent
         if (node.prev_sources.length !== 0) {
             const prevId = node.prev_sources[0];
-            const prevNode = this.state.sources.find(x => x.id === prevId);
+            const prevNode = this.state.items.find(x => x.id === prevId);
             // Check if the previous node has defined coordinates
             if (prevNode.x_position !== null && prevNode.y_position !== null) {
                 xOffset = prevNode.x_position;
@@ -163,9 +163,9 @@ class MindMap extends React.Component {
     }
 
     getNodeById = (nodeId) => {
-        for (let index in this.state.sources) {
-            if (nodeId === this.state.sources[index].id) {
-                return this.state.sources[index];
+        for (let index in this.state.items) {
+            if (nodeId === this.state.items[index].id) {
+                return this.state.items[index];
             }
         }
     }
@@ -191,18 +191,18 @@ class MindMap extends React.Component {
         let edges = new DataSet();
         
         // Iterate through each node in the graph and build the arrays of nodes and edges
-        for (let index in this.state.sources) {
-            let node = this.state.sources[index];
+        for (let index in this.state.items) {
+            let node = this.state.items[index];
             let title = node.title;
             const nodeType = this.getNodeType(node.id);
             if (nodeType != this.state.types.PURESOURCE) {
-                title = node.content.trim(100);
+                title = node.content.substring(0,100);
             }
             // Deal with positions
             if (node.x_position === null || node.y_position === null) {
                 // If position is still undefined, generate random x and y in interval [-300, 300]
                 const [x, y] = this.generateNodePositions(node);
-                this.updateSourcePosition(node.id, x, y);
+                this.updateItemPosition(node.id, x, y);
                 
                 nodes.add({id: node.id, label: title, x: x, y: y, color:this.getColor(node)});
             } else {
@@ -218,15 +218,15 @@ class MindMap extends React.Component {
         return [nodes, edges];
     }
 
-    getColor = (source) => {
-        const nodeType = this.getNodeType(source.id); // foo
+    getColor = (item) => {
+        const nodeType = this.getNodeType(item.id); // foo
         return this.state.nodeColors[nodeType];
      }
 
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
 
-        this.getSources(() => {
+        this.getItems(() => {
             const [nodes, edges] = this.createNodesAndEdges();
 
             // create a network
@@ -278,7 +278,7 @@ class MindMap extends React.Component {
                 },
                 manipulation: {
                     enabled: false,
-                    addNode: this.addSource
+                    addNode: this.addItem
                 }
             };
 
@@ -301,7 +301,7 @@ class MindMap extends React.Component {
                     const position = network.getPosition(id);
                     const x = position.x;
                     const y = position.y;
-                    this.updateSourcePosition(id, x, y);
+                    this.updateItemPosition(id, x, y);
                 }
             });
 
@@ -316,13 +316,13 @@ class MindMap extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.curProject !== this.props.curProject) {
-            // Set sources to null before updating to show loading icon
-            this.setState({sources: null}, this.renderNetwork);
+            // Set items to null before updating to show loading icon
+            this.setState({items: null}, this.renderNetwork);
         }
 
-        if (prevState.showNewSourceHelperMessage !== this.state.showNewSourceHelperMessage) {
-            if (this.state.showNewSourceHelperMessage) {
-                Alert.info("Click on an empty space to add your new source.",
+        if (prevState.showNewItemHelperMessage !== this.state.showNewItemHelperMessage) {
+            if (this.state.showNewItemHelperMessage) {
+                Alert.info("Click on an empty space to add your new item.",
                     0, this.disableEditMode);
             } else {
                 Alert.close();
@@ -335,26 +335,26 @@ class MindMap extends React.Component {
     }
 
     render() {
-        if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
+        if (this.props.curProject === null || (this.state.loading && this.state.items === null)) {
             return <Loader size="lg" backdrop center/>
         }
         
         return (
             <div>
                 <div id="mindmap"/>
-                <SourceView selectedNode={this.state.selectedNode}
+                <ItemView selectedNode={this.state.selectedNode}
                             setSelectedNode={this.setSelectedNode}
                             renderNetwork={this.renderNetwork}
-                            setAddSourceMode={this.setAddSourceMode}
+                            setAddItemMode={this.setAddItemMode}
                             typeOfNode={this.getNodeType(this.state.selectedNode)}/>
-                <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}
+                <NewItemForm showNewItemForm={this.state.showNewItemForm}
                             curProject={this.props.curProject}
                             renderNetwork={this.renderNetwork}
-                            switchShowNewSourceForm={this.switchShowNewSourceForm}
-                            inputType={this.state.newSourceFormType}
-                            newSourceData={this.state.newSourceData}
-                            source={this.state.source} />
-                <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
+                            switchShowNewItemForm={this.switchShowNewItemForm}
+                            inputType={this.state.newItemFormType}
+                            newItemData={this.state.newItemData}
+                            item={this.state.item} />
+                <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );
     }

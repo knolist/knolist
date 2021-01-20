@@ -8,11 +8,11 @@ import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
 
 import makeHttpRequest from "../services/HttpRequest";
 
-class SourceView extends React.Component {
+class ItemView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            sourceDetails: null,
+            itemDetails: null,
             confirmDelete: false,
             loadingDelete: false
         }
@@ -25,9 +25,9 @@ class SourceView extends React.Component {
         this.setState({loadingDelete: val});
     }
 
-    deleteSource = () => {
+    deleteItem = () => {
         this.setLoadingDelete(true);
-        const endpoint = "/items/" + this.state.sourceDetails.id;
+        const endpoint = "/items/" + this.state.itemDetails.id;
         makeHttpRequest(endpoint, "DELETE").then(() => {
             this.close();
             this.props.renderNetwork(() => {
@@ -37,7 +37,7 @@ class SourceView extends React.Component {
     }
 
     addNewNote = () => {
-        this.props.setAddSourceMode("Note", this.state.sourceDetails.url);
+        this.props.setAddItemMode("Note", this.state.itemDetails.url);
         this.close();
     }
 
@@ -45,50 +45,50 @@ class SourceView extends React.Component {
         this.props.setSelectedNode(null);
     }
 
-    getSourceDetails = async () => {
+    getItemDetails = async () => {
         if (this.props.selectedNode === null) {
-            this.setState({sourceDetails: null});
+            this.setState({itemDetails: null});
             return;
         }
 
         const endpoint = "/items/" + this.props.selectedNode;
         const response = await makeHttpRequest(endpoint);
-        this.setState({sourceDetails: response.body.item});
+        this.setState({itemDetails: response.body.item});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.selectedNode !== this.props.selectedNode) {
-            this.getSourceDetails();
+            this.getItemDetails();
         }
     }
 
     componentDidMount() {
-        this.getSourceDetails();
+        this.getItemDetails();
     }
     render() {
         if (this.props.selectedNode === null) return null;
 
         
         
-        if (this.state.sourceDetails !== null) {
-            const source = this.state.sourceDetails;
+        if (this.state.itemDetails !== null) {
+            const item = this.state.itemDetails;
 
             let modalHeaderAndBody = <div />;
             if (this.props.typeOfNode === "sourceAndNote") {
                 modalHeaderAndBody = 
-                    <SourceAndNoteView source={source} getSourceDetails={this.getSourceDetails}
+                    <SourceAndNoteView item={item} getItemDetails={this.getItemDetails}
                             renderNetwork={this.props.renderNetwork} />
             } else if (this.props.typeOfNode === "sourceAndHighlight") {
                 modalHeaderAndBody = 
-                    <SourceAndHighlightView source={source} getSourceDetails={this.getSourceDetails}
+                    <SourceAndHighlightView item={item} getItemDetails={this.getItemDetails}
                             renderNetwork={this.props.renderNetwork} />
             } else if (this.props.typeOfNode === "pureNote") {
                 modalHeaderAndBody = 
-                    <PureNoteView source={source} getSourceDetails={this.getSourceDetails}
+                    <PureNoteView item={item} getItemDetails={this.getItemDetails}
                             renderNetwork={this.props.renderNetwork} />
             } else if (this.props.typeOfNode === "pureSource") {
                 modalHeaderAndBody =
-                    <PureSourceView source={source} getSourceDetails={this.getSourceDetails}
+                    <PureSourceView item={item} getItemDetails={this.getItemDetails}
                             renderNetwork={this.props.renderNetwork} />
             }
                  
@@ -96,12 +96,12 @@ class SourceView extends React.Component {
                 <div>
                     <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
                                            resetDelete={() => this.setConfirmDelete(false)}
-                                           title={source.title} delete={this.deleteSource}
+                                           title={item.title} delete={this.deleteItem}
                                            loading={this.state.loadingDelete}/>
                     <Modal full show onHide={this.close}>
                         {modalHeaderAndBody}
                         <Modal.Footer>
-                            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Source</Tooltip>}
+                            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Item</Tooltip>}
                                      placement="bottom">
                                 <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
                                             size="lg"/>
@@ -124,11 +124,11 @@ class SourceView extends React.Component {
         <div>
             <Modal.Header>
                 <Modal.Title>
-                    {props.source.content.trim(100)}
+                    {props.item.content.substring(0,100)}
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <NoteContent source={props.source} getSourceDetails={props.getSourceDetails}
+                <NoteContent item={props.item} getItemDetails={props.getItemDetails}
                                     renderNetwork={props.renderNetwork}/>
             </Modal.Body>
         </div>
@@ -140,12 +140,12 @@ class SourceView extends React.Component {
         <div>
             <Modal.Header>
                 <Modal.Title>
-                    <SourceTitle source={props.source} getSourceDetails={props.getSourceDetails}
+                    <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
                                     renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                {props.source.content}
+                {props.item.content}
             </Modal.Body>
         </div>
     )
@@ -156,12 +156,12 @@ function SourceAndNoteView(props) {
             <div>
             <Modal.Header>
                 <Modal.Title>
-                    <SourceTitle source={props.source} getSourceDetails={props.getSourceDetails}
+                    <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
                                     renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <NoteContent source={props.source} getSourceDetails={props.getSourceDetails}
+                <NoteContent item={props.item} getItemDetails={props.getItemDetails}
                                     renderNetwork={props.renderNetwork}/>
             </Modal.Body>
             </div>
@@ -173,7 +173,7 @@ function SourceAndNoteView(props) {
             <div>
             <Modal.Header>
                 <Modal.Title>
-                    <SourceTitle source={props.source} getSourceDetails={props.getSourceDetails}
+                    <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
                                     renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
@@ -201,19 +201,19 @@ class SourceTitle extends React.Component {
 
     updateTitle = (callback) => {
         const newTitle = document.getElementById(this.state.newSourceTitleInputId).value;
-        if (newTitle === this.props.source.title) {
+        if (newTitle === this.props.item.title) {
             callback();
             return;
         }
         this.setLoading(true);
-        const endpoint = "/items/" + this.props.source.id;
+        const endpoint = "/items/" + this.props.item.id;
         const body = {
             "title": newTitle
         }
 
         makeHttpRequest(endpoint, "PATCH", body).then(() => {
             this.props.renderNetwork(() => {
-                this.props.getSourceDetails().then(() => {
+                this.props.getItemDetails().then(() => {
                     this.setLoading(false);
                     callback();
                 });
@@ -231,11 +231,11 @@ class SourceTitle extends React.Component {
 
     renderTitle = () => {
         if (this.state.editMode) {
-            return <Input style={{width: 400, marginRight: 10}} defaultValue={this.props.source.title}
+            return <Input style={{width: 400, marginRight: 10}} defaultValue={this.props.item.title}
                           id={this.state.newSourceTitleInputId} autoFocus required/>
         } else {
             return <a target="_blank" rel="noopener noreferrer" style={{marginRight: 10}}
-                      href={this.props.source.url}>{this.props.source.title}</a>
+                      href={this.props.item.url}>{this.props.item.title}</a>
         }
     }
 
@@ -266,19 +266,19 @@ class NoteContent extends React.Component {
 
     updateContent = (callback) => {
         const newContent = document.getElementById(this.state.noteContentId).value;
-        if (newContent === this.props.source.content) {
+        if (newContent === this.props.item.content) {
             callback();
             return;
         }
         this.setLoading(true);
-        const endpoint = "/items/" + this.props.source.id;
+        const endpoint = "/items/" + this.props.item.id;
         const body = {
             "content": newContent
         }
 
         makeHttpRequest(endpoint, "PATCH", body).then(() => {
             this.props.renderNetwork(() => {
-                this.props.getSourceDetails().then(() => {
+                this.props.getItemDetails().then(() => {
                     this.setLoading(false);
                     callback();
                 });
@@ -296,12 +296,12 @@ class NoteContent extends React.Component {
 
     renderContent = () => {
         if (this.state.editMode) {
-            return <Input style={{width: 400, marginRight: 10}} defaultValue={this.props.source.content}
-                          id={this.state.noteContentId} autoFocus required/>
+            return <Input style={{width: "100%", marginRight: 10}} defaultValue={this.props.item.content}
+                          id={this.state.noteContentId} autoFocus required componentClass="textarea" rows={30}/>
         } else {
             return (
                 <div>
-                    {this.props.source.content}
+                    {this.props.item.content}
                 </div>
             )
         }
@@ -333,4 +333,4 @@ function EditSourceItemButton(props) {
     }
 }
 
-export default SourceView;
+export default ItemView;
