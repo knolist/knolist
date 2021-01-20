@@ -88,8 +88,28 @@ class BibWindow extends React.Component {
             && source.accessDate) {
             return null;
         } else {
+            const citationFields = ['title ', 'URL ', 'author ', 'publish date ', 'site name ', 'access date ']
+            const missing = ""
+            if (!source.title) {
+                missing = mission.concat(citationFields[0])
+            }
+            if (!source.url) {
+                missing = mission.concat(citationFields[1])
+            }
+            if (!source.author) {
+                missing = mission.concat(citationFields[2])
+            }
+            if (!source.publishDate) {
+                missing = mission.concat(citationFields[3])
+            }
+            if (!source.siteName) {
+                missing = mission.concat(citationFields[4])
+            }
+            if (!source.accessDate) {
+                missing = mission.concat(citationFields[5])
+            }
             return(
-                <Whisper placement="bottomStart" trigger="hover" speaker={<Tooltip>This source is missing a field</Tooltip>}>
+                <Whisper placement="bottomStart" trigger="hover" speaker={<Tooltip>This citation is missing the <i>{missing}</i>field(s)</Tooltip>}>
                     <Icon icon="exclamation-circle" style={{ color: '#f5a623' }}/>
                 </Whisper>
             );
