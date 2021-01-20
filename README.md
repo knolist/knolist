@@ -974,3 +974,169 @@ no new connection is created, and a 200 status code is returned to signify that
   }
 }
 ```
+
+### GET '/clusters/{cluster_id}'
+- Gets information about the specified cluster (location, child clusters' ids, child items' ids)
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster that was requested
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Test Cluster',
+    "child_clusters": [
+      2,
+      3
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": null,
+    "x_position": null,
+    "y_position": null
+  }
+}
+```
+
+### DELETE '/clusters/{cluster_id}'
+- Deletes a given cluster and all 
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "deleted": a `cluster` object representing the cluster that was updated
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "deleted": 1
+}
+```
+
+### PATCH '/clusters/{cluster_id}'
+- Updates the name of a given cluster
+- Request arguments (passed as JSON body):
+    - `string` "name": The new name of the cluster *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the id of the cluster that was deleted
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Test Cluster with New Name',
+    "child_clusters": [
+      2,
+      3
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": null,
+    "x_position": null,
+    "y_position": null
+  }
+}
+```
+
+## POST '/clusters'
+- Adds a new cluster from scratch when given 2 items coming from the same cluster (no previous cluster is ok too)
+- Request arguments (passed as JSON body):
+    - `id` "item1_id": The id of one of the items that will be part of the cluster *(Required)*
+    - `id` "item2_id": The id of the other item that will be part of the cluster *(Required)*
+    - `int` "x_position": The x position of the new cluster *(Required)*
+    - `int` "y_position": The y position of the new cluster *(Required)*
+    - `string` "name": The name of the new cluster *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster that was just created 
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Cluster From Scratch',
+    "child_clusters": [
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": 10,
+    "x_position": 400,
+    "y_position": 300
+  }
+}
+```
+
+## POST '/clusters/{cluster_id}/items/{item_id}'
+- Adds a new item to an existing cluster
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster after update
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Cluster Added To',
+    "child_clusters": [
+      2,
+      3,
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": 10,
+    "x_position": 400,
+    "y_position": 300
+  }
+}
+```
+
+## DELETE '/clusters/{cluster_id}/items/{item_id}'
+- Removes specified item from the cluster
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster that was updated
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Cluster Being Removed From',
+    "child_clusters": [
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": 10,
+    "x_position": 400,
+    "y_position": 300
+  }
+}
+```
+
+
