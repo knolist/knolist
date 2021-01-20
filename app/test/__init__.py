@@ -1,6 +1,6 @@
 import os
 
-from app.main.models.models import Source, Project
+from app.main.models.models import Source, Project, Item
 from app.main.auth import verify_decode_jwt
 from manage import app, db
 
@@ -26,8 +26,6 @@ def create_starter_data():
     source_1 = Source(url='https://test1.com',
                       title='Test Source 1',
                       content='This is the content of test source 1',
-                      highlights='["First highlight", "Second highlight"]',
-                      notes='["First note", "Second note"]',
                       x_position=100,
                       y_position=-30)
 
@@ -39,13 +37,33 @@ def create_starter_data():
                       title='Test Source 3',
                       content='This is the content of test source 3')
 
+    item_1 = Item(content='This is a note',
+                  is_note=True,
+                  is_highlight=False
+                  )
+    item_2 = Item(content='"This is a highlight"',
+                  is_note=False,
+                  is_highlight=True
+                  )
+    item_3 = Item(content='This is a note 2',
+                  is_note=True,
+                  is_highlight=False
+                  )
+
     project_1.sources.append(source_1)
     project_1.sources.append(source_2)
+    project_1.items.append(item_1)
+    project_1.items.append(item_3)
     project_2.sources.append(source_3)
+    project_2.items.append(item_2)
     project_1.insert()
     project_2.insert()
     source_1.insert()
     source_2.insert()
     source_3.insert()
+    item_1.insert()
+    item_2.insert()
+    item_3.insert()
 
-    return project_1, project_2, source_1, source_2, source_3
+    return project_1, project_2, source_1, source_2, \
+        source_3, item_1, item_2, item_3

@@ -3,7 +3,7 @@ import unittest
 from urllib.parse import quote
 
 from app.test import create_starter_data, auth_header, user_id, app, db
-from app.main.models.models import Project, Source
+from app.main.models.models import Project, Source, Item
 
 
 class TestProjectsEndpoints(unittest.TestCase):
@@ -26,10 +26,90 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.source_1 = items[2]
         self.source_2 = items[3]
         self.source_3 = items[4]
+        self.item_1 = items[5]
+        self.item_2 = items[6]
+        self.item_3 = items[7]
 
         self.new_project_title = 'New Project'
 
         self.new_source_url = 'https://en.wikipedia.org/wiki/Test'
+
+        self.new_item_only_note = {
+            'content': 'This is a new pure note item',
+            'is_note': True,
+            'project_id': self.project_1.id
+        }
+
+        self.new_item_only_highlight = {
+            'content': '"This is a new highlight item"',
+            'is_note': False,
+            'project_id': self.project_1.id
+        }
+
+        self.new_item_note_url_first = {
+            'url': 'https://en.wikipedia.org/wiki/WandaVision',
+            'content': 'This is a first note',
+            'project_id': self.project_1.id,
+            'is_note': True
+        }
+
+        self.new_item_note_url = {
+            'url': 'https://en.wikipedia.org/wiki/WandaVision',
+            'content': 'This is a new note url item',
+            'project_id': self.project_1.id,
+            'is_note': True
+        }
+
+        self.new_item_note_new_url = {
+            'url': 'https://en.wikipedia.org/wiki/Aunty_Donna',
+            'content': 'This is a new note and a new url item',
+            'project_id': self.project_1.id,
+            'is_note': True
+        }
+
+        # Used to test that a new item can be made with the same url
+        self.new_item_url_first = {
+            'url': 'https://en.wikipedia.org/wiki/Odunlade_Adekola',
+            'content': '"This is a new highlight url item first"',
+            'project_id': self.project_2.id,
+            'is_note': False
+        }
+
+        self.new_item_highlight_url = {
+            'url': 'https://en.wikipedia.org/wiki/Odunlade_Adekola',
+            'content': '"This is a new highlight url item"',
+            'project_id': self.project_2.id,
+            'is_note': False
+        }
+
+        self.new_item_highlight_new_url = {
+            'url': 'https://en.wikipedia.org/'
+                   'wiki/Michael_Jackson%27s_Thriller',
+            'content': '"This is a highlight item with a new url"',
+            'project_id': self.project_2.id,
+            'is_note': True
+        }
+
+        self.new_item_url = {
+            'url': 'https://en.wikipedia.org/wiki/George_Michael',
+            'content': None,
+            'project_id': self.project_1.id,
+            'is_note': False
+        }
+
+        self.new_item_repeat_url = {
+            'url': self.source_1.url,
+            'content': None,
+            'project_id': self.project_1.id,
+            'is_note': False
+        }
+
+        self.new_item_same_note = {
+            'url': None,
+            'content': self.item_1.content,
+            'project_id': self.project_1.id,
+            'is_note': True
+        }
 
     def tearDown(self):
         """Executed after each test."""
@@ -45,6 +125,7 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
         projects = data['projects']
+        # 2
         self.assertEqual(len(projects), 2)
         self.assertEqual(projects[0]['id'], self.project_1.id)
         self.assertEqual(projects[0]['title'], self.project_1.title)
@@ -189,6 +270,20 @@ class TestProjectsEndpoints(unittest.TestCase):
         for source in data['sources']:
             self.assertEqual(source['project_id'], self.project_1.id)
 
+    # GET '/projects/{project_id}/items' #
+    def test_get_items(self):
+        res = self.client().get(f'/projects/{self.project_1.id}/items',
+                                headers=auth_header)
+        data = json.loads(res.data)
+
+        expected_items = Project.query.get(self.project_1.id).items
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['items']), len(expected_items))
+        # Assert that only items form this project were obtained
+        for item in data['items']:
+            self.assertEqual(item['project_id'], self.project_1.id)
+
     def test_search_sources(self):
         query = quote('test1')
         path_str = f'/projects/{self.project_1.id}/sources?query={query}'
@@ -199,83 +294,199 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         self.assertEqual(len(data['sources']), 1)  # Only source 1
 
-    # POST '/projects/{project_id}/sources' #
-    def test_create_source(self):
-        old_total = len(Project.query.get(self.project_1.id).sources)
-        res = self.client().post(f'/projects/{self.project_1.id}/sources',
-                                 json={'url': self.new_source_url,
-                                       'x_position': self.source_1.x_position,
-                                       'y_position': self.source_1.y_position},
+    # POST '/items' #
+    def test_create_item_note_only(self):
+
+        old_total = len(Project.query.get(self.project_1.id).items)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_only_note,
                                  headers=auth_header)
         data = json.loads(res.data)
 
-        new_total = len(Project.query.get(self.project_1.id).sources)
+        new_total = len(Project.query.get(self.project_1.id).items)
         self.assertEqual(res.status_code, 201)
         self.assertTrue(data['success'])
-        added_source = data['source']
-        self.assertIsNotNone(Source.query.get(added_source['id']))
-        self.assertEqual(added_source['project_id'], self.project_1.id)
-        self.assertEqual(added_source['url'], self.new_source_url)
-        self.assertEqual(added_source['x_position'], self.source_1.x_position)
-        self.assertEqual(added_source['y_position'], self.source_1.y_position)
+        added_item = data['item']
+        self.assertIsNotNone(Item.query.get(added_item['id']))
+        self.assertEqual(added_item['project_id'], self.project_1.id)
+        self.assertEqual(added_item['url'], None)
         self.assertEqual(new_total, old_total + 1)
 
-    def test_create_existing_source(self):
-        old_total = len(Project.query.get(self.project_1.id).sources)
-        res = self.client().post(f'/projects/{self.project_1.id}/sources',
-                                 json={'url': self.source_1.url},
+    # POST '/items' #
+    def test_create_item_note_old_url(self):
+        old_total = len(Project.query.get(self.project_1.id).items)
+        old_sources = len(Project.query.get(self.project_1.id).sources)
+        res_first = self.client().post(f'/items',
+                                       json=self.new_item_note_url_first,
+                                       headers=auth_header)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_note_url,
                                  headers=auth_header)
         data = json.loads(res.data)
 
-        new_total = len(Project.query.get(self.project_1.id).sources)
-        # Status code 200 since no new source was created
-        self.assertEqual(res.status_code, 200)
+        new_total = len(Project.query.get(self.project_1.id).items)
+        new_sources = len(Project.query.get(self.project_1.id).sources)
+        self.assertEqual(res.status_code, 201)
         self.assertTrue(data['success'])
-        self.assertEqual(data['source']['id'], self.source_1.id)
-        self.assertEqual(new_total, old_total)
+        added_item = data['item']
+        self.assertIsNotNone(Item.query.get(added_item['id']))
+        self.assertEqual(added_item['project_id'], self.project_1.id)
+        self.assertEqual(added_item['url'],
+                         'https://en.wikipedia.org/wiki/WandaVision')
+        self.assertEqual(new_total, old_total + 2)
+        self.assertEqual(new_sources, old_sources + 1)
 
-    def test_create_source_no_body(self):
-        old_items = Source.query.filter(Source.project_id == self.project_1.id)
-        old_total = len(old_items.all())
-
-        # Attempt to create project
-        res = self.client().post(f'/projects/{self.project_1.id}/sources',
+    # POST '/items' #
+    def test_create_item_highlight_old_url(self):
+        old_total = len(Project.query.get(self.project_2.id).items)
+        old_sources = len(Project.query.get(self.project_2.id).sources)
+        res_first = self.client().post(f'/items',
+                                       json=self.new_item_url_first,
+                                       headers=auth_header)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_highlight_url,
                                  headers=auth_header)
         data = json.loads(res.data)
 
-        new_items = Source.query.filter(Source.project_id == self.project_1.id)
+        new_total = len(Project.query.get(self.project_2.id).items)
+        new_sources = len(Project.query.get(self.project_2.id).sources)
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_item = data['item']
+        self.assertIsNotNone(Item.query.get(added_item['id']))
+        self.assertEqual(added_item['project_id'], self.project_2.id)
+        self.assertEqual(added_item['url'],
+                         'https://en.wikipedia.org/wiki/Odunlade_Adekola')
+        self.assertEqual(new_total, old_total + 2)
+        self.assertEqual(new_sources, old_sources + 1)
+
+    # POST '/items' #
+    def test_create_item_note_new_url(self):
+        old_total = len(Project.query.get(self.project_1.id).items)
+        old_sources = len(Project.query.get(self.project_1.id).sources)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_note_new_url,
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_1.id).items)
+        new_sources = len(Project.query.get(self.project_1.id).sources)
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_item = data['item']
+        self.assertIsNotNone(Item.query.get(added_item['id']))
+        self.assertEqual(added_item['project_id'], self.project_1.id)
+        self.assertEqual(added_item['url'],
+                         'https://en.wikipedia.org/wiki/Aunty_Donna')
+        self.assertEqual(new_total, old_total + 1)
+        self.assertEqual(new_sources, old_sources + 1)
+
+    # POST '/items' #
+    def test_create_item_highlight_new_url(self):
+        old_total = len(Project.query.get(self.project_2.id).items)
+        old_sources = len(Project.query.get(self.project_2.id).sources)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_highlight_new_url,
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_2.id).items)
+        new_sources = len(Project.query.get(self.project_2.id).sources)
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_item = data['item']
+        self.assertIsNotNone(Item.query.get(added_item['id']))
+        self.assertEqual(added_item['project_id'], self.project_2.id)
+        self.assertEqual(added_item['url'],
+                         'https://en.wikipedia.org/wiki/'
+                         'Michael_Jackson%27s_Thriller')
+        self.assertEqual(new_total, old_total + 1)
+        self.assertEqual(new_sources, old_sources + 1)
+
+    # POST '/items' #
+    def test_create_item_url(self):
+        old_total = len(Project.query.get(self.project_1.id).items)
+        old_sources = len(Project.query.get(self.project_1.id).sources)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_url,
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_1.id).items)
+        new_sources = len(Project.query.get(self.project_1.id).sources)
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_item = data['item']
+        self.assertIsNotNone(Item.query.get(added_item['id']))
+        self.assertEqual(added_item['project_id'], self.project_1.id)
+        self.assertEqual(added_item['url'],
+                         'https://en.wikipedia.org/wiki/George_Michael')
+        self.assertEqual(new_total, old_total + 1)
+        self.assertEqual(new_sources, old_sources + 1)
+
+    # POST '/items' #
+    def test_create_item_repeat_url(self):
+        old_total = len(Project.query.get(self.project_1.id).items)
+        old_sources = len(Project.query.get(self.project_1.id).sources)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_repeat_url,
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_1.id).items)
+        new_sources = len(Project.query.get(self.project_1.id).sources)
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_item = data['item']
+        self.assertIsNotNone(Item.query.get(added_item['id']))
+        self.assertEqual(added_item['project_id'], self.project_1.id)
+        self.assertEqual(added_item['url'], 'https://test1.com')
+        self.assertEqual(new_total, old_total + 1)
+        self.assertEqual(new_sources, old_sources)
+
+    def test_create_existing_item_note(self):
+        old_total = len(Project.query.get(self.project_1.id).items)
+        res = self.client().post(f'/items',
+                                 json=self.new_item_same_note,
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_total = len(Project.query.get(self.project_1.id).items)
+        # Status code 201 since a new item was made
+        self.assertEqual(res.status_code, 201)
+        self.assertTrue(data['success'])
+        added_item = data['item']
+        self.assertEqual(added_item['project_id'], self.project_1.id)
+        self.assertEqual(added_item['content'],
+                         self.new_item_same_note['content'])
+        self.assertEqual(new_total, old_total + 1)
+
+    def test_create_item_no_body(self):
+        old_items = Item.query.filter(Item.project_id == self.project_1.id)
+        old_total = len(old_items.all())
+
+        res = self.client().post(f'/items',
+                                 headers=auth_header)
+        data = json.loads(res.data)
+
+        new_items = Item.query.filter(Item.project_id == self.project_1.id)
         new_total = len(new_items.all())
         self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
         self.assertEqual(new_total, old_total)
 
-    def test_create_source_no_url(self):
-        old_items = Source.query.filter(Source.project_id == self.project_1.id)
+    def test_create_item_nonexistent_project(self):
+        old_items = Item.query.filter(Item.project_id == self.project_1.id)
         old_total = len(old_items.all())
 
         # Attempt to create project
-        res = self.client().post(f'/projects/{self.project_1.id}/sources',
-                                 json={'some_field': 'some_data'},
+        res = self.client().post('/items',
+                                 json={'url': self.new_source_url,
+                                       'project_id': 2000},
                                  headers=auth_header)
         data = json.loads(res.data)
 
-        new_items = Source.query.filter(Source.project_id == self.project_1.id)
-        new_total = len(new_items.all())
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-        self.assertEqual(new_total, old_total)
-
-    def test_create_source_nonexistent_project(self):
-        old_items = Source.query.filter(Source.project_id == self.project_1.id)
-        old_total = len(old_items.all())
-
-        # Attempt to create project
-        res = self.client().post('/projects/2000/sources',
-                                 json={'url': self.new_source_url},
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        new_items = Source.query.filter(Source.project_id == self.project_1.id)
+        new_items = Item.query.filter(Item.project_id == self.project_1.id)
         new_total = len(new_items.all())
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
