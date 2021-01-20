@@ -53,17 +53,15 @@ def urlToCitation(url):
         authorArray = author2["content"].split()
         if ("Staff" in authorArray) or ("staff" in authorArray):
             authorFormatted = author2["content"]
-        elif (len(authorArray) == 2):
-            firstName = authorArray[0]
-            lastName = authorArray[1]
-            authorFormatted = lastName + ", " + firstName
         elif (len(authorArray) == 3):
             firstName = authorArray[0]
             middle = authorArray[1]
             lastName = authorArray[2]
             authorFormatted = lastName + ", " + firstName + " " + middle[0] + "."
         else:
-            authorFormatted = author2["content"] 
+            firstName = authorArray[0]
+            lastName = authorArray[1]
+            authorFormatted = lastName + ", " + firstName
         citationFields["author"] = authorFormatted
     elif author3:
         authorFormatted = ""
