@@ -120,7 +120,7 @@ class Source(BaseModel):
     title = db.Column(db.String, nullable=False)
     # All of the content of the URL, only used for search purposes
     content = db.Column(db.String)
-    is_including = db.Column(db.Boolean)
+    is_included = db.Column(db.Boolean)
     author = db.Column(db.String)
     published_date = db.Column(db.DateTime)
     site_name = db.Column(db.String)
@@ -150,7 +150,7 @@ class Source(BaseModel):
             'title': self.title,
             'author': self.author,
             'site_name': self.site_name,
-            'is_including': self.is_including,
+            'is_included': self.is_included,
             'next_sources': [source.id for source in self.next_sources],
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
