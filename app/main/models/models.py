@@ -43,6 +43,9 @@ class Project(BaseModel):
     user_id = db.Column(db.String, nullable=False)
     sources = db.relationship('Source', backref='project',
                               cascade='all, delete-orphan', lazy=True)
+    description = db.Column(db.String)
+    creation_date = db.Column(db.DateTime, nullable=False)
+    recent_access_date = db.Column(db.DateTime, nullable=False)
     clusters = db.relationship('Cluster', backref='project',
                                cascade='all, delete-orphan', lazy=True)
     items = db.relationship('Item', backref='project',
@@ -172,10 +175,6 @@ class Item(BaseModel):
     Represents the different types of items.
     """
     __tablename__ = 'items'
-    # Ensure unique project
-    #__table_args__ = (
-    #    db.UniqueConstraint('project_id'),
-    #)
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('sources.id'))
     is_note = db.Column(db.BOOLEAN, nullable=False)

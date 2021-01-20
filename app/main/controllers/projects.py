@@ -4,6 +4,7 @@ from requests import get as requests_get
 
 from ..models.models import Project, Source
 from ..auth import requires_auth, AuthError
+from datetime import datetime
 
 
 def get_title(html):
@@ -11,6 +12,11 @@ def get_title(html):
     temp = temp.split(">", 1)[1]
     title = temp.split("</title>", 1)[0]
     return title
+
+
+def update_project_access_date(project):
+    project.recent_access_date = datetime.utcnow()
+    project.update()
 
 
 def extract_content_from_url(url):
@@ -90,6 +96,8 @@ def set_project_routes(app):
             abort(400)
 
         project = Project(title, user_id)
+        project.creation_date = datetime.utcnow()
+        project.recent_access_date = datetime.utcnow()
         project.insert()
 
         return jsonify({
@@ -105,7 +113,6 @@ def set_project_routes(app):
     @requires_auth('update:projects')
     def update_project(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
-
         body = request.get_json()
         if body is None:
             abort(400)
@@ -115,7 +122,7 @@ def set_project_routes(app):
             abort(400)
 
         project.title = new_title
-        project.update()
+        update_project_access_date(project)
 
         return jsonify({
             'success': True,
@@ -162,7 +169,7 @@ def set_project_routes(app):
                     | Source.title.ilike(pattern)
                     | Source.content.ilike(pattern)).order_by(Source.id).all()
 
-
+        update_project_access_date(project)
         return jsonify({
             'success': True,
             'sources': [source.format_short() for source in results]
@@ -175,7 +182,7 @@ def set_project_routes(app):
     @app.route('/projects/<int:project_id>/sources', methods=['POST'])
     @requires_auth('create:sources')
     def create_source(user_id, project_id):
-        get_authorized_project(user_id, project_id)
+        project = get_authorized_project(user_id, project_id)
 
         body = request.get_json()
         if body is None:
@@ -199,7 +206,7 @@ def set_project_routes(app):
 
         # Extract content to create source object
         source = create_and_insert_source(url, project_id, x, y)
-
+        update_project_access_date(project)
         return jsonify({
             'success': True,
             'source': source.format_short()
@@ -262,6 +269,7 @@ def set_project_routes(app):
         project = Project.query.filter(Project.user_id == user_id,
                                         Project.id==project_id).first()
         clusters = project.clusters
+        update_project_access_date(project)
         return jsonify({
             'success': True,
             'clusters': [cluster.format() for cluster in clusters]
