@@ -33,7 +33,8 @@ class TestClustersEndpoints(unittest.TestCase):
         }
 
         self.extra_item = Item(is_note=True,
-                          content='Content of Extra Item')
+                               content='Content of Extra Item')
+
         self.extra_item.project = self.project_1
 
     def tearDown(self):
@@ -208,10 +209,11 @@ class TestClustersEndpoints(unittest.TestCase):
         # Attempt to remove item that is not in cluster from cluster
         res = self.client()\
             .delete(f'/clusters/{self.cluster_1.id}'
-                   f'/items/{self.source_1.child_items[0].id}',
-                   headers=auth_header)
+                    f'/items/{self.source_1.child_items[0].id}',
+                    headers=auth_header)
 
         self.assertEqual(res.status_code, 400)
+
 
 if __name__ == '__main__':
     unittest.main()
