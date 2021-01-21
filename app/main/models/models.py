@@ -153,7 +153,9 @@ class Source(BaseModel):
             'is_included': self.is_included,
             'next_sources': [source.id for source in self.next_sources],
             'prev_sources': [source.id for source in self.prev_sources],
-            'project_id': self.project_id
+            'project_id': self.project_id,
+            'access_date': self.access_date,
+            'published_date': self.published_date
         }
 
     def format_short(self):
