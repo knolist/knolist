@@ -47,23 +47,58 @@ class BibWindow extends React.Component {
 
     // Called when checkbox changed
     // Changes citation is_included field based on if checkbox is checked or not
-    changeInclusion = async (checked,source) => {
-        console.log("onChange");
+    // changeInclusion = async (checked,source) => {
+    //     console.log("onChange");
+    //     console.log(checked);
+    //     const endpoint = "/sources/" + source.id;
+    //     var body = null;
+    //     // var body = {
+    //     //     "is_included" : true
+    //     // }
+    //     if (checked) {
+    //         console.log("checked");
+    //         body = {
+    //             "is_included" : true
+    //         }
+    //     } else {
+    //         console.log("unchecked");
+    //         body = {
+    //             "is_included" : false
+    //         }
+    //     }
+    //     //makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
+    //     await makeHttpRequest(endpoint, "PATCH", body);
+    //     this.getBibSources();
+    // }
+
+    // Called when checkbox changed
+    // Changes citation is_included field to true
+    addToSaved = async (checked,source) => {
+        console.log(checked);
         const endpoint = "/sources/" + source.id;
         var body = null;
         // var body = {
         //     "is_included" : true
         // }
-        if (checked) {
-            console.log("checked");
-            body = {
-                "is_included" : true
-            }
-        } else {
-            console.log("unchecked");
-            body = {
-                "is_included" : false
-            }
+        console.log("checked");
+        body = {
+            "is_included" : true
+        }
+        //makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
+        await makeHttpRequest(endpoint, "PATCH", body);
+        this.getBibSources();
+    }
+
+    // Called when checkbox changed
+    // Changes citation is_included field to false
+    removeFromSaved = async (checked,source) => {
+        console.log(checked);
+        const endpoint = "/sources/" + source.id;
+        var body = null;
+
+        console.log("unchecked");
+        body = {
+            "is_included" : false
         }
         //makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
         await makeHttpRequest(endpoint, "PATCH", body);
@@ -265,7 +300,7 @@ class BibWindow extends React.Component {
                             {if (source.is_included === true) { 
                             console.log("Print checked")
                                 return(
-                                <Checkbox defaultChecked onChange={(checked) => this.changeInclusion(checked,source)} key={index}>
+                                <Checkbox defaultChecked onChange={(checked) => this.removeFromSaved(checked,source)} key={index}>
                                     {this.renderFormatType(source)}
                                     {this.showMissingIcon(source)}
                                     <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
@@ -279,7 +314,7 @@ class BibWindow extends React.Component {
                             {if (source.is_included === false) { 
                             console.log("Print unchecked")
                                 return(
-                                <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(checked) => this.changeInclusion(checked,source)} key={index}>
+                                <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(checked) => this.addToSaved(checked,source)} key={index}>
                                     {this.renderFormatType(source)}
                                     {this.showMissingIcon(source)}
                                     <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
