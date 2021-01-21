@@ -143,7 +143,7 @@ class Source(BaseModel):
     def __repr__(self):
         return f'<Source {self.id}: {self.url}>'
 
-    def format_long(self):
+    def format(self):
         return {
             'id': self.id,
             'url': self.url,
@@ -151,18 +151,8 @@ class Source(BaseModel):
             'author': self.author,
             'site_name': self.site_name,
             'is_included': self.is_included,
-            'next_sources': [source.id for source in self.next_sources],
-            'prev_sources': [source.id for source in self.prev_sources],
-            'project_id': self.project_id,
+            'published_date': self.published_date,
             'access_date': self.access_date,
-            'published_date': self.published_date
-        }
-
-    def format_short(self):
-        return {
-            'id': self.id,
-            'url': self.url,
-            'title': self.title,
             'next_sources': [source.id for source in self.next_sources],
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
