@@ -179,7 +179,7 @@ class BibWindow extends React.Component {
                 formattedDate = formattedDate.concat(" ");
                 formattedDate = formattedDate.concat(publishDateJS.getDate());
                 formattedDate = formattedDate.concat("). ");
-            } else {
+            } else if (source.access_date) {
                 formattedDate = formattedDate.concat("(");
                 formattedDate = formattedDate.concat(accessDateJS.getFullYear());
                 formattedDate = formattedDate.concat(", ");
@@ -210,7 +210,7 @@ class BibWindow extends React.Component {
                 formattedDate = formattedDate.concat(", ");
                 formattedDate = formattedDate.concat(publishDateJS.getFullYear());
                 formattedDate = formattedDate.concat(".");
-            } else {
+            } else if (source.access_date) {
                 formattedDate = formattedDate.concat(months[accessDateJS.getMonth()]);
                 formattedDate = formattedDate.concat(" ");
                 formattedDate = formattedDate.concat(accessDateJS.getDate());
