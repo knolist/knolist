@@ -33,18 +33,7 @@ class BibWindow extends React.Component {
         const response = await makeHttpRequest(endpoint);
         //this.setLoading(false);
         this.setState({sources: response.body.sources}, callback);
-        //this.updateIncluded();
     }
-
-    // updateIncluded() {
-    //     if (this.state.sources) {
-    //         var i = this.state.included
-    //         this.setState(
-    //         {
-    //             included: this.state.sources.map((source,index) => {if (source.is_included) {i.push(source)}})
-    //         });
-    //     }
-    // }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.showBib !== this.props.showBib && this.props.showBib) {
@@ -59,16 +48,24 @@ class BibWindow extends React.Component {
     // Called when checkbox changed
     // Changes citation is_included field based on if checkbox is checked or not
     changeInclusion = async (checked,source) => {
-        //console.log(event)
+        console.log("onChange");
         const endpoint = "/sources/" + source.id;
-        var body = {
-            "is_included" : true
-        }
+        var body = null;
+        // var body = {
+        //     "is_included" : true
+        // }
         if (checked) {
+            console.log("checked");
+            body = {
+                "is_included" : true
+            }
+        } else {
+            console.log("unchecked");
             body = {
                 "is_included" : false
             }
         }
+        //makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
         await makeHttpRequest(endpoint, "PATCH", body);
         this.getBibSources();
     }
@@ -262,9 +259,13 @@ class BibWindow extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
-                        {this.state.sources.map((source,index) => 
-                            {if (source.is_included === true) { return(
-                                <Checkbox defaultChecked onChange={(e) => this.changeInclusion(e.target.checked,source)} key={index}>
+                        {
+                            // eslint-disable-next-line
+                            this.state.sources.map((source,index) => 
+                            {if (source.is_included === true) { 
+                            console.log("Print checked")
+                                return(
+                                <Checkbox defaultChecked onChange={(checked) => this.changeInclusion(checked,source)} key={index}>
                                     {this.renderFormatType(source)}
                                     {this.showMissingIcon(source)}
                                     <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
@@ -272,9 +273,13 @@ class BibWindow extends React.Component {
                             );}}
                         )}
                         <Divider/>
-                        {this.state.sources.map((source,index) => 
-                            {if (source.is_included === false) { return(
-                                <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(e) => console.log(e)} key={index}>
+                        {
+                            // eslint-disable-next-line
+                            this.state.sources.map((source,index) => 
+                            {if (source.is_included === false) { 
+                            console.log("Print unchecked")
+                                return(
+                                <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(checked) => this.changeInclusion(checked,source)} key={index}>
                                     {this.renderFormatType(source)}
                                     {this.showMissingIcon(source)}
                                     <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
