@@ -1,6 +1,7 @@
 import json
 
 from flask import request, abort, jsonify
+from datetime import datetime
 from sqlalchemy import String, Boolean
 
 from .projects import get_authorized_project, create_and_insert_source
@@ -27,6 +28,7 @@ def create_and_insert_item(content, is_note, parent_project,
     item = Item(source_id=source_id, is_note=is_note,
                 content=content, x_position=x,
                 parent_project=parent_project, y_position=y)
+    item.date_of_creation = datetime.utcnow()
     item.insert()
 
     return item

@@ -3,7 +3,7 @@ import unittest
 
 from app.test import create_starter_data, auth_header, app, db
 from app.main.models.models import Cluster, Item
-
+from datetime import datetime
 
 class TestClustersEndpoints(unittest.TestCase):
 
@@ -33,7 +33,8 @@ class TestClustersEndpoints(unittest.TestCase):
         }
 
         self.extra_item = Item(is_note=True,
-                               content='Content of Extra Item')
+                               content='Content of Extra Item',
+                               date_of_creation=datetime.utcnow())
 
         self.extra_item.project = self.project_1
 
