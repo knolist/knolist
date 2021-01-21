@@ -103,8 +103,8 @@ class BibWindow extends React.Component {
     // Displays a Missing! icon if not
     showMissingIcon = (source) => {
         if(source.title && source.url && source.author 
-            && source.publishDate && source.siteName 
-            && source.accessDate) {
+            && source.published_date && source.site_name 
+            && source.access_date) {
             return null;
         } else {
             const citationFields = ['title ', 'URL ', 'author ', 'publish date ', 'site name ', 'access date ']
@@ -410,7 +410,7 @@ class EditWindow extends React.Component{
                     <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/>
                     <p>Publish Date: </p><Input defaultValue={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} style={{ width: '300px' }}/>
                     <p>Site Name: </p><Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
-                    <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.accessed_date)} onChange={this.changeAccessDate} style={{ width: '300px' }}/>
+                    <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate} style={{ width: '300px' }}/>
                     <p>URL: </p><Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/>
                 </Modal.Body>
                 <Modal.Footer>
