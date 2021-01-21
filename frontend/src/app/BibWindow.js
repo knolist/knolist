@@ -125,6 +125,7 @@ class BibWindow extends React.Component {
     // Check if citation has all source fields present
     // Displays a Missing! icon if not
     showMissingIcon = (source) => {
+        //this.getBibSources();
         if(source.title && source.url && source.author 
             && source.published_date && source.site_name 
             && source.access_date) {
