@@ -51,6 +51,7 @@ def set_item_routes(app):
         x = body.get('x_position', None)
         y = body.get('y_position', None)
         is_note = body.get('is_note', None)
+        parent_cluster = body.get('cluster_id', None)
         get_authorized_project(user_id, parent_project)
 
         if url is None and content is None:
@@ -77,6 +78,8 @@ def set_item_routes(app):
             source_id_temp = None
         item = create_and_insert_item(content, is_note,
                                       parent_project, source_id_temp, x, y)
+        item.parent_cluster = parent_cluster
+        item.update()
         return jsonify({
             'success': True,
             'item': item.format()
