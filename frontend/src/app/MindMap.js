@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Alert,  Loader
+    Alert, Loader
 } from "rsuite";
 import {Network, DataSet} from "vis-network/standalone";
 
@@ -15,24 +15,24 @@ class MindMap extends React.Component {
     constructor(props) {
         super(props);
         const modes = {
-            NULL:null,
-            URL:"url",
-            NOTES:"notes"
+            NULL: null,
+            URL: "url",
+            NOTES: "notes"
         };
         const types = {
-            NULL:null,
+            NULL: null,
             PURESOURCE: "pureSource",
             SOURCEANDNOTE: "sourceAndNote",
             SOURCEANDHIGHLIGHT: "sourceAndHighlight",
             PURENOTE: "pureNote"
         }
         const nodeColors = {
-            NULL:null,
-            [types.PURESOURCE]:"red",
-            [types.SOURCEANDNOTE]:"blue",
-            [types.SOURCEANDHIGHLIGHT]:"green",
-            [types.PURENOTE]:"purple",
-            [types.NEITHER]:"orange"
+            NULL: null,
+            [types.PURESOURCE]: "red",
+            [types.SOURCEANDNOTE]: "blue",
+            [types.SOURCEANDHIGHLIGHT]: "green",
+            [types.PURENOTE]: "purple",
+            [types.NEITHER]: "orange"
         };
         this.state = {
             network: null,
@@ -46,7 +46,7 @@ class MindMap extends React.Component {
             showNewItemForm: false,
             showNewItemHelperMessage: false,
             newItemData: modes.NULL,
-            modes:modes,
+            modes: modes,
             newItemFormType: null,
             item: null,
             types: types,
@@ -207,7 +207,7 @@ class MindMap extends React.Component {
             let title = node.title;
             const nodeType = this.getNodeType(node.id);
             if (nodeType !== this.state.types.PURESOURCE) {
-                title = node.content.substring(0,100);
+                title = node.content.substring(0, 100);
             }
             // Deal with positions
             if (node.x_position === null || node.y_position === null) {
@@ -215,9 +215,15 @@ class MindMap extends React.Component {
                 const [x, y] = this.generateNodePositions(node);
                 this.updateItemPosition(node.id, x, y);
 
-                nodes.add({id: node.id, label: title, x: x, y: y, color:this.getColor(node)});
+                nodes.add({id: node.id, label: title, x: x, y: y, color: this.getColor(node)});
             } else {
-                nodes.add({id: node.id, label: title, x: node.x_position, y: node.y_position, color:this.getColor(node)});
+                nodes.add({
+                    id: node.id,
+                    label: title,
+                    x: node.x_position,
+                    y: node.y_position,
+                    color: this.getColor(node)
+                });
             }
             // Deal with edges
             for (let nextIndex in node.next_sources) {
@@ -232,7 +238,7 @@ class MindMap extends React.Component {
     getColor = (item) => {
         const nodeType = this.getNodeType(item.id); // foo
         return this.state.nodeColors[nodeType];
-     }
+    }
 
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
@@ -261,7 +267,7 @@ class MindMap extends React.Component {
                         color: "white"
                     },
                     color: {
-                       background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                        background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
                     },
                     // color: {
                     //     border: this.getColor(),
@@ -376,18 +382,19 @@ class MindMap extends React.Component {
             <div>
                 <div id="mindmap"/>
                 <ItemView selectedNode={this.state.selectedNode}
-                            setSelectedNode={this.setSelectedNode}
-                            renderNetwork={this.renderNetwork}
-                            setAddItemMode={this.setAddItemMode}
-                            typeOfNode={this.getNodeType(this.state.selectedNode)}/>
+                          setSelectedNode={this.setSelectedNode}
+                          renderNetwork={this.renderNetwork}
+                          setAddItemMode={this.setAddItemMode}
+                          typeOfNode={this.getNodeType(this.state.selectedNode)}/>
                 <NewItemForm showNewItemForm={this.state.showNewItemForm}
-                            curProject={this.props.curProject}
-                            renderNetwork={this.renderNetwork}
-                            switchShowNewItemForm={this.switchShowNewItemForm}
-                            inputType={this.state.newItemFormType}
-                            newItemData={this.state.newItemData}
-                            item={this.state.item} />
-                <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib} sources={this.state.sources}/>
+                             curProject={this.props.curProject}
+                             renderNetwork={this.renderNetwork}
+                             switchShowNewItemForm={this.switchShowNewItemForm}
+                             inputType={this.state.newItemFormType}
+                             newItemData={this.state.newItemData}
+                             item={this.state.item}/>
+                <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
+                           sources={this.state.sources}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );

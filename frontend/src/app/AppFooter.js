@@ -5,7 +5,7 @@ import AddButton from "../components/AddButton.js";
 class AppFooter extends React.Component {
     newItemButton = () => {
         return (
-            <AddButton />
+            <AddButton/>
         )
     }
 

@@ -1,7 +1,6 @@
 import React from "react";
 import {
-    Button, ButtonToolbar, Checkbox, CheckboxGroup, Divider, Form, Icon, IconButton,
-    Input, Loader, Modal, Tooltip, Whisper
+    Button, Icon, IconButton, Input, Loader, Modal, Tooltip, Whisper
 } from "rsuite";
 
 import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
@@ -17,6 +16,7 @@ class ItemView extends React.Component {
             loadingDelete: false
         }
     }
+
     setConfirmDelete = (val) => {
         this.setState({confirmDelete: val}, () => this.setLoadingDelete(false));
     }
@@ -65,33 +65,33 @@ class ItemView extends React.Component {
     componentDidMount() {
         this.getItemDetails();
     }
+
     render() {
         if (this.props.selectedNode === null) return null;
 
-        
-        
+
         if (this.state.itemDetails !== null) {
             const item = this.state.itemDetails;
 
-            let modalHeaderAndBody = <div />;
+            let modalHeaderAndBody = <div/>;
             if (this.props.typeOfNode === "sourceAndNote") {
-                modalHeaderAndBody = 
+                modalHeaderAndBody =
                     <SourceAndNoteView item={item} getItemDetails={this.getItemDetails}
-                            renderNetwork={this.props.renderNetwork} />
+                                       renderNetwork={this.props.renderNetwork}/>
             } else if (this.props.typeOfNode === "sourceAndHighlight") {
-                modalHeaderAndBody = 
+                modalHeaderAndBody =
                     <SourceAndHighlightView item={item} getItemDetails={this.getItemDetails}
-                            renderNetwork={this.props.renderNetwork} />
+                                            renderNetwork={this.props.renderNetwork}/>
             } else if (this.props.typeOfNode === "pureNote") {
-                modalHeaderAndBody = 
+                modalHeaderAndBody =
                     <PureNoteView item={item} getItemDetails={this.getItemDetails}
-                            renderNetwork={this.props.renderNetwork} />
+                                  renderNetwork={this.props.renderNetwork}/>
             } else if (this.props.typeOfNode === "pureSource") {
                 modalHeaderAndBody =
                     <PureSourceView item={item} getItemDetails={this.getItemDetails}
-                            renderNetwork={this.props.renderNetwork} />
+                                    renderNetwork={this.props.renderNetwork}/>
             }
-                 
+
             return (
                 <div>
                     <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
@@ -119,29 +119,29 @@ class ItemView extends React.Component {
     }
 }
 
- function PureNoteView(props) {
+function PureNoteView(props) {
     return (
         <div>
             <Modal.Header>
                 <Modal.Title>
-                    {props.item.content.substring(0,100)}
+                    {props.item.content.substring(0, 100)}
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <NoteContent item={props.item} getItemDetails={props.getItemDetails}
-                                    renderNetwork={props.renderNetwork}/>
+                             renderNetwork={props.renderNetwork}/>
             </Modal.Body>
         </div>
     )
- }
+}
 
- function SourceAndHighlightView(props) {
+function SourceAndHighlightView(props) {
     return (
         <div>
             <Modal.Header>
                 <Modal.Title>
                     <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
-                                    renderNetwork={props.renderNetwork}/>
+                                 renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -149,40 +149,39 @@ class ItemView extends React.Component {
             </Modal.Body>
         </div>
     )
- }
+}
 
 function SourceAndNoteView(props) {
     return (
-            <div>
+        <div>
             <Modal.Header>
                 <Modal.Title>
                     <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
-                                    renderNetwork={props.renderNetwork}/>
+                                 renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <NoteContent item={props.item} getItemDetails={props.getItemDetails}
-                                    renderNetwork={props.renderNetwork}/>
+                             renderNetwork={props.renderNetwork}/>
             </Modal.Body>
-            </div>
+        </div>
     )
 }
 
- function PureSourceView(props) {
+function PureSourceView(props) {
     return (
-            <div>
+        <div>
             <Modal.Header>
                 <Modal.Title>
                     <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
-                                    renderNetwork={props.renderNetwork}/>
+                                 renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
             </Modal.Body>
-            </div>
+        </div>
     )
- }
-
+}
 
 
 class SourceTitle extends React.Component {
