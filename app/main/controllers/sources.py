@@ -125,9 +125,9 @@ def set_source_routes(app):
             abort(422)
         if site_name is not None and type(site_name) is not str:
             abort(422)
-        if published_date is not None and type(published_date) is not datetime:
+        if published_date is not None and type(published_date) is not str:
             abort(422)
-        if access_date is not None and type(access_date) is not datetime:
+        if access_date is not None and type(access_date) is not str:
             abort(422)
         if project_id is not None:
             project = Project.query.get(project_id)
@@ -154,15 +154,11 @@ def set_source_routes(app):
         source.author = author if author is not None else source.author
         source.site_name = site_name if site_name is not None else source.site_name
         fmt = '%a, %d %b %Y %H:%M:%S %z'
-        source.published_date = published_date if published_date is not None else source.published_date
-        source.access_date = access_date if access_date is not None else source.access_date
-        '''
         source.published_date = datetime.strptime(published_date, fmt)\
             if published_date is not None else source.published_date
         source.access_date = datetime.strptime(access_date, fmt)\
             if access_date is not None else source.access_date
-        '''
-
+        
         source.update()
 
         return jsonify({
