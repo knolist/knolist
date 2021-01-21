@@ -247,35 +247,6 @@ class BibWindow extends React.Component {
         });
     }
 
-    // Renders top and botton section of citations (those included in clipboard copy) 
-    // depending on whether included parameter boolean is true or false
-    // renderIncluded = (included,source) => {
-    //     // eslint-disable-next-line
-    //     <CheckboxGroup name="checkboxList">
-    //         {if (source.is_included === included) {
-    //             return(
-    //                 <CheckboxGroup name="checkboxList">
-    //                     <Checkbox defaultChecked onChange={() => this.removeFromSaved(source)} key={index}>
-    //                         {this.renderFormatType(source)}
-    //                         {this.showMissingIcon(source)}
-    //                         <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
-    //                     </Checkbox>
-    //                 </CheckboxGroup>
-    //             );
-    //         } else {
-    //             return(
-    //                 <CheckboxGroup name="checkboxList">
-    //                     <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}}  onChange={() => this.addToSaved(source)} key={index}>
-    //                         {this.renderFormatType(source)}
-    //                         {this.showMissingIcon(source)}
-    //                         <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
-    //                     </Checkbox>
-    //                 </CheckboxGroup>
-    //             );
-    //         }}
-    //     </CheckboxGroup>
-    // }
-
     render() {
         const formats = this.state.formats;
         const dropdownData = [{value:formats.APA,label:formats.APA},{value:formats.MLA,label:formats.MLA},{value:formats.CHI,label:formats.CHI}]
@@ -289,14 +260,6 @@ class BibWindow extends React.Component {
                     <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
-                {/*<Modal.Body>
-                    {this.state.sources.map((source,index) => 
-                    {this.renderIncluded(true,source)}
-                    <Divider/>
-                    {this.renderIncluded(false,source)}
-                    )}
-                </Modal.Body>
-                */}
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
                         {this.state.sources.map((source,index) => 
