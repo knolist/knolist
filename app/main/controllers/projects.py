@@ -153,7 +153,7 @@ def set_project_routes(app):
             # Returns all sources
             return jsonify({
                 'success': True,
-                'sources': [s.format_short() for s in project.sources]
+                'sources': [s.format_long() for s in project.sources]
             })
 
         pattern = '%' + search_query + '%'
@@ -165,7 +165,7 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'sources': [source.format_short() for source in results]
+            'sources': [source.format_long() for source in results]
         })
 
     """
@@ -194,7 +194,7 @@ def set_project_routes(app):
         if existing_source is not None:
             return jsonify({
                 'success': True,
-                'source': existing_source.format_short()
+                'source': existing_source.format_long()
             })  # Status code 200 to represent that no new object was created
 
         # Extract content to create source object
@@ -202,7 +202,7 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_short()
+            'source': source.format_long()
         }), 201
 
     """
@@ -247,8 +247,8 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'from_source': from_source.format_short(),
-            'to_source': to_source.format_short()
+            'from_source': from_source.format_long(),
+            'to_source': to_source.format_long()
         }), status_code
 
     '''

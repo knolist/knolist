@@ -245,7 +245,7 @@ class BibWindow extends React.Component {
             {if (source.is_included === included) {
                 return(
                     <CheckboxGroup name="checkboxList">
-                        <Checkbox defaultChecked onChange={this.removeFromSaved} key={index}>
+                        <Checkbox defaultChecked onChange={this.removeFromSaved(source)} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
@@ -255,7 +255,7 @@ class BibWindow extends React.Component {
             } else {
                 return(
                     <CheckboxGroup name="checkboxList">
-                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}}  onChange={this.addToSaved} key={index}>
+                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}}  onChange={this.addToSaved(source)} key={index}>
                             {this.renderFormatType(source)}
                             {this.showMissingIcon(source)}
                             <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
@@ -400,7 +400,7 @@ class EditWindow extends React.Component{
                 </Modal.Header>
                 <Modal.Body>
                     <p>Author: </p><Input defaultValue={this.showField(this.props.source.author, false)} placeholder={this.showField(this.props.source.author, true)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
-                    <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} placeholder={this.showField(this.props.source.title, true)}onChange={this.changeTitle} style={{ width: '500px' }}/>
+                    <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} placeholder={this.showField(this.props.source.title, true)} onChange={this.changeTitle} style={{ width: '500px' }}/>
                     <p>Publish Date: </p><Input defaultValue={this.showField(this.props.source.publishDate)} placeholder={this.showField(this.props.source.publishDate, true)} onChange={this.changePublishDate} style={{ width: '200px' }}/>
                     <p>Site Name: </p><Input defaultValue={this.showField(this.props.source.siteName)} placeholder={this.showField(this.props.source.siteName, true)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
                     <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.accessDate)} placeholder={this.showField(this.props.source.accessDate, true)} onChange={this.changeAccessDate} style={{ width: '200px' }}/>
