@@ -153,16 +153,16 @@ class MindMap extends React.Component {
     generateNodePositions(node) {
         let xOffset = 0;
         let yOffset = 0;
-        // Update the offset if the node has a parent
-        if (node.prev_sources.length !== 0) {
-            const prevId = node.prev_sources[0];
-            const prevNode = this.state.items.find(x => x.id === prevId);
-            // Check if the previous node has defined coordinates
-            if (prevNode.x_position !== null && prevNode.y_position !== null) {
-                xOffset = prevNode.x_position;
-                yOffset = prevNode.y_position;
-            }
-        }
+        // // Update the offset if the node has a parent
+        // if (node.prev_sources.length !== 0) {
+        //     const prevId = node.prev_sources[0];
+        //     const prevNode = this.state.items.find(x => x.id === prevId);
+        //     // Check if the previous node has defined coordinates
+        //     if (prevNode.x_position !== null && prevNode.y_position !== null) {
+        //         xOffset = prevNode.x_position;
+        //         yOffset = prevNode.y_position;
+        //     }
+        // }
         // Helper variable to generate random positions
         const rangeLimit = 300; // To generate positions in the interval [-rangeLimit, rangeLimit]
         // Generate random positions
@@ -206,7 +206,7 @@ class MindMap extends React.Component {
             let node = this.state.items[index];
             let title = node.title;
             const nodeType = this.getNodeType(node.id);
-            if (nodeType != this.state.types.PURESOURCE) {
+            if (nodeType !== this.state.types.PURESOURCE) {
                 title = node.content.substring(0,100);
             }
             // Deal with positions

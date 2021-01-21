@@ -12,6 +12,7 @@ class NewItemForm extends React.Component {
             loading: false
         };
     }
+
     close = () => {
         this.props.switchShowNewItemForm()
     }
@@ -44,7 +45,7 @@ class NewItemForm extends React.Component {
             "content": content,
             "x_position": x,
             "y_position": y,
-            "project_id": this.props.curProject.id,
+            "parent_project": this.props.curProject.id,
             "is_note": true
         }
 
@@ -52,12 +53,14 @@ class NewItemForm extends React.Component {
             if (response.status === 200) {
                 // Alert that the item already exists in this project
                 Alert.info('This item already exists in this project.');
+                this.props.switchShowNewItemForm();
             } else if (response.status === 201) {
                 // Update items
-                this.props.renderNetwork();
-                Alert.success('Item added successfully.');
+                this.props.renderNetwork(() => {
+                    Alert.success('Item added successfully.');
+                    this.props.switchShowNewItemForm();
+                });
             }
-            this.props.switchShowNewItemForm();
         });
 
     }
@@ -77,16 +80,16 @@ class NewItemForm extends React.Component {
                 <Input autoFocus required type="URL" id={this.state.newItemUrlId} placeholder="Add URL"/>;
         } else if (this.props.inputType === "Note" && this.props.item) {
             // New note created from a source node
-            body = 
+            body =
                 <Input autoFocus type={"Note"} required id={this.state.newItemNotesId}
-                    placeholder="Add Note" componentClass="textarea" rows={30}/>;
+                       placeholder="Add Note" componentClass="textarea" rows={30}/>;
         } else if (this.props.inputType === "Note" && !this.props.item) {
             // New note without a source passed in
-            body = 
+            body =
                 <div>
                     <Input autoFocus type="URL" id={this.state.newItemUrlId} placeholder="Add optional URL"/>
                     <Input type={"Note"} required id={this.state.newItemNotesId}
-                        placeholder="Add Note" componentClass="textarea" rows={30}/>
+                           placeholder="Add Note" componentClass="textarea" rows={30}/>
                 </div>;
         }
 

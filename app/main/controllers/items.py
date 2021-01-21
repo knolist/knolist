@@ -171,7 +171,8 @@ def set_item_routes(app):
         item.source_id = source_id if source_id is not None else item.source_id
         item.is_note = is_note if is_note is not None else item.is_note
         item.content = content if content is not None else item.content
-        item.source.title = title if title is not None else item.source.title
+        # TODO: fix this (maybe we don't need title anymore? Since items don't really have titles)
+        # item.source.title = title if title is not None else item.source.title
         item.x_position = x_position if x_position \
             is not None else item.x_position
         item.y_position = y_position if y_position \
