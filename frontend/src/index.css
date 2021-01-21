@@ -78,12 +78,7 @@ body {
     float: left;
 }
 
-.hover-animation {
-    transition-duration: 0.3s;
-    transition: all 0.2s ease-in-out;
-}
-
-.hover-animation:hover {
-    transform: scale(1.02);
-    cursor: pointer;
+a { /* remove React Router styling (Links are transpiled to <a>) */
+    text-decoration: none;
+    color: inherit;
 }
