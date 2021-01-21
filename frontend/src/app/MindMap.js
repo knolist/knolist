@@ -56,8 +56,14 @@ class MindMap extends React.Component {
 
         let endpoint = "/projects/" + this.props.curProject.id + "/sources";
 
-        if (this.props.searchQuery !== '') {
+        if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
             endpoint = endpoint + "?query=" + this.props.searchQuery;
+            this.props.filters.forEach(function(entry) {
+                if (entry === "Page Content") {
+                    entry = "content";
+                }
+                endpoint = endpoint + "&filter=" + entry.toLowerCase();
+            });
         }
 
         const response = await makeHttpRequest(endpoint);
@@ -266,7 +272,7 @@ class MindMap extends React.Component {
             }
         }
 
-        if (prevProps.searchQuery !== this.props.searchQuery) {
+        if (prevProps.searchQuery !== this.props.searchQuery || prevProps.filters !== this.props.filters) {
              this.renderNetwork(null);
         }
     }
