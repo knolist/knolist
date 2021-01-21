@@ -36,19 +36,29 @@ def create_starter_data():
                       content='This is the content of test source 3')
 
     item_1 = Item(is_note=True,
-                  content="Content of item 1")
+                  content="Content of item 1",
+                  x_position=100,
+                  y_position=100)
 
     item_2 = Item(is_note=True,
-                  content="Content of item 2")
+                  content="Content of item 2",
+                  x_position=200,
+                  y_position=200)
 
     item_3 = Item(is_note=False,
-                  content="Content of item 3")
+                  content="Content of item 3",
+                  x_position=300,
+                  y_position=300)
 
     item_4 = Item(is_note=False,
-                  content="Content of item 4")
+                  content="Content of item 4",
+                  x_position=400,
+                  y_position=400)
 
     extra_item = Item(is_note=True,
-                      content='Content of Extra Item')
+                      content='Content of Extra Item',
+                      x_position=-100,
+                      y_position=-100)
     source_1.child_items.append(item_1)
     source_2.child_items.append(item_2)
     source_3.child_items.append(item_3)
@@ -78,4 +88,4 @@ def create_starter_data():
     item_4.insert()
     cluster_1.insert()
 
-    return project_1, project_2, source_1, source_2, source_3, cluster_1
+    return project_1, project_2, source_1, source_2, source_3, item_1, item_2, item_3, cluster_1

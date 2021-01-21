@@ -22,11 +22,11 @@ def get_authorized_item(user_id, item_id):
     return item
 
 
-def create_and_insert_item(content, is_note, project_id,
+def create_and_insert_item(content, is_note, parent_project,
                            source_id, x=None, y=None):
     item = Item(source_id=source_id, is_note=is_note,
                 content=content, x_position=x,
-                project_id=project_id, y_position=y)
+                parent_project=parent_project, y_position=y)
     item.insert()
 
     return item
@@ -41,18 +41,17 @@ def set_item_routes(app):
     @app.route('/items', methods=['POST'])
     @requires_auth('create:items')
     def create_item(user_id):
-
         body = request.get_json()
         if body is None:
             abort(400)
 
         url = body.get('url', None)
         content = body.get('content', None)
-        project_id = body.get('project_id', None)
+        parent_project = body.get('parent_project', None)
         x = body.get('x_position', None)
         y = body.get('y_position', None)
         is_note = body.get('is_note', None)
-        get_authorized_project(user_id, project_id)
+        get_authorized_project(user_id, parent_project)
 
         if url is None and content is None:
             # Neither url nor content, so abort
@@ -64,20 +63,20 @@ def set_item_routes(app):
         source_id_temp = None
         # Check if source already exists in sources table
         temp_filter = Source.query.filter(Source.url == url,
-                                          Source.project_id == project_id)
+                                          Source.project_id == parent_project)
         existing_source = temp_filter.first()
         if existing_source is not None:
             # Refer source_id to existing source
             source_id_temp = existing_source.id
         elif url is not None and existing_source is None:
             # Create new source for item
-            source = create_and_insert_source(url, project_id, x, y)
+            source = create_and_insert_source(url, parent_project)
             source_id_temp = source.id
         elif url is None and is_note is True:
             # Regular Note
             source_id_temp = None
         item = create_and_insert_item(content, is_note,
-                                      project_id, source_id_temp, x, y)
+                                      parent_project, source_id_temp, x, y)
         return jsonify({
             'success': True,
             'item': item.format()
@@ -136,12 +135,12 @@ def set_item_routes(app):
         # Obtain source id
         source_id = body.get('source_id', None)
         # Obtain project ID
-        project_id = body.get('project_id', None)
+        parent_project = body.get('parent_project', None)
 
         # Verify that at least one parameter was passed
         cond_1 = is_note is None and content is None
         cond_2 = x_position is None and y_position is None
-        cond_3 = source_id is None and project_id is None and title is None
+        cond_3 = source_id is None and parent_project is None and title is None
         if cond_1 and cond_2 and cond_3:
             abort(400)
 
@@ -157,8 +156,8 @@ def set_item_routes(app):
         if title is not None and type(title) is not str:
             abort(422)
 
-        if project_id is not None:
-            project = Project.query.get(project_id)
+        if parent_project is not None:
+            project = Project.query.get(parent_project)
             if project is None:
                 abort(422)
             if project.user_id != user_id:
@@ -171,15 +170,14 @@ def set_item_routes(app):
         # Update values that are not None
         item.source_id = source_id if source_id is not None else item.source_id
         item.is_note = is_note if is_note is not None else item.is_note
-        item.content = content if content \
-                                  is not None else item.content
+        item.content = content if content is not None else item.content
         item.source.title = title if title is not None else item.source.title
         item.x_position = x_position if x_position \
-                                        is not None else item.x_position
+            is not None else item.x_position
         item.y_position = y_position if y_position \
-                                        is not None else item.y_position
-        item.project_id = project_id if project_id \
-                                        is not None else item.project_id
+            is not None else item.y_position
+        item.parent_project = parent_project if parent_project \
+            is not None else item.parent_project
 
         item.update()
 

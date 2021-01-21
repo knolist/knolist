@@ -34,7 +34,7 @@ def extract_content_from_url(url):
         }
 
 
-def create_and_insert_source(url, project_id, x=None, y=None):
+def create_and_insert_source(url, project_id):
     extraction_results = extract_content_from_url(url)
     content = extraction_results['content']
     title = extraction_results['title']

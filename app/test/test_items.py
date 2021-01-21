@@ -32,17 +32,17 @@ class TestItemsEndpoints(unittest.TestCase):
         self.new_item_note = {
             'is_note': True,
             'content': 'New content',
-            'x_position': self.source_1.x_position + 100,
-            'y_position': self.source_1.y_position + 100,
-            'project_id': self.project_2.id
+            'x_position': self.item_1.x_position + 100,
+            'y_position': self.item_1.y_position + 100,
+            'parent_project': self.project_2.id
         }
 
         self.new_item_highlight = {
             'is_note': False,
             'content': '"New highlight"',
-            'x_position': self.source_1.x_position + 50,
-            'y_position': self.source_1.y_position + 50,
-            'project_id': self.project_2.id
+            'x_position': self.item_1.x_position + 50,
+            'y_position': self.item_1.y_position + 50,
+            'parent_project': self.project_2.id
         }
 
     def tearDown(self):
@@ -62,7 +62,7 @@ class TestItemsEndpoints(unittest.TestCase):
         self.assertEqual(item['content'], self.item_1.content)
         self.assertEqual(item['x_position'], self.item_1.x_position)
         self.assertEqual(item['y_position'], self.item_1.y_position)
-        self.assertEqual(item['project_id'], self.item_1.project_id)
+        self.assertEqual(item['parent_project'], self.item_1.parent_project)
 
     def test_get_item_detail_nonexistent_item(self):
         res = self.client().get('/items/2000', headers=auth_header)
@@ -74,14 +74,14 @@ class TestItemsEndpoints(unittest.TestCase):
     # DELETE '/items/{item_id}' #
     def test_delete_item(self):
         old_total = len(Item.query.filter(
-            Item.project_id == self.item_1.project_id
+            Item.parent_project == self.item_1.parent_project
         ).all())
         res = self.client().delete(f'/items/{self.item_1.id}',
                                    headers=auth_header)
         data = json.loads(res.data)
 
         new_total = len(Item.query.filter(
-            Item.project_id == self.item_1.project_id
+            Item.parent_project == self.item_1.parent_project
         ).all())
         deleted_item = Item.query.get(self.project_1.id)
         self.assertEqual(res.status_code, 200)
@@ -91,13 +91,13 @@ class TestItemsEndpoints(unittest.TestCase):
 
     def test_delete_item_nonexistent_item(self):
         old_total = len(Item.query.filter(
-            Item.project_id == self.item_1.project_id
+            Item.parent_project == self.item_1.parent_project
         ).all())
         res = self.client().delete('/items/2000', headers=auth_header)
         data = json.loads(res.data)
 
         new_total = len(Item.query.filter(
-            Item.project_id == self.item_1.project_id
+            Item.parent_project == self.item_1.parent_project
         ).all())
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
@@ -114,7 +114,7 @@ class TestItemsEndpoints(unittest.TestCase):
         self.assertEqual(item['content'], self.new_item_note['content'])
         self.assertEqual(item['x_position'], self.new_item_note['x_position'])
         self.assertEqual(item['y_position'], self.new_item_note['y_position'])
-        self.assertEqual(item['project_id'], self.new_item_note['project_id'])
+        self.assertEqual(item['parent_project'], self.new_item_note['parent_project'])
         self.assertTrue(self.item_1 in self.project_2.items)
         self.assertTrue(self.item_1 not in self.project_1.items)
 
@@ -175,7 +175,7 @@ class TestItemsEndpoints(unittest.TestCase):
 
     def test_update_item_nonexistent_project(self):
         res = self.client().patch(f'/items/{self.item_1.id}',
-                                  json={'project_id': 2000},
+                                  json={'parent_project': 2000},
                                   headers=auth_header)
         data = json.loads(res.data)
 

@@ -30,5 +30,3 @@ def set_routes(app):
     set_item_routes(app)
     set_connection_routes(app)
     set_cluster_routes(app)
-
-

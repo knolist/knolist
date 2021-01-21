@@ -59,7 +59,8 @@ def get_authorized_item(user_id, item_id):
         if item.project.user_id != user_id:
             raise AuthError({
                 'code': 'invalid_user',
-                'description': 'This item does not belong to the requesting user.'
+                'description':
+                    'This item does not belong to the requesting user.'
             }, 403)
 
     else:
@@ -71,7 +72,8 @@ def get_authorized_item(user_id, item_id):
                 if temp_cluster.project.user_id != user_id:
                     raise AuthError({
                         'code': 'invalid_user',
-                        'description': 'This item does not belong to the requesting user'
+                        'description':
+                            'This item does not belong to the requesting user'
                     }, 403)
                 break
 

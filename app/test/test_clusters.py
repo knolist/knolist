@@ -24,7 +24,7 @@ class TestClustersEndpoints(unittest.TestCase):
         self.source_1 = items[2]
         self.source_2 = items[3]
         self.source_3 = items[4]
-        self.cluster_1 = items[5]
+        self.cluster_1 = items[8]
 
         self.new_source = {
             'title': 'New title',
@@ -163,8 +163,8 @@ class TestClustersEndpoints(unittest.TestCase):
 
         top_cluster_id = self.cluster_1.id
         subcluster_id = self.source_2.child_items[0].project.id
-        print(top_cluster_id)
-        #print(subcluster_id)
+        # print(top_cluster_id)
+        # print(subcluster_id)
 
         res = self.client()\
             .post(f'/clusters',
@@ -177,7 +177,7 @@ class TestClustersEndpoints(unittest.TestCase):
         data = json.loads(res.data)
         subcluster = data['cluster']
         subcluster_id = subcluster['id']
-        print(subcluster_id)
+        # print(subcluster_id)
         self.assertEqual(len(subcluster['child_items']), 2)
         res = self.client()\
             .post(f'/clusters/{subcluster_id}'

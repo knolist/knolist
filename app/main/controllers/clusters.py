@@ -1,6 +1,7 @@
 from flask import request, abort, jsonify
 
-from app.main.auth.get_authorized_objects import get_authorized_cluster, get_authorized_item
+from app.main.auth.get_authorized_objects \
+    import get_authorized_cluster, get_authorized_item
 from ..models.models import Cluster
 from ..auth import requires_auth
 
@@ -19,6 +20,7 @@ def set_cluster_routes(app):
     """
     Deletes a cluster.
     """
+
     @app.route('/clusters/<int:cluster_id>', methods=['DELETE'])
     @requires_auth('delete:clusters')
     def delete_cluster(user_id, cluster_id):
@@ -51,6 +53,7 @@ def set_cluster_routes(app):
     '''
     Update cluster name
     '''
+
     @app.route('/clusters/<int:cluster_id>', methods=['PATCH'])
     @requires_auth('update:clusters')
     def update_cluster_name(user_id, cluster_id):
@@ -74,6 +77,7 @@ def set_cluster_routes(app):
     '''
     Creates a new cluster from scratch (two sources come near each other)
     '''
+
     @app.route('/clusters', methods=['POST'])
     @requires_auth('create:clusters')
     def create_cluster_from_scratch(user_id):
