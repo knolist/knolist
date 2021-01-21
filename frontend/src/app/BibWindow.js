@@ -73,7 +73,8 @@ class BibWindow extends React.Component {
 
     // Called when checkbox changed
     // Changes citation is_included field to true
-    addToSaved = async (checked,source) => {
+    addToSaved = async (source) => {
+    //addToSaved = async (checked,source) => {
         const endpoint = "/sources/" + source.id;
         var body = null;
         body = {
@@ -85,7 +86,8 @@ class BibWindow extends React.Component {
 
     // Called when checkbox changed
     // Changes citation is_included field to false
-    removeFromSaved = async (checked,source) => {
+    removeFromSaved = async (source) => {
+    //removeFromSaved = async (checked,source) => {
         const endpoint = "/sources/" + source.id;
         var body = null;
 
@@ -303,7 +305,7 @@ class BibWindow extends React.Component {
                             this.state.sources.map((source,index) => 
                             {if (source.is_included === true) { 
                                 return(
-                                    <Checkbox defaultChecked onChange={(checked) => this.removeFromSaved(checked,source)} key={index}>
+                                    <Checkbox defaultChecked onChange={() => this.removeFromSaved(source)} key={index}>
                                         {this.renderFormatType(source)}
                                         {this.showMissingIcon(source)}
                                     </Checkbox>
@@ -316,7 +318,7 @@ class BibWindow extends React.Component {
                             this.state.sources.map((source,index) => 
                             {if (source.is_included === false) { 
                                 return(
-                                    <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(checked) => this.addToSaved(checked,source)} key={index}>
+                                    <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={() => this.addToSaved(source)} key={index}>
                                         {this.renderFormatType(source)}
                                         {this.showMissingIcon(source)}
                                     </Checkbox>
@@ -417,12 +419,12 @@ class EditWindow extends React.Component{
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Author: </p><Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/>
-                    <p>Title: </p><Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/>
-                    <p>Publish Date: </p><Input defaultValue={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} style={{ width: '300px' }}/>
-                    <p>Site Name: </p><Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} style={{ width: '300px' }}/>
-                    <p>Access Date: </p><Input defaultValue={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate} style={{ width: '300px' }}/>
-                    <p>URL: </p><Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/>
+                    <p>Author: <Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/></p>
+                    <p>Title: <Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/></p>
+                    <p>Publish Date: <Input defaultValue={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} style={{ width: '300px' }}/></p>
+                    <p>Site Name: <Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} style={{ width: '300px' }}/></p>
+                    <p>Access Date: <Input defaultValue={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate} style={{ width: '300px' }}/></p>
+                    <p>URL: <Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/></p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={this.props.close}>Save</Button>
