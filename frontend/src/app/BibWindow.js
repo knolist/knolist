@@ -14,11 +14,13 @@ class BibWindow extends React.Component {
             MLA: "MLA Works Cited",
             CHI: "Chicago Bibliography Style"
         }
+        //var included = new Array()
         this.state = {
             sources: null,
             curFormat: formats.APA,
             formats: formats,
-            editSource: null
+            editSource: null,
+            //included: included
         }
     }
 
@@ -31,7 +33,18 @@ class BibWindow extends React.Component {
         const response = await makeHttpRequest(endpoint);
         //this.setLoading(false);
         this.setState({sources: response.body.sources}, callback);
+        //this.updateIncluded();
     }
+
+    // updateIncluded() {
+    //     if (this.state.sources) {
+    //         var i = this.state.included
+    //         this.setState(
+    //         {
+    //             included: this.state.sources.map((source,index) => {if (source.is_included) {i.push(source)}})
+    //         });
+    //     }
+    // }
 
     componentDidUpdate(prevProps, prevState) {
         if (prevProps.showBib !== this.props.showBib && this.props.showBib) {
@@ -51,6 +64,7 @@ class BibWindow extends React.Component {
             "is_included" : false
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.getBibSources();
     }
 
     // Called when checkbox is checked
@@ -61,6 +75,7 @@ class BibWindow extends React.Component {
             "is_included" : true
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.getBibSources();
     }
 
     // Copies citations in top section (those with is_included === true)
@@ -131,11 +146,11 @@ class BibWindow extends React.Component {
         var formattedDate = "";
         var title = "";
         var author = "";
-        var publishDateJS = new Date(source.publishDate);
-        var accessDateJS = new Date(source.accessDate);
+        var publishDateJS = new Date(source.published_date);
+        var accessDateJS = new Date(source.access_date);
         if (this.state.curFormat === this.state.formats.APA){
             // if publishDate None, use accessDate
-            if (source.publishDate) {
+            if (source.published_date) {
                 formattedDate = formattedDate.concat("(");
                 formattedDate = formattedDate.concat(publishDateJS.getFullYear());
                 formattedDate = formattedDate.concat(", ");
@@ -160,10 +175,10 @@ class BibWindow extends React.Component {
                 author = author.concat(source.author);
                 author = author.concat(".");
             }
-            return <p className={this.isIncludedClassName(source.is_included)}>{source.is_included} {author} {formattedDate} <i>{title}</i> {source.siteName}. <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p> 
+            return <p className={this.isIncludedClassName(source.is_included)}>{author} {formattedDate} <i>{title}</i> {source.siteName}. <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p> 
         } else if (this.state.curFormat === this.state.formats.CHI){
             // if publishDate None, use accessDate
-            if (source.publishDate) {
+            if (source.published_date) {
                 formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
                 formattedDate = formattedDate.concat(" ");
                 formattedDate = formattedDate.concat(publishDateJS.getDate());
@@ -189,7 +204,7 @@ class BibWindow extends React.Component {
             }
             return <p className={this.isIncludedClassName(source.is_included)}>{source.is_included} {author} {title} <i>{source.siteName}</i>, {formattedDate} <a href={source.url} target="_blank" rel="noopener noreferrer">{source.url}.</a></p>
         } else if (this.state.curFormat === this.state.formats.MLA) {
-            if (source.publishDate) {
+            if (source.published_date) {
                 formattedDate = formattedDate.concat(publishDateJS.getDate());
                 formattedDate = formattedDate.concat(" ");
                 formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
@@ -198,7 +213,7 @@ class BibWindow extends React.Component {
                 formattedDate = formattedDate.concat(".");
             }
             var formattedDate2 = "";
-            if (source.accessDate) {
+            if (source.access_date) {
                 formattedDate2 = formattedDate2.concat("Accessed ");
                 formattedDate2 = formattedDate2.concat(accessDateJS.getDate());
                 formattedDate2 = formattedDate2.concat(" ");
@@ -239,32 +254,32 @@ class BibWindow extends React.Component {
 
     // Renders top and botton section of citations (those included in clipboard copy) 
     // depending on whether included parameter boolean is true or false
-    renderIncluded = (included) => {
-        // eslint-disable-next-line
-        {this.state.sources.map((source,index) => 
-            {if (source.is_included === included) {
-                return(
-                    <CheckboxGroup name="checkboxList">
-                        <Checkbox defaultChecked onChange={this.removeFromSaved(source)} key={index}>
-                            {this.renderFormatType(source)}
-                            {this.showMissingIcon(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
-                        </Checkbox>
-                    </CheckboxGroup>
-                );
-            } else {
-                return(
-                    <CheckboxGroup name="checkboxList">
-                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}}  onChange={this.addToSaved(source)} key={index}>
-                            {this.renderFormatType(source)}
-                            {this.showMissingIcon(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
-                        </Checkbox>
-                    </CheckboxGroup>
-                );
-            }}
-        )}
-    }
+    // renderIncluded = (included,source) => {
+    //     // eslint-disable-next-line
+    //     <CheckboxGroup name="checkboxList">
+    //         {if (source.is_included === included) {
+    //             return(
+    //                 <CheckboxGroup name="checkboxList">
+    //                     <Checkbox defaultChecked onChange={() => this.removeFromSaved(source)} key={index}>
+    //                         {this.renderFormatType(source)}
+    //                         {this.showMissingIcon(source)}
+    //                         <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
+    //                     </Checkbox>
+    //                 </CheckboxGroup>
+    //             );
+    //         } else {
+    //             return(
+    //                 <CheckboxGroup name="checkboxList">
+    //                     <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}}  onChange={() => this.addToSaved(source)} key={index}>
+    //                         {this.renderFormatType(source)}
+    //                         {this.showMissingIcon(source)}
+    //                         <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
+    //                     </Checkbox>
+    //                 </CheckboxGroup>
+    //             );
+    //         }}
+    //     </CheckboxGroup>
+    // }
 
     render() {
         const formats = this.state.formats;
@@ -280,28 +295,30 @@ class BibWindow extends React.Component {
                     </Modal.Title>
                 </Modal.Header>
                 {/*<Modal.Body>
-                    {this.renderIncluded(true)}
+                    {this.state.sources.map((source,index) => 
+                    {this.renderIncluded(true,source)}
                     <Divider/>
-                    {this.renderIncluded(false)}
+                    {this.renderIncluded(false,source)}
+                    )}
                 </Modal.Body>
-            */}
+                */}
                 <Modal.Body>
                     <CheckboxGroup name="checkboxList">
                         {this.state.sources.map((source,index) => 
-                        <Checkbox defaultChecked onChange={this.removeFromSaved(source)} key={index}>
-                            {this.renderFormatType(source)}
-                            {this.showMissingIcon(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
-                        </Checkbox>)}
-                    </CheckboxGroup>
-                    <Divider/>
-                    <CheckboxGroup name="checkboxList">
+                                <Checkbox defaultChecked onChange={() => this.removeFromSaved(source)} key={index}>
+                                    {this.renderFormatType(source)}
+                                    {this.showMissingIcon(source)}
+                                    <EditCitationButton hide={false} source={source} setEditSource={this.setEditSource}/>
+                                </Checkbox>
+                        )}
+                        <Divider/>
                         {this.state.sources.map((source,index) => 
-                        <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={this.addToSaved(source)} key={index}>
-                            {this.renderFormatType(source)}
-                            {this.showMissingIcon(source)}
-                            <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
-                        </Checkbox>)}
+                                <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={() => this.addToSaved(source)} key={index}>
+                                    {this.renderFormatType(source)}
+                                    {this.showMissingIcon(source)}
+                                    <EditCitationButton hide={false} source={source} setEditSource={this.state.editSource}/>
+                                </Checkbox>
+                        )}
                     </CheckboxGroup>
                 </Modal.Body>
             <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource}/>
