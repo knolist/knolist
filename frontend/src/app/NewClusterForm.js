@@ -41,14 +41,6 @@ class NewClusterForm extends React.Component {
             }
             this.props.switchShowNewClusterForm();
         });
-        // const endpoint = "/clusters/3"
-        // makeHttpRequest(endpoint, "DELETE").then((response) => {
-        //     if (response.status === 200) {
-        //         this.props.renderNetwork();
-        //         Alert.success('Cluster deleted successfully.');
-        //     }
-        //     this.props.switchShowNewClusterForm();
-        // });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -61,7 +53,7 @@ class NewClusterForm extends React.Component {
         if (!this.props.showNewClusterForm) return null;
 
         return (
-            <Modal show onHide={this.close}>
+            <Modal show onHide={this.close} style={modalStyle}>
                 <Modal.Header>
                     <Modal.Title>
                         Enter the name of the cluster you'd like to create
@@ -81,6 +73,14 @@ class NewClusterForm extends React.Component {
             </Modal>
         );
     }
+}
+
+const modalStyle = {
+    position: 'fixed', 
+    top: '50%', 
+    left: '50%',
+    marginTop: '-96px',
+    marginLeft: '-300px'
 }
 
 export default NewClusterForm;
