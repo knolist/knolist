@@ -14,24 +14,19 @@ class BibWindow extends React.Component {
             MLA: "MLA Works Cited",
             CHI: "Chicago Bibliography Style"
         }
-        //var included = new Array()
         this.state = {
             sources: null,
             curFormat: formats.APA,
             formats: formats,
             editSource: null
-            //included: included
         }
     }
 
     // Make API call to get all sources 
     getBibSources = async (callback) => {
         if (this.props.curProject === null) return null;
-        // this.setLoading(true);
-
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
         const response = await makeHttpRequest(endpoint);
-        //this.setLoading(false);
         this.setState({sources: response.body.sources}, callback);
     }
 
@@ -42,59 +37,6 @@ class BibWindow extends React.Component {
     }
 
     componentDidMount() {
-        this.getBibSources();
-    }
-
-    // Called when checkbox changed
-    // Changes citation is_included field based on if checkbox is checked or not
-    // changeInclusion = async (checked,source) => {
-    //     console.log("onChange");
-    //     console.log(checked);
-    //     const endpoint = "/sources/" + source.id;
-    //     var body = null;
-    //     // var body = {
-    //     //     "is_included" : true
-    //     // }
-    //     if (checked) {
-    //         console.log("checked");
-    //         body = {
-    //             "is_included" : true
-    //         }
-    //     } else {
-    //         console.log("unchecked");
-    //         body = {
-    //             "is_included" : false
-    //         }
-    //     }
-    //     //makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
-    //     await makeHttpRequest(endpoint, "PATCH", body);
-    //     this.getBibSources();
-    // }
-
-    // Called when checkbox changed
-    // Changes citation is_included field to true
-    addToSaved = async (source) => {
-    //addToSaved = async (checked,source) => {
-        const endpoint = "/sources/" + source.id;
-        var body = null;
-        body = {
-            "is_included" : true
-        }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.getBibSources();
-    }
-
-    // Called when checkbox changed
-    // Changes citation is_included field to false
-    removeFromSaved = async (source) => {
-    //removeFromSaved = async (checked,source) => {
-        const endpoint = "/sources/" + source.id;
-        var body = null;
-
-        body = {
-            "is_included" : false
-        }
-        await makeHttpRequest(endpoint, "PATCH", body);
         this.getBibSources();
     }
 
@@ -117,12 +59,6 @@ class BibWindow extends React.Component {
         document.removeEventListener("copy", listener);
         Alert.info('Copied Citations to Clipboard');
     };
-
-    changeFormatType = (value) => {
-        this.setState({
-            curFormat: value
-        });
-    }
 
     // Check if citation has all source fields present
     // Displays a Missing! icon if not
@@ -161,7 +97,36 @@ class BibWindow extends React.Component {
         }
     }
 
+    // Called when checkbox changed
+    // Changes citation is_included field to true
+    addToSaved = async (source) => {
+    //addToSaved = async (checked,source) => {
+        const endpoint = "/sources/" + source.id;
+        var body = null;
+        body = {
+            "is_included" : true
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
+        this.getBibSources();
+    }
+
+    // Called when checkbox changed
+    // Changes citation is_included field to false
+    removeFromSaved = async (source) => {
+    //removeFromSaved = async (checked,source) => {
+        const endpoint = "/sources/" + source.id;
+        var body = null;
+
+        body = {
+            "is_included" : false
+        }
+        await makeHttpRequest(endpoint, "PATCH", body);
+        this.getBibSources();
+    }
+
     // Renders citation in APA, MLA, or Chicago format
+    // source.access_date and source.published_date are in string form
+    // Use JSON Date() object to parse
     renderFormatType = (source) => {
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         var formattedDate = "";
@@ -170,7 +135,7 @@ class BibWindow extends React.Component {
         var publishDateJS = new Date(source.published_date);
         var accessDateJS = new Date(source.access_date);
         if (this.state.curFormat === this.state.formats.APA){
-            // if publishDate None, use accessDate
+            // if published_date is None, use access_date
             if (source.published_date) {
                 formattedDate = formattedDate.concat("(");
                 formattedDate = formattedDate.concat(publishDateJS.getFullYear());
@@ -282,6 +247,13 @@ class BibWindow extends React.Component {
     setEditSource = (source) => {
         this.setState({
             editSource: source
+        });
+    }
+
+    // Change the citation format when format selection is changed
+    changeFormatType = (value) => {
+        this.setState({
+            curFormat: value
         });
     }
 
