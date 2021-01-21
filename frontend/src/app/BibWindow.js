@@ -74,17 +74,11 @@ class BibWindow extends React.Component {
     // Called when checkbox changed
     // Changes citation is_included field to true
     addToSaved = async (checked,source) => {
-        console.log(checked);
         const endpoint = "/sources/" + source.id;
         var body = null;
-        // var body = {
-        //     "is_included" : true
-        // }
-        console.log("checked");
         body = {
             "is_included" : true
         }
-        //makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
         await makeHttpRequest(endpoint, "PATCH", body);
         this.getBibSources();
     }
@@ -92,15 +86,12 @@ class BibWindow extends React.Component {
     // Called when checkbox changed
     // Changes citation is_included field to false
     removeFromSaved = async (checked,source) => {
-        console.log(checked);
         const endpoint = "/sources/" + source.id;
         var body = null;
 
-        console.log("unchecked");
         body = {
             "is_included" : false
         }
-        //makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
         await makeHttpRequest(endpoint, "PATCH", body);
         this.getBibSources();
     }
@@ -298,7 +289,6 @@ class BibWindow extends React.Component {
                             // eslint-disable-next-line
                             this.state.sources.map((source,index) => 
                             {if (source.is_included === true) { 
-                            console.log("Print checked")
                                 return(
                                 <Checkbox defaultChecked onChange={(checked) => this.removeFromSaved(checked,source)} key={index}>
                                     {this.renderFormatType(source)}
@@ -312,7 +302,6 @@ class BibWindow extends React.Component {
                             // eslint-disable-next-line
                             this.state.sources.map((source,index) => 
                             {if (source.is_included === false) { 
-                            console.log("Print unchecked")
                                 return(
                                 <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(checked) => this.addToSaved(checked,source)} key={index}>
                                     {this.renderFormatType(source)}
@@ -323,7 +312,7 @@ class BibWindow extends React.Component {
                         )}
                     </CheckboxGroup>
                 </Modal.Body>
-            <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource}/>
+            <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource} getBibSources={this.getBibSources}/>
             </Modal>
         );
     }
@@ -357,6 +346,7 @@ class EditWindow extends React.Component{
             "author" : value
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.props.getBibSources();
     }
 
     changeTitle = async (value) => {
@@ -365,6 +355,7 @@ class EditWindow extends React.Component{
             "title" : value
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.props.getBibSources();
     }
 
     changePublishDate = async (value) => {
@@ -373,6 +364,7 @@ class EditWindow extends React.Component{
             "published_date" : value
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.props.getBibSources();
     }
 
     changeSiteName = async (value) => {
@@ -381,6 +373,7 @@ class EditWindow extends React.Component{
             "site_name" : value
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.props.getBibSources();
     }
 
     changeAccessDate = async (value) => {
@@ -389,6 +382,7 @@ class EditWindow extends React.Component{
             "access_date" : value
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.props.getBibSources();
     }
 
     changeURL = async (value) => {
@@ -397,6 +391,7 @@ class EditWindow extends React.Component{
             "url" : value
         }
         await makeHttpRequest(endpoint, "PATCH", body);
+        this.props.getBibSources();
     }
 
     render() {
