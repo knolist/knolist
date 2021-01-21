@@ -32,7 +32,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         })
 
     """
@@ -68,7 +68,7 @@ def set_source_routes(app):
             abort(404)
         return jsonify({
             'success': True,
-            'source': final_source.format_long()
+            'source': final_source.format()
         })
     """
     Updates information in a source.
@@ -163,7 +163,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         })
 
     """
@@ -190,7 +190,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         }), 201
 
     """
@@ -218,7 +218,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         })
 
     """
@@ -244,7 +244,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         }), 201
 
     """
@@ -272,7 +272,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         })
 
     """
@@ -308,5 +308,5 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         })
