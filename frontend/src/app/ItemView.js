@@ -29,9 +29,9 @@ class ItemView extends React.Component {
         this.setLoadingDelete(true);
         const endpoint = "/items/" + this.state.itemDetails.id;
         makeHttpRequest(endpoint, "DELETE").then(() => {
-            this.close();
             this.props.renderNetwork(() => {
                 this.setConfirmDelete(false);
+                this.close();
             });
         })
     }

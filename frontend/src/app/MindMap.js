@@ -24,7 +24,8 @@ class MindMap extends React.Component {
             PURESOURCE: "pureSource",
             SOURCEANDNOTE: "sourceAndNote",
             SOURCEANDHIGHLIGHT: "sourceAndHighlight",
-            PURENOTE: "pureNote"
+            PURENOTE: "pureNote",
+            NEITHER: "neither"
         }
         const nodeColors = {
             NULL: null,
@@ -186,6 +187,7 @@ class MindMap extends React.Component {
             return;
         }
         let node = this.getNodeById(nodeId);
+        if (!node) return;
         //pure note
         if (!node.url) return this.state.types.PURENOTE;
         //source and note
