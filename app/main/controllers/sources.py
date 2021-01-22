@@ -93,7 +93,6 @@ def set_source_routes(app):
         content = body.get('content', None)
         x_position = body.get('x_position', None)
         y_position = body.get('y_position', None)
-<<<<<<< HEAD
         is_included = body.get('is_included', None)
         author = body.get('author', None)
         published_date = body.get('published_date', None)
@@ -103,25 +102,20 @@ def set_source_routes(app):
         # Obtain JSON list attributes
         highlights = body.get('highlights', None)
         notes = body.get('notes', None)
-=======
->>>>>>> updated-api
         # Obtain project ID
         project_id = body.get('project_id', None)
 
         # Verify that at least one parameter was passed
         cond_1 = title is None and content is None
         cond_2 = x_position is None and y_position is None
-<<<<<<< HEAD
         cond_3 = highlights is None and notes is None and project_id is None
         cond_4 = is_included is None
         cond_5 = published_date is None and access_date is None
         cond_6 = site_name is None and author is None
-        if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
-=======
-        cond_3 = project_id is None
-        if cond_1 and cond_2 and cond_3:
->>>>>>> updated-api
-            abort(400)
+        # if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
+        #     cond_3 = project_id is None
+        # if cond_1 and cond_2 and cond_3:
+        #     abort(400)
 
         # Verify that parameters are correctly formatted
         if x_position is not None and type(x_position) is not int:
@@ -164,7 +158,7 @@ def set_source_routes(app):
         source.is_included = is_included if is_included is not None else source.is_included
         source.author = author if author is not None else source.author
         source.site_name = site_name if site_name is not None else source.site_name
-        fmt = '%d %B %Y'
+        fmt = '%Y-%m-%d'
         source.published_date = datetime.strptime(published_date, fmt)\
             if published_date is not None else source.published_date
         source.access_date = datetime.strptime(access_date, fmt)\
@@ -176,7 +170,6 @@ def set_source_routes(app):
             'success': True,
             'source': source.format()
         })
-<<<<<<< HEAD
 
     """
     Adds a new highlight to a source's highlights.
@@ -322,5 +315,3 @@ def set_source_routes(app):
             'success': True,
             'source': source.format()
         })
-=======
->>>>>>> updated-api

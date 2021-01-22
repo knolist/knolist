@@ -33,6 +33,7 @@ class BibWindow extends React.Component {
         if (prevProps.showBib !== this.props.showBib && this.props.showBib) {
             this.getBibSources();
         }
+    }
 
     componentDidMount() {
         this.getBibSources();
@@ -335,25 +336,26 @@ class EditWindow extends React.Component{
     }
 
     // Make API call to update citation fields
-    changeAuthor = async (value) => {
+    changeAuthor = (value) => {
         this.setState({
             author: value
         });
     }
 
-    changeTitle = async (value) => {
+    changeTitle = (value) => {
         this.setState({
             title: value
         });
     }
 
-    changePublishDate = async (value) => {
+    changePublishDate = (value) => {
+        console.log(value);
         this.setState({
             publishDate: value
         });
     }
 
-    changeSiteName = async (value) => {
+    changeSiteName = (value) => {
         this.setState({
             siteName: value
         });
@@ -400,9 +402,9 @@ class EditWindow extends React.Component{
                 <Modal.Body>
                     <p>Author: <Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/></p>
                     <p>Title: <Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/></p>
-                    <p>Publish Date: <DatePicker format="DD-MM-YYYY" placeholder={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} oneTap/></p>
+                    <p>Publish Date: <DatePicker format="MM-DD-YYYY" placeholder={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} oneTap/></p>
                     <p>Site Name: <Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} oneTap style={{ width: '300px' }}/></p>
-                    <p>Access Date: <DatePicker format="DD-MM-YYYY" placeholder={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate}/></p>
+                    <p>Access Date: <DatePicker format="MM-DD-YYYY" placeholder={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate}/></p>
                     <p>URL: <Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/></p>
                 </Modal.Body>
                 <Modal.Footer>
