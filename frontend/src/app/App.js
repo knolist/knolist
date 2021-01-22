@@ -1,6 +1,5 @@
 // Import from npm libraries
 import React from 'react';
-import {Route, Switch} from "react-router";
 import {Button, Loader} from 'rsuite';
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 
@@ -8,7 +7,6 @@ import {withAuthenticationRequired} from "@auth0/auth0-react";
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
-import Page from "../my-knolist/Page.js";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -92,27 +90,16 @@ class App extends React.Component {
 
     render() {
         return (
-            <Switch>
-                <Route exact path="/">
-                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}/>
-                    <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                     projects={this.state.projects}
-                                     close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
-                                     setCurProject={this.setCurProject}/>
-                    {this.projectsButton()}
-                    <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                             setShowBib={this.setShowBib}/>
-                </Route>
-                <Route path="/my-projects">
-                    <Page url={"/my-projects"}/>
-                </Route>
-                <Route path="/shared">
-                    <Page url={"/shared"}/>
-                </Route>
-                <Route path="/archived">
-                    <Page url={"/archived"}/>
-                </Route>
-            </Switch>
+            <div>
+                <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}/>
+                <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
+                                 projects={this.state.projects}
+                                 close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
+                                 setCurProject={this.setCurProject}/>
+                {this.projectsButton()}
+                <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
+                         setShowBib={this.setShowBib}/>
+            </div>
         );
     }
 }
