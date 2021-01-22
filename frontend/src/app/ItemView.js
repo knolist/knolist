@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Button, Icon, IconButton, Input, Loader, Modal, Tooltip, Whisper
+    Button, Icon, IconButton, Input, Modal, Tooltip, Whisper
 } from "rsuite";
 
 import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
@@ -11,7 +11,6 @@ class ItemView extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            itemDetails: null,
             confirmDelete: false,
             loadingDelete: false
         }
@@ -27,7 +26,7 @@ class ItemView extends React.Component {
 
     deleteItem = () => {
         this.setLoadingDelete(true);
-        const endpoint = "/items/" + this.state.itemDetails.id;
+        const endpoint = "/items/" + this.props.selectedItem.id;
         makeHttpRequest(endpoint, "DELETE").then(() => {
             this.props.renderNetwork(() => {
                 this.setConfirmDelete(false);
@@ -37,85 +36,64 @@ class ItemView extends React.Component {
     }
 
     addNewNote = () => {
-        this.props.setAddItemMode("Note", this.state.itemDetails.url);
+        this.props.setAddItemMode("Note", this.props.selectedItem.url);
         this.close();
     }
 
     close = () => {
-        this.props.setSelectedNode(null);
+        this.props.setSelectedItem(null);
     }
 
-    getItemDetails = async () => {
-        if (this.props.selectedNode === null) {
-            this.setState({itemDetails: null});
-            return;
+    generateItemBody = (item, typeOfNode, nodeTypes) => {
+        let modalHeaderAndBody = <div/>;
+        if (typeOfNode === nodeTypes.SOURCEANDNOTE) {
+            modalHeaderAndBody =
+                <SourceAndNoteView item={item} getSelectedItemDetails={this.props.getSelectedItemDetails}
+                                   renderNetwork={this.props.renderNetwork}/>
+        } else if (typeOfNode === nodeTypes.SOURCEANDHIGHLIGHT) {
+            modalHeaderAndBody =
+                <SourceAndHighlightView item={item} getSelectedItemDetails={this.props.getSelectedItemDetails}
+                                        renderNetwork={this.props.renderNetwork}/>
+        } else if (typeOfNode === nodeTypes.PURENOTE) {
+            modalHeaderAndBody =
+                <PureNoteView item={item} getSelectedItemDetails={this.props.getSelectedItemDetails}
+                              renderNetwork={this.props.renderNetwork}/>
+        } else if (typeOfNode === nodeTypes.PURESOURCE) {
+            modalHeaderAndBody =
+                <PureSourceView item={item} getSelectedItemDetails={this.props.getSelectedItemDetails}
+                                renderNetwork={this.props.renderNetwork}/>
         }
-
-        const endpoint = "/items/" + this.props.selectedNode;
-        const response = await makeHttpRequest(endpoint);
-        this.setState({itemDetails: response.body.item});
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.selectedNode !== this.props.selectedNode) {
-            this.getItemDetails();
-        }
-    }
-
-    componentDidMount() {
-        this.getItemDetails();
+        return modalHeaderAndBody;
     }
 
     render() {
-        if (this.props.selectedNode === null) return null;
+        if (this.props.selectedItem === null) return null;
 
+        const item = this.props.selectedItem;
+        const typeOfNode = this.props.getNodeType(item);
+        const nodeTypes = this.props.nodeTypes;
 
-        if (this.state.itemDetails !== null) {
-            const item = this.state.itemDetails;
-
-            let modalHeaderAndBody = <div/>;
-            if (this.props.typeOfNode === "sourceAndNote") {
-                modalHeaderAndBody =
-                    <SourceAndNoteView item={item} getItemDetails={this.getItemDetails}
-                                       renderNetwork={this.props.renderNetwork}/>
-            } else if (this.props.typeOfNode === "sourceAndHighlight") {
-                modalHeaderAndBody =
-                    <SourceAndHighlightView item={item} getItemDetails={this.getItemDetails}
-                                            renderNetwork={this.props.renderNetwork}/>
-            } else if (this.props.typeOfNode === "pureNote") {
-                modalHeaderAndBody =
-                    <PureNoteView item={item} getItemDetails={this.getItemDetails}
-                                  renderNetwork={this.props.renderNetwork}/>
-            } else if (this.props.typeOfNode === "pureSource") {
-                modalHeaderAndBody =
-                    <PureSourceView item={item} getItemDetails={this.getItemDetails}
-                                    renderNetwork={this.props.renderNetwork}/>
-            }
-
-            return (
-                <div>
-                    <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
-                                           resetDelete={() => this.setConfirmDelete(false)}
-                                           title={item.title} delete={this.deleteItem}
-                                           loading={this.state.loadingDelete}/>
-                    <Modal full show onHide={this.close}>
-                        {modalHeaderAndBody}
-                        <Modal.Footer>
-                            <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Item</Tooltip>}
-                                     placement="bottom">
-                                <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
-                                            size="lg"/>
-                            </Whisper>
-                            <Button appearance="primary" onClick={this.addNewNote}>
-                                Add New Note
-                            </Button>
-                        </Modal.Footer>
-                    </Modal>
-                </div>
-            );
-        }
-
-        return <Loader size="lg" backdrop center/>;
+        return (
+            <div>
+                <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
+                                       resetDelete={() => this.setConfirmDelete(false)}
+                                       title={item.title} delete={this.deleteItem}
+                                       loading={this.state.loadingDelete}/>
+                <Modal full show onHide={this.close}>
+                    {this.generateItemBody(item, typeOfNode, nodeTypes)}
+                    <Modal.Footer>
+                        <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Item</Tooltip>}
+                                 placement="bottom">
+                            <IconButton onClick={() => this.setConfirmDelete(true)} icon={<Icon icon="trash"/>}
+                                        size="lg"/>
+                        </Whisper>
+                        <Button appearance="primary" onClick={this.addNewNote}>
+                            Add New Note
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </div>
+        );
     }
 }
 
@@ -128,7 +106,7 @@ function PureNoteView(props) {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <NoteContent item={props.item} getItemDetails={props.getItemDetails}
+                <NoteContent item={props.item} getSelectedItemDetails={props.getSelectedItemDetails}
                              renderNetwork={props.renderNetwork}/>
             </Modal.Body>
         </div>
@@ -140,7 +118,7 @@ function SourceAndHighlightView(props) {
         <div>
             <Modal.Header>
                 <Modal.Title>
-                    <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
+                    <SourceTitle item={props.item} getSelectedItemDetails={props.getSelectedItemDetails}
                                  renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
@@ -156,12 +134,12 @@ function SourceAndNoteView(props) {
         <div>
             <Modal.Header>
                 <Modal.Title>
-                    <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
+                    <SourceTitle item={props.item} getSelectedItemDetails={props.getSelectedItemDetails}
                                  renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <NoteContent item={props.item} getItemDetails={props.getItemDetails}
+                <NoteContent item={props.item} getSelectedItemDetails={props.getSelectedItemDetails}
                              renderNetwork={props.renderNetwork}/>
             </Modal.Body>
         </div>
@@ -173,7 +151,7 @@ function PureSourceView(props) {
         <div>
             <Modal.Header>
                 <Modal.Title>
-                    <SourceTitle item={props.item} getItemDetails={props.getItemDetails}
+                    <SourceTitle item={props.item} getSelectedItemDetails={props.getSelectedItemDetails}
                                  renderNetwork={props.renderNetwork}/>
                 </Modal.Title>
             </Modal.Header>
@@ -212,7 +190,7 @@ class SourceTitle extends React.Component {
 
         makeHttpRequest(endpoint, "PATCH", body).then(() => {
             this.props.renderNetwork(() => {
-                this.props.getItemDetails().then(() => {
+                this.props.getSelectedItemDetails().then(() => {
                     this.setLoading(false);
                     callback();
                 });
@@ -277,7 +255,7 @@ class NoteContent extends React.Component {
 
         makeHttpRequest(endpoint, "PATCH", body).then(() => {
             this.props.renderNetwork(() => {
-                this.props.getItemDetails().then(() => {
+                this.props.getSelectedItemDetails().then(() => {
                     this.setLoading(false);
                     callback();
                 });

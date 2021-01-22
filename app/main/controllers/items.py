@@ -1,25 +1,9 @@
-import json
-
 from flask import request, abort, jsonify
-from sqlalchemy import String, Boolean
 
+from app.main.auth.get_authorized_objects import get_authorized_item
 from .projects import get_authorized_project, create_and_insert_source
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
-
-
-def get_authorized_item(user_id, item_id):
-    item = Item.query.get(item_id)
-    if item is None:
-        abort(404)
-
-    if item.project.user_id != user_id:
-        raise AuthError({
-            'code': 'invalid_user',
-            'description': 'This item does not belong to the requesting user'
-        }, 403)
-
-    return item
 
 
 def create_and_insert_item(content, is_note, parent_project,
@@ -172,7 +156,7 @@ def set_item_routes(app):
         item.is_note = is_note if is_note is not None else item.is_note
         item.content = content if content is not None else item.content
         # TODO: fix this (maybe we don't need title anymore? Since items don't really have titles)
-        # item.source.title = title if title is not None else item.source.title
+        item.source.title = title if title is not None else item.source.title
         item.x_position = x_position if x_position \
             is not None else item.x_position
         item.y_position = y_position if y_position \
