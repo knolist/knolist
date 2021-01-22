@@ -90,7 +90,13 @@ class MindMap extends React.Component {
     getItems = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
-        const endpoint = "/projects/" + this.props.curProject.id + "/items"
+
+        let endpoint = "/projects/" + this.props.curProject.id + "/items";
+
+        if (this.props.searchQuery !== '') {
+            endpoint = endpoint + "?query=" + this.props.searchQuery;
+        }
+        
         const response = await makeHttpRequest(endpoint);
 
         this.setLoading(false);
@@ -369,6 +375,10 @@ class MindMap extends React.Component {
                 Alert.close();
             }
         }
+
+        if (prevProps.searchQuery !== this.props.searchQuery) {
+            this.renderNetwork(null);
+       }
     }
 
     componentDidMount() {

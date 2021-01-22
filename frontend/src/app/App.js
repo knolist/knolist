@@ -24,7 +24,8 @@ class App extends React.Component {
             curProject: JSON.parse(localStorage.getItem("curProject")),
             projects: null,
             showProjectsSidebar: false,
-            showBib: false
+            showBib: false,
+            searchQuery: ''
         }
     }
 
@@ -76,6 +77,14 @@ class App extends React.Component {
         });
     }
 
+    setSearchQuery = (searchQuery) => {
+        this.setState({searchQuery});
+        if(this.props.onInput){
+          this.props.onInput({searchQuery})
+        }
+    }
+
+
     componentDidMount() {
         this.updateProjects()
     }
@@ -94,14 +103,14 @@ class App extends React.Component {
         return (
             <Switch>
                 <Route exact path="/">
-                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}/>
+                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib} searchQuery={this.state.searchQuery} setSearchQuery={this.setSearchQuery}/>
                     <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                                      projects={this.state.projects}
                                      close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                                      setCurProject={this.setCurProject}/>
                     {this.projectsButton()}
                     <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                             setShowBib={this.setShowBib}/>
+                             setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}/>
                 </Route>
                 <Route path="/my-projects">
                     <Page url={"/my-projects"}/>
