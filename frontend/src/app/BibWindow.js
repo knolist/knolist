@@ -23,11 +23,12 @@ class BibWindow extends React.Component {
     }
 
     // Make API call to get all sources 
-    getBibSources = async (callback) => {
+    getBibSources = (callback) => {
         if (this.props.curProject === null) return null;
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        const response = await makeHttpRequest(endpoint);
-        this.setState({sources: response.body.sources}, callback);
+        //const response = await makeHttpRequest(endpoint);
+        //this.setState({sources: response.body.sources}, callback);
+        makeHttpRequest(endpoint).then((response) => this.setState({sources: response.body.sources}, callback));
     }
 
     componentDidUpdate(prevProps, prevState) {
