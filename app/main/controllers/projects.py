@@ -166,8 +166,8 @@ def set_project_routes(app):
             results = Source.query.filter(Source.project_id == project_id)\
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
-                        | Source.content.ilike(pattern))
-            .order_by(Source.id).all()
+                        | Source.content
+                        .ilike(pattern)).order_by(Source.id).all()
             return jsonify({
                 'success': True,
                 'sources': [source.format_short() for source in results]
@@ -207,13 +207,11 @@ def set_project_routes(app):
         pattern = '%' + search_query + '%'
         filter_query = request.args.getlist('filter', None)
         if not filter_query:
-            results = Item.query.join(Source)
-            .filter(Item.parent_project == project_id)\
+            results = Item.query.join(Source).filter(Item.parent_project == project_id)\
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
                         | Source.content.ilike(pattern)
-                        | Item.content.ilike(pattern))
-            .order_by(Item.id).all()
+                        | Item.content.ilike(pattern)).order_by(Item.id).all()
             return jsonify({
                 'success': True,
                 'items': [i.format() for i in results]
@@ -223,11 +221,10 @@ def set_project_routes(app):
         for filter_type in filter_query:
             if filter_type == 'notes' or filter_type == 'highlights':
                 temp = Item.query.filter(Item.parent_project == project_id)\
-                    .filter(Item.content.ilike(pattern))
-                .order_by(Item.id).all()
+                    .filter(Item.content
+                            .ilike(pattern)).order_by(Item.id).all()
             else:
-                temp = Item.query.join(Source)
-                .filter(Item.parent_project == project_id)\
+                temp = Item.query.join(Source).filter(Item.parent_project == project_id)\
                     .filter(getattr(Source, filter_type)
                             .ilike(pattern)).order_by(Item.id).all()
             for item in temp:

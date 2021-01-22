@@ -9,7 +9,7 @@ import NewItemForm from "../components/NewItemForm";
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
 
-import makeHttpRequest from "../services/HttpRequest";
+import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
 class MindMap extends React.Component {
     constructor(props) {
@@ -100,13 +100,7 @@ class MindMap extends React.Component {
         let endpoint = "/projects/" + this.props.curProject.id + "/items";
 
         if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
-            endpoint = endpoint + "?query=" + this.props.searchQuery;
-            this.props.filters.forEach(function(entry) {
-                if (entry === "Page Content") {
-                    entry = "content";
-                }
-                endpoint = endpoint + "&filter=" + entry.toLowerCase();
-            });
+            endpoint = constructHttpQuery(endpoint, this.props.searchQuery, this.props.filters)
         }
         
         const response = await makeHttpRequest(endpoint);
