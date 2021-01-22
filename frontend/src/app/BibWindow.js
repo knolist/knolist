@@ -24,10 +24,8 @@ class BibWindow extends React.Component {
 
     // Make API call to get all sources 
     getBibSources = (callback) => {
-        if (this.props.curProject === null) return null;
+        if (this.props.curProject === null || !this.props.showBib) return null;
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        //const response = await makeHttpRequest(endpoint);
-        //this.setState({sources: response.body.sources}, callback);
         makeHttpRequest(endpoint).then((response) => this.setState({sources: response.body.sources}, callback));
     }
 
@@ -64,7 +62,6 @@ class BibWindow extends React.Component {
     // Check if citation has all source fields present
     // Displays a Missing! icon if not
     showMissingIcon = (source) => {
-        //this.getBibSources();
         if(source.title && source.url && source.author 
             && source.published_date && source.site_name 
             && source.access_date) {
@@ -98,43 +95,20 @@ class BibWindow extends React.Component {
         }
     }
 
-    // // Called when checkbox changed
-    // // Changes citation is_included field to true
-    // addToSaved = (source) => {
-    //     const endpoint = "/sources/" + source.id;
-    //     const body = {
-    //         "is_included" : true
-    //     }
-    //     makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
-    // }
-
-    // // Called when checkbox changed
-    // // Changes citation is_included field to false
-    // removeFromSaved = (source) => {
-    //     const endpoint = "/sources/" + source.id;
-    //     const body = {
-    //         "is_included" : false
-    //     }
-    //     makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
-    // }
-
-
     // Called when checkbox changed
     // Changes citation is_included field to true or false
     // depending on checked or not
-    changeInclusion = (checked,source) => {
+    changeInclusion = (event,checked,source) => {
+        event.stopPropagation();
         const endpoint = "/sources/" + source.id;
-        var body = null;
-        if (checked) {
-            body = {
-                "is_included" : true
-            }
-        } else {
-            body = {
-                "is_included" : false
-            }
+        const body = {
+            "is_included" : checked
         }
-        makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
+        makeHttpRequest(endpoint, "PATCH", body);
+        let sources = this.state.sources;
+        const index = sources.findIndex(x => x.id === source.id);
+        sources[index].is_included = checked;
+        this.setState({sources:sources});
     }
 
     // Renders citation in APA, MLA, or Chicago format
@@ -297,7 +271,7 @@ class BibWindow extends React.Component {
                             {if (source.is_included === true) { 
                                 console.log("checked")
                                 return(
-                                    <Checkbox defaultChecked onChange={(_,c) => this.changeInclusion(c,source)} key={index}>
+                                    <Checkbox defaultChecked onChange={(_,c,e) => this.changeInclusion(e,c,source)} key={index}>
                                         {this.renderFormatType(source)}
                                         {this.showMissingIcon(source)}
                                     </Checkbox>
@@ -311,7 +285,7 @@ class BibWindow extends React.Component {
                             {if (source.is_included === false) { 
                                 console.log("unchecked");
                                 return(
-                                    <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(_,c) => this.changeInclusion(c,source)} key={index}>
+                                    <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(_,c,e) => this.changeInclusion(e,c,source)} key={index}>
                                         {this.renderFormatType(source)}
                                         {this.showMissingIcon(source)}
                                     </Checkbox>
@@ -341,6 +315,7 @@ class EditWindow extends React.Component{
     constructor(props) {
         super(props);
         this.state = {
+            loading: false,
             author: null,
             title: null,
             publishDate: null,
@@ -348,6 +323,10 @@ class EditWindow extends React.Component{
             accessDate: null,
             url: null
         }
+    }
+
+    setLoading = (value) => {
+        this.setState({loading:value});
     }
 
     // Show DefaultValue or Placeholder in Edit Input
@@ -384,19 +363,20 @@ class EditWindow extends React.Component{
         });
     }
 
-    changeAccessDate = async (value) => {
+    changeAccessDate = (value) => {
         this.setState({
             accessDate: value
         });
     }
 
-    changeURL = async (value) => {
+    changeURL = (value) => {
         this.setState({
             url: value
         });
     }
 
     saveInfo = async () => {
+        this.setLoading(true);
         const endpoint = "/sources/" + this.props.source.id;
         const body = {
             "author" : this.state.author,
@@ -407,7 +387,10 @@ class EditWindow extends React.Component{
             "url" : this.state.url
         }
         await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.getBibSources();
+        this.props.getBibSources(() => {
+            this.props.close();
+            this.setLoading(false);
+        });
     }
 
     render() {
@@ -426,7 +409,7 @@ class EditWindow extends React.Component{
                     <p>URL: <Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/></p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.saveInfo}>Save</Button>
+                    <Button onClick={this.saveInfo} loading={this.state.loading}>Save</Button>
                 </Modal.Footer>
             </Modal>
         );
