@@ -78,13 +78,13 @@ class BibWindow extends React.Component {
             if (!source.author) {
                 missing = missing.concat(citationFields[2])
             }
-            if (!source.publishDate) {
+            if (!source.published_date) {
                 missing = missing.concat(citationFields[3])
             }
-            if (!source.siteName) {
+            if (!source.site_name) {
                 missing = missing.concat(citationFields[4])
             }
-            if (!source.accessDate) {
+            if (!source.access_date) {
                 missing = missing.concat(citationFields[5])
             }
             return(
