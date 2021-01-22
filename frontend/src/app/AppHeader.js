@@ -31,7 +31,7 @@ function AppHeader(props) {
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
-                        <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery}/>
+                        <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery} updateFilters={props.updateFilters}/>
                         <BibButton setShowBib={props.setShowBib}/>
                     </FlexboxGrid>
                 </FlexboxGrid.Item>
@@ -55,11 +55,9 @@ class SearchAndFilter extends React.Component {
         super(props);
         // TODO: make backend endpoint to return the filter categories
         const filterCategories = [
-            "Page Content",
-            "URL",
             "Title",
-            "Next Connections",
-            "Previous Connections",
+            "URL",
+            "Page Content",
             "Highlights",
             "Notes"
         ];
@@ -78,6 +76,7 @@ class SearchAndFilter extends React.Component {
             indeterminate: false,
             checkAll: checked
         });
+        this.sendFilters(nextValue);
     }
 
     handleChange = (value) => {
@@ -86,6 +85,11 @@ class SearchAndFilter extends React.Component {
             indeterminate: value.length > 0 && value.length < this.state.filterCategories.length,
             checkAll: value.length === this.state.filterCategories.length
         });
+        this.sendFilters(value);
+    }
+
+    sendFilters = (value) => {
+        this.props.updateFilters(value);
     }
 
     render() {
@@ -95,7 +99,7 @@ class SearchAndFilter extends React.Component {
                     <AuthenticationButton/>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
-                    <SearchBar searchQuery={this.props.searchQuery} setSearchQuery={this.props.setSearchQuery}/>
+                    <SearchBar searchQuery={this.props.searchQuery} setSearchQuery={this.props.setSearchQuery} updateFilters={this.props.updateFilters}/>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FilterDropdown indeterminate={this.state.indeterminate} checkAll={this.state.checkAll}

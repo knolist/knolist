@@ -25,7 +25,12 @@ class App extends React.Component {
             projects: null,
             showProjectsSidebar: false,
             showBib: false,
-            searchQuery: ''
+            searchQuery: '',
+            filters: ["Title",
+            "URL",
+            "Page Content",
+            "Highlights",
+            "Notes"]
         }
     }
 
@@ -84,6 +89,10 @@ class App extends React.Component {
         }
     }
 
+    updateFilters = (filters) => {
+        this.setState({filters});
+    }
+
 
     componentDidMount() {
         this.updateProjects()
@@ -103,14 +112,15 @@ class App extends React.Component {
         return (
             <Switch>
                 <Route exact path="/">
-                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib} searchQuery={this.state.searchQuery} setSearchQuery={this.setSearchQuery}/>
+                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib} searchQuery={this.state.searchQuery} 
+                        setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
                     <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                                      projects={this.state.projects}
                                      close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                                      setCurProject={this.setCurProject}/>
                     {this.projectsButton()}
-                    <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                             setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}/>
+                    <MindMap curProject={this.state.curProject} showBib={this.state.showBib} setShowBib={this.setShowBib} 
+                        searchQuery={this.state.searchQuery} filters={this.state.filters}/>
                 </Route>
                 <Route path="/my-projects">
                     <Page url={"/my-projects"}/>
