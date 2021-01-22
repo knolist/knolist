@@ -33,7 +33,6 @@ class BibWindow extends React.Component {
         if (prevProps.showBib !== this.props.showBib && this.props.showBib) {
             this.getBibSources();
         }
-    }
 
     componentDidMount() {
         this.getBibSources();
@@ -244,12 +243,6 @@ class BibWindow extends React.Component {
         });
     }
 
-    test = (value, checked, event) => {
-        console.log(value);
-        console.log(checked);
-        console.log(event);
-    }
-
     render() {
         const formats = this.state.formats;
         const dropdownData = [{value:formats.APA,label:formats.APA},{value:formats.MLA,label:formats.MLA},{value:formats.CHI,label:formats.CHI}]
@@ -258,9 +251,10 @@ class BibWindow extends React.Component {
             <Modal full show={this.props.showBib} onHide={() => this.props.setShowBib(false)}>
                 <Modal.Header style={{marginRight: "5%"}}>
                     <Modal.Title>
-                    Bibliography 
-                    <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
-                    <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType} style={{float: 'right'}} cleanable={false} searchable={false}/>
+                        Bibliography
+                        <IconButton onClick={this.copyBib} icon={<Icon icon="copy"/>}/>
+                        <SelectPicker defaultValue={formats.APA} data={dropdownData} onChange={this.changeFormatType}
+                                      style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -300,12 +294,13 @@ class BibWindow extends React.Component {
     }
 }
 
-class EditCitationButton extends React.Component{
-    render () {
+class EditCitationButton extends React.Component {
+    render() {
         const buttonSize = "xs";
         return (
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Edit Citation Fields</Tooltip>} placement="top">
-                <IconButton icon={<Icon icon="edit2"/>} size={buttonSize} onClick={() => this.props.setEditSource(this.props.source)}/>
+                <IconButton icon={<Icon icon="edit2"/>} size={buttonSize}
+                            onClick={() => this.props.setEditSource(this.props.source)}/>
             </Whisper>
         );
     }
@@ -325,13 +320,14 @@ class EditWindow extends React.Component{
         }
     }
 
+    // Show loading when saving citation info
     setLoading = (value) => {
         this.setState({loading:value});
     }
 
     // Show DefaultValue or Placeholder in Edit Input
     showField = (field) => {
-        if(field){
+        if (field) {
             return (field);
         } else {
             return (undefined);
@@ -375,6 +371,7 @@ class EditWindow extends React.Component{
         });
     }
 
+    // Makes API call to update citation info
     saveInfo = async () => {
         this.setLoading(true);
         const endpoint = "/sources/" + this.props.source.id;
