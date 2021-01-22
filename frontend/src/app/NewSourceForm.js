@@ -8,7 +8,7 @@ class NewSourceForm extends React.Component {
         super(props);
         this.state = {
             newSourceUrlId: "new-source-url",
-            loading: false
+            loading: false,
         }
     }
 
@@ -23,25 +23,34 @@ class NewSourceForm extends React.Component {
     addNewSource = () => {
         this.setLoading(true);
         const url = document.getElementById(this.state.newSourceUrlId).value;
-        const {x, y} = this.props.newSourceData;
+        const { x, y } = this.props.newSourceData;
+
         const endpoint = "/projects/" + this.props.curProject.id + "/sources"
         const body = {
             "url": url,
             "x_position": x,
             "y_position": y
         }
-
         makeHttpRequest(endpoint, "POST", body).then((response) => {
             if (response.status === 200) {
                 // Alert that the source already exists in this project
                 Alert.info('This URL already exists in this project.');
             } else if (response.status === 201) {
+                if (this.props.parentCluster !== null) {
+                    const parent = this.props.parentCluster
+                    const parentId = parent.substring(
+                        parent.lastIndexOf("c") + 1,
+                        parent.lastIndexOf("_"))
+                    const endpoint = "/clusters/" + parentId + "/sources/" + response.body.source.id
+                    makeHttpRequest(endpoint, "PATCH", {});
+                }
                 // Update sources
                 this.props.renderNetwork();
                 Alert.success('Source added successfully.');
             }
             this.props.switchShowNewSourceForm();
         });
+
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {

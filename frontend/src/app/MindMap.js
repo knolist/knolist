@@ -9,6 +9,8 @@ import NewSourceForm from "./NewSourceForm";
 import NewClusterForm from "./NewClusterForm"
 import AppFooter from "./AppFooter";
 
+import RaiseLevelButton from "../components/RaiseLevelButton"
+
 import makeHttpRequest from "../services/HttpRequest";
 
 import throttle from "../util/throttle";
@@ -34,7 +36,8 @@ class MindMap extends React.Component {
             newSourceData: null,
             stationaryClusterSourceData: null,
             newClusterIDs: null,
-            existingClusterID: null
+            existingClusterID: null,
+            curClusterView: null,
         }
     }
 
@@ -61,6 +64,10 @@ class MindMap extends React.Component {
         // }
     }
 
+    handleClickedCluster = (id) => {
+        this.setState({ curClusterView: id })
+    }
+
     handleDragStart = (id, nodes) => {
         this.setNonSelectedNodes(id, nodes);
     }
@@ -72,21 +79,44 @@ class MindMap extends React.Component {
     getSources = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
-
-        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        const response = await makeHttpRequest(endpoint);
-        this.setLoading(false);
-        this.setState({sources: response.body.sources}, callback);
+        if (this.state.curClusterView === null) {
+            const endpoint = "/projects/" + this.props.curProject.id + "/sources";
+            const response = await makeHttpRequest(endpoint);
+            this.setLoading(false);
+            this.setState({sources: response.body.sources}, callback);
+        } else {
+            const cur = this.state.curClusterView
+            const endpoint = "/clusters/" + cur.substring(
+                cur.lastIndexOf("c") + 1,
+                cur.lastIndexOf("_")
+            )
+            const response = await makeHttpRequest(endpoint)
+            const children = response.body.cluster.child_items.map(child => makeHttpRequest('/sources/' + child))
+            Promise.all(children).then(values => {
+                this.setLoading(false);
+                this.setState({sources: values.map(child => child.body.source)}, callback)
+            })
+        }
     }
 
     getClusters = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true)
-
-        const endpoint = "/projects/" + this.props.curProject.id + "/clusters"
-        const response = await makeHttpRequest(endpoint)
-        this.setLoading(false)
-        this.setState({clusters: response.body.clusters}, callback)
+        if (this.state.curClusterView === null) {
+            const endpoint = "/projects/" + this.props.curProject.id + "/clusters"
+            const response = await makeHttpRequest(endpoint)
+            this.setLoading(false)
+            this.setState({clusters: response.body.clusters}, callback)
+        } else {
+            const cur = this.state.curClusterView
+            const endpoint = "/clusters/" + cur.substring(
+                cur.lastIndexOf("c") + 1,
+                cur.lastIndexOf("_")
+            )
+            const response = await makeHttpRequest(endpoint)
+            this.setLoading(false);
+            this.setState({clusters: response.body.cluster.child_clusters}, callback)
+        }
     }
 
     updateSourcePosition = async (sourceId, x, y) => {
@@ -147,6 +177,11 @@ class MindMap extends React.Component {
         });
     }
 
+    addSourceToCluster = async (clusterId, sourceId) => {
+        const endpoint = "/clusters/" + clusterId + "/sources/" + sourceId
+        await makeHttpRequest(endpoint, "PATCH", {});
+    }
+
     setAddSourceMode = () => {
         this.setShowNewSourceHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
@@ -185,7 +220,7 @@ class MindMap extends React.Component {
         let edges = new DataSet();
         // Iterate through each node in the graph and build the arrays of nodes and edges
         for (let index in this.state.sources) {
-            if (this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id)
+            if (this.state.clusters.length === 0 || this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id)
                 .filter(cluster => cluster.child_items.includes(parseInt(this.state.sources[index].id))).length === 0) {
                 let node = this.state.sources[index];
                 // Deal with positions
@@ -210,6 +245,9 @@ class MindMap extends React.Component {
 
     createClusters() {
         let clusterNodes = new DataSet()
+        if (this.state.clusters.length === 0) {
+            return clusterNodes
+        }
         let projectClusters = this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id)
         projectClusters.forEach(cluster => {
             clusterNodes.add({
@@ -219,38 +257,38 @@ class MindMap extends React.Component {
                 x: cluster.x_position,
                 y: cluster.y_position
             })
+            // TODO: render title
             if (cluster.child_items.length > 2) {
-                // somehow render +2, +3, etc. above cluster 
-            } else {
-                let count = 0;
-                cluster.child_items.forEach(child => {
-                    const title = this.state.sources.filter(source => source.id === child)[0].title
-                    if (count === 0) {
-                        clusterNodes.add({
-                            group: 'inCluster',
-                            id: "i" + child, 
-                            label: title, 
-                            x: cluster.x_position, 
-                            y: cluster.y_position - 40,
-                            widthConstraint: {
-                                maximum: 170
-                            }
-                        })
-                    } else {
-                        clusterNodes.add({
-                            group: 'inCluster',
-                            id: "i" + child,
-                            label: title,
-                            x: cluster.x_position,
-                            y: cluster.y_position + 40,
-                            widthConstraint: {
-                                maximum: 170
-                            }
-                        })
-                    }
-                    count = count + 1
-                })
+                // TODO: render +2, +3, etc. below cluster 
             }
+            let count = 0;
+            cluster.child_items.forEach(child => {
+                const title = this.state.sources.filter(source => source.id === child)[0].title
+                if (count === 0) {
+                    clusterNodes.add({
+                        group: 'inCluster',
+                        id: "i" + child,
+                        label: title,
+                        x: cluster.x_position,
+                        y: cluster.y_position - 40,
+                        widthConstraint: {
+                            maximum: 170
+                        }
+                    })
+                } else if (count === 1) {
+                    clusterNodes.add({
+                        group: 'inCluster',
+                        id: "i" + child,
+                        label: title,
+                        x: cluster.x_position,
+                        y: cluster.y_position + 40,
+                        widthConstraint: {
+                            maximum: 170
+                        }
+                    })
+                }
+                count = count + 1
+            })
         })
         return clusterNodes   
     }
@@ -362,6 +400,8 @@ class MindMap extends React.Component {
                         const nodeId = params.nodes[0];
                         if (typeof nodeId === "number") {
                             this.handleClickedNode(nodeId);
+                        } else if (typeof nodeId === "string" && nodeId.includes('c')) {
+                            this.handleClickedCluster(nodeId)
                         }
                     }
                 });
@@ -372,7 +412,12 @@ class MindMap extends React.Component {
                         if (typeof nodeId === "string" && nodeId.includes('c')) {
                             network.selectNodes(this.state.clusters.filter(cluster =>
                                 cluster.project_id === this.props.curProject.id
-                                && nodeId.includes(cluster.name))[0].child_items.map(nodeId => 'i' + nodeId).concat([nodeId]))
+                                && nodeId.includes(cluster.name))[0].child_items.slice(0, 2).map(nodeId => 'i' + nodeId).concat([nodeId]))
+                        } else if (typeof nodeId === "string" && nodeId.includes('i')) {
+                            const cluster = this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id &&
+                                cluster.child_items.includes(parseInt(nodeId.replace('i', ''))))[0]
+                            network.selectNodes(cluster.child_items.slice(0, 2).map(nodeId => 'i' + nodeId).concat(['c' + cluster.id + '_' + cluster.name]))
+                              
                         } else {
                             this.handleDragStart(nodeId, nodes)
                         }
@@ -386,7 +431,7 @@ class MindMap extends React.Component {
                             const boundingBox = network.getBoundingBox(id)
                             let otherNodes = this.state.nonSelectedNodes
                             if ((!this.state.showNewClusterHelperMessage && !this.state.showAddToClusterHelperMessage)
-                                && otherNodes.length >= 2) {
+                                && otherNodes.length >= 1) {
                                 otherNodes.forEach(node => {
                                     if (typeof node === "number" && isOverlap(network.getBoundingBox(node), boundingBox)) {
                                         this.setState({ stationaryClusterSourceData: network.getPosition(node) })
@@ -417,7 +462,14 @@ class MindMap extends React.Component {
                             this.setState({ showNewClusterForm: true })
                         }
                         if (this.state.showAddToClusterHelperMessage) {
-
+                            const existingCluster = this.state.existingClusterID
+                            const id = existingCluster.substring(
+                                existingCluster.lastIndexOf("c") + 1,
+                                existingCluster.lastIndexOf("_")
+                            )
+                            this.addSourceToCluster(id, network.getSelectedNodes()[0])
+                            this.setshowAddToClusterHelperMessage(false)
+                            this.renderNetwork()
                         }
                         const id = network.getSelectedNodes()[0];
                         if (typeof id === "number") {
@@ -426,7 +478,7 @@ class MindMap extends React.Component {
                             const y = position.y;
                             this.updateSourcePosition(id, x, y);
                         } else if (typeof id === "string" && id.includes('c')) {
-
+                            // TODO: update cluster position on backend
                         }
                     }
                 });
@@ -481,9 +533,16 @@ class MindMap extends React.Component {
             }
         }
 
+        if (prevState.curClusterView !== this.state.curClusterView) {
+            localStorage.setItem("curClusterView", JSON.stringify(this.state.curClusterView))
+            this.renderNetwork()
+        }
     }
 
     componentDidMount() {
+        if (this.state.curClusterView === null) {
+            localStorage.setItem("curClusterView", JSON.stringify(null))
+        }
         this.renderNetwork();
     }
 
@@ -502,14 +561,19 @@ class MindMap extends React.Component {
                                newSourceData={this.state.newSourceData}
                                curProject={this.props.curProject}
                                renderNetwork={this.renderNetwork}
-                               switchShowNewSourceForm={this.switchShowNewSourceForm}/>
+                               switchShowNewSourceForm={this.switchShowNewSourceForm}
+                               parentCluster={this.state.curClusterView}/>
                 <NewClusterForm showNewClusterForm={this.state.showNewClusterForm}
                                 stationaryClusterSourceData={this.state.stationaryClusterSourceData}
                                 curProject={this.props.curProject}
                                 renderNetwork={this.renderNetwork}
                                 newClusterIDs={this.state.newClusterIDs}
-                                switchShowNewClusterForm={this.switchShowNewClusterForm}/>
+                                switchShowNewClusterForm={this.switchShowNewClusterForm}
+                                parentCluster={this.state.curClusterView}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddSourceMode={this.setAddSourceMode}/>
+                <RaiseLevelButton isRoot={this.state.curClusterView === null}
+
+                    />
             </div>
         );
     }
