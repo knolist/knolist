@@ -153,7 +153,7 @@ def set_source_routes(app):
         source.is_included = is_included if is_included is not None else source.is_included
         source.author = author if author is not None else source.author
         source.site_name = site_name if site_name is not None else source.site_name
-        fmt = '%a, %d %b %Y %H:%M:%S %z'
+        fmt = '%d %B %Y'
         source.published_date = datetime.strptime(published_date, fmt)\
             if published_date is not None else source.published_date
         source.access_date = datetime.strptime(access_date, fmt)\

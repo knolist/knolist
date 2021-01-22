@@ -99,20 +99,21 @@ class BibWindow extends React.Component {
 
     // Called when checkbox changed
     // Changes citation is_included field to true
-    addToSaved = async (source) => {
+    addToSaved = (source) => {
     //addToSaved = async (checked,source) => {
         const endpoint = "/sources/" + source.id;
         var body = null;
         body = {
             "is_included" : true
         }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.getBibSources();
+        makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
+        //await makeHttpRequest(endpoint, "PATCH", body);
+        //this.getBibSources();
     }
 
     // Called when checkbox changed
     // Changes citation is_included field to false
-    removeFromSaved = async (source) => {
+    removeFromSaved = (source) => {
     //removeFromSaved = async (checked,source) => {
         const endpoint = "/sources/" + source.id;
         var body = null;
@@ -120,8 +121,9 @@ class BibWindow extends React.Component {
         body = {
             "is_included" : false
         }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.getBibSources();
+        makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
+        //await makeHttpRequest(endpoint, "PATCH", body);
+        //this.getBibSources();
     }
 
     // Renders citation in APA, MLA, or Chicago format
@@ -317,6 +319,18 @@ class EditCitationButton extends React.Component{
 }
 
 class EditWindow extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            author: null,
+            title: null,
+            publishDate: null,
+            siteName: null,
+            accessDate: null,
+            url: null
+        }
+    }
+
     // Show DefaultValue or Placeholder in Edit Input
     showField = (field) => {
         if(field){
@@ -328,54 +342,50 @@ class EditWindow extends React.Component{
 
     // Make API call to update citation fields
     changeAuthor = async (value) => {
-        const endpoint = "/sources/" + this.props.source.id;
-        const body = {
-            "author" : value
-        }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.getBibSources();
+        this.setState({
+            author: value
+        });
     }
 
     changeTitle = async (value) => {
-        const endpoint = "/sources/" + this.props.source.id;
-        const body = {
-            "title" : value
-        }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.getBibSources();
+        this.setState({
+            title: value
+        });
     }
 
     changePublishDate = async (value) => {
-        const endpoint = "/sources/" + this.props.source.id;
-        const body = {
-            "published_date" : value
-        }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.getBibSources();
+        this.setState({
+            publishDate: value
+        });
     }
 
     changeSiteName = async (value) => {
-        const endpoint = "/sources/" + this.props.source.id;
-        const body = {
-            "site_name" : value
-        }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.getBibSources();
+        this.setState({
+            siteName: value
+        });
     }
 
     changeAccessDate = async (value) => {
-        const endpoint = "/sources/" + this.props.source.id;
-        const body = {
-            "access_date" : value
-        }
-        await makeHttpRequest(endpoint, "PATCH", body);
-        this.props.getBibSources();
+        this.setState({
+            accessDate: value
+        });
     }
 
     changeURL = async (value) => {
+        this.setState({
+            url: value
+        });
+    }
+
+    saveInfo = async () => {
         const endpoint = "/sources/" + this.props.source.id;
         const body = {
-            "url" : value
+            "author" : this.state.author,
+            "title" : this.state.title,
+            "published_date" : this.state.publishDate,
+            "site_name" : this.state.siteName,
+            "access_date" : this.state.accessDate,
+            "url" : this.state.url
         }
         await makeHttpRequest(endpoint, "PATCH", body);
         this.props.getBibSources();
@@ -386,20 +396,18 @@ class EditWindow extends React.Component{
         return (
             <Modal full show onHide={this.props.close}>
                 <Modal.Header>
-                    <Modal.Title>
-                    Edit Citation Fields
-                    </Modal.Title>
+                    <Modal.Title>Edit Citation Fields</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <p>Author: <Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/></p>
                     <p>Title: <Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/></p>
-                    <p>Publish Date: <Input defaultValue={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} style={{ width: '300px' }}/></p>
+                    <p>Publish Date (in format "Date Month Year"): <Input defaultValue={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} style={{ width: '300px' }}/></p>
                     <p>Site Name: <Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} style={{ width: '300px' }}/></p>
-                    <p>Access Date: <Input defaultValue={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate} style={{ width: '300px' }}/></p>
+                    <p>Access Date (in format "Date Month Year"): <Input defaultValue={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate} style={{ width: '300px' }}/></p>
                     <p>URL: <Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/></p>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.props.close}>Save</Button>
+                    <Button onClick={this.saveInfo}>Save</Button>
                 </Modal.Footer>
             </Modal>
         );
