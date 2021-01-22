@@ -363,7 +363,8 @@ class EditWindow extends React.Component{
     }
 
     changePublishDate = (value) => {
-        console.log(value);
+        console.log(Object.getOwnPropertyNames(value));
+        //value = value[0,10];
         this.setState({
             publishDate: value
         });
