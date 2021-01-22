@@ -670,8 +670,8 @@ Assume that all `curl` calls include the following:
 ```
 
 3. Search through specific fields of the items.
-    - Searches through all sources of the given project. The search is case-insensitive and looks through the
-    fields of the sources as specified by the user.
+    - Searches through all items of the given project. The search is case-insensitive and looks through the
+    fields of the items as specified by the user.
     - Request arguments:
         - `query`: a string passed as a query parameter, indicating the query to be searched *(Required)*
         - `filter`: a list of fields passed as a filter parameter, indicating the fields to be searched *(Required)*
