@@ -109,9 +109,11 @@ def set_item_routes(app):
     @requires_auth('delete:items')
     def delete_item(user_id, item_id):
         item = get_authorized_item(user_id, item_id)
-
+        item_source = item.source
         item.delete()
-
+        if item_source and len(item_source.child_items) == 0:
+            item_source.update()
+            item_source.delete()
         return jsonify({
             'success': True,
             'deleted': item_id

@@ -215,6 +215,27 @@ class TestClustersEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 400)
 
+    def test_cluster_location_update(self):
+        res = self.client() \
+            .patch(f'/clusters/{self.cluster_1.id}',
+                   json={'x': 400,
+                         'y': 200},
+                   headers=auth_header)
+        data = json.loads(res.data)
+        self.assertEquals(self.cluster_1.x_position, 400)
+        self.assertEquals(self.cluster_1.y_position, 200)
+
+    def test_bad_location_update(self):
+        res = self.client() \
+            .patch(f'/clusters/{self.cluster_1.id}',
+                   json={'x': 400},
+                   headers=auth_header)
+        self.assertEquals(res.status_code, 400)
+        res = self.client() \
+            .patch(f'/clusters/{self.cluster_1.id}',
+                   json={'y': 200},
+                   headers=auth_header)
+        self.assertEquals(res.status_code, 400)
 
 if __name__ == '__main__':
     unittest.main()
