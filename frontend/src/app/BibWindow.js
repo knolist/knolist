@@ -98,33 +98,43 @@ class BibWindow extends React.Component {
         }
     }
 
-    // Called when checkbox changed
-    // Changes citation is_included field to true
-    addToSaved = (source) => {
-    //addToSaved = async (checked,source) => {
-        const endpoint = "/sources/" + source.id;
-        var body = null;
-        body = {
-            "is_included" : true
-        }
-        makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
-        //await makeHttpRequest(endpoint, "PATCH", body);
-        //this.getBibSources();
-    }
+    // // Called when checkbox changed
+    // // Changes citation is_included field to true
+    // addToSaved = (source) => {
+    //     const endpoint = "/sources/" + source.id;
+    //     const body = {
+    //         "is_included" : true
+    //     }
+    //     makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
+    // }
+
+    // // Called when checkbox changed
+    // // Changes citation is_included field to false
+    // removeFromSaved = (source) => {
+    //     const endpoint = "/sources/" + source.id;
+    //     const body = {
+    //         "is_included" : false
+    //     }
+    //     makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
+    // }
+
 
     // Called when checkbox changed
-    // Changes citation is_included field to false
-    removeFromSaved = (source) => {
-    //removeFromSaved = async (checked,source) => {
+    // Changes citation is_included field to true or false
+    // depending on checked or not
+    changeInclusion = (checked,source) => {
         const endpoint = "/sources/" + source.id;
         var body = null;
-
-        body = {
-            "is_included" : false
+        if (checked) {
+            body = {
+                "is_included" : true
+            }
+        } else {
+            body = {
+                "is_included" : false
+            }
         }
         makeHttpRequest(endpoint, "PATCH", body).then(() => this.getBibSources());
-        //await makeHttpRequest(endpoint, "PATCH", body);
-        //this.getBibSources();
     }
 
     // Renders citation in APA, MLA, or Chicago format
@@ -145,7 +155,7 @@ class BibWindow extends React.Component {
                 formattedDate = formattedDate.concat(", ");
                 formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
                 formattedDate = formattedDate.concat(" ");
-                formattedDate = formattedDate.concat(publishDateJS.getDate());
+                formattedDate = formattedDate.concat(publishDateJS.getDate()+1);
                 formattedDate = formattedDate.concat("). ");
             } else if (source.access_date) {
                 formattedDate = formattedDate.concat("(");
@@ -153,7 +163,7 @@ class BibWindow extends React.Component {
                 formattedDate = formattedDate.concat(", ");
                 formattedDate = formattedDate.concat(months[accessDateJS.getMonth()]);
                 formattedDate = formattedDate.concat(" ");
-                formattedDate = formattedDate.concat(accessDateJS.getDate());
+                formattedDate = formattedDate.concat(accessDateJS.getDate()+1);
                 formattedDate = formattedDate.concat("). ");
             }
             if (source.title) {
@@ -174,14 +184,14 @@ class BibWindow extends React.Component {
             if (source.published_date) {
                 formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
                 formattedDate = formattedDate.concat(" ");
-                formattedDate = formattedDate.concat(publishDateJS.getDate());
+                formattedDate = formattedDate.concat(publishDateJS.getDate()+1);
                 formattedDate = formattedDate.concat(", ");
                 formattedDate = formattedDate.concat(publishDateJS.getFullYear());
                 formattedDate = formattedDate.concat(".");
             } else if (source.access_date) {
                 formattedDate = formattedDate.concat(months[accessDateJS.getMonth()]);
                 formattedDate = formattedDate.concat(" ");
-                formattedDate = formattedDate.concat(accessDateJS.getDate());
+                formattedDate = formattedDate.concat(accessDateJS.getDate()+1);
                 formattedDate = formattedDate.concat(", ");
                 formattedDate = formattedDate.concat(accessDateJS.getFullYear());
                 formattedDate = formattedDate.concat(".");
@@ -202,7 +212,7 @@ class BibWindow extends React.Component {
             );
         } else if (this.state.curFormat === this.state.formats.MLA) {
             if (source.published_date) {
-                formattedDate = formattedDate.concat(publishDateJS.getDate());
+                formattedDate = formattedDate.concat(publishDateJS.getDate()+1);
                 formattedDate = formattedDate.concat(" ");
                 formattedDate = formattedDate.concat(months[publishDateJS.getMonth()]);
                 formattedDate = formattedDate.concat(" ");
@@ -212,7 +222,7 @@ class BibWindow extends React.Component {
             var formattedDate2 = "";
             if (source.access_date) {
                 formattedDate2 = formattedDate2.concat("Accessed ");
-                formattedDate2 = formattedDate2.concat(accessDateJS.getDate());
+                formattedDate2 = formattedDate2.concat(accessDateJS.getDate()+1);
                 formattedDate2 = formattedDate2.concat(" ");
                 formattedDate2 = formattedDate2.concat(months[accessDateJS.getMonth()]);
                 formattedDate2 = formattedDate2.concat(" ");
@@ -260,6 +270,12 @@ class BibWindow extends React.Component {
         });
     }
 
+    test = (value, checked, event) => {
+        console.log(value);
+        console.log(checked);
+        console.log(event);
+    }
+
     render() {
         const formats = this.state.formats;
         const dropdownData = [{value:formats.APA,label:formats.APA},{value:formats.MLA,label:formats.MLA},{value:formats.CHI,label:formats.CHI}]
@@ -279,8 +295,9 @@ class BibWindow extends React.Component {
                             // eslint-disable-next-line
                             this.state.sources.map((source,index) => 
                             {if (source.is_included === true) { 
+                                console.log("checked")
                                 return(
-                                    <Checkbox defaultChecked onChange={() => this.removeFromSaved(source)} key={index}>
+                                    <Checkbox defaultChecked onChange={(_,c) => this.changeInclusion(c,source)} key={index}>
                                         {this.renderFormatType(source)}
                                         {this.showMissingIcon(source)}
                                     </Checkbox>
@@ -292,8 +309,9 @@ class BibWindow extends React.Component {
                             // eslint-disable-next-line
                             this.state.sources.map((source,index) => 
                             {if (source.is_included === false) { 
+                                console.log("unchecked");
                                 return(
-                                    <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={() => this.addToSaved(source)} key={index}>
+                                    <Checkbox defaultChecked={false} style={{color: '#d3d3d3'}} onChange={(_,c) => this.changeInclusion(c,source)} key={index}>
                                         {this.renderFormatType(source)}
                                         {this.showMissingIcon(source)}
                                     </Checkbox>
