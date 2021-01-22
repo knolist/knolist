@@ -1,8 +1,10 @@
 import json
 
 from flask import request, abort, jsonify
+from sqlalchemy import String, VARCHAR
+from flask_sqlalchemy import SQLAlchemy
 
-from ..models.models import Project, Source
+from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
 from datetime import datetime
 
@@ -25,6 +27,7 @@ def set_source_routes(app):
     """
     Reads the detailed information of a specific source.
     """
+
     @app.route('/sources/<int:source_id>')
     @requires_auth('read:sources-detail')
     def get_source_detail(user_id, source_id):
@@ -38,6 +41,7 @@ def set_source_routes(app):
     """
     Deletes a source.
     """
+
     @app.route('/sources/<int:source_id>', methods=['DELETE'])
     @requires_auth('delete:sources')
     def delete_source(user_id, source_id):
@@ -74,6 +78,7 @@ def set_source_routes(app):
     Updates information in a source.
     The information to be updated is passed in a JSON body.
     """
+
     @app.route('/sources/<int:source_id>', methods=['PATCH'])
     @requires_auth('update:sources')
     def update_source(user_id, source_id):
@@ -88,6 +93,7 @@ def set_source_routes(app):
         content = body.get('content', None)
         x_position = body.get('x_position', None)
         y_position = body.get('y_position', None)
+<<<<<<< HEAD
         is_included = body.get('is_included', None)
         author = body.get('author', None)
         published_date = body.get('published_date', None)
@@ -97,17 +103,24 @@ def set_source_routes(app):
         # Obtain JSON list attributes
         highlights = body.get('highlights', None)
         notes = body.get('notes', None)
+=======
+>>>>>>> updated-api
         # Obtain project ID
         project_id = body.get('project_id', None)
 
         # Verify that at least one parameter was passed
         cond_1 = title is None and content is None
         cond_2 = x_position is None and y_position is None
+<<<<<<< HEAD
         cond_3 = highlights is None and notes is None and project_id is None
         cond_4 = is_included is None
         cond_5 = published_date is None and access_date is None
         cond_6 = site_name is None and author is None
         if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
+=======
+        cond_3 = project_id is None
+        if cond_1 and cond_2 and cond_3:
+>>>>>>> updated-api
             abort(400)
 
         # Verify that parameters are correctly formatted
@@ -115,9 +128,7 @@ def set_source_routes(app):
             abort(422)
         if y_position is not None and type(y_position) is not int:
             abort(422)
-        if highlights is not None and type(highlights) is not list:
-            abort(422)
-        if notes is not None and type(notes) is not list:
+        if content is not None and type(content) is not str:
             abort(422)
         if is_included is not None and type(is_included) is not bool:
             abort(422)
@@ -165,6 +176,7 @@ def set_source_routes(app):
             'success': True,
             'source': source.format()
         })
+<<<<<<< HEAD
 
     """
     Adds a new highlight to a source's highlights.
@@ -310,3 +322,5 @@ def set_source_routes(app):
             'success': True,
             'source': source.format()
         })
+=======
+>>>>>>> updated-api

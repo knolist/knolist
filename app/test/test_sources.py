@@ -29,8 +29,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.new_source = {
             'title': 'New title',
             'content': 'New content',
-            #'highlights': ['New highlight'],
-            #'notes': ['New notes'],
             'project_id': self.project_2.id
         }
 
@@ -50,10 +48,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(source['id'], self.source_1.id)
         self.assertEqual(source['url'], self.source_1.url)
         self.assertEqual(source['title'], self.source_1.title)
-        #self.assertEqual(len(source['highlights']),
-                         #len(json.loads(self.source_1.highlights)))
-        #self.assertEqual(len(source['notes']),
-                         #len(json.loads(self.source_1.notes)))
         self.assertEqual(source['project_id'], self.source_1.project_id)
 
     def test_get_source_detail_nonexistent_source(self):
@@ -105,8 +99,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         source = data['source']
         self.assertEqual(source['title'], self.new_source['title'])
-        #self.assertEqual(source['highlights'], self.new_source['highlights'])
-        #self.assertEqual(source['notes'], self.new_source['notes'])
         self.assertEqual(source['project_id'], self.new_source['project_id'])
         self.assertTrue(self.source_1 in self.project_2.sources)
         self.assertTrue(self.source_1 not in self.project_1.sources)
@@ -165,26 +157,7 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
-    '''
-    
-    def test_update_source_invalid_highlights(self):
-        res = self.client().patch(f'/sources/{self.source_1.id}',
-                                  json={'highlights': 'not list'},
-                                  headers=auth_header)
-        data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
-        self.assertFalse(data['success'])
-
-    def test_update_source_invalid_notes(self):
-        res = self.client().patch(f'/sources/{self.source_1.id}',
-                                  json={'notes': 'not list'},
-                                  headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertFalse(data['success'])
-    '''
     def test_update_source_nonexistent_project(self):
         res = self.client().patch(f'/sources/{self.source_1.id}',
                                   json={'project_id': 2000},
@@ -207,6 +180,7 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
+<<<<<<< HEAD
 
     def test_get_by_good_url(self):
         good_url = 'https://test1.com'
@@ -230,3 +204,5 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
 
 
+=======
+>>>>>>> updated-api

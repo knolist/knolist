@@ -117,18 +117,23 @@ class Source(BaseModel):
 
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String, nullable=False)
-    title = db.Column(db.String, nullable=False)
+    title = db.Column(db.String)
     # All of the content of the URL, only used for search purposes
     content = db.Column(db.String)
+<<<<<<< HEAD
     is_included = db.Column(db.Boolean)
     author = db.Column(db.String)
     published_date = db.Column(db.DateTime)
     site_name = db.Column(db.String)
     access_date = db.Column(db.DateTime)
 
+=======
+    # x and y positions are used to represent the position of a node on a graph
+    x_position = db.Column(db.Integer)
+    y_position = db.Column(db.Integer)
+>>>>>>> updated-api
     # The project that holds this source
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
-                           nullable=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     # Self-referential many-to-many relationship
     next_sources = db.relationship('Source', secondary=edges,
                                    primaryjoin=(id == edges.c.from_id),
@@ -148,6 +153,7 @@ class Source(BaseModel):
             'id': self.id,
             'url': self.url,
             'title': self.title,
+<<<<<<< HEAD
             'author': self.author,
             'site_name': self.site_name,
             'is_included': self.is_included,
@@ -158,27 +164,35 @@ class Source(BaseModel):
             'project_id': self.project_id
         }
 
+=======
+            'project_id': self.project_id
+        }
+
+    def format_short(self):
+        return {
+            'id': self.id,
+            'url': self.url,
+            'title': self.title,
+            'project_id': self.project_id
+        }
+>>>>>>> updated-api
 
 class Item(BaseModel):
     """
     Represents the different types of items.
     """
     __tablename__ = 'items'
-    # Ensure unique project
-    #__table_args__ = (
-    #    db.UniqueConstraint('project_id'),
-    #)
+
     id = db.Column(db.Integer, primary_key=True)
     source_id = db.Column(db.Integer, db.ForeignKey('sources.id'))
-    is_note = db.Column(db.BOOLEAN, nullable=False)
+    is_note = db.Column(db.Boolean, nullable=False)
     # The content of the highlight or note
     content = db.Column(db.String)
     # x and y positions are used to represent the position of a node on a graph
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
     # The project that holds this source
-    parent_project = db.Column(db.Integer, db.ForeignKey('projects.id'),
-                               nullable=False)
+    parent_project = db.Column(db.Integer, db.ForeignKey('projects.id'))
     # parent_cluster
     parent_cluster = db.Column(db.Integer, db.ForeignKey('clusters.id'))
 
@@ -186,11 +200,25 @@ class Item(BaseModel):
         return f'<Item {self.id}: {self.content}>'
 
     def format(self):
-        return {
-            'id': self.id,
-            'source_id': self.source_id,
-            'content': json.loads(self.content),
-            'x_position': self.x_position,
-            'y_position': self.y_position,
-            'parent_project': self.parent_project
-        }
+        if self.source is not None:
+            return {
+                'id': self.id,
+                'url': self.source.url,
+                'title': self.source.title,
+                'parent_project': self.parent_project,
+                'is_note': self.is_note,
+                'content': self.content,
+                'x_position': self.x_position,
+                'y_position': self.y_position,
+            }
+        else:
+            return {
+                'id': self.id,
+                'url': None,
+                'title': None,
+                'parent_project': self.parent_project,
+                'is_note': self.is_note,
+                'content': self.content,
+                'x_position': self.x_position,
+                'y_position': self.y_position,
+            }

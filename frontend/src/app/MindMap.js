@@ -1,11 +1,11 @@
 import React from "react";
 import {
-    Alert,  Loader
+    Alert, Loader
 } from "rsuite";
 import {Network, DataSet} from "vis-network/standalone";
 
-import SourceView from "./SourceView";
-import NewSourceForm from "./NewSourceForm";
+import SourceView from "./ItemView";
+import NewSourceForm from "../components/NewItemForm";
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
 
@@ -14,19 +14,47 @@ import makeHttpRequest from "../services/HttpRequest";
 class MindMap extends React.Component {
     constructor(props) {
         super(props);
+        const modes = {
+            NULL: null,
+            URL: "url",
+            NOTES: "notes"
+        };
+        const types = {
+            NULL: null,
+            PURESOURCE: "pureSource",
+            SOURCEANDNOTE: "sourceAndNote",
+            SOURCEANDHIGHLIGHT: "sourceAndHighlight",
+            PURENOTE: "pureNote",
+            NEITHER: "neither"
+        }
+        const nodeColors = {
+            NULL: null,
+            [types.PURESOURCE]: "red",
+            [types.SOURCEANDNOTE]: "blue",
+            [types.SOURCEANDHIGHLIGHT]: "green",
+            [types.PURENOTE]: "purple",
+            [types.NEITHER]: "orange"
+        };
         this.state = {
             network: null,
             visNodes: null,
             visEdges: null,
             selectedNode: null,
+            items: null,
             nonSelectedNodes: null,
             sources: null,
             loading: false,
-            showNewSourceForm: false,
-            showNewSourceHelperMessage: false,
-            newSourceData: null
-        }
-    }
+            showNewItemForm: false,
+            showNewItemHelperMessage: false,
+            newItemData: modes.NULL,
+            modes: modes,
+            newItemFormType: null,
+            item: null,
+            types: types,
+            nodeColors: nodeColors,
+            showColor: nodeColors.NULL
+        };
+    };
 
     setSelectedNode = (id) => {
         this.setState({selectedNode: id})
@@ -59,18 +87,18 @@ class MindMap extends React.Component {
         this.setState({loading: val});
     }
 
-    getSources = async (callback) => {
+    getItems = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
-
-        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
+        const endpoint = "/projects/" + this.props.curProject.id + "/items"
         const response = await makeHttpRequest(endpoint);
+
         this.setLoading(false);
-        this.setState({sources: response.body.sources}, callback);
+        this.setState({items: response.body.items}, callback);
     }
 
-    updateSourcePosition = async (sourceId, x, y) => {
-        const endpoint = "/sources/" + sourceId;
+    updateItemPosition = async (itemId, x, y) => {
+        const endpoint = "/items/" + itemId;
         const body = {
             "x_position": x,
             "y_position": y
@@ -85,33 +113,37 @@ class MindMap extends React.Component {
     }
 
     disableEditMode = () => {
-        this.setShowNewSourceHelperMessage(false);
+        this.setShowNewItemHelperMessage(false);
         if (this.state.network) this.state.network.disableEditMode()
     }
 
-    switchShowNewSourceForm = () => {
-        this.setState({showNewSourceForm: !this.state.showNewSourceForm}, () => {
+    switchShowNewItemForm = () => {
+        this.setState({showNewItemForm: !this.state.showNewItemForm}, () => {
             // Get out of edit mode if necessary
-            if (!this.state.showNewSourceForm) {
+            if (!this.state.showNewItemForm) {
                 this.disableEditMode()
             }
         });
     }
 
-    setShowNewSourceHelperMessage = (val) => {
-        this.setState({showNewSourceHelperMessage: val});
+    setShowNewItemHelperMessage = (val) => {
+        this.setState({showNewItemHelperMessage: val});
     }
 
-    addSource = (nodeData, callback) => {
-        this.switchShowNewSourceForm();
-        this.setShowNewSourceHelperMessage(false);
+    addItem = (nodeData, callback) => {
+        this.switchShowNewItemForm();
+        this.setShowNewItemHelperMessage(false);
         this.setState({
-            newSourceData: nodeData
+            newItemData: nodeData
         });
     }
 
-    setAddSourceMode = () => {
-        this.setShowNewSourceHelperMessage(true);
+    setAddItemMode = (newItemFormType, item = null) => {
+        this.setState({
+            newItemFormType: newItemFormType,
+            item: item
+        });
+        this.setShowNewItemHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
     }
 
@@ -122,16 +154,16 @@ class MindMap extends React.Component {
     generateNodePositions(node) {
         let xOffset = 0;
         let yOffset = 0;
-        // Update the offset if the node has a parent
-        if (node.prev_sources.length !== 0) {
-            const prevId = node.prev_sources[0];
-            const prevNode = this.state.sources.find(x => x.id === prevId);
-            // Check if the previous node has defined coordinates
-            if (prevNode.x_position !== null && prevNode.y_position !== null) {
-                xOffset = prevNode.x_position;
-                yOffset = prevNode.y_position;
-            }
-        }
+        // // Update the offset if the node has a parent
+        // if (node.prev_sources.length !== 0) {
+        //     const prevId = node.prev_sources[0];
+        //     const prevNode = this.state.items.find(x => x.id === prevId);
+        //     // Check if the previous node has defined coordinates
+        //     if (prevNode.x_position !== null && prevNode.y_position !== null) {
+        //         xOffset = prevNode.x_position;
+        //         yOffset = prevNode.y_position;
+        //     }
+        // }
         // Helper variable to generate random positions
         const rangeLimit = 300; // To generate positions in the interval [-rangeLimit, rangeLimit]
         // Generate random positions
@@ -142,21 +174,58 @@ class MindMap extends React.Component {
         return [xRandom + xOffset, yRandom + yOffset];
     }
 
+    getNodeById = (nodeId) => {
+        for (let index in this.state.items) {
+            if (nodeId === this.state.items[index].id) {
+                return this.state.items[index];
+            }
+        }
+    }
+
+    getNodeType = (nodeId) => {
+        if (!nodeId) {
+            return;
+        }
+        let node = this.getNodeById(nodeId);
+        if (!node) return;
+        //pure note
+        if (!node.url) return this.state.types.PURENOTE;
+        //source and note
+        if (node.url && node.is_note && node.content) return this.state.types.SOURCEANDNOTE;
+        //source and highlight
+        if (node.url && !node.is_note && node.content) return this.state.types.SOURCEANDHIGHLIGHT;
+        //pure source
+        if (node.url && !node.content) return this.state.types.PURESOURCE;
+    }
+
     // Helper function to setup the nodes and edges for the graph
     createNodesAndEdges() {
         let nodes = new DataSet();
         let edges = new DataSet();
+
         // Iterate through each node in the graph and build the arrays of nodes and edges
-        for (let index in this.state.sources) {
-            let node = this.state.sources[index];
+        for (let index in this.state.items) {
+            let node = this.state.items[index];
+            let title = node.title;
+            const nodeType = this.getNodeType(node.id);
+            if (nodeType !== this.state.types.PURESOURCE) {
+                title = node.content.substring(0, 100);
+            }
             // Deal with positions
             if (node.x_position === null || node.y_position === null) {
                 // If position is still undefined, generate random x and y in interval [-300, 300]
                 const [x, y] = this.generateNodePositions(node);
-                this.updateSourcePosition(node.id, x, y);
-                nodes.add({id: node.id, label: node.title, x: x, y: y});
+                this.updateItemPosition(node.id, x, y);
+
+                nodes.add({id: node.id, label: title, x: x, y: y, color: this.getColor(node)});
             } else {
-                nodes.add({id: node.id, label: node.title, x: node.x_position, y: node.y_position});
+                nodes.add({
+                    id: node.id,
+                    label: title,
+                    x: node.x_position,
+                    y: node.y_position,
+                    color: this.getColor(node)
+                });
             }
             // Deal with edges
             for (let nextIndex in node.next_sources) {
@@ -168,10 +237,15 @@ class MindMap extends React.Component {
         return [nodes, edges];
     }
 
+    getColor = (item) => {
+        const nodeType = this.getNodeType(item.id); // foo
+        return this.state.nodeColors[nodeType];
+    }
+
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
 
-        this.getSources(() => {
+        this.getItems(() => {
             const [nodes, edges] = this.createNodesAndEdges();
 
             // create a network
@@ -182,6 +256,7 @@ class MindMap extends React.Component {
                 nodes: nodes,
                 edges: edges
             };
+
             const options = {
                 nodes: {
                     shape: "box",
@@ -196,6 +271,10 @@ class MindMap extends React.Component {
                     color: {
                         background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
                     },
+                    // color: {
+                    //     border: this.getColor(),
+                    //     background: this.getColor()
+                    // },
                     widthConstraint: {
                         maximum: 500
                     }
@@ -218,19 +297,18 @@ class MindMap extends React.Component {
                 },
                 manipulation: {
                     enabled: false,
-                    addNode: this.addSource
+                    addNode: this.addItem
                 }
             };
 
             // Initialize the network
             const network = new Network(container, data, options);
             network.fit()
-
             // Handle click vs drag
             network.on("click", (params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    this.handleClickedNode(nodeId);
+                    const nodeID = params.nodes[0];
+                    this.handleClickedNode(nodeID);
                 }
             });
 
@@ -264,7 +342,7 @@ class MindMap extends React.Component {
                     const position = network.getPosition(id);
                     const x = position.x;
                     const y = position.y;
-                    this.updateSourcePosition(id, x, y);
+                    this.updateItemPosition(id, x, y);
                 }
             });
 
@@ -279,13 +357,13 @@ class MindMap extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.curProject !== this.props.curProject) {
-            // Set sources to null before updating to show loading icon
-            this.setState({sources: null}, this.renderNetwork);
+            // Set items to null before updating to show loading icon
+            this.setState({items: null}, this.renderNetwork);
         }
 
-        if (prevState.showNewSourceHelperMessage !== this.state.showNewSourceHelperMessage) {
-            if (this.state.showNewSourceHelperMessage) {
-                Alert.info("Click on an empty space to add your new source.",
+        if (prevState.showNewItemHelperMessage !== this.state.showNewItemHelperMessage) {
+            if (this.state.showNewItemHelperMessage) {
+                Alert.info("Click on an empty space to add your new item.",
                     0, this.disableEditMode);
             } else {
                 Alert.close();
@@ -298,7 +376,7 @@ class MindMap extends React.Component {
     }
 
     render() {
-        if (this.props.curProject === null || (this.state.loading && this.state.sources === null)) {
+        if (this.props.curProject === null || (this.state.loading && this.state.items === null)) {
             return <Loader size="lg" backdrop center/>
         }
 

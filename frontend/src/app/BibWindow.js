@@ -1,7 +1,7 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, 
-    CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert, Button
+    CheckboxGroup, Tooltip, Whisper, Input, Divider, Alert, Button, DatePicker
 } from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -41,7 +41,7 @@ class BibWindow extends React.Component {
     // Copies citations in top section (those with is_included === true)
     // onto clipboard with formatting
     copyBib() {
-        const citationArray = document.getElementsByClassName('copyText')
+        const citationArray = document.getElementsByClassName('copyText');
         var selectText = "";
         for (var i=0; i < citationArray.length; i++) {
             selectText = selectText.concat(citationArray[i].innerHTML);
@@ -400,9 +400,9 @@ class EditWindow extends React.Component{
                 <Modal.Body>
                     <p>Author: <Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/></p>
                     <p>Title: <Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/></p>
-                    <p>Publish Date (in format "Date Month Year"): <Input defaultValue={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} style={{ width: '300px' }}/></p>
-                    <p>Site Name: <Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} style={{ width: '300px' }}/></p>
-                    <p>Access Date (in format "Date Month Year"): <Input defaultValue={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate} style={{ width: '300px' }}/></p>
+                    <p>Publish Date: <DatePicker format="DD-MM-YYYY" placeholder={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} oneTap/></p>
+                    <p>Site Name: <Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} oneTap style={{ width: '300px' }}/></p>
+                    <p>Access Date: <DatePicker format="DD-MM-YYYY" placeholder={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate}/></p>
                     <p>URL: <Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/></p>
                 </Modal.Body>
                 <Modal.Footer>
