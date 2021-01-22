@@ -5,8 +5,10 @@ import { Link } from "react-router-dom";
 function ProjectCard(props) {
   const openProject = (project) => {
     localStorage.setItem("curProject", JSON.stringify(project));
+    //set current project to selected project
   }
 
+  // uncomment below when shared projects are implemented
   /*if (props.project.shared) {
     return (
       <Panel shaded bordered header={props.data.title} style={{ width: "17vw", marginTop: "2vh" }}>

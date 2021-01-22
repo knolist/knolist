@@ -2,18 +2,27 @@ import React from "react";
 import {FlexboxGrid, Col} from "rsuite"
 import ProjectCard from "./ProjectCard.js";
 
+/*
+    Displays all projects relevant to current page,
+    search query, and sorting option
+*/
 function All(props) {
+    // filter out irrelevant projects
     const filterProjects = (allProjects) => {
         let projectsToDisplay = null;
+        // first check what page we're on to see what kinds of projects to display
         if (!props.sharedOnly && !props.archivedOnly) {
             projectsToDisplay = allProjects;
         } else if (props.sharedOnly) {
+            // shared projects not implemented yet, uncomment below when ready
             // projectsToDisplay = allProjects.filter(project => project.shared === true);
             return [];
         } else if (props.archivedOnly) {
+            // archived projects not implemented yet, uncomment below when ready
             // projectsToDisplay = allProjects.filter(project => project.archived === true);
             return [];
         }
+        // further filter based on search query, if any (currently only searching project title)
         if (props.searchQuery !== "") {
             let searchResults = [];
             for (let i = 0; i < projectsToDisplay.length; i++) {
@@ -23,6 +32,7 @@ function All(props) {
             }
             projectsToDisplay = searchResults;
         }
+        // further filter based on selected sorting option
         switch (props.sortCriterion) {
             case "Newest":
                 //sort by creation date (backwards)

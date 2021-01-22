@@ -4,6 +4,11 @@ import SearchBar from "../components/SearchBar.js";
 import { Navbar, FlexboxGrid, Dropdown, Icon } from "rsuite";
 import { useAuth0 } from "@auth0/auth0-react";
 
+/*
+  Renders header logo, search bar, settings/logout
+
+  Changes in sorting/search bar changes state in parent component (Page)
+*/
 function Header(props) {
   const { logout } = useAuth0();
 

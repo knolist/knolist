@@ -6,6 +6,12 @@ import makeHttpRequest from "../services/HttpRequest.js";
 import NewProjectModal from "./NewProjectModal.js";
 import { Loader } from "rsuite";
 
+/*
+  Renders the main display of projects + new project button
+
+  Fetches every project the user has, which is passed to
+  child components for filtering
+*/
 function Main(props) {
   const [show, setShow] = useState(false);
   const [projects, setProjects] = useState(null);
@@ -20,11 +26,13 @@ function Main(props) {
     }
   }
 
+  //Async function above works only when used in combination with
+  //a lifecycle function (this is basically a componentDidMount)
   useEffect(() => {
     getProjects();
   });
 
-  if (projects !== null) { //is there a better way to do this
+  if (projects !== null) {
     return (
       <div id="myknolist-main-container">
         <Recent show={props.showRecent} projects={projects} />
