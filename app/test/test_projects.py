@@ -284,6 +284,54 @@ class TestProjectsEndpoints(unittest.TestCase):
         for item in data['items']:
             self.assertEqual(item['parent_project'], self.project_1.id)
 
+    def test_single_filter_search_items(self):
+        query = quote('Source')
+        filter = quote('title')
+        path_str = f'/projects/{self.project_1.id}/items?query={query}&filter={filter}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['items']), 2)  # All items of project 1
+
+    def test_single_filter_search_items_no_match(self):
+        query = quote('a')
+        filter = quote('content')
+        path_str = f'/projects/{self.project_1.id}/items?query={query}&filter={filter}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['items']), 0)  # None of the sources
+
+    def test_multiple_filter_search_items(self):
+        query = quote('1')
+        filter_one = quote('notes')
+        filter_two = quote('url')
+        path_str = f'/projects/{self.project_1.id}/items?query={query}&filter={filter_one}&filter={filter_two}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['items']), 1)  # Only source 1
+
+    def test_multiple_filter_search_items_no_match(self):
+        query = quote('knolist')
+        filter_one = quote('url')
+        filter_two = quote('content')
+        filter_three = quote('title')
+        path_str = f'/projects/{self.project_1.id}/items?query={query}&filter={filter_one}&filter={filter_two}&filter={filter_three}'
+        res = self.client().get(path_str, headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(len(data['items']), 0)  # No sources have knolist
+
+
     def test_search_sources(self):
         query = quote('test1')
         path_str = f'/projects/{self.project_1.id}/sources?query={query}'

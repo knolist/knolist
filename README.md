@@ -534,6 +534,54 @@ Assume that all `curl` calls include the following:
 }
 ```
 
+3. Search through specific fields of the sources.
+    - Searches through all sources of the given project. The search is case-insensitive and looks through the
+    fields of the sources as specified by the user.
+    - Request arguments:
+        - `query`: a string passed as a query parameter, indicating the query to be searched *(Required)*
+        - `filter`: a list of fields passed as a filter parameter, indicating the fields to be searched *(Required)*
+    - Returns: A JSON object with the following keys:
+        - "success": holds `true` if the request was successful
+        - "sources": an array of `short source` objects representing all the sources in the project
+         that contain the given query in any of the fields specified
+    - Sample: `curl https://knolist-api.herokuapp.com/projects/1/sources?query=Duchess&filter=title&filter=content`
+```
+200 OK
+```
+```json
+{
+  "sources": [
+    {
+      "id": 1,
+      "next_sources": [],
+      "prev_sources": [
+        2
+      ],
+      "project_id": 1,
+      "title": "Robert Browning - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",
+      "x_position": null,
+      "y_position": null
+    },
+    {
+      "id": 2,
+      "next_sources": [
+        4,
+        1
+      ],
+      "prev_sources": [],
+      "project_id": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+
+
 ### GET '/projects/{project_id}/items'
 - This endpoint serves two different purposes, depending on whether or not a search query is passed.
 1. Get all items.
@@ -591,6 +639,47 @@ Assume that all `curl` calls include the following:
         - "items": an array of `item` objects representing all the items in the project
          that contain the given query
     - Sample: `curl https://knolist-api.herokuapp.com/projects/1/items?query=Browning`
+```
+200 OK
+```
+```json
+{
+  "items": [
+    {
+      "id": 1,    
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
+      "parent_project": 1,
+      "title": "Robert Browning - Wikipedia",
+      "content": '"This is a highlight"',
+      "is_note": False,
+      "x_position": null,
+      "y_position": null,
+    },
+    {
+      "id": 2,
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "parent_project": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "is_note": False,
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+
+3. Search through specific fields of the items.
+    - Searches through all sources of the given project. The search is case-insensitive and looks through the
+    fields of the sources as specified by the user.
+    - Request arguments:
+        - `query`: a string passed as a query parameter, indicating the query to be searched *(Required)*
+        - `filter`: a list of fields passed as a filter parameter, indicating the fields to be searched *(Required)*
+    - Returns: A JSON object with the following keys:
+        - "success": holds `true` if the request was successful
+        - "sources": an array of `item` objects representing all the items in the project
+         that contain the given query in any of the fields specified
+    - Sample: `curl https://knolist-api.herokuapp.com/projects/1/items?query=Wikipedia&filter=title`
 ```
 200 OK
 ```

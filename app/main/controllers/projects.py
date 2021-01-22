@@ -161,15 +161,30 @@ def set_project_routes(app):
             })
 
         pattern = '%' + search_query + '%'
-        results = Source.query.filter(Source.project_id == project_id) \
-            .filter(Source.url.ilike(pattern)
-                    | Source.title.ilike(pattern)
-                    | Source.content.ilike(pattern)).order_by(Source.id).all()
+        filter_query = request.args.getlist('filter', None)
+        if not filter_query:
+            results = Source.query.filter(Source.project_id == project_id)\
+                .filter(Source.url.ilike(pattern)
+                        | Source.title.ilike(pattern)
+                        | Source.content.ilike(pattern)).order_by(Source.id).all()
+            return jsonify({
+                'success': True,
+                'sources': [source.format_short() for source in results]
+            })
 
+        results = []
+        for filter_type in filter_query:
+            temp = Source.query.filter(Source.project_id == project_id)\
+                .filter(getattr(Source, filter_type)
+                        .ilike(pattern)).order_by(Source.id).all()
+            for sources in temp:
+                if sources not in results:
+                    results.append(sources)
         return jsonify({
             'success': True,
             'sources': [source.format_short() for source in results]
         })
+
 
     """
     Gets all the items of a given project
@@ -190,16 +205,33 @@ def set_project_routes(app):
             })
 
         pattern = '%' + search_query + '%'
-        results = Item.query.filter(Item.project_id == project_id) \
-            .filter(Item.source.url.ilike(pattern)
-                    | Item.source.title.ilike(pattern)
-                    | Item.source.content.ilike(pattern)
-                    | Item.content.ilike(pattern)).\
-            order_by(Item.source.id).all()
+        filter_query = request.args.getlist('filter', None)
+        if not filter_query:
+            results = Item.query.join(Source).filter(Item.parent_project == project_id)\
+                .filter(Source.url.ilike(pattern)
+                        | Source.title.ilike(pattern)
+                        | Source.content.ilike(pattern)
+                        | Item.content.ilike(pattern)).order_by(Item.id).all()
+            return jsonify({
+                'success': True,
+                'items': [i.format() for i in results]
+            })
 
+        results = []
+        for filter_type in filter_query:
+            if filter_type == 'notes' or filter_type == 'highlights':
+                temp = Item.query.filter(Item.parent_project == project_id)\
+                .filter(Item.content.ilike(pattern)).order_by(Item.id).all()
+            else:
+                temp = Item.query.join(Source).filter(Item.parent_project == project_id)\
+                .filter(getattr(Source, filter_type)
+                        .ilike(pattern)).order_by(Item.id).all()
+            for item in temp:
+                if item not in results:
+                    results.append(item)
         return jsonify({
             'success': True,
-            'items': [item.format() for item in results]
+            'items': [i.format() for i in results]
         })
 
     """
