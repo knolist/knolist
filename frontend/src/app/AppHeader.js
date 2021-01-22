@@ -11,11 +11,11 @@ import SearchBar from "../components/SearchBar.js";
 
 function AppHeader(props) {
     return (
-        <Navbar style={{ padding: "0 10px" }}>
+        <Navbar style={{padding: "0 10px"}}>
             <FlexboxGrid justify="space-between" align="middle">
                 <Link to="/my-projects">
                     <Navbar.Header>
-                        <img className="limit-height" src={horizontalLogo} alt="Knolist" />
+                        <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
                     </Navbar.Header>
                 </Link>
                 <FlexboxGrid.Item>
@@ -31,7 +31,7 @@ function AppHeader(props) {
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
-                        <SearchAndFilter />
+                        <SearchAndFilter/>
                         <BibButton setShowBib={props.setShowBib}/>
                     </FlexboxGrid>
                 </FlexboxGrid.Item>

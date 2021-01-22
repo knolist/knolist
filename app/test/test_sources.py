@@ -29,10 +29,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.new_source = {
             'title': 'New title',
             'content': 'New content',
-            'highlights': ['New highlight'],
-            'notes': ['New notes'],
-            'x_position': self.source_1.x_position + 100,
-            'y_position': self.source_1.y_position + 100,
             'project_id': self.project_2.id
         }
 
@@ -52,12 +48,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(source['id'], self.source_1.id)
         self.assertEqual(source['url'], self.source_1.url)
         self.assertEqual(source['title'], self.source_1.title)
-        self.assertEqual(len(source['highlights']),
-                         len(json.loads(self.source_1.highlights)))
-        self.assertEqual(len(source['notes']),
-                         len(json.loads(self.source_1.notes)))
-        self.assertEqual(source['x_position'], self.source_1.x_position)
-        self.assertEqual(source['y_position'], self.source_1.y_position)
         self.assertEqual(source['project_id'], self.source_1.project_id)
 
     def test_get_source_detail_nonexistent_source(self):
@@ -109,10 +99,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         source = data['source']
         self.assertEqual(source['title'], self.new_source['title'])
-        self.assertEqual(source['highlights'], self.new_source['highlights'])
-        self.assertEqual(source['notes'], self.new_source['notes'])
-        self.assertEqual(source['x_position'], self.new_source['x_position'])
-        self.assertEqual(source['y_position'], self.new_source['y_position'])
         self.assertEqual(source['project_id'], self.new_source['project_id'])
         self.assertTrue(self.source_1 in self.project_2.sources)
         self.assertTrue(self.source_1 not in self.project_1.sources)
@@ -172,24 +158,6 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
 
-    def test_update_source_invalid_highlights(self):
-        res = self.client().patch(f'/sources/{self.source_1.id}',
-                                  json={'highlights': 'not list'},
-                                  headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertFalse(data['success'])
-
-    def test_update_source_invalid_notes(self):
-        res = self.client().patch(f'/sources/{self.source_1.id}',
-                                  json={'notes': 'not list'},
-                                  headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertFalse(data['success'])
-
     def test_update_source_nonexistent_project(self):
         res = self.client().patch(f'/sources/{self.source_1.id}',
                                   json={'project_id': 2000},
@@ -211,252 +179,4 @@ class TestSourcesEndpoints(unittest.TestCase):
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
-        self.assertFalse(data['success'])
-
-    # POST '/sources/{source_id}/highlights' #
-    def test_add_highlights(self):
-        highlight = 'New highlight'
-        old_highlights = json.loads(
-            Source.query.get(self.source_1.id).highlights
-        )
-        res = self.client().post(f'/sources/{self.source_1.id}/highlights',
-                                 json={'highlight': highlight},
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 201)
-        self.assertTrue(data['success'])
-        source = data['source']
-        self.assertEqual(len(source['highlights']), len(old_highlights) + 1)
-        self.assertEqual(source['highlights'][-1], highlight)
-
-    def test_add_highlights_no_body(self):
-        res = self.client().post(f'/sources/{self.project_1.id}/highlights',
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_add_highlights_no_highlight(self):
-        res = self.client().post(f'/sources/{self.project_1.id}/highlights',
-                                 json={'some_field': 'some_data'},
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_add_highlights_nonexistent_project(self):
-        highlight = 'New highlight'
-        res = self.client().post('/sources/2000/highlights',
-                                 json={'highlight': highlight},
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
-        self.assertFalse(data['success'])
-
-    # DELETE '/sources/{source_id}/highlights' #
-    def test_delete_highlights(self):
-        old_highlights = json.loads(self.source_1.highlights)
-        indices_to_delete = [0, 1]
-        res = self.client().delete(f'/sources/{self.source_1.id}/highlights',
-                                   json={'delete': indices_to_delete},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data['success'])
-        source = data['source']
-        self.assertEqual(len(source['highlights']),
-                         len(old_highlights) - len(indices_to_delete))
-
-    def test_delete_highlights_no_body(self):
-        res = self.client().delete(f'/sources/{self.source_1.id}/highlights',
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_delete_highlights_no_indices(self):
-        res = self.client().delete(f'/sources/{self.source_1.id}/highlights',
-                                   json={'some_field': 'some_data'},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_delete_highlights_invalid_indices_format(self):
-        res = self.client().delete(f'/sources/{self.source_1.id}/highlights',
-                                   json={'delete': 'not list'},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_delete_highlights_nonexistent_project(self):
-        indices_to_delete = [0, 1]
-        res = self.client().delete('/sources/2000/highlights',
-                                   json={'delete': indices_to_delete},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
-        self.assertFalse(data['success'])
-
-    # POST '/sources/{source_id}/notes' #
-    def test_add_notes(self):
-        note = 'New note'
-        old_notes = json.loads(Source.query.get(self.source_1.id).notes)
-        res = self.client().post(f'/sources/{self.source_1.id}/notes',
-                                 json={'note': note}, headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 201)
-        self.assertTrue(data['success'])
-        source = data['source']
-        self.assertEqual(len(source['notes']), len(old_notes) + 1)
-        self.assertEqual(source['notes'][-1], note)
-
-    def test_add_highlighnotey(self):
-        res = self.client().post(f'/sources/{self.project_1.id}/notes',
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_add_notes_no_note(self):
-        res = self.client().post(f'/sources/{self.project_1.id}/notes',
-                                 json={'some_field': 'some_data'},
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_add_notes_nonexistent_project(self):
-        note = 'New note'
-        res = self.client().post('/sources/2000/notes',
-                                 json={'note': note},
-                                 headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
-        self.assertFalse(data['success'])
-
-    # DELETE '/sources/{source_id}/notes' #
-    def test_delete_notes(self):
-        old_notes = json.loads(self.source_1.notes)
-        indices_to_delete = [0, 1]
-        res = self.client().delete(f'/sources/{self.source_1.id}/notes',
-                                   json={'delete': indices_to_delete},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data['success'])
-        source = data['source']
-        self.assertEqual(len(source['notes']),
-                         len(old_notes) - len(indices_to_delete))
-
-    def test_delete_notes_no_body(self):
-        res = self.client().delete(f'/sources/{self.source_1.id}/notes',
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_delete_notes_no_indices(self):
-        res = self.client().delete(f'/sources/{self.source_1.id}/notes',
-                                   json={'some_field': 'some_data'},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_delete_notes_invalid_indices_format(self):
-        res = self.client().delete(f'/sources/{self.source_1.id}/notes',
-                                   json={'delete': 'not list'},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_delete_notes_nonexistent_project(self):
-        indices_to_delete = [0, 1]
-        res = self.client().delete('/sources/2000/notes',
-                                   json={'delete': indices_to_delete},
-                                   headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
-        self.assertFalse(data['success'])
-
-    def test_update_note(self):
-        index_to_update = 0
-        old_note = json.loads(self.source_1.notes)[index_to_update]
-        new_content = 'This is the new content'
-        json_body = {
-            'note_index': index_to_update,
-            'new_content': new_content
-        }
-        res = self.client().patch(f'/sources/{self.source_1.id}/notes',
-                                  json=json_body, headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data['success'])
-        new_note = data['source']['notes'][index_to_update]
-        self.assertEqual(new_note, new_content)
-        self.assertNotEqual(new_note, old_note)
-
-    def test_update_note_no_body(self):
-        res = self.client().patch(f'/sources/{self.source_1.id}/notes',
-                                  headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_update_note_missing_field(self):
-        json_body = {
-            'note_index': 0  # Missing content
-        }
-        res = self.client().patch(f'/sources/{self.source_1.id}/notes',
-                                  json=json_body, headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 400)
-        self.assertFalse(data['success'])
-
-    def test_update_note_invalid_index(self):
-        json_body = {
-            'note_index': 99999,
-            'new_content': 'New content'
-        }
-        res = self.client().patch(f'/sources/{self.source_1.id}/notes',
-                                  json=json_body, headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 422)
-        self.assertFalse(data['success'])
-
-    def test_update_note_nonexistent_source(self):
-        json_body = {
-            'note_index': 0,
-            'new_content': 'New content'
-        }
-        res = self.client().patch('/sources/2000/notes', json=json_body,
-                                  headers=auth_header)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])

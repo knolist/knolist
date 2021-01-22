@@ -2,15 +2,15 @@
 This is the repository for the complete Knolist App. It is a Flask-based API that connects to a Postgres database, 
 along with a React-based front end.  
 Knolist is a research-assistant tool that aims to revolutionize how you organize your sources and find new ideas for 
-your projects. It allows users to create projects and save their sources in a mind map style, where each source is 
+your projects. It allows users to create projects and save their sources in a mind map style, where each item is 
 viewed as a node in a graph.
 1. Nodes can be freely moved around by changing the stored (x, y) position.
-2. Sources are created by extracting the text content of a URL and storing it, so that the 
-user can more easily search for sources they added.
+2. Items are created by receiving the text content of a note or highlight and storing it, 
+along with a possible associated source.
+3. Sources are created by extractng the text content of a url and storing it, so a user can more easily 
+search for sources they added.
 3. Users can also add highlights from the page and write notes on each 
 source.
-4. Finally, they can create connections (edges in a graph) between sources, in order to identify concepts that 
-relate to each other.
 
 ## Project guidelines
 ### Project structure highlights (as of 1/4/21)
@@ -30,6 +30,7 @@ relate to each other.
 │   │   │   ├── connections.py --> Endpoints for /connections/...
 │   │   │   ├── projects.py --> Endpoints for /projects/...
 │   │   │   └── sources.py --> Endpoints for /sources/...
+│   │   │   └── items.py --> Endpoints for /items/...
 │   │   ├── error_handlers --> Defines the Flask error handlers
 │   │   │   └── __init__.py
 │   │   └── models --> Defines the SQLAlchemy database models
@@ -43,6 +44,7 @@ relate to each other.
 │       ├── test_projects.py
 │       ├── test_rbac.py
 │       └── test_sources.py
+│       └── test_items.py
 ├── frontend --> Folder tha contains all of the frontend code (React)
 │   ├── README.md --> Details how to run the frontend commands
 │   ├── package-lock.json
@@ -225,19 +227,21 @@ python manage.py db upgrade
 - `sources` table:
     - Represents Source objects
     - Contains an `id` (primary key), the source's `url`, `title`, `content` (which is extracted based on the URL
-    and used for search purposes), `highlights` (stored as a JSON array), `notes` (stored as a JSON array),
-    `x_position` and `y_position` (integers representing the position of the source in the project graph),
-    and `project_id` (a foreign key that refers to the `projects` table)
+    and used for search purposes), `x_position` and `y_position` (integers representing the position 
+    of the source in the project graph), and `project_id` (a foreign key that refers to the `projects` table)
     - Through SQLAlchemy, the Source object also contains a `project` field, which returns the Project object
-    that owns the source. It also has `next_sources` and `prev_sources`, which are two lists of the sources
-    to which the current source is connected. This many-to-many relationship is encapsulated by the `edges` table.
+    that owns the source. It also contains a `child_items` field, which returns the associated items for a source.
     - The table also has a uniqueness constraint to ensure that, within a given project, there will be no more than one
     instance of any given URL.
     - The model contains insert, update, delete, format_short, and format_long helper functions.
-- `edges` table:
-    - Represents the many-to-many relationship between sources
-    - Contains a `from_id` and a `to_id`, both of which are primary keys, to represent the 
-    sources involved in that connection.
+- `items` table:
+    - Represents Item objects
+    - Contains an `id` (primary key), the items associated `source_id`, `content` (the note or highlight), `x_position`
+    and `y_position`, `parent_project` (a foreign key that refers to the `projects` table), and `cluster_id` (another 
+    foreign key that refers to the `clusters` table).
+    - Through SQLAlchemy, the Item object also contains a `source` field, which returns the Source object that is 
+    associated with the Item.
+
 ## Running the server
 
 From the root directory, first ensure you are working using your created virtual environment.
@@ -325,10 +329,14 @@ Whenever a JSON object that represents a database model is returned, there are a
     current source. "next_sources" contains sources that are children of the current source, while "prev_sources" 
     contains parent sources
     - "project_id": the ID of the project where the current source belongs
-- A `long source` is a more complete representation of a source. 
-It contains all the keys of `short source`, as well as the following:
-    - "highlights": an array of all the highlights associated with that source. Each highlight in the array is a string.
-    - "notes": analogous to highlights
+- An `item` is an object that contains the following keys:
+    - "id": the item's ID in the database
+    - "url": the URL of the source, if it has one
+    - "title": the title of the source, if it has one
+    - "parent_project": a foreign key to the project that the item is associacted with  
+    - "is_note": a boolean to tell if an item has a note or not
+    - "content": the content of the item, which is either a note or a highlight
+    - "x_position" and "y_position": the x and y positions of the item(positions in a graph)
  
 ## Endpoints
 - NOTE: all `curl` samples omit the Authorization header for the sake of simplicity.
@@ -526,34 +534,126 @@ Assume that all `curl` calls include the following:
 }
 ```
 
-### POST '/projects/{project_id}/sources'
-- Creates a new source and adds it to the given project (based on the ID). The source is created based on its URL, 
-which is used to extract the page title and content, both of which are saved in the database.
+### GET '/projects/{project_id}/items'
+- This endpoint serves two different purposes, depending on whether or not a search query is passed.
+1. Get all items.
+    - Fetches all the items of a given project (based on the project ID)
+    - Request arguments: None
+    - Returns: A JSON object with the following keys:
+        - "success": holds `true` if the request was successful
+        - "items": an array of `item` objects representing all the items of the project
+    - Sample: `curl https://knolist-api.herokuapp.com/projects/1/items`
+```
+200 OK
+```
+```json
+{
+  "items": [
+    {
+      "id": 1,    
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
+      "parent_project": 1,
+      "title": "Robert Browning - Wikipedia",
+      "content": '"This is a highlight"',
+      "is_note": False,
+      "x_position": null,
+      "y_position": null
+    },
+    {
+      "id": 2,
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "parent_project": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "is_note": False,
+      "x_position": null,
+      "y_position": null
+    },
+    {
+      "id": 4,
+      "parent_project": 1,
+      "is_note": True,
+      "content": "This is a note",
+      "url": null,
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+2. Search through items.
+    - Searches through all items of the given project. The search is case-insensitive and looks through all text 
+    fields of all items (url, title, source content, and item content)
+    - Request arguments:
+        - `query`: a string passed as a query parameter, indicating the query to be searched *(Required)*
+    - Returns: A JSON object with the following keys:
+        - "success": holds `true` if the request was successful
+        - "items": an array of `item` objects representing all the items in the project
+         that contain the given query
+    - Sample: `curl https://knolist-api.herokuapp.com/projects/1/items?query=Browning`
+```
+200 OK
+```
+```json
+{
+  "items": [
+    {
+      "id": 1,    
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
+      "parent_project": 1,
+      "title": "Robert Browning - Wikipedia",
+      "content": '"This is a highlight"',
+      "is_note": False,
+      "x_position": null,
+      "y_position": null,
+    },
+    {
+      "id": 2,
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "parent_project": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "is_note": False,
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+
+### POST 'items'
+- Creates a new item and adds it to the given project (based on the ID). The item is created based on its type, checking
+ that the item has at least fields URL and content (highlight or note).  If the URL is unique, a new source is created
+ for the item.  If not, then the item is pointed to the existing source.  Otherwise, the note is created as its own
+ node.
 - If the given URL already exists in the given project, no new source is created (URLs must be unique withing a project)
 If that is the case, the return status wil be 200 instead of 201, since no new source was created.
 - Request arguments (passed as JSON body):
-    - `string` "url": the URL of the source that will be added *(Required)*
+    - `string` "url": the URL of the item that will be added *(Optional)*
+    - `string` "content": the note or highlight of the item that will be added *(Optional)*
+    - `float` "parent_project": the item's associated project id *(Optional)*
+    - `bool` "is_note": a boolean to tell whether the item has a note or not *(Required)*
     - `float` "x_position": the y position to apply to the source *(Optional)*
     - `float` "y_position": the y position to apply to the source *(Optional)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
-    - "source": a `short source` object representing the newly created source (or the existing source if the URL is 
+    - "item": an `item` object representing the newly created source (or the existing source if the URL is 
     already in the project)
-- Sample: `curl https://knolist-api.herokuapp.com/projects/1/sources -X POST -H "Content-Type: application/json" -d '{"url": "https://en.wikipedia.org/wiki/English_poetry"}'`
+- Sample: `curl https://knolist-api.herokuapp.com/projects/1/items -X POST -H "Content-Type: application/json" -d '{"url": "https://en.wikipedia.org/wiki/English_poetry"}'`
 ```
 201 Created (or 200 OK if the URL already exists in the project)
 ```
 ```json
 {
-  "source": {
-    "id": 5,
-    "next_sources": [],
-    "prev_sources": [],
-    "project_id": 1,
-    "title": "English poetry - Wikipedia",
-    "url": "https://en.wikipedia.org/wiki/English_poetry",
+  "item": {
+    "id": 1,    
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
+    "parent_project": 1,
+    "title": "Robert Browning - Wikipedia",
+    "content": '"This is a highlight"',
+    "is_note": False,
     "x_position": null,
-    "y_position": null
+    "y_position": null,
   },
   "success": true
 }
@@ -703,59 +803,71 @@ signify that.
 }
 ```
 
-### POST '/sources/{source_id}/highlights'
-- Appends a new highlight to a source's highlights.
-- Request arguments (passed as JSON body):
-    - `string` "highlight": the string that will be appended to the highlights list *(Required)*
+### GET '/items/{item_id}'
+- Fetches the detailed information of a specific item.
+- Request arguments: None
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
-    - "source": a `long source` object representing the source that was just updated
-- Sample: `curl https://knolist-api.herokuapp.com/sources/1/highlights -X POST -H "Content-Type: application/json" -d '{"highlight": "This is a new highlight"}'`
+    - "item": an `item` object representing the requested item
+- Sample: `curl https://knolist-api.herokuapp.com/items/1`
 ```
-201 Created
+200 OK
+```
+```json
+{
+  "item": {
+    "id": 1,
+    "url": "https://en.wikipedia.org/wiki/Robert_Browning",  
+    "title": "Robert Browning - Wikipedia",    
+    "parent_project": 1,
+    "is_note": True,
+    "content": "This is a note",
+    "x_position": null,
+    "y_position": null
+  },
+  "success": true
+}
+```
+
+### DELETE '/items/{item_id}'
+- Deletes an item based on its ID.
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "deleted": the ID of the item that was deleted
+- Sample: `curl https://knolist-api.herokuapp.com/items/5 -X DELETE`
+```
+200 OK
+```
+```json
+{
+  "deleted": 5,
+  "success": true
+}
+```
+
+### PATCH '/items/{item_id}'
+- Allows updates to most fields of the given item.
+- Request arguments (passed as JSON body, at least one is required):
+    - `string` "is_note": a bool that tells if an item has a note or not *(Required)*
+    - `string` "content": the new note or highlight to apply to the item *(Optional)*    
+    - `string` "title": the new title to apply to the source associated with the item *(Optional)*
+    - `float` "x_position": the new x position to apply to the item *(Optional)*
+    - `float` "y_position": the new y position to apply to the item *(Optional)*
+    - `int` "parent_project": the ID of the new project that this source will belong to. It must be a valid ID of an 
+    existing project. If the project already has a source with the current URL, error 422 is thrown.
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "item": an `item` object representing the item that was just updated
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1 -X PATCH -H "Content-Type: application/json" -d '{"title": "New title", "notes": ["Updated notes", "New notes"]}'`
+```
+200 OK
 ```
 ```json
 {
   "source": {
     "highlights": [
       "This is a highlight",
-      "This is another highlight",
-      "This is a new highlight"
-    ],
-    "id": 1,
-    "next_sources": [],
-    "notes": [
-      "Updated notes",
-      "New notes"
-    ],
-    "prev_sources": [
-      2
-    ],
-    "project_id": 1,
-    "title": "New title",
-    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
-    "x_position": null,
-    "y_position": null
-  },
-  "success": true
-}
-```
-
-### DELETE '/sources/{source_id}/highlights'
-- Deletes one or more highlights from a source.
-- Request arguments (passed as JSON body):
-    - `array` of `int` "delete": an array of indices to be deleted from the list of highlights *(Required)*
-- Returns: A JSON object with the following keys:
-    - "success": holds `true` if the request was successful
-    - "source": a `long source` object representing the source that was just updated
-- Sample: `curl https://knolist-api.herokuapp.com/sources/1/highlights -X DELETE -H "Content-Type: application/json" -d '{"delete": [0, 2]}'`
-```
-200 OK
-```
-```json
-{
-  "source": {
-    "highlights": [
       "This is another highlight"
     ],
     "id": 1,
@@ -777,113 +889,7 @@ signify that.
 }
 ```
 
-### POST '/sources/{source_id}/notes'
-- Appends a new note to a source's notes.
-- Request arguments (passed as JSON body):
-    - `string` "note": the string that will be appended to the notes list *(Required)*
-- Returns: A JSON object with the following keys:
-    - "success": holds `true` if the request was successful
-    - "source": a `long source` object representing the source that was just updated
-- Sample: `curl https://knolist-api.herokuapp.com/sources/1/notes -X POST -H "Content-Type: application/json" -d '{"note": "This is a new note"}'`
-```
-201 Created
-```
-```json
-{
-  "source": {
-    "highlights": [
-      "This is another highlight"
-    ],
-    "id": 1,
-    "next_sources": [],
-    "notes": [
-      "Updated notes",
-      "New notes",
-      "This is a new note"
-    ],
-    "prev_sources": [
-      2
-    ],
-    "project_id": 1,
-    "title": "New title",
-    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
-    "x_position": null,
-    "y_position": null
-  },
-  "success": true
-}
-```
 
-### DELETE '/sources/{source_id}/notes'
-- Deletes one or more notes from a source.
-- Request arguments (passed as JSON body):
-    - `array` of `int` "delete": an array of indices to be deleted from the list of notes *(Required)*
-- Returns: A JSON object with the following keys:
-    - "success": holds `true` if the request was successful
-    - "source": a `long source` object representing the source that was just updated
-- Sample: `curl https://knolist-api.herokuapp.com/sources/1/notes -X DELETE -H "Content-Type: application/json" -d '{"delete": [1, 2]}'`
-```
-200 OK
-```
-```json
-{
-  "source": {
-    "highlights": [
-      "This is another highlight"
-    ],
-    "id": 1,
-    "next_sources": [],
-    "notes": [
-      "Updated notes"
-    ],
-    "prev_sources": [
-      2
-    ],
-    "project_id": 1,
-    "title": "New title",
-    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
-    "x_position": null,
-    "y_position": null
-  },
-  "success": true
-}
-```
-
-### PATCH '/sources/{source_id}/notes'
-- Updates the content of one of a source's notes.
-- Request arguments (passed as JSON body):
-    - `int` "note_index": the index of the note to be updated in the notes list *(Required)*
-    - `string` "new_content": the content the will be inserted in the given index *(Required)*
-- Returns: A JSON object with the following keys:
-    - "success": holds `true` if the request was successful
-    - "source": a `long source` object representing the source that was just updated
-- Sample: `curl https://knolist-api.herokuapp.com/sources/1/notes -X PATCH -H "Content-Type: application/json" -d '{"note_index": 0, "new_content": "New content for the documentation"}'`
-```
-200 OK
-```
-```json
-{
-  "source": {
-    "highlights": [
-      "This is another highlight"
-    ],
-    "id": 1,
-    "next_sources": [],
-    "notes": [
-      "New content for the documentation"
-    ],
-    "prev_sources": [
-      2
-    ],
-    "project_id": 1,
-    "title": "New title",
-    "url": "https://en.wikipedia.org/wiki/Robert_Browning",
-    "x_position": null,
-    "y_position": null
-  },
-  "success": true
-}
-```
 
 ### POST '/connections'
 - Creates a connection given two existing source IDs (they must be in the same project). If the connection already exists,
@@ -974,3 +980,169 @@ no new connection is created, and a 200 status code is returned to signify that
   }
 }
 ```
+
+### GET '/clusters/{cluster_id}'
+- Gets information about the specified cluster (location, child clusters' ids, child items' ids)
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster that was requested
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Test Cluster',
+    "child_clusters": [
+      2,
+      3
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": null,
+    "x_position": null,
+    "y_position": null
+  }
+}
+```
+
+### DELETE '/clusters/{cluster_id}'
+- Deletes a given cluster and all 
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "deleted": a `cluster` object representing the cluster that was updated
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "deleted": 1
+}
+```
+
+### PATCH '/clusters/{cluster_id}'
+- Updates the name of a given cluster
+- Request arguments (passed as JSON body):
+    - `string` "name": The new name of the cluster *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the id of the cluster that was deleted
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Test Cluster with New Name',
+    "child_clusters": [
+      2,
+      3
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": null,
+    "x_position": null,
+    "y_position": null
+  }
+}
+```
+
+## POST '/clusters'
+- Adds a new cluster from scratch when given 2 items coming from the same cluster (no previous cluster is ok too)
+- Request arguments (passed as JSON body):
+    - `id` "item1_id": The id of one of the items that will be part of the cluster *(Required)*
+    - `id` "item2_id": The id of the other item that will be part of the cluster *(Required)*
+    - `int` "x_position": The x position of the new cluster *(Required)*
+    - `int` "y_position": The y position of the new cluster *(Required)*
+    - `string` "name": The name of the new cluster *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster that was just created 
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Cluster From Scratch',
+    "child_clusters": [
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": 10,
+    "x_position": 400,
+    "y_position": 300
+  }
+}
+```
+
+## POST '/clusters/{cluster_id}/items/{item_id}'
+- Adds a new item to an existing cluster
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster after update
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Cluster Added To',
+    "child_clusters": [
+      2,
+      3,
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": 10,
+    "x_position": 400,
+    "y_position": 300
+  }
+}
+```
+
+## DELETE '/clusters/{cluster_id}/items/{item_id}'
+- Removes specified item from the cluster
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "cluster": a `cluster` object representing the cluster that was updated
+```
+200 OK
+```
+```json
+{
+  "success": true,
+  "cluster": {
+    "id": 1,
+    "name": 'Cluster Being Removed From',
+    "child_clusters": [
+    ],
+    "child_items": [
+      4,
+      5
+    ]
+    "project_id": 10,
+    "x_position": 400,
+    "y_position": 300
+  }
+}
+```
+
+
