@@ -4,15 +4,31 @@ import ProjectCard from "./ProjectCard.js";
 
 function All(props) {
     const filterProjects = (allProjects) => {
+        let projectsToDisplay = null;
         if (!props.sharedOnly && !props.archivedOnly) {
-            return allProjects;
+            projectsToDisplay = allProjects;
         } else if (props.sharedOnly) {
-            // return allProjects.filter(project => project.shared = true);
+            // projectsToDisplay = allProjects.filter(project => project.shared = true);
             return [];
         } else if (props.archivedOnly) {
-            // return allProjects.filter(project => project.archived = true);
+            // projectsToDisplay = allProjects.filter(project => project.archived = true);
             return [];
         }
+        if (props.sortCriterion === "Newest") {
+            //sort by creation date (backwards)
+        } else if (props.sortCriterion === "Oldest") {
+            //sort by creation date
+        } else if (props.sortCriterion === "A-Z") {
+            projectsToDisplay = allProjects.sort((a, b) => {
+                return a.title.localeCompare(b.title);
+            });
+            console.log(projectsToDisplay);
+        } else if (props.sortCriterion === "Z-A") {
+            projectsToDisplay = allProjects.sort((a, b) => {
+                return b.title.localeCompare(a.title);
+            });
+        }
+        return projectsToDisplay;
     }
 
     const projects = filterProjects(props.projects);

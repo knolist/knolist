@@ -29,7 +29,11 @@ function Main(props) {
     return (
       <div id="myknolist-main-container">
         <Recent show={props.showRecent} projects={projects} />
-        <All projects={projects} sharedOnly={props.sharedOnly} archivedOnly={props.archivedOnly} />
+        <All
+          projects={projects}
+          sharedOnly={props.sharedOnly}
+          archivedOnly={props.archivedOnly}
+          sortCriterion={props.sortCriterion} />
         <div
           style={{ position: "fixed", right: 0, bottom: 0 }}
           onClick={() => setShow(true)}>

@@ -3,7 +3,11 @@ import { FlexboxGrid, Col } from "rsuite"
 import ProjectCard from "./ProjectCard.js";
 
 function Recent(props) {
+  console.log(props.projects);
   const getFourRecent = (allProjects) => {
+    allProjects.sort((a, b) => {
+      return a.id - b.id;
+    });
     let recent = [];
     const max = allProjects.length >= 4 ? 4 : allProjects.length;
     for (let i = 0; i < max; i++) {
