@@ -32,7 +32,7 @@ class MindMap extends React.Component {
             [types.PURESOURCE]: "#00c0de",
             [types.SOURCEANDNOTE]: "#f36170",
             [types.SOURCEANDHIGHLIGHT]: "#45c786",
-            [types.PURENOTE]: "#ffb961",
+            [types.PURENOTE]: "#f5a94b",
             [types.NEITHER]: "#000000"
         };
         this.state = {
@@ -191,12 +191,17 @@ class MindMap extends React.Component {
     getNodeLabel = (node, nodeType) => {
         const types = this.state.types;
         const contentLength = 100;
+        let nodeContent;
+        if (node.content) {
+            nodeContent = node.content;
+            if (nodeContent.length > contentLength) nodeContent = nodeContent.substring(0, contentLength) + "...";
+        }
         if (nodeType === types.PURESOURCE)
             return node.title;
         if (nodeType === types.SOURCEANDNOTE || nodeType === types.SOURCEANDHIGHLIGHT)
-            return node.title + "\n" + node.content.substring(0, contentLength);
+            return node.title + "\n" + nodeContent;
         if (nodeType === types.PURENOTE)
-            return node.content.substring(0, contentLength);
+            return nodeContent;
     }
 
     getNodePosition = (node) => {
@@ -216,7 +221,6 @@ class MindMap extends React.Component {
         let edges = new DataSet();
 
         // Iterate through each node in the graph and build the arrays of nodes and edges
-        console.log(this.state.items)
         for (let index in this.state.items) {
             const node = this.state.items[index];
             const nodeType = this.getNodeType(node);

@@ -79,7 +79,7 @@ class ItemView extends React.Component {
                                        resetDelete={() => this.setConfirmDelete(false)}
                                        title={item.title} delete={this.deleteItem}
                                        loading={this.state.loadingDelete}/>
-                <Modal full show onHide={this.close}>
+                <Modal size="md" show onHide={this.close}>
                     {this.generateItemBody(item, typeOfNode, nodeTypes)}
                     <Modal.Footer>
                         <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Delete Item</Tooltip>}

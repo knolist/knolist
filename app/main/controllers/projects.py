@@ -1,10 +1,10 @@
 from flask import request, abort, jsonify
 from justext import justext, get_stoplist
 from requests import get as requests_get
-from sqlalchemy import String
 
-from ..models.models import Project, Source, Item, Cluster
-from ..auth import requires_auth, AuthError
+from app.main.auth.get_authorized_objects import get_authorized_project
+from ..models.models import Project, Source, Item
+from ..auth import requires_auth
 
 
 def get_title(html):
@@ -44,20 +44,6 @@ def create_and_insert_source(url, project_id):
     source.insert()
 
     return source
-
-
-def get_authorized_project(user_id, project_id):
-    project = Project.query.get(project_id)
-    if project is None:
-        abort(404)
-
-    if project.user_id != user_id:
-        raise AuthError({
-            'code': 'invalid_user',
-            'description': 'This item does not belong to the requesting user.'
-        }, 403)
-
-    return project
 
 
 def set_project_routes(app):
