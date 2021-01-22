@@ -324,7 +324,23 @@ class EditWindow extends React.Component{
         this.setState({loading:value});
     }
 
-    // Show DefaultValue or Placeholder in Edit Input
+    // Show DefaultValue in Edit Input in "MM-DD-YYYY"
+    showTimeField = (field) => {
+        if (field) {
+            var dateJS = new Date(field);
+            var formattedDate = "";
+            formattedDate = formattedDate.concat(dateJS.getMonth()+1);
+            formattedDate = formattedDate.concat("-");
+            formattedDate = formattedDate.concat(dateJS.getDate()+1);
+            formattedDate = formattedDate.concat("-");    
+            formattedDate = formattedDate.concat(dateJS.getFullYear());
+            return (formattedDate);
+        } else {
+            return (undefined);
+        }
+    }
+
+    // Show DefaultValue in Time Picker
     showField = (field) => {
         if (field) {
             return (field);
@@ -400,9 +416,9 @@ class EditWindow extends React.Component{
                 <Modal.Body>
                     <p>Author: <Input defaultValue={this.showField(this.props.source.author)} onChange={this.changeAuthor} style={{ width: '300px' }}/></p>
                     <p>Title: <Input defaultValue={this.showField(this.props.source.title)} onChange={this.changeTitle} style={{ width: '500px' }}/></p>
-                    <p>Publish Date: <DatePicker format="MM-DD-YYYY" placeholder={this.showField(this.props.source.published_date)} onChange={this.changePublishDate} oneTap/></p>
+                    <p>Publish Date: <DatePicker format="MM-DD-YYYY" placeholder={this.showTimeField(this.props.source.published_date)} onChange={this.changePublishDate} oneTap/></p>
                     <p>Site Name: <Input defaultValue={this.showField(this.props.source.site_name)} onChange={this.changeSiteName} style={{ width: '300px' }}/></p>
-                    <p>Access Date: <DatePicker format="MM-DD-YYYY" placeholder={this.showField(this.props.source.access_date)} onChange={this.changeAccessDate} oneTap/></p>
+                    <p>Access Date: <DatePicker format="MM-DD-YYYY" placeholder={this.showTimeField(this.props.source.access_date)} onChange={this.changeAccessDate} oneTap/></p>
                     <p>URL: <Input defaultValue={this.showField(this.props.source.url)} onChange={this.changeURL} style={{ width: '400px' }}/></p>
                 </Modal.Body>
                 <Modal.Footer>
