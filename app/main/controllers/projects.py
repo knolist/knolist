@@ -166,7 +166,8 @@ def set_project_routes(app):
             results = Source.query.filter(Source.project_id == project_id)\
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
-                        | Source.content.ilike(pattern)).order_by(Source.id).all()
+                        | Source.content.ilike(pattern))
+            .order_by(Source.id).all()
             return jsonify({
                 'success': True,
                 'sources': [source.format_short() for source in results]
@@ -184,7 +185,6 @@ def set_project_routes(app):
             'success': True,
             'sources': [source.format_short() for source in results]
         })
-
 
     """
     Gets all the items of a given project
@@ -207,11 +207,13 @@ def set_project_routes(app):
         pattern = '%' + search_query + '%'
         filter_query = request.args.getlist('filter', None)
         if not filter_query:
-            results = Item.query.join(Source).filter(Item.parent_project == project_id)\
+            results = Item.query.join(Source)
+            .filter(Item.parent_project == project_id)\
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
                         | Source.content.ilike(pattern)
-                        | Item.content.ilike(pattern)).order_by(Item.id).all()
+                        | Item.content.ilike(pattern))
+            .order_by(Item.id).all()
             return jsonify({
                 'success': True,
                 'items': [i.format() for i in results]
@@ -221,11 +223,13 @@ def set_project_routes(app):
         for filter_type in filter_query:
             if filter_type == 'notes' or filter_type == 'highlights':
                 temp = Item.query.filter(Item.parent_project == project_id)\
-                .filter(Item.content.ilike(pattern)).order_by(Item.id).all()
+                    .filter(Item.content.ilike(pattern))
+                .order_by(Item.id).all()
             else:
-                temp = Item.query.join(Source).filter(Item.parent_project == project_id)\
-                .filter(getattr(Source, filter_type)
-                        .ilike(pattern)).order_by(Item.id).all()
+                temp = Item.query.join(Source)
+                .filter(Item.parent_project == project_id)\
+                    .filter(getattr(Source, filter_type)
+                            .ilike(pattern)).order_by(Item.id).all()
             for item in temp:
                 if item not in results:
                     results.append(item)
@@ -282,7 +286,6 @@ def set_project_routes(app):
         }), status_code
 
     '''
-    
     Gets all clusters within a project.
     '''
     @app.route('/projects/<int:project_id>/clusters')
@@ -290,7 +293,7 @@ def set_project_routes(app):
     def get_clusters(user_id, project_id):
         # Will only get the top level clusters associated with the project
         project = Project.query.filter(Project.user_id == user_id,
-                                        Project.id==project_id).first()
+                                       Project.id == project_id).first()
         clusters = project.clusters
         return jsonify({
             'success': True,
