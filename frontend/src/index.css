@@ -82,3 +82,7 @@ a { /* remove React Router styling (Links are transpiled to <a>) */
     text-decoration: none;
     color: inherit;
 }
+
+a:hover {
+    color: inherit;
+}

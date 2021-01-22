@@ -15,7 +15,7 @@ function Header(props) {
         </Navbar.Header>
         <FlexboxGrid.Item colspan={13}>
           <FlexboxGrid>
-            <FlexboxGrid.Item><SearchBar width={"40vw"} /></FlexboxGrid.Item>
+            <FlexboxGrid.Item><SearchBar width={"40vw"} setSearchQuery={props.setSearchQuery}/></FlexboxGrid.Item>
             <FlexboxGrid.Item>
               <Dropdown title={"Sort by: " + props.sortCriterion} activeKey={props.sortCriterion}>
                 <Dropdown.Item
@@ -46,7 +46,6 @@ function Header(props) {
           <Dropdown noCaret icon={<Icon icon="user" size={"lg"} />} placement="bottomEnd">
             <Dropdown.Item>Settings</Dropdown.Item>
             <Dropdown.Item onClick={() => {
-              localStorage.removeItem("curProject");
               logout({
                 returnTo: window.location.origin,
               });

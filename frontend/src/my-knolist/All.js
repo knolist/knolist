@@ -8,25 +8,40 @@ function All(props) {
         if (!props.sharedOnly && !props.archivedOnly) {
             projectsToDisplay = allProjects;
         } else if (props.sharedOnly) {
-            // projectsToDisplay = allProjects.filter(project => project.shared = true);
+            // projectsToDisplay = allProjects.filter(project => project.shared === true);
             return [];
         } else if (props.archivedOnly) {
-            // projectsToDisplay = allProjects.filter(project => project.archived = true);
+            // projectsToDisplay = allProjects.filter(project => project.archived === true);
             return [];
         }
-        if (props.sortCriterion === "Newest") {
-            //sort by creation date (backwards)
-        } else if (props.sortCriterion === "Oldest") {
-            //sort by creation date
-        } else if (props.sortCriterion === "A-Z") {
-            projectsToDisplay = allProjects.sort((a, b) => {
-                return a.title.localeCompare(b.title);
-            });
-            console.log(projectsToDisplay);
-        } else if (props.sortCriterion === "Z-A") {
-            projectsToDisplay = allProjects.sort((a, b) => {
-                return b.title.localeCompare(a.title);
-            });
+        if (props.searchQuery !== "") {
+            let searchResults = [];
+            for (let i = 0; i < projectsToDisplay.length; i++) {
+                if (projectsToDisplay[i].title.toLowerCase().includes(props.searchQuery.toLowerCase())) {
+                    searchResults.push(projectsToDisplay[i]);
+                }
+            }
+            projectsToDisplay = searchResults;
+        }
+        switch (props.sortCriterion) {
+            case "Newest":
+                //sort by creation date (backwards)
+                break;
+            case "Oldest":
+                //sort by creation date
+                break;
+            case "A-Z":
+                projectsToDisplay.sort((a, b) => {
+                    return a.title.localeCompare(b.title);
+                });
+                break;
+            case "Z-A":
+                projectsToDisplay.sort((a, b) => {
+                    return b.title.localeCompare(a.title);
+                });
+                break;
+            default:
+                break; //do nothing when sortCriterion is empty string
         }
         return projectsToDisplay;
     }
@@ -39,7 +54,7 @@ function All(props) {
                 <div className="myknolist-title">All</div>
                 <div className="myknolist-container">
                     <FlexboxGrid style={{marginLeft: "-6px", marginBottom: "5vh"}} justify="start">
-                        {props.projects.map((project, index) => {
+                        {projects.map((project, index) => {
                             return (
                                 <FlexboxGrid.Item componentClass={Col} md={6} key={index}>
                                     <ProjectCard data={project}/>
@@ -49,7 +64,7 @@ function All(props) {
                 </div>
             </div>
         );
-    } else {
+    } else if (projects.length === 0 && props.searchQuery === "") {
         return (
             <div>
                 <div style={{fontWeight: "bold", fontSize: "2em", fontFamily: "Poppins"}}>No projects!</div>
@@ -58,7 +73,7 @@ function All(props) {
                 </div>
             </div>
         );
-    }
+    } else return <div className="myknolist-title">All</div>;
 }
 
 export default All;

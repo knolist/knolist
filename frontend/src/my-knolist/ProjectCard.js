@@ -1,6 +1,5 @@
 import React from "react";
 import { Panel } from "rsuite";
-import App from "../app/App.js";
 import { Link } from "react-router-dom";
 
 function ProjectCard(props) {

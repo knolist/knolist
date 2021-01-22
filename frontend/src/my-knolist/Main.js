@@ -9,7 +9,7 @@ import { Loader } from "rsuite";
 function Main(props) {
   const [show, setShow] = useState(false);
   const [projects, setProjects] = useState(null);
-  //get rid of this later? Stops making an API call on every render which makes my computer breathe heavy lol
+  //Stops making an API call on every render which makes my computer breathe heavy lol
   const [gotProjects, setGotProjects] = useState(false);
 
   const getProjects = () => {
@@ -22,7 +22,6 @@ function Main(props) {
 
   useEffect(() => {
     getProjects();
-    if (projects !== null) console.log(projects);
   });
 
   if (projects !== null) { //is there a better way to do this
@@ -33,7 +32,8 @@ function Main(props) {
           projects={projects}
           sharedOnly={props.sharedOnly}
           archivedOnly={props.archivedOnly}
-          sortCriterion={props.sortCriterion} />
+          sortCriterion={props.sortCriterion}
+          searchQuery={props.searchQuery} />
         <div
           style={{ position: "fixed", right: 0, bottom: 0 }}
           onClick={() => setShow(true)}>

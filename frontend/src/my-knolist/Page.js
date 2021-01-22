@@ -14,6 +14,8 @@ function Page(props) {
     const [sortCriterion, setSortCriterion] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
 
+    if (searchQuery !== "") showRecent = false;
+
     return (
         <div>
             <Header
@@ -25,7 +27,8 @@ function Page(props) {
                 showRecent={showRecent}
                 sharedOnly={sharedOnly}
                 archivedOnly={archivedOnly}
-                sortCriterion={sortCriterion} />
+                sortCriterion={sortCriterion}
+                searchQuery={searchQuery} />
         </div>
     );
 }
