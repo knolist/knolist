@@ -8,7 +8,7 @@ import ItemView from "./ItemView";
 import NewItemForm from "../components/NewItemForm";
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
-
+import SharedProject from "./SharedProject";
 import makeHttpRequest from "../services/HttpRequest";
 
 class MindMap extends React.Component {
@@ -52,7 +52,7 @@ class MindMap extends React.Component {
             item: null,
             types: types,
             nodeColors: nodeColors,
-            showColor: nodeColors.NULL
+            showColor: nodeColors.NULL,
         };
     };
 
@@ -397,6 +397,7 @@ class MindMap extends React.Component {
                              item={this.state.item}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
                            sources={this.state.sources}/>
+                <SharedProject showSharedProject={this.props.showSharedProject} setShowSharedProject={this.props.setShowSharedProject}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );

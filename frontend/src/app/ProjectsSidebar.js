@@ -10,7 +10,7 @@ class ProjectsSidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            showNewProjectForm: false
+            showNewProjectForm: false,
         }
     }
 
@@ -22,7 +22,8 @@ class ProjectsSidebar extends React.Component {
         if (this.props.projects === null) return <Placeholder.Paragraph rows={15} active/>;
 
         return <ProjectsList projects={this.props.projects} curProject={this.props.curProject}
-                             updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject}/>
+                             updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject} 
+                             setShowSharedProject={this.props.setShowSharedProject}/>
     }
 
     componentDidMount() {

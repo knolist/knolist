@@ -24,7 +24,8 @@ class App extends React.Component {
             curProject: JSON.parse(localStorage.getItem("curProject")),
             projects: null,
             showProjectsSidebar: false,
-            showBib: false
+            showBib: false,
+            showSharedProject: false
         }
     }
 
@@ -76,6 +77,10 @@ class App extends React.Component {
         });
     }
 
+    setShowSharedProject = (val) => {
+        this.setState({showSharedProject: val})
+    }
+
     componentDidMount() {
         this.updateProjects()
     }
@@ -98,10 +103,10 @@ class App extends React.Component {
                     <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                                      projects={this.state.projects}
                                      close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
-                                     setCurProject={this.setCurProject}/>
+                                     setCurProject={this.setCurProject} setShowSharedProject={this.setShowSharedProject}/>
                     {this.projectsButton()}
                     <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                             setShowBib={this.setShowBib}/>
+                             setShowBib={this.setShowBib} setShowSharedProject={this.setShowSharedProject} showSharedProject={this.state.showSharedProject}/>
                 </Route>
                 <Route path="/my-projects">
                     <Page url={"/my-projects"}/>

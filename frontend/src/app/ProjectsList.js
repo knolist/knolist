@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, ButtonToolbar, FlexboxGrid, Form, Icon, IconButton, Input, Nav} from "rsuite";
+import {Button, ButtonToolbar, FlexboxGrid, Form, Icon, IconButton, Input, Nav, Tooltip, Whisper} from "rsuite";
 
 import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
 
@@ -12,7 +12,8 @@ function ProjectsList(props) {
              onSelect={(eventKey) => props.setCurProject(eventKey)}>
             {props.projects.map(project => <Project key={project.id} updateProjects={props.updateProjects}
                                                     project={project}
-                                                    eventKey={project.id} setCurProject={props.setCurProject}/>)}
+                                                    eventKey={project.id} setCurProject={props.setCurProject}
+                                                    setShowSharedProject={props.setShowSharedProject}/>)}
         </Nav>
     );
 }
@@ -108,6 +109,9 @@ class Project extends React.Component {
                                 <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
                             </ButtonToolbar>
                         </FlexboxGrid.Item>
+                        <FlexboxGrid.Item>
+                            <SharedProjectButton setShowSharedProject={this.props.setShowSharedProject}/>
+                        </FlexboxGrid.Item>
                     </FlexboxGrid>
                 </Nav.Item>
             </div>
@@ -134,6 +138,21 @@ class EditProjectNameButton extends React.Component {
             <IconButton onClick={(e) => this.buttonAction(e, true)} icon={<Icon icon="edit2"/>} size="sm"/>
         );
     }
+}
+
+class SharedProjectButton extends React.Component {
+
+    render() {
+        return ( 
+            <div>
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Share Project</Tooltip>}
+                                     placement="bottom">
+                     <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon="share-alt"/>} size="sm"/>
+                </Whisper>
+            </div>
+
+        )
+    };
 }
 
 export default ProjectsList;
