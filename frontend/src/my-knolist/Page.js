@@ -32,7 +32,8 @@ function Page(props) {
             <Header
                 setSortCriterion={setSortCriterion}
                 sortCriterion={sortCriterion}
-                setSearchQuery={setSearchQuery}/>
+                setSearchQuery={setSearchQuery}
+                showSearch={true}/>
             <Sidebar />
             <Main
                 showRecent={showRecent}
