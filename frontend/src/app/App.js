@@ -1,7 +1,7 @@
 // Import from npm libraries
 import React from 'react';
 import {Route, Switch} from "react-router";
-import {Button, Loader} from 'rsuite';
+import {Alert, Button, Loader} from 'rsuite';
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 
 // Import React Components
@@ -30,7 +30,9 @@ class App extends React.Component {
             "URL",
             "Page Content",
             "Highlights",
-            "Notes"]
+            "Notes"],
+            results: null,
+            selectedNode: null
         }
     }
 
@@ -93,6 +95,15 @@ class App extends React.Component {
         this.setState({filters});
     }
 
+    updateResults = (results) => {
+        this.setState({results});
+    }
+
+    updateSelectedNode = (id) => {
+        this.setState({selectedNode: id})
+    }
+
+
     componentDidMount() {
         this.updateProjects()
     }
@@ -112,14 +123,16 @@ class App extends React.Component {
             <Switch>
                 <Route exact path="/">
                     <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib} searchQuery={this.state.searchQuery} 
-                        setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
+                        setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters} results={this.state.results}
+                        selectedNode={this.state.selectedNode} updateSelectedNode={this.updateSelectedNode} />
                     <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                         projects={this.state.projects}
                         close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                         setCurProject={this.setCurProject} />
                     {this.projectsButton()}
                     <MindMap curProject={this.state.curProject} showBib={this.state.showBib} setShowBib={this.setShowBib} 
-                        searchQuery={this.state.searchQuery} filters={this.state.filters}/>
+                        searchQuery={this.state.searchQuery} filters={this.state.filters} updateResults={this.updateResults}
+                        selectedNode={this.state.selectedNode} updateSelectedNode={this.updateSelectedNode}/>
                 </Route>
                 <Route path="/my-projects">
                     <Page url={"/my-projects"}/>

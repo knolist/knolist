@@ -18,7 +18,6 @@ class MindMap extends React.Component {
             network: null,
             visNodes: null,
             visEdges: null,
-            selectedNode: null,
             sources: null,
             loading: false,
             showNewSourceForm: false,
@@ -29,6 +28,7 @@ class MindMap extends React.Component {
 
     setSelectedNode = (id) => {
         this.setState({selectedNode: id})
+        this.sendSelectedNode(id);
     }
 
     // Check if the network is in edit mode
@@ -44,6 +44,11 @@ class MindMap extends React.Component {
         // if (this.isEditMode()) {
         //     this.setSelectedNode(id);
         // }
+        this.sendSelectedNode(id);
+    }
+
+    sendSelectedNode = (value) => {
+        this.props.updateSelectedNode(value);
     }
 
     setLoading = (val) => {
@@ -53,6 +58,13 @@ class MindMap extends React.Component {
     getSources = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
+
+        // if (this.props.filters.length === 0) {
+        //     this.setLoading(false);
+        //     this.setState({sources: []}, callback);
+        //     this.sendResults(this.state.sources);
+        //     return;
+        // }
 
         let endpoint = "/projects/" + this.props.curProject.id + "/sources";
 
@@ -69,6 +81,11 @@ class MindMap extends React.Component {
         const response = await makeHttpRequest(endpoint);
         this.setLoading(false);
         this.setState({sources: response.body.sources}, callback);
+        this.sendResults(this.state.sources);
+    }
+
+    sendResults = (value) => {
+        this.props.updateResults(value);
     }
 
     updateSourcePosition = async (sourceId, x, y) => {
@@ -289,7 +306,7 @@ class MindMap extends React.Component {
         return (
             <div>
                 <div id="mindmap"/>
-                <SourceView selectedNode={this.state.selectedNode}
+                <SourceView selectedNode={this.props.selectedNode}
                             setSelectedNode={this.setSelectedNode}
                             renderNetwork={this.renderNetwork}/>
                 <NewSourceForm showNewSourceForm={this.state.showNewSourceForm}

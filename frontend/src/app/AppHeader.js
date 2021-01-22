@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Navbar,
+    Alert, Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Navbar,
     Tooltip, Whisper
 } from "rsuite";
 import {Link} from "react-router-dom";
@@ -31,7 +31,9 @@ function AppHeader(props) {
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
-                        <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery} updateFilters={props.updateFilters}/>
+                        <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery} 
+                            updateFilters={props.updateFilters} results={props.results} selectedNode={props.selectedNode}
+                            updateSelectedNode={props.updateSelectedNode}/>
                         <BibButton setShowBib={props.setShowBib}/>
                     </FlexboxGrid>
                 </FlexboxGrid.Item>
@@ -99,7 +101,8 @@ class SearchAndFilter extends React.Component {
                     <AuthenticationButton/>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
-                    <SearchBar searchQuery={this.props.searchQuery} setSearchQuery={this.props.setSearchQuery}/>
+                    <SearchBar searchQuery={this.props.searchQuery} setSearchQuery={this.props.setSearchQuery} 
+                    results={this.props.results} selectedNode={this.props.selectedNode} updateSelectedNode={this.updateSelectedNode}/>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FilterDropdown indeterminate={this.state.indeterminate} checkAll={this.state.checkAll}
