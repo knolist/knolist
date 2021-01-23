@@ -1,6 +1,7 @@
 import json
 
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -169,6 +170,7 @@ class Item(BaseModel):
     # x and y positions are used to represent the position of a node on a graph
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
+    date_of_creation = db.Column(db.DateTime, nullable=False)
     # The project that holds this source
     parent_project = db.Column(db.Integer, db.ForeignKey('projects.id'))
     # parent_cluster
