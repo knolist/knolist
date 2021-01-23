@@ -29,17 +29,17 @@ class MindMap extends React.Component {
         }
         const nodeColors = {
             NULL: null,
-            [types.PURESOURCE]: "red",
-            [types.SOURCEANDNOTE]: "blue",
-            [types.SOURCEANDHIGHLIGHT]: "green",
-            [types.PURENOTE]: "purple",
-            [types.NEITHER]: "orange"
+            [types.PURESOURCE]: "#00c0de",
+            [types.SOURCEANDNOTE]: "#f36170",
+            [types.SOURCEANDHIGHLIGHT]: "#45c786",
+            [types.PURENOTE]: "#ffb961",
+            [types.NEITHER]: "#000000"
         };
         this.state = {
             network: null,
             visNodes: null,
             visEdges: null,
-            selectedNode: null,
+            selectedItem: null,
             items: null,
             nonSelectedNodes: null,
             sources: null,
@@ -56,8 +56,14 @@ class MindMap extends React.Component {
         };
     };
 
-    setSelectedNode = (id) => {
-        this.setState({selectedNode: id})
+    setSelectedItem = (item) => {
+        this.setState({selectedItem: item})
+    }
+
+    getSelectedItemDetails = async () => {
+        const endpoint = "/items/" + this.state.selectedItem.id;
+        const response = await makeHttpRequest(endpoint);
+        this.setSelectedItem(response.body.item);
     }
 
     setNonSelectedNodes = (id, nodes) => {
@@ -72,11 +78,7 @@ class MindMap extends React.Component {
 
     // Set selected node for the detailed view
     handleClickedNode = (id) => {
-        this.setSelectedNode(id);
-        // Only open modal outside of edit mode
-        // if (this.isEditMode()) {
-        //     this.setSelectedNode(id);
-        // }
+        this.setSelectedItem(this.state.items.find(x => x.id === id));
     }
 
     handleDragStart = (id, nodes) => {
@@ -174,20 +176,8 @@ class MindMap extends React.Component {
         return [xRandom + xOffset, yRandom + yOffset];
     }
 
-    getNodeById = (nodeId) => {
-        for (let index in this.state.items) {
-            if (nodeId === this.state.items[index].id) {
-                return this.state.items[index];
-            }
-        }
-    }
-
-    getNodeType = (nodeId) => {
-        if (!nodeId) {
-            return;
-        }
-        let node = this.getNodeById(nodeId);
-        if (!node) return;
+    getNodeType = (node) => {
+        if (!node) return this.state.types.NULL;
         //pure note
         if (!node.url) return this.state.types.PURENOTE;
         //source and note
@@ -198,35 +188,42 @@ class MindMap extends React.Component {
         if (node.url && !node.content) return this.state.types.PURESOURCE;
     }
 
+    getNodeLabel = (node, nodeType) => {
+        const types = this.state.types;
+        const contentLength = 100;
+        if (nodeType === types.PURESOURCE)
+            return node.title;
+        if (nodeType === types.SOURCEANDNOTE || nodeType === types.SOURCEANDHIGHLIGHT)
+            return node.title + "\n" + node.content.substring(0, contentLength);
+        if (nodeType === types.PURENOTE)
+            return node.content.substring(0, contentLength);
+    }
+
+    getNodePosition = (node) => {
+        let x = node.x_position;
+        let y = node.y_position;
+        if (x === null || y === null) {
+            // If position is still undefined, generate random x and y in interval [-300, 300]
+            [x, y] = this.generateNodePositions(node);
+            this.updateItemPosition(node.id, x, y);
+        }
+        return [x, y];
+    }
+
     // Helper function to setup the nodes and edges for the graph
     createNodesAndEdges() {
         let nodes = new DataSet();
         let edges = new DataSet();
 
         // Iterate through each node in the graph and build the arrays of nodes and edges
+        console.log(this.state.items)
         for (let index in this.state.items) {
-            let node = this.state.items[index];
-            let title = node.title;
-            const nodeType = this.getNodeType(node.id);
-            if (nodeType !== this.state.types.PURESOURCE) {
-                title = node.content.substring(0, 100);
-            }
-            // Deal with positions
-            if (node.x_position === null || node.y_position === null) {
-                // If position is still undefined, generate random x and y in interval [-300, 300]
-                const [x, y] = this.generateNodePositions(node);
-                this.updateItemPosition(node.id, x, y);
+            const node = this.state.items[index];
+            const nodeType = this.getNodeType(node);
+            const label = this.getNodeLabel(node, nodeType);
+            const [x, y] = this.getNodePosition(node);
+            nodes.add({id: node.id, label: label, x: x, y: y, color: this.getColor(node)});
 
-                nodes.add({id: node.id, label: title, x: x, y: y, color: this.getColor(node)});
-            } else {
-                nodes.add({
-                    id: node.id,
-                    label: title,
-                    x: node.x_position,
-                    y: node.y_position,
-                    color: this.getColor(node)
-                });
-            }
             // Deal with edges
             for (let nextIndex in node.next_sources) {
                 const nextId = node.next_sources[nextIndex];
@@ -238,7 +235,7 @@ class MindMap extends React.Component {
     }
 
     getColor = (item) => {
-        const nodeType = this.getNodeType(item.id); // foo
+        const nodeType = this.getNodeType(item);
         return this.state.nodeColors[nodeType];
     }
 
@@ -383,11 +380,13 @@ class MindMap extends React.Component {
         return (
             <div>
                 <div id="mindmap"/>
-                <ItemView selectedNode={this.state.selectedNode}
-                          setSelectedNode={this.setSelectedNode}
+                <ItemView selectedItem={this.state.selectedItem}
+                          setSelectedItem={this.setSelectedItem}
+                          getSelectedItemDetails={this.getSelectedItemDetails}
                           renderNetwork={this.renderNetwork}
                           setAddItemMode={this.setAddItemMode}
-                          typeOfNode={this.getNodeType(this.state.selectedNode)}/>
+                          getNodeType={this.getNodeType}
+                          nodeTypes={this.state.types}/>
                 <NewItemForm showNewItemForm={this.state.showNewItemForm}
                              curProject={this.props.curProject}
                              renderNetwork={this.renderNetwork}

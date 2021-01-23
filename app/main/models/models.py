@@ -180,25 +180,14 @@ class Item(BaseModel):
         return f'<Item {self.id}: {self.content}>'
 
     def format(self):
-        if self.source is not None:
-            return {
-                'id': self.id,
-                'url': self.source.url,
-                'title': self.source.title,
-                'parent_project': self.parent_project,
-                'is_note': self.is_note,
-                'content': self.content,
-                'x_position': self.x_position,
-                'y_position': self.y_position,
-            }
-        else:
-            return {
-                'id': self.id,
-                'url': None,
-                'title': None,
-                'parent_project': self.parent_project,
-                'is_note': self.is_note,
-                'content': self.content,
-                'x_position': self.x_position,
-                'y_position': self.y_position,
-            }
+        return {
+            'id': self.id,
+            'url': None if self.source is None else self.source.url,
+            'title': None if self.source is None else self.source.title,
+            'parent_project': self.parent_project,
+            'parent_cluster': self.parent_cluster,
+            'is_note': self.is_note,
+            'content': self.content,
+            'x_position': self.x_position,
+            'y_position': self.y_position,
+        }
