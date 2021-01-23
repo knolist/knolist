@@ -3,7 +3,7 @@ from justext import justext, get_stoplist
 from requests import get as requests_get
 from sqlalchemy import String
 
-from ..models.models import Project, Source, Item, Cluster
+from ..models.models import Project, Source, Item, Cluster, shared_projects
 from ..auth import requires_auth, AuthError
 
 
@@ -51,7 +51,7 @@ def get_authorized_project(user_id, project_id):
     if project is None:
         abort(404)
 
-    if project.user_id != user_id:
+    if (project.user_id != user_id) and (user_id not in project.shared_users):
         raise AuthError({
             'code': 'invalid_user',
             'description': 'This item does not belong to the requesting user.'

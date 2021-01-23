@@ -13,7 +13,8 @@ def get_authorized_item(user_id, item_id):
     if item is None:
         abort(404)
 
-    if item.project.user_id != user_id:
+    if (item.project.user_id != user_id) and \
+            (user_id not in item.project.shared_users):
         raise AuthError({
             'code': 'invalid_user',
             'description': 'This item does not belong to the requesting user'

@@ -8,7 +8,8 @@ def get_authorized_project(user_id, project_id):
     if project is None:
         abort(404)
 
-    if project.user_id != user_id:
+    if project.user_id != user_id and \
+            (user_id not in project.shared_users):
         raise AuthError({
             'code': 'invalid_user',
             'description': 'This item does not belong to the requesting user.'
@@ -25,7 +26,8 @@ def get_authorized_cluster(user_id, cluster_id):
     tempcluster = cluster
     while tempcluster.project is None:
         tempcluster = tempcluster.parent_cluster
-    if tempcluster.project.user_id != user_id:
+    if (tempcluster.project.user_id != user_id) \
+            and (user_id not in tempcluster.project.shared_users):
         raise AuthError({
             'code': 'invalid_user',
             'description': 'This item does not belong to the requesting user.'
@@ -38,7 +40,8 @@ def get_authorized_source(user_id, source_id):
     if source is None:
         abort(404)
 
-    if source.project.user_id != user_id:
+    if (source.project.user_id != user_id) \
+            and (user_id not in source.project.shared_users):
         raise AuthError({
             'code': 'invalid_user',
             'description': 'This item does not belong to the requesting user.'
@@ -56,7 +59,8 @@ def get_authorized_item(user_id, item_id):
     if not item.project and not item.cluster:
         abort(400)
     if item.project:
-        if item.project.user_id != user_id:
+        if (item.project.user_id != user_id) and \
+                (user_id not in item.project.shared_users):
             raise AuthError({
                 'code': 'invalid_user',
                 'description':

@@ -59,6 +59,7 @@ def create_starter_data():
                       content='Content of Extra Item',
                       x_position=-100,
                       y_position=-100)
+
     source_1.child_items.append(item_1)
     source_2.child_items.append(item_2)
     source_3.child_items.append(item_3)
