@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
+from datetime import datetime
 
 
 def get_authorized_source(user_id, source_id):
@@ -34,7 +35,7 @@ def set_source_routes(app):
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         })
 
     """
@@ -53,6 +54,26 @@ def set_source_routes(app):
             'deleted': source_id
         })
 
+
+    """
+    Gets a source by URL.
+    """
+    @app.route('/sources')
+    @requires_auth('read:sources-detail')
+    def get_source_by_url(user_id):
+        body = request.get_json()
+        by_url = body.get('url', None)
+        if not by_url:
+            abort(400)
+        if type(by_url) is not str:
+            abort(422)
+        final_source = Source.query.filter(Source.url == by_url).first()
+        if final_source is None:
+            abort(404)
+        return jsonify({
+            'success': True,
+            'source': final_source.format()
+        })
     """
     Updates information in a source.
     The information to be updated is passed in a JSON body.
@@ -72,6 +93,15 @@ def set_source_routes(app):
         content = body.get('content', None)
         x_position = body.get('x_position', None)
         y_position = body.get('y_position', None)
+        is_included = body.get('is_included', None)
+        author = body.get('author', None)
+        published_date = body.get('published_date', None)
+        access_date = body.get('access_date', None)
+        site_name = body.get('site_name', None)
+
+        # Obtain JSON list attributes
+        highlights = body.get('highlights', None)
+        notes = body.get('notes', None)
         # Obtain project ID
         project_id = body.get('project_id', None)
 
@@ -79,7 +109,10 @@ def set_source_routes(app):
         cond_1 = title is None and content is None
         cond_2 = x_position is None and y_position is None
         cond_3 = project_id is None
-        if cond_1 and cond_2 and cond_3:
+        cond_4 = is_included is None
+        cond_5 = published_date is None and access_date is None
+        cond_6 = site_name is None and author is None
+        if cond_1 and cond_2 and cond_3 and cond_4 and cond_5 and cond_6:
             abort(400)
 
         # Verify that parameters are correctly formatted
@@ -88,6 +121,16 @@ def set_source_routes(app):
         if y_position is not None and type(y_position) is not int:
             abort(422)
         if content is not None and type(content) is not str:
+            abort(422)
+        if is_included is not None and type(is_included) is not bool:
+            abort(422)
+        if author is not None and type(author) is not str:
+            abort(422)
+        if site_name is not None and type(site_name) is not str:
+            abort(422)
+        if published_date is not None and type(published_date) is not str:
+            abort(422)
+        if access_date is not None and type(access_date) is not str:
             abort(422)
         if project_id is not None:
             project = Project.query.get(project_id)
@@ -110,9 +153,22 @@ def set_source_routes(app):
         source.project_id = project_id if project_id is not None \
             else source.project_id
 
+        source.is_included = is_included if is_included is not None else source.is_included
+        source.author = author if author is not None else source.author
+        source.site_name = site_name if site_name is not None else source.site_name
+        if published_date:
+            published_date = published_date[0:10]
+        if access_date:
+            access_date = access_date[0:10]
+        fmt = '%Y-%m-%d'
+        source.published_date = datetime.strptime(published_date, fmt)\
+            if published_date is not None else source.published_date
+        source.access_date = datetime.strptime(access_date, fmt)\
+            if access_date is not None else source.access_date
+
         source.update()
 
         return jsonify({
             'success': True,
-            'source': source.format_long()
+            'source': source.format()
         })

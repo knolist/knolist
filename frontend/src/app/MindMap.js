@@ -304,8 +304,8 @@ class MindMap extends React.Component {
             // Handle click vs drag
             network.on("click", (params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
-                    const nodeID = params.nodes[0];
-                    this.handleClickedNode(nodeID);
+                    const nodeId = params.nodes[0];
+                    this.handleClickedNode(nodeId);
                 }
             });
 
@@ -395,7 +395,7 @@ class MindMap extends React.Component {
                              newItemData={this.state.newItemData}
                              item={this.state.item}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
-                           sources={this.state.sources}/>
+                           curProject={this.props.curProject}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );

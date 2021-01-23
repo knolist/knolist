@@ -191,7 +191,7 @@ class TestItemsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
 
-    def create_item_inside_cluster(self):
+    def test_create_item_inside_cluster(self):
         self.assertEqual(len(self.cluster.child_items), 1)
         res = self.client().post(f'/items',
                                  json={self.new_item_in_cluster},

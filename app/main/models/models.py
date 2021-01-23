@@ -121,9 +121,11 @@ class Source(BaseModel):
     title = db.Column(db.String)
     # All of the content of the URL, only used for search purposes
     content = db.Column(db.String)
-    # x and y positions are used to represent the position of a node on a graph
-    x_position = db.Column(db.Integer)
-    y_position = db.Column(db.Integer)
+    is_included = db.Column(db.Boolean)
+    author = db.Column(db.String)
+    published_date = db.Column(db.DateTime)
+    site_name = db.Column(db.String)
+    access_date = db.Column(db.DateTime)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
     # Self-referential many-to-many relationship
@@ -140,19 +142,18 @@ class Source(BaseModel):
     def __repr__(self):
         return f'<Source {self.id}: {self.url}>'
 
-    def format_long(self):
+    def format(self):
         return {
             'id': self.id,
             'url': self.url,
             'title': self.title,
-            'project_id': self.project_id
-        }
-
-    def format_short(self):
-        return {
-            'id': self.id,
-            'url': self.url,
-            'title': self.title,
+            'author': self.author,
+            'site_name': self.site_name,
+            'is_included': self.is_included,
+            'published_date': self.published_date,
+            'access_date': self.access_date,
+            'next_sources': [source.id for source in self.next_sources],
+            'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
 
