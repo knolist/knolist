@@ -17,9 +17,11 @@ function Header(props) {
     return (
       <Navbar style={{ padding: "0 10px", borderBottom: ".1px solid #ededf0" }}>
         <FlexboxGrid justify="space-between" align="middle">
-          <Navbar.Header>
-            <img className="limit-height" src={horizontalLogo} alt="Knolist" />
-          </Navbar.Header>
+          <Link to="/my-projects">
+            <Navbar.Header>
+              <img className="limit-height" src={horizontalLogo} alt="Knolist" />
+            </Navbar.Header>
+          </Link>
           <FlexboxGrid.Item colspan={13}>
             <FlexboxGrid>
               <FlexboxGrid.Item><SearchBar width={"40vw"} setSearchQuery={props.setSearchQuery} /></FlexboxGrid.Item>
@@ -51,7 +53,7 @@ function Header(props) {
           </FlexboxGrid.Item>
           <FlexboxGrid.Item>
             <Dropdown noCaret icon={<Icon icon="user" size={"lg"} />} placement="bottomEnd">
-              <Link to="/settings"><Dropdown.Item>Settings</Dropdown.Item></Link>
+              <Link to="/settings"><Dropdown.Item componentClass="span">Settings</Dropdown.Item></Link>
               <Dropdown.Item onClick={() => {
                 logout({
                   returnTo: window.location.origin,
@@ -66,12 +68,14 @@ function Header(props) {
     return (
       <Navbar style={{ padding: "0 10px", borderBottom: ".1px solid #ededf0" }}>
         <FlexboxGrid justify="space-between" align="middle">
-          <Navbar.Header>
-            <img className="limit-height" src={horizontalLogo} alt="Knolist" />
-          </Navbar.Header>
+          <Link to="/my-projects">
+            <Navbar.Header>
+              <img className="limit-height" src={horizontalLogo} alt="Knolist" />
+            </Navbar.Header>
+          </Link>
           <FlexboxGrid.Item>
             <Dropdown noCaret icon={<Icon icon="user" size={"lg"} />} placement="bottomEnd">
-              <Link to="/settings"><Dropdown.Item>Settings</Dropdown.Item></Link>
+              <Link to="/settings"><Dropdown.Item componentClass="span">Settings</Dropdown.Item></Link>
               <Dropdown.Item onClick={() => {
                 logout({
                   returnTo: window.location.origin,

@@ -22,7 +22,7 @@ class App extends React.Component {
             curProject: JSON.parse(localStorage.getItem("curProject")),
             projects: null,
             showProjectsSidebar: false,
-            showBib: false
+            showBib: false,
         }
     }
 
