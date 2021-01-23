@@ -28,6 +28,7 @@ class TestItemsEndpoints(unittest.TestCase):
         self.item_1 = items[5]
         self.item_2 = items[6]
         self.item_3 = items[7]
+        self.cluster = items[-1]
 
         self.new_item_note = {
             'is_note': True,
@@ -43,6 +44,14 @@ class TestItemsEndpoints(unittest.TestCase):
             'x_position': self.item_1.x_position + 50,
             'y_position': self.item_1.y_position + 50,
             'parent_project': self.project_2.id
+        }
+
+        self.new_item_in_cluster = {
+            'is_note': False,
+            'content': 'Item in cluster',
+            'x_position': self.item_1.x_position + 50,
+            'y_position': self.item_1.y_position + 50,
+            'cluster_id': self.cluster.id
         }
 
     def tearDown(self):
@@ -181,3 +190,12 @@ class TestItemsEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
+
+    def create_item_inside_cluster(self):
+        self.assertEqual(len(self.cluster.child_items), 1)
+        res = self.client().post(f'/items',
+                                 json={self.new_item_in_cluster},
+                                 headers=auth_header)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 201)
+        self.assertEqual(len(self.cluster.child_items), 2)

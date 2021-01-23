@@ -1,4 +1,7 @@
 from flask import request, abort, jsonify
+from datetime import datetime
+from sqlalchemy import String, Boolean
+
 
 from app.main.auth.get_authorized_objects import get_authorized_item
 from .projects import get_authorized_project, create_and_insert_source
@@ -11,6 +14,7 @@ def create_and_insert_item(content, is_note, parent_project,
     item = Item(source_id=source_id, is_note=is_note,
                 content=content, x_position=x,
                 parent_project=parent_project, y_position=y)
+    item.date_of_creation = datetime.utcnow()
     item.insert()
 
     return item
@@ -35,6 +39,7 @@ def set_item_routes(app):
         x = body.get('x_position', None)
         y = body.get('y_position', None)
         is_note = body.get('is_note', None)
+        parent_cluster = body.get('cluster_id', None)
         get_authorized_project(user_id, parent_project)
 
         if url is None and content is None:
@@ -61,6 +66,8 @@ def set_item_routes(app):
             source_id_temp = None
         item = create_and_insert_item(content, is_note,
                                       parent_project, source_id_temp, x, y)
+        item.parent_cluster = parent_cluster
+        item.update()
         return jsonify({
             'success': True,
             'item': item.format()
@@ -88,9 +95,11 @@ def set_item_routes(app):
     @requires_auth('delete:items')
     def delete_item(user_id, item_id):
         item = get_authorized_item(user_id, item_id)
-
+        item_source = item.source
         item.delete()
-
+        if item_source and len(item_source.child_items) == 0:
+            item_source.update()
+            item_source.delete()
         return jsonify({
             'success': True,
             'deleted': item_id

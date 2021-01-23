@@ -63,10 +63,16 @@ def set_cluster_routes(app):
             abort(400)
 
         new_name = body.get('name', None)
-        if new_name is None:
+        new_x = body.get('x', None)
+        new_y = body.get('y', None)
+        #if both are somewhat missing
+        if new_name is None and (new_x is None or new_y is None):
             abort(400)
-
-        cluster.name = new_name
+        if new_name:
+            cluster.name = new_name
+        if new_x is not None and new_y is not None:
+            cluster.x_position = new_x
+            cluster.y_position = new_y
         cluster.update()
 
         return jsonify({
