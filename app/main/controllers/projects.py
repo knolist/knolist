@@ -143,7 +143,7 @@ def set_project_routes(app):
             # Returns all sources
             return jsonify({
                 'success': True,
-                'sources': [s.format_short() for s in project.sources]
+                'sources': [s.format() for s in project.sources]
             })
 
         pattern = '%' + search_query + '%'
@@ -154,7 +154,7 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'sources': [source.format_short() for source in results]
+            'sources': [source.format() for source in results]
         })
 
     """
@@ -231,8 +231,8 @@ def set_project_routes(app):
 
         return jsonify({
             'success': True,
-            'from_source': from_source.format_short(),
-            'to_source': to_source.format_short()
+            'from_source': from_source.format(),
+            'to_source': to_source.format()
         }), status_code
 
     '''

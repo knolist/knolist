@@ -26,14 +26,17 @@ def create_starter_data():
 
     source_1 = Source(url='https://test1.com',
                       title='Test Source 1',
+                      author='Nick',
                       content='This is the content of test source 1')
 
     source_2 = Source(url='https://test2.com',
                       title='Test Source 2',
+                      author='Vance',
                       content='This is the content of test source 2')
 
     source_3 = Source(url='https://test3.com',
                       title='Test Source 3',
+                      author='Vini',
                       content='This is the content of test source 3')
 
     item_1 = Item(is_note=True,

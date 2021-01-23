@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Button, Icon, IconButton, Input, Modal, Tooltip, Whisper
+    Button, Icon, IconButton, Input, Loader, Modal, Tooltip, Whisper
 } from "rsuite";
 
 import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
