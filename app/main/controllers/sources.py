@@ -13,7 +13,8 @@ def get_authorized_source(user_id, source_id):
     if source is None:
         abort(404)
 
-    if source.project.user_id != user_id:
+    if (source.project.user_id != user_id) \
+            and (user_id not in source.project.shared_users):
         raise AuthError({
             'code': 'invalid_user',
             'description': 'This item does not belong to the requesting user.'

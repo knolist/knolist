@@ -12,6 +12,15 @@ edges = db.Table('edges',
                            db.ForeignKey('sources.id'), primary_key=True)
                  )
 
+# Relationship table to represent the shared users that can access a project
+shared_projects = db.Table('shared_projects',
+                           db.Column('shared_proj', db.Integer,
+                                     db.ForeignKey('projects.id'), primary_key=True),
+                           db.Column('shared_user', db.String),
+                           db.Column('email', db.String, nullable=False),
+                           db.Column('role', db.String, nullable=False)
+                           )
+
 
 class BaseModel(db.Model):
     """
@@ -47,6 +56,12 @@ class Project(BaseModel):
                                cascade='all, delete-orphan', lazy=True)
     items = db.relationship('Item', backref='project',
                             cascade='all, delete-orphan', lazy=True)
+    # Many to many relationship
+    shared_users = db.relationship('Project', secondary=shared_projects,
+                                   primaryjoin=(id == shared_projects.c.shared_proj),
+                                   backref=db.backref('shared_projects',
+                                                      lazy=True)
+                                   )
 
     def __init__(self, title, user_id):
         self.title = title
@@ -58,7 +73,8 @@ class Project(BaseModel):
     def format(self):
         return {
             'id': self.id,
-            'title': self.title
+            'title': self.title,
+            'shared_users': self.shared_users
         }
 
 
@@ -87,8 +103,8 @@ class Cluster(BaseModel):
                                                         remote_side=[id]))
     # References to sources not in another subcluster within a cluster
     child_items = db.relationship('Item', backref='cluster',
-                                    cascade='all',
-                                    lazy=True)
+                                  cascade='all',
+                                  lazy=True)
 
     def __repr__(self):
         return f'<Cluster {self.id}: {self.name}>'
@@ -103,6 +119,7 @@ class Cluster(BaseModel):
             'child_clusters': [cluster.id for cluster in self.child_clusters],
             'child_items': [item.id for item in self.child_items]
         }
+
 
 class Source(BaseModel):
     """
@@ -133,8 +150,8 @@ class Source(BaseModel):
                                                       lazy=True)
                                    )
     child_items = db.relationship('Item', backref='source',
-                                    cascade='all, delete-orphan',
-                                    lazy=True)
+                                  cascade='all, delete-orphan',
+                                  lazy=True)
 
     def __repr__(self):
         return f'<Source {self.id}: {self.url}>'
@@ -154,6 +171,7 @@ class Source(BaseModel):
             'title': self.title,
             'project_id': self.project_id
         }
+
 
 class Item(BaseModel):
     """
