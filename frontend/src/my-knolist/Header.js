@@ -53,7 +53,7 @@ function Header(props) {
           </FlexboxGrid.Item>
           <FlexboxGrid.Item>
             <Dropdown noCaret icon={<Icon icon="user" size={"lg"} />} placement="bottomEnd">
-              <Link to="/settings"><Dropdown.Item componentClass="span">Settings</Dropdown.Item></Link>
+              <Link to="/settings"><Dropdown.Item componentClass="span" className="react-router-styling">Settings</Dropdown.Item></Link>
               <Dropdown.Item onClick={() => {
                 logout({
                   returnTo: window.location.origin,

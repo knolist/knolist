@@ -18,7 +18,7 @@ function ProjectCard(props) {
     );
   } else {*/
   return (
-    <Link to="/" style={{ textDecoration: "none"}}>
+    <Link to="/" style={{ textDecoration: "none"}} className="react-router-styling">
       <Panel
         shaded bordered
         header={props.data.title}

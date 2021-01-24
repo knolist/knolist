@@ -23,17 +23,17 @@ function Sidebar() {
                 style={{ height: "100vh", fontFamily: "Poppins", paddingTop: "3vh", paddingLeft: "1vh" }}>
                 <Sidenav.Body>
                     <Nav>
-                        <Link to="/my-projects" >
+                        <Link to="/my-projects" className="react-router-styling">
                             <Nav.Item active={first} icon={<Icon icon="project" />} componentClass="span">
                                 My Projects
                             </Nav.Item>
                         </Link>
-                        <Link to="/shared">
+                        <Link to="/shared" className="react-router-styling">
                             <Nav.Item active={second} icon={<Icon icon="people-group" />} componentClass="span">
                                 Shared with me
                             </Nav.Item>
                         </Link>
-                        <Link to="/archived">
+                        <Link to="/archived" className="react-router-styling">
                             <Nav.Item active={third} icon={<Icon icon="archive" />} componentClass="span">
                                 Archived
                             </Nav.Item>
