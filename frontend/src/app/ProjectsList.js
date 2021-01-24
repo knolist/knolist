@@ -108,12 +108,14 @@ class Project extends React.Component {
                                                        setEditing={this.setEditing}
                                                        updateProjectName={this.updateProjectName}/>
                                 <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
+                                <SharedProjectButton isShared={this.props.project.shared_users.length > 0} 
+                                                        setShowSharedProject={this.props.setShowSharedProject}/>
                             </ButtonToolbar>
                         </FlexboxGrid.Item>
-                        <FlexboxGrid.Item>
+                        {/* <FlexboxGrid.Item>
                             <SharedProjectButton isShared={this.props.project.shared_users.length > 0} setShowSharedProject={this.props.setShowSharedProject}/>
-                        </FlexboxGrid.Item>
-                    </FlexboxGrid>
+                        </FlexboxGrid.Item> */}
+                        </FlexboxGrid>
                 </Nav.Item>
             </div>
         );
@@ -150,12 +152,10 @@ class SharedProjectButton extends React.Component {
             icon = "people-group"
         }
         return ( 
-            <div>
                 <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Share Project</Tooltip>}
                                      placement="bottom">
                      <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon={icon}/>} size="sm"/>
                 </Whisper>
-            </div>
 
         )
     };
