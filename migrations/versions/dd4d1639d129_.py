@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4439b04168af
+Revision ID: dd4d1639d129
 Revises: 
-Create Date: 2021-01-20 16:29:47.133592
+Create Date: 2021-01-22 23:52:03.719755
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4439b04168af'
+revision = 'dd4d1639d129'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -41,8 +41,11 @@ def upgrade():
     sa.Column('url', sa.String(), nullable=False),
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('content', sa.String(), nullable=True),
-    sa.Column('x_position', sa.Integer(), nullable=True),
-    sa.Column('y_position', sa.Integer(), nullable=True),
+    sa.Column('is_included', sa.Boolean(), nullable=True),
+    sa.Column('author', sa.String(), nullable=True),
+    sa.Column('published_date', sa.DateTime(), nullable=True),
+    sa.Column('site_name', sa.String(), nullable=True),
+    sa.Column('access_date', sa.DateTime(), nullable=True),
     sa.Column('project_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
     sa.PrimaryKeyConstraint('id'),
@@ -62,6 +65,7 @@ def upgrade():
     sa.Column('content', sa.String(), nullable=True),
     sa.Column('x_position', sa.Integer(), nullable=True),
     sa.Column('y_position', sa.Integer(), nullable=True),
+    sa.Column('date_of_creation', sa.DateTime(), nullable=False),
     sa.Column('parent_project', sa.Integer(), nullable=True),
     sa.Column('parent_cluster', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['parent_cluster'], ['clusters.id'], ),

@@ -44,7 +44,10 @@ class BibButton extends React.Component {
     render() {
         return (
             <FlexboxGrid.Item>
-                <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Bibliography</Tooltip>}
+                         placement="bottomEnd">
+                    <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
+                </Whisper>
             </FlexboxGrid.Item>
         );
     }

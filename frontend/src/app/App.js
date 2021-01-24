@@ -28,7 +28,6 @@ class App extends React.Component {
 
     updateProjects = (callback) => {
         makeHttpRequest("/projects").then(response => {
-            // TODO: this is what indicates a user that isn't authenticated, implement login
             if (!response.body.success) return;
 
             const projects = response.body.projects;

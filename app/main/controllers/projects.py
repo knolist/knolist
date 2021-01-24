@@ -3,6 +3,7 @@ from justext import justext, get_stoplist
 from requests import get as requests_get
 
 from app.main.auth.get_authorized_objects import get_authorized_project
+from ..urlToCitation import urlToCitation
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth
 
@@ -37,10 +38,17 @@ def extract_content_from_url(url):
 def create_and_insert_source(url, project_id):
     extraction_results = extract_content_from_url(url)
     content = extraction_results['content']
-    title = extraction_results['title']
+    citation_fields = urlToCitation(url)
+    title = citation_fields['title']
+    author = citation_fields['author']
+    published_date = citation_fields['publishDate']
+    site_name = citation_fields['siteName']
+    access_date = citation_fields['accessDate']
 
     source = Source(url=url, title=title,
-                    content=content, project_id=project_id)
+                    content=content, project_id=project_id, is_included=True,
+                    author=author, published_date=published_date,
+                    site_name=site_name, access_date=access_date)
     source.insert()
 
     return source

@@ -194,7 +194,7 @@ class TestItemsEndpoints(unittest.TestCase):
     def test_create_item_inside_cluster(self):
         self.assertEqual(len(self.cluster.child_items), 1)
         res = self.client().post(f'/items',
-                                 json={self.new_item_in_cluster},
+                                 json=self.new_item_in_cluster,
                                  headers=auth_header)
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 201)

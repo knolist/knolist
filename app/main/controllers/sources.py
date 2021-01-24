@@ -1,26 +1,9 @@
-import json
-
 from flask import request, abort, jsonify
-from sqlalchemy import String, VARCHAR
-from flask_sqlalchemy import SQLAlchemy
 
-from ..models.models import Project, Source, Item
+from app.main.auth.get_authorized_objects import get_authorized_source
+from ..models.models import Project, Source
 from ..auth import requires_auth, AuthError
 from datetime import datetime
-
-
-def get_authorized_source(user_id, source_id):
-    source = Source.query.get(source_id)
-    if source is None:
-        abort(404)
-
-    if source.project.user_id != user_id:
-        raise AuthError({
-            'code': 'invalid_user',
-            'description': 'This item does not belong to the requesting user.'
-        }, 403)
-
-    return source
 
 
 def set_source_routes(app):
@@ -74,6 +57,7 @@ def set_source_routes(app):
             'success': True,
             'source': final_source.format()
         })
+
     """
     Updates information in a source.
     The information to be updated is passed in a JSON body.
@@ -99,9 +83,6 @@ def set_source_routes(app):
         access_date = body.get('access_date', None)
         site_name = body.get('site_name', None)
 
-        # Obtain JSON list attributes
-        highlights = body.get('highlights', None)
-        notes = body.get('notes', None)
         # Obtain project ID
         project_id = body.get('project_id', None)
 
