@@ -9,7 +9,7 @@ import NewItemForm from "../components/NewItemForm";
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
 
-import makeHttpRequest from "../services/HttpRequest";
+import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
 class MindMap extends React.Component {
     constructor(props) {
@@ -92,7 +92,19 @@ class MindMap extends React.Component {
     getItems = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
-        const endpoint = "/projects/" + this.props.curProject.id + "/items"
+
+        if (this.props.filters.length === 0) {
+            this.setLoading(false);                
+            this.setState({items: []}, callback);
+            return;
+        }
+
+        let endpoint = "/projects/" + this.props.curProject.id + "/items";
+
+        if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
+            endpoint = constructHttpQuery(endpoint, this.props.searchQuery, this.props.filters)
+        }
+        
         const response = await makeHttpRequest(endpoint);
 
         this.setLoading(false);
@@ -370,6 +382,10 @@ class MindMap extends React.Component {
                 Alert.close();
             }
         }
+
+        if (prevProps.searchQuery !== this.props.searchQuery || prevProps.filters !== this.props.filters) {
+            this.renderNetwork(null);
+       }
     }
 
     componentDidMount() {
