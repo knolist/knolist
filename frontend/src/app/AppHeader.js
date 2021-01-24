@@ -5,7 +5,6 @@ import {
 } from "rsuite";
 import {Link} from "react-router-dom";
 
-import AuthenticationButton from "../components/auth-button.js";
 import horizontalLogo from "../images/horizontal_main.png";
 import SearchBar from "../components/SearchBar.js";
 
@@ -31,7 +30,8 @@ function AppHeader(props) {
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
-                        <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery} updateFilters={props.updateFilters}/>
+                        <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery}
+                                         updateFilters={props.updateFilters}/>
                         <BibButton setShowBib={props.setShowBib}/>
                     </FlexboxGrid>
                 </FlexboxGrid.Item>
@@ -99,10 +99,8 @@ class SearchAndFilter extends React.Component {
         return (
             <FlexboxGrid>
                 <FlexboxGrid.Item>
-                    <AuthenticationButton/>
-                </FlexboxGrid.Item>
-                <FlexboxGrid.Item>
-                    <SearchBar searchQuery={this.props.searchQuery} setSearchQuery={this.props.setSearchQuery} updateFilters={this.props.updateFilters}/>
+                    <SearchBar width={250} searchQuery={this.props.searchQuery}
+                               setSearchQuery={this.props.setSearchQuery} updateFilters={this.props.updateFilters}/>
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FilterDropdown indeterminate={this.state.indeterminate} checkAll={this.state.checkAll}
