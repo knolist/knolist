@@ -106,7 +106,8 @@ class App extends React.Component {
                                      setCurProject={this.setCurProject} setShowSharedProject={this.setShowSharedProject}/>
                     {this.projectsButton()}
                     <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                             setShowBib={this.setShowBib} setShowSharedProject={this.setShowSharedProject} showSharedProject={this.state.showSharedProject}/>
+                             setShowBib={this.setShowBib} setShowSharedProject={this.setShowSharedProject} showSharedProject={this.state.showSharedProject}
+                             updateProjects={this.updateProjects}/>
                 </Route>
                 <Route path="/my-projects">
                     <Page url={"/my-projects"}/>

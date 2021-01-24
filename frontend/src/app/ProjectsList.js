@@ -81,6 +81,7 @@ class Project extends React.Component {
     }
 
     render() {
+        //console.log(this.props.project)
         return (
             <div>
                 <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete} resetDelete={this.resetDeleteProject}
@@ -110,7 +111,7 @@ class Project extends React.Component {
                             </ButtonToolbar>
                         </FlexboxGrid.Item>
                         <FlexboxGrid.Item>
-                            <SharedProjectButton setShowSharedProject={this.props.setShowSharedProject}/>
+                            <SharedProjectButton isShared={this.props.project.shared_users.length > 0} setShowSharedProject={this.props.setShowSharedProject}/>
                         </FlexboxGrid.Item>
                     </FlexboxGrid>
                 </Nav.Item>
@@ -141,13 +142,18 @@ class EditProjectNameButton extends React.Component {
 }
 
 class SharedProjectButton extends React.Component {
-
     render() {
+        let icon;
+        if (this.props.isShared) {
+            icon = "share-alt"
+        } else {
+            icon = "people-group"
+        }
         return ( 
             <div>
                 <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Share Project</Tooltip>}
                                      placement="bottom">
-                     <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon="share-alt"/>} size="sm"/>
+                     <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon={icon}/>} size="sm"/>
                 </Whisper>
             </div>
 

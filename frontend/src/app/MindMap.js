@@ -64,6 +64,9 @@ class MindMap extends React.Component {
         this.setState({nonSelectedNodes: nodes.getIds().filter(element => element !== id)})
     }
 
+    setTitle = (val) => {
+        this.setState({title: val})
+    }
     // Check if the network is in edit mode
     // isEditMode = () => {
     //     const visCloseButton = document.getElementsByClassName("vis-close")[0];
@@ -198,6 +201,7 @@ class MindMap extends React.Component {
         if (node.url && !node.content) return this.state.types.PURESOURCE;
     }
 
+
     // Helper function to setup the nodes and edges for the graph
     createNodesAndEdges() {
         let nodes = new DataSet();
@@ -211,6 +215,7 @@ class MindMap extends React.Component {
             if (nodeType !== this.state.types.PURESOURCE) {
                 title = node.content.substring(0, 100);
             }
+            this.setTitle(title);
             // Deal with positions
             if (node.x_position === null || node.y_position === null) {
                 // If position is still undefined, generate random x and y in interval [-300, 300]
@@ -397,7 +402,9 @@ class MindMap extends React.Component {
                              item={this.state.item}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
                            sources={this.state.sources}/>
-                <SharedProject showSharedProject={this.props.showSharedProject} setShowSharedProject={this.props.setShowSharedProject}/>
+                <SharedProject showSharedProject={this.props.showSharedProject}
+                            setShowSharedProject={this.props.setShowSharedProject}
+                            curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );
