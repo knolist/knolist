@@ -8,6 +8,26 @@ let auth0 = null;
 const baseUrl = "http://localhost:5000";
 
 /**
+ * Used to construct the valid endpoint for general and filtered searches.
+ * @param endpoint The request endpoint (including the first slash). E.g., "/projects"
+ * @param query The query string
+ * @param filters A list of filters indicating which categories to query through
+ * @returns {String}
+ */
+export function constructHttpQuery(endpoint, query, filters) {
+    let finalEndpoint = endpoint + "?query=" + query;
+    if (filters.length !== 0) {
+        filters.forEach(function(entry) {
+            if (entry === "Page Content") {
+                entry = "content";
+            }
+            finalEndpoint = finalEndpoint + "&filter=" + entry.toLowerCase();
+        });
+    }
+    return finalEndpoint;
+}
+
+/**
  * Used to make standard requests to the Knolist API. Includes authorization.
  * @param endpoint The request endpoint (including the first slash). E.g., "/projects"
  * @param method The HTTP method, if none is provided we assume "GET". E.g., "POST"
