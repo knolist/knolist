@@ -78,11 +78,11 @@ body {
     float: left;
 }
 
-a { /* remove React Router styling (Links are transpiled to <a>) */
+.react-router-styling { /* remove React Router styling (Links are transpiled to <a>) */
     text-decoration: none;
     color: inherit;
 }
 
-a:hover {
+.react-router-styling:hover {
     color: inherit;
 }
