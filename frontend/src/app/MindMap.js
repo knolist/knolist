@@ -8,8 +8,7 @@ import ItemView from "./ItemView";
 import NewItemForm from "../components/NewItemForm";
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
-import MiniGames from "./MiniGames";
-import GameWindow from "./MiniGameWindow";
+// import Minigames from "./Minigames";
 
 import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
@@ -162,18 +161,6 @@ class MindMap extends React.Component {
         this.setShowNewItemHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
     }
-
-    // // See if need to be be modified like above?
-    // setShowGame = (clicked) => {
-    //     // Keeps track if Game Generation Button clicked and Window should open
-    //     if (this.state.network) { // Check that the network exists
-    //         this.setState({
-    //             showGame: clicked
-    //         });
-    //         console.log('Show Game should be shown?')
-    //         console.log(this.state.showGame)
-    //     }
-    // }
 
     /* Helper function to generate position for nodes
     This function adds an offset to  the randomly generated position based on the
@@ -347,14 +334,14 @@ class MindMap extends React.Component {
             });
 
             let dt = 100 //ms
-            network.on("dragging", throttle((params) => {
+            network.on("dragging", this.throttle((params) => {
                 if (params.nodes !== undefined && params.nodes.length > 0) {
                     const id = network.getSelectedNodes()[0];
                     const boundingBox = network.getBoundingBox(id)
                     console.log(boundingBox)
                     let otherNodes = this.state.nonSelectedNodes
                     otherNodes.forEach(node => {
-                        if (isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
+                        if (this.isOverlap(network.getBoundingBox(parseInt(node)), boundingBox)) {
                             console.log('cluster detected between', nodes.get(id).label, `(id=${id})`, 'and', nodes.get(parseInt(node)).label, `(id=${node})`)
                         }
                     })
@@ -380,6 +367,33 @@ class MindMap extends React.Component {
             // Store the network
             this.setState({network: network}, callback);
         })
+    }
+
+    throttle = (func, ms) => {
+        let lastFunc
+        let lastRan
+        return function () {
+            const context = this
+            const args = arguments
+            if (!lastRan) {
+                func.apply(context, args)
+                lastRan = Date.now()
+            } else {
+                clearTimeout(lastFunc)
+                lastFunc = setTimeout(function () {
+                    if ((Date.now() - lastRan) >= ms) {
+                        func.apply(context, args)
+                        lastRan = Date.now()
+                    }
+                }, ms - (Date.now() - lastRan))
+            }
+        }
+    }
+
+
+    isOverlap = (rectA, rectB) => {
+        return (rectA.left < rectB.right && rectA.right > rectB.left &&
+            rectA.bottom > rectB.top && rectA.top < rectB.bottom)
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -414,12 +428,10 @@ class MindMap extends React.Component {
         return (
             <div>
                 <div id="mindmap"/>
-                <MiniGames
-                    curProject={this.props.curProject}
-                    setShowGame={this.setShowGame}
-                    sources={this.state.sources}
-                    network={this.state.network}
-                />
+                {/*<Minigames*/}
+                {/*    curProject={this.props.curProject}*/}
+                {/*    items={this.state.items}*/}
+                {/*    network={this.state.network}/>*/}
                 <ItemView selectedItem={this.state.selectedItem}
                           setSelectedItem={this.setSelectedItem}
                           getSelectedItemDetails={this.getSelectedItemDetails}
@@ -440,32 +452,6 @@ class MindMap extends React.Component {
             </div>
         );
     }
-}
-
-const throttle = (func, ms) => {
-    let lastFunc
-    let lastRan
-    return function () {
-        const context = this
-        const args = arguments
-        if (!lastRan) {
-            func.apply(context, args)
-            lastRan = Date.now()
-        } else {
-            clearTimeout(lastFunc)
-            lastFunc = setTimeout(function () {
-                if ((Date.now() - lastRan) >= ms) {
-                    func.apply(context, args)
-                    lastRan = Date.now()
-                }
-            }, ms - (Date.now() - lastRan))
-        }
-    }
-}
-
-const isOverlap = (rectA, rectB) => {
-    return (rectA.left < rectB.right && rectA.right > rectB.left &&
-        rectA.bottom > rectB.top && rectA.top < rectB.bottom)
 }
 
 export default MindMap;

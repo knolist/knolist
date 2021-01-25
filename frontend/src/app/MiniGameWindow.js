@@ -1,16 +1,11 @@
 import React from "react";
 import {
-    Modal, Progress
+    Modal
 } from "rsuite";
 
 class GameWindow extends React.Component {
-    // eslint-disable-next-line
-    constructor(props) {
-        super(props)
-    }
-
     render() {
-        // TODO: Not checking if undefined? DOes not work on empty projects?
+        // TODO: Not checking if undefined? Does not work on empty projects?
         if (this.props.sources === null) return null;
         
         // console.log(this.state.selectedGame)

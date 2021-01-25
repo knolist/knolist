@@ -1,49 +1,41 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
-    // Note: I will remove the uneccessary comments/imports when I am done! 
-    // eslint-disable-next-line
-    Tooltip, Whisper, Alert, Dropdown, FlexboxGrid, Icon, IconButton, Button, Animation, Progress, Input, Form, FormControl, Schema, FormGroup
+    Button, Progress, Input, Form
 } from "rsuite";
 
 import {randomPicker} from "../../services/RandomGenerator"
 
-const { Line } = Progress;
-
-const { Slide } = Animation;
-
-// const model = Schema.Model({
-//     common: Schema.Types.StringType().isRequired('This field is required')
-// });
+const {Line} = Progress;
 
 class FindCommonality extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            randomSources: this.getRandomSources(),
+            randomItems: this.getRandomItems(),
             numPlayed: 0,
             commonality: [],
             commonId: 'common-Id'
         }
     }
-    
-    // Randomly select 2 sources
-    getRandomSources = () => {
-        return randomPicker(this.props.sources, 2);
+
+    // Randomly select 2 items
+    getRandomItems = () => {
+        return randomPicker(this.props.items, 2);
     }
 
-    updateRandomSources = () => {
+    updateRandomItems = () => {
         this.setState({
-            randomSources: this.getRandomSources(),
+            randomItems: this.getRandomItems(),
         })
     }
-    
+
     submitCommon = () => {
         let textarea = document.getElementById(this.state.commonId);
         // console.log(textarea.value);
         this.setState({
             numPlayed: this.state.numPlayed + 1,
             commonality: [...this.state.commonality, textarea.value],
-        }, this.updateRandomSources)
+        }, this.updateRandomItems)
         // Clear text area
         textarea.value = "";
     }
@@ -54,23 +46,24 @@ class FindCommonality extends React.Component {
             return (
                 <>
                     <h1>What comes to mind?</h1>
-                        <h3>Round {this.state.numPlayed + 1}</h3>
-                        <Line percent={this.state.numPlayed / 5 * 100} status='active' />
-                        <h5>What is the commonality between the following?</h5>
-                        {this.state.randomSources.map((source, index) =>
-                            <Button block key={index} appearance="primary" color='blue' style={{ margin: 20, display: 'block'}}>{source.title}</Button>)}
+                    <h3>Round {this.state.numPlayed + 1}</h3>
+                    <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
+                    <h5>What is the commonality between the following?</h5>
+                    {this.state.randomItems.map((item, index) =>
+                        <Button block key={index} appearance="primary" color='blue'
+                                style={{margin: 20, display: 'block'}}>{item.title}</Button>)}
                     <Form onSubmit={this.submitCommon}>
                         <Input autoFocus type="text" required componentClass="textarea" id={this.state.commonId}
-                        rows={5} placeholder="Write your thoughts here..."/>
-                        <Button appearance="primary" color='blue' 
-                        style={{margin: 20, display: 'block'}} 
-                        type='submit'>Next</Button>
+                               rows={5} placeholder="Write your thoughts here..."/>
+                        <Button appearance="primary" color='blue'
+                                style={{margin: 20, display: 'block'}}
+                                type='submit'>Next</Button>
                     </Form>
-                </>          
+                </>
             )
-            else {
-                return (
-                    <>
+        else {
+            return (
+                <>
                     <h1>What comes to mind?</h1>
                     <h3>Well Done!</h3>
                     <h5>Hope you found some inspirations to explore more!</h5>
@@ -79,8 +72,8 @@ class FindCommonality extends React.Component {
                         {this.state.commonality.map((common, index) => <li key={index}>{common}</li>)}
                     </ul>
 
-                    {/* {this.state.selectedSources.map((source, index) =>
-                        <Button block key={index} appearance="primary" color='blue' style={{ margin: 20, display: 'block'}}>{source.title}</Button>)} */}
+                    {/* {this.state.selectedItems.map((item, index) =>
+                        <Button block key={index} appearance="primary" color='blue' style={{ margin: 20, display: 'block'}}>{item.title}</Button>)} */}
                 </>
             )
         }
