@@ -17,7 +17,6 @@ shared_projects = db.Table('shared_projects',
                            db.Column('shared_proj', db.Integer,
                                      db.ForeignKey('projects.id'), primary_key=True),
                            db.Column('shared_user', db.String),
-                           db.Column('email', db.String, nullable=False),
                            db.Column('role', db.String, nullable=False)
                            )
 
