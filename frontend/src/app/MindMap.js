@@ -114,8 +114,11 @@ class MindMap extends React.Component {
                 cur.lastIndexOf("_")
             )
             const response = await makeHttpRequest(endpoint)
-            this.setLoading(false);
-            this.setState({clusters: response.body.cluster.child_clusters}, callback)
+            const children = response.body.cluster.child_clusters.map(child => makeHttpRequest('/clusters/' + child))
+            Promise.all(children).then(values => {
+                this.setLoading(false);
+                this.setState({clusters: values.map(child => child.body.cluster)}, callback)
+            })
         }
     }
 
@@ -248,8 +251,12 @@ class MindMap extends React.Component {
         if (this.state.clusters.length === 0) {
             return clusterNodes
         }
-        let projectClusters = this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id)
+        // let projectClusters = this.state.clusters.filter(
+        //         cluster => (cluster.project_id === this.props.curProject.id))
+        let projectClusters = this.state.clusters
+        console.log('ok', this.state.sources)
         projectClusters.forEach(cluster => {
+            console.log(cluster)
             clusterNodes.add({
                 group: 'clusters',
                 id: "c" + cluster.id + "_" + cluster.name,
@@ -262,6 +269,7 @@ class MindMap extends React.Component {
                 // TODO: render +2, +3, etc. below cluster 
             }
             let count = 0;
+            console.log(cluster.child_items)
             cluster.child_items.forEach(child => {
                 const title = this.state.sources.filter(source => source.id === child)[0].title
                 if (count === 0) {
