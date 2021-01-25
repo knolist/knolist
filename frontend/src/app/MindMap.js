@@ -8,6 +8,8 @@ import ItemView from "./ItemView";
 import NewItemForm from "../components/NewItemForm";
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
+import MiniGames from "./MiniGames";
+import GameWindow from "./MiniGameWindow";
 
 import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
@@ -94,7 +96,7 @@ class MindMap extends React.Component {
         this.setLoading(true);
 
         if (this.props.filters.length === 0) {
-            this.setLoading(false);                
+            this.setLoading(false);
             this.setState({items: []}, callback);
             return;
         }
@@ -104,7 +106,7 @@ class MindMap extends React.Component {
         if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
             endpoint = constructHttpQuery(endpoint, this.props.searchQuery, this.props.filters)
         }
-        
+
         const response = await makeHttpRequest(endpoint);
 
         this.setLoading(false);
@@ -160,6 +162,18 @@ class MindMap extends React.Component {
         this.setShowNewItemHelperMessage(true);
         if (this.state.network) this.state.network.addNodeMode();
     }
+
+    // // See if need to be be modified like above?
+    // setShowGame = (clicked) => {
+    //     // Keeps track if Game Generation Button clicked and Window should open
+    //     if (this.state.network) { // Check that the network exists
+    //         this.setState({
+    //             showGame: clicked
+    //         });
+    //         console.log('Show Game should be shown?')
+    //         console.log(this.state.showGame)
+    //     }
+    // }
 
     /* Helper function to generate position for nodes
     This function adds an offset to  the randomly generated position based on the
@@ -385,7 +399,7 @@ class MindMap extends React.Component {
 
         if (prevProps.searchQuery !== this.props.searchQuery || prevProps.filters !== this.props.filters) {
             this.renderNetwork(null);
-       }
+        }
     }
 
     componentDidMount() {
@@ -400,6 +414,12 @@ class MindMap extends React.Component {
         return (
             <div>
                 <div id="mindmap"/>
+                <MiniGames
+                    curProject={this.props.curProject}
+                    setShowGame={this.setShowGame}
+                    sources={this.state.sources}
+                    network={this.state.network}
+                />
                 <ItemView selectedItem={this.state.selectedItem}
                           setSelectedItem={this.setSelectedItem}
                           getSelectedItemDetails={this.getSelectedItemDetails}
