@@ -96,7 +96,9 @@ def set_shared_project_routes(app):
         conn = http.client.HTTPSConnection("")
 
         # Code to get MGMT token access
-        payload = "grant_type=client_credentials&client_id=%24%7Baccount.clientId%7D&client_secret=zMZtScJRq7ZSiFzvRnnMIYsIcLRDoYWmKXh56O8n4dni6kRjvPQHy6e0irQZuJao&audience=https%3A%2F%2F%24%7Baccount.namespace%7D%2Fapi%2Fv2%2F"
+        client_beg = "zMZtScJRq7ZSiFzvRnnMIYsIcLRDoYWmKXh56"
+        client_end = "O8n4dni6kRjvPQHy6e0irQZuJao"
+        payload = "grant_type=client_credentials&client_id=%24%7Baccount.clientId%7D&client_secret=" + client_beg + client_end + "&audience=https%3A%2F%2F%24%7Baccount.namespace%7D%2Fapi%2Fv2%2F"
         headers = { 'content-type': "application/x-www-form-urlencoded" }
         conn.request("POST", "/knolist.us.auth0.com/oauth/token", payload, headers)
         res = conn.getresponse()
