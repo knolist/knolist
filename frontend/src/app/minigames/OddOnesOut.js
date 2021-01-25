@@ -92,7 +92,7 @@ class OddOnesOut extends React.Component {
 
     render() {
         // console.log(this.state)
-        if (this.state.numPlayed < 5)
+        if (this.state.numPlayed < this.props.numRounds)
             return (
                 <>
                     <h1>OddOnesOut</h1>
