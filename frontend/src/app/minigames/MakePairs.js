@@ -214,6 +214,7 @@ class MakePairs extends React.Component {
                     <h1>Make Pairs</h1>
                         <h3>Round {this.state.numPlayed + 1}</h3>
                         <Line percent={this.state.numPlayed / 5 * 100} status='active' />
+                        <h5>Click on the sources you think are related to make a connection!</h5>
                 <div id='MakePairs' style={{height: 480}}/>
                 {/* <div id='MakePairs'>  */}
                     <Form onSubmit={this.submitSources}>
