@@ -43,14 +43,13 @@ class MiniGames extends React.Component {
         const validGames = [];
         // Have different length boundaries for different games
         if (this.props.sources.length > 4) { 
-            validGames.push(<MakePairs sources={this.props.sources} numRounds={this.state.numRounds}/>);
+            // validGames.push(<MakePairs sources={this.props.sources} numRounds={this.state.numRounds}/>);
+            // validGames.push(<FindCommonality sources={this.props.sources} numRounds={this.state.numRounds}/>);
+            validGames.push(<OddOnesOut sources={this.props.sources} numRounds={this.state.numRounds}/>);
         }
         // Games need to be loaded here to have the most recent sources, randomizer needs to be called after the games is updated
         this.setState({
-            // games: [<FindCommonality sources={this.props.sources} />, <OddOnesOut sources={this.props.sources} />] // For testing Find Commonality specifically
-            // games: [<OddOnesOut sources={this.props.sources} />] // For testing OddOnesOut specifically
             games: validGames
-            // games: [<OddOnesOut sources={this.props.sources} />, <MiniGames2 />, <MiniGames3 />, <MiniGames4 />, <MiniGames5 />],
         },
         this.randomizer)
     }
