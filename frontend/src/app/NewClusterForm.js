@@ -25,7 +25,7 @@ class NewClusterForm extends React.Component {
         const item1_id = this.props.newClusterIDs.item1
         const item2_id = this.props.newClusterIDs.item2
         const name = document.getElementById(this.state.newClusterNameId).value
-        const {x, y} = this.props.stationaryClusterSourceData;
+        const {x, y} = this.props.stationaryClusterItemData;
         let parent = this.props.parentCluster
         if (parent !== null) {
             const temp = parent
@@ -41,7 +41,7 @@ class NewClusterForm extends React.Component {
             "name": name,
             "parent_cluster_id": parseInt(parent)
         }
-        const endpoint = "/clusters/create_new"
+        const endpoint = "/clusters";
         makeHttpRequest(endpoint, "POST", body).then((response) => {
             if (response.status === 201) {
                 this.props.renderNetwork();
@@ -84,8 +84,8 @@ class NewClusterForm extends React.Component {
 }
 
 const modalStyle = {
-    position: 'fixed', 
-    top: '50%', 
+    position: 'fixed',
+    top: '50%',
     left: '50%',
     marginTop: '-96px',
     marginLeft: '-300px'

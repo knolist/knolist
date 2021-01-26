@@ -655,6 +655,13 @@ class MindMap extends React.Component {
                              newItemData={this.state.newItemData}
                              item={this.state.item}
                              parentCluster={this.state.curClusterView}/>
+                <NewClusterForm showNewClusterForm={this.state.showNewClusterForm}
+                                stationaryClusterItemData={this.state.stationaryClusterItemData}
+                                curProject={this.props.curProject}
+                                renderNetwork={this.renderNetwork}
+                                newClusterIDs={this.state.newClusterIDs}
+                                switchShowNewClusterForm={this.switchShowNewClusterForm}
+                                parentCluster={this.state.curClusterView}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
                            curProject={this.props.curProject}/>
                 <RaiseLevelButton isRoot={this.state.curClusterView === null}/>
