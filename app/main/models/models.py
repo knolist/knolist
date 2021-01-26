@@ -77,10 +77,8 @@ class Cluster(BaseModel):
     x_position = db.Column(db.Integer)
     y_position = db.Column(db.Integer)
     # The project that holds this source
-    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'),
-                           nullable=True)
-    parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'),
-                                  nullable=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
+    parent_cluster_id = db.Column(db.Integer, db.ForeignKey('clusters.id'))
     # References to outermost clusters within a given cluster
     child_clusters = db.relationship('Cluster',
                                      backref=db.backref('parent_cluster',
@@ -101,8 +99,10 @@ class Cluster(BaseModel):
             'y_position': self.y_position,
             'project_id': self.project_id,
             'child_clusters': [cluster.id for cluster in self.child_clusters],
-            'child_items': [item.id for item in self.child_items]
+            'child_items': [item.id for item in self.child_items],
+            'parent_cluster': self.parent_cluster_id
         }
+
 
 class Source(BaseModel):
     """
@@ -132,8 +132,8 @@ class Source(BaseModel):
                                                       lazy=True)
                                    )
     child_items = db.relationship('Item', backref='source',
-                                    cascade='all, delete-orphan',
-                                    lazy=True)
+                                  cascade='all, delete-orphan',
+                                  lazy=True)
 
     def __repr__(self):
         return f'<Source {self.id}: {self.url}>'
@@ -157,6 +157,7 @@ class Source(BaseModel):
             'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
+
 
 class Item(BaseModel):
     """

@@ -46,7 +46,6 @@ class SourceView extends React.Component {
             this.setState({sourceDetails: null});
             return;
         }
-
         const endpoint = "/sources/" + this.props.selectedNode;
         const response = await makeHttpRequest(endpoint);
         this.setState({sourceDetails: response.body.source});
@@ -81,10 +80,12 @@ class SourceView extends React.Component {
                             </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <HighlightsList highlights={source.highlights} sourceId={source.id}
+                            <HighlightsList highlights={[]} sourceId={source.id}
+                            // <HighlightsList highlights={source.highlights} sourceId={source.id} this was crashing
                                             getSourceDetails={this.getSourceDetails}/>
                             <Divider/>
-                            <NotesList notes={source.notes} sourceId={source.id}
+                            <NotesList notes={[]} sourceId={source.id}
+                            //<NotesList notes={source.notes} sourceId={source.id} this was crashing
                                        getSourceDetails={this.getSourceDetails}/>
                         </Modal.Body>
                         <Modal.Footer>
