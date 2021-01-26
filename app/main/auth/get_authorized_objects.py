@@ -22,10 +22,10 @@ def get_authorized_cluster(user_id, cluster_id):
     if cluster is None:
         abort(404)
 
-    tempcluster = cluster
-    while tempcluster.project is None:
-        tempcluster = tempcluster.parent_cluster
-    if tempcluster.project.user_id != user_id:
+    temp_cluster = cluster
+    while temp_cluster.project is None:
+        temp_cluster = temp_cluster.parent_cluster
+    if temp_cluster.project.user_id != user_id:
         raise AuthError({
             'code': 'invalid_user',
             'description': 'This item does not belong to the requesting user.'

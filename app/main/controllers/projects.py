@@ -164,7 +164,7 @@ def set_project_routes(app):
                         .ilike(pattern)).order_by(Source.id).all()
             return jsonify({
                 'success': True,
-                'sources': [source.format_short() for source in results]
+                'sources': [source.format() for source in results]
             })
 
         results = []

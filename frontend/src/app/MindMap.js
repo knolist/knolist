@@ -45,11 +45,9 @@ class MindMap extends React.Component {
         this.state = {
             network: null,
             visNodes: null,
-            visEdges: null,
             selectedItem: null,
             items: null,
             nonSelectedNodes: null,
-            sources: null,
             clusters: null,
             loading: false,
             showNewItemForm: false,
@@ -64,7 +62,7 @@ class MindMap extends React.Component {
             showNewClusterForm: false,
             showNewClusterHelperMessage: false,
             showAddToClusterHelperMessage: false,
-            stationaryClusterSourceData: null,
+            stationaryClusterItemData: null,
             newClusterIDs: null,
             existingClusterID: null,
             curClusterView: null
@@ -136,7 +134,7 @@ class MindMap extends React.Component {
                 cur.lastIndexOf("_")
             )
             const response = await makeHttpRequest(endpoint)
-            const children = response.body.cluster.child_items.map(child => makeHttpRequest('/sources/' + child))
+            const children = response.body.cluster.child_items.map(child => makeHttpRequest('/items/' + child))
             Promise.all(children).then(values => {
                 this.setLoading(false);
                 this.setState({items: values.map(child => child.body.item)}, callback)
@@ -234,8 +232,8 @@ class MindMap extends React.Component {
         if (this.state.network) this.state.network.addNodeMode();
     }
 
-    addSourceToCluster = async (clusterId, sourceId) => {
-        const endpoint = "/clusters/" + clusterId + "/sources/" + sourceId
+    addItemToCluster = async (clusterId, itemId) => {
+        const endpoint = "/clusters/" + clusterId + "/items/" + itemId
         await makeHttpRequest(endpoint, "PATCH", {});
     }
 
@@ -305,30 +303,23 @@ class MindMap extends React.Component {
         return [x, y];
     }
 
-    // Helper function to setup the nodes and edges for the graph
-    createNodesAndEdges() {
+    // Helper function to setup the nodes for the graph
+    createNodes() {
         let nodes = new DataSet();
-        let edges = new DataSet();
 
-        // Iterate through each node in the graph and build the arrays of nodes and edges
+        // Iterate through each node in the graph and build the arrays of nodes
         for (let index in this.state.items) {
             if (this.state.clusters.length === 0 || this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id)
-                .filter(cluster => cluster.child_items.includes(parseInt(this.state.sources[index].id))).length === 0) {
+                .filter(cluster => cluster.child_items.includes(parseInt(this.state.items[index].id))).length === 0) {
                 const node = this.state.items[index];
                 const nodeType = this.getNodeType(node);
                 const label = this.getNodeLabel(node, nodeType);
                 const [x, y] = this.getNodePosition(node);
                 nodes.add({group: "items", id: node.id, label: label, x: x, y: y, color: this.getColor(node)});
-
-                // Deal with edges
-                for (let nextIndex in node.next_sources) {
-                    const nextId = node.next_sources[nextIndex];
-                    edges.add({from: node.id, to: nextId})
-                }
             }
         }
-        this.setState({visNodes: nodes, visEdges: edges});
-        return [nodes, edges];
+        this.setState({visNodes: nodes});
+        return nodes;
     }
 
     getColor = (item) => {
@@ -344,7 +335,7 @@ class MindMap extends React.Component {
         // let projectClusters = this.state.clusters.filter(
         //         cluster => (cluster.project_id === this.props.curProject.id))
         let projectClusters = this.state.clusters
-        console.log('ok', this.state.sources)
+        console.log('ok', this.state.items)
         projectClusters.forEach(cluster => {
             console.log(cluster)
             clusterNodes.add({
@@ -361,7 +352,7 @@ class MindMap extends React.Component {
             let count = 0;
             console.log(cluster.child_items)
             cluster.child_items.forEach(child => {
-                const title = this.state.sources.filter(source => source.id === child)[0].title
+                const title = this.state.items.filter(item => item.id === child)[0].title
                 if (count === 0) {
                     clusterNodes.add({
                         group: 'inCluster',
@@ -396,7 +387,7 @@ class MindMap extends React.Component {
 
         this.getItems(() => {
             this.getClusters(() => {
-                let [nodes, edges] = this.createNodesAndEdges();
+                let nodes = this.createNodes();
                 const clusterNodes = this.createClusters();
                 clusterNodes.forEach(cluster => {
                     nodes.add(cluster)
@@ -406,8 +397,7 @@ class MindMap extends React.Component {
 
                 // provide the data in the vis format
                 const data = {
-                    nodes: nodes,
-                    edges: edges
+                    nodes: nodes
                 };
 
                 const options = {
@@ -467,17 +457,6 @@ class MindMap extends React.Component {
                             }
                         }
                     },
-                    edges: {
-                        arrows: {
-                            to: {
-                                enabled: true
-                            }
-                        },
-                        color: "black",
-                        physics: false,
-                        smooth: false,
-                        hoverWidth: 0
-                    },
                     interaction: {
                         selectConnectedEdges: false,
                         hover: true,
@@ -533,7 +512,7 @@ class MindMap extends React.Component {
                                 && otherNodes.length >= 1) {
                                 otherNodes.forEach(node => {
                                     if (typeof node === "number" && isOverlap(network.getBoundingBox(node), boundingBox)) {
-                                        this.setState({stationaryClusterSourceData: network.getPosition(node)})
+                                        this.setState({stationaryClusterItemData: network.getPosition(node)})
                                         this.setState({newClusterIDs: {"item1": id, "item2": node}})
                                         this.setShowNewClusterHelperMessage(true)
                                     } else if (typeof node === "string" && node.includes('c') && isOverlap(network.getBoundingBox(node), boundingBox)) {
@@ -566,7 +545,7 @@ class MindMap extends React.Component {
                                 existingCluster.lastIndexOf("c") + 1,
                                 existingCluster.lastIndexOf("_")
                             )
-                            this.addSourceToCluster(id, network.getSelectedNodes()[0])
+                            this.addItemToCluster(id, network.getSelectedNodes()[0])
                             this.setshowAddToClusterHelperMessage(false)
                             this.renderNetwork()
                         }
@@ -575,7 +554,7 @@ class MindMap extends React.Component {
                             const position = network.getPosition(id);
                             const x = position.x;
                             const y = position.y;
-                            this.updateSourcePosition(id, x, y);
+                            this.updateItemPosition(id, x, y);
                         } else if (typeof id === "string" && id.includes('c')) {
                             // TODO: update cluster position on backend
                         }
