@@ -305,8 +305,8 @@ class MindMap extends React.Component {
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
 
-        this.getSources(function() {
-            this.getClusters(function() {
+        this.getSources(() => {
+            this.getClusters(() => {
                 let [nodes, edges] = this.createNodesAndEdges();
                 const clusterNodes = this.createClusters();
                 clusterNodes.forEach(cluster => {
@@ -324,10 +324,10 @@ class MindMap extends React.Component {
                     groups: {
                         clusters: {
                             chosen: {
-                                label: function (values, id, selected, hovering) {
+                                label: (values, id, selected, hovering) => {
                                     values.color = '#ffffff00';
                                 },
-                                node: function (values, id, selected, hovering) {
+                                node: (values, id, selected, hovering) => {
                                     values.color = '#ffffff00';
                                 }
                             },
@@ -499,8 +499,8 @@ class MindMap extends React.Component {
                 // Store the network
                 this.setState({ network: network }, callback);
 
-            }.bind(this))
-        }.bind(this))
+            })
+        })
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
