@@ -212,6 +212,7 @@ class MindMap extends React.Component {
 
     disableEditMode = () => {
         this.setShowNewItemHelperMessage(false);
+        this.setShowNewClusterHelperMessage(false);
         if (this.state.network) this.state.network.disableEditMode()
     }
 
@@ -263,10 +264,13 @@ class MindMap extends React.Component {
     }
 
     addItemToCluster = (clusterId, itemId) => {
-        const endpoint = "/clusters/" + clusterId + "/items/" + itemId
+        this.setLoading(true);
+        const endpoint = "/clusters/" + clusterId + "/items/" + itemId;
         makeHttpRequest(endpoint, "POST").then(response => {
-            if (response.success) return Alert.success("This item was successfully added");
-            else return Alert.error("This item could not be added");
+            this.setLoading(false);
+            if (response.body.success) Alert.success("This item was successfully added");
+            else Alert.error("This item could not be added");
+            this.renderNetwork();
         });
 
     }
@@ -392,6 +396,7 @@ class MindMap extends React.Component {
                 if (count === 1) {
                     yOffset = 40;
                 }
+                if (count > 1) return;
 
                 clusterNodes.add({
                     group: 'inCluster',
