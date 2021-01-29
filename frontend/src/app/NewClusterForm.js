@@ -22,8 +22,8 @@ class NewClusterForm extends React.Component {
 
     addNewCluster = () => {
         this.setLoading(true);
-        const item1_id = this.props.newClusterIDs.item1
-        const item2_id = this.props.newClusterIDs.item2
+        const item1_id = this.props.newClusterIds.item1
+        const item2_id = this.props.newClusterIds.item2
         const name = document.getElementById(this.state.newClusterNameId).value
         const {x, y} = this.props.stationaryClusterItemData;
         let parent = this.props.parentCluster
@@ -48,6 +48,7 @@ class NewClusterForm extends React.Component {
                 Alert.success('Cluster created successfully.');
             }
             this.props.switchShowNewClusterForm();
+            this.props.disableEditMode();
         });
     }
 

@@ -100,7 +100,7 @@ class Cluster(BaseModel):
             'y_position': self.y_position,
             'project_id': self.project_id,
             'child_clusters': [cluster.id for cluster in self.child_clusters],
-            'child_items': [item.id for item in self.child_items],
+            'child_items': [item.format() for item in self.child_items],
             'parent_cluster': self.parent_cluster_id
         }
 
