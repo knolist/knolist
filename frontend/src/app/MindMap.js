@@ -69,6 +69,18 @@ class MindMap extends React.Component {
         };
     };
 
+    generateVisClusterId = (cluster) => "c" + cluster.id;
+
+    generateClusterIdFromVisId = (visClusterId) => parseInt(visClusterId.substring(visClusterId.indexOf("c") + 1));
+
+    generateVisInClusterId = (node, cluster) => "i" + node.id + "c" + cluster.id;
+
+    generateNodeIdAndClusterIdFromVisId = (visInClusterId) => {
+        const nodeId = parseInt(visInClusterId.substring(visInClusterId.indexOf("i"), visInClusterId.indexOf("c")));
+        const clusterId = parseInt(visInClusterId.substring(visInClusterId.indexOf("c") + 1));
+        return [nodeId, clusterId];
+    }
+
     isItem = (id) => {
         const node = this.state.visNodes.get(id);
         if (node) return node.group === "items";
@@ -146,11 +158,8 @@ class MindMap extends React.Component {
             this.setLoading(false);
             this.setState({items: response.body.items}, callback);
         } else {
-            const cur = this.state.curClusterView
-            const endpoint = "/clusters/" + cur.substring(
-                cur.lastIndexOf("c") + 1,
-                cur.lastIndexOf("_")
-            )
+            const cur = this.state.curClusterView;
+            const endpoint = "/clusters/" + this.generateClusterIdFromVisId(cur);
             const response = await makeHttpRequest(endpoint);
             this.setLoading(false);
             this.setState({items: response.body.child_items}, callback);
@@ -167,10 +176,7 @@ class MindMap extends React.Component {
             this.setState({clusters: response.body.clusters}, callback);
         } else {
             const cur = this.state.curClusterView;
-            const endpoint = "/clusters/" + cur.substring(
-                cur.lastIndexOf("c") + 1,
-                cur.lastIndexOf("_")
-            )
+            const endpoint = "/clusters/" + this.generateClusterIdFromVisId(cur);
             const response = await makeHttpRequest(endpoint);
             const children = response.body.cluster.child_clusters.map(child => makeHttpRequest('/clusters/' + child));
             Promise.all(children).then(values => {
@@ -180,13 +186,22 @@ class MindMap extends React.Component {
         }
     }
 
-    updateItemPosition = async (itemId, x, y) => {
+    updateItemPosition = (itemId, x, y) => {
         const endpoint = "/items/" + itemId;
         const body = {
             "x_position": x,
             "y_position": y
         }
-        await makeHttpRequest(endpoint, "PATCH", body);
+        makeHttpRequest(endpoint, "PATCH", body).then();
+    }
+
+    updateClusterPosition = (clusterId, x, y) => {
+        const endpoint = "/clusters/" + clusterId;
+        const body = {
+            "x": x,
+            "y": y
+        }
+        makeHttpRequest(endpoint, "PATCH", body).then();
     }
 
     fitNetworkToScreen = () => {
@@ -359,7 +374,7 @@ class MindMap extends React.Component {
             console.log(cluster);
             clusterNodes.add({
                 group: 'clusters',
-                id: "c" + cluster.id + "_" + cluster.name,
+                id: this.generateVisClusterId(cluster),
                 label: '-----------------------------------------------------', // :(
                 x: cluster.x_position,
                 y: cluster.y_position
@@ -380,7 +395,7 @@ class MindMap extends React.Component {
 
                 clusterNodes.add({
                     group: 'inCluster',
-                    id: "i" + child.id,
+                    id: this.generateVisInClusterId(child, cluster),
                     label: label,
                     x: cluster.x_position,
                     y: cluster.y_position + yOffset,
@@ -494,17 +509,25 @@ class MindMap extends React.Component {
                 network.on("dragStart", (params) => {
                     if (params.nodes !== undefined && params.nodes.length > 0) {
                         const nodeId = params.nodes[0];
-                        if (this.isCluster(nodeId)) {
-                            network.selectNodes(this.state.clusters.filter(cluster =>
-                                cluster.project_id === this.props.curProject.id
-                                && nodeId.includes(cluster.name))[0].child_items.slice(0, 2).map(node => 'i' + node.id).concat([nodeId]))
-                        } else if (this.isItemInCluster(nodeId)) {
-                            const cluster = this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id &&
-                                cluster.child_items.some(e => e.id === parseInt(nodeId.replace('i', ''))))[0]
-                            network.selectNodes(cluster.child_items.slice(0, 2).map(node => 'i' + node.id).concat(['c' + cluster.id + '_' + cluster.name]))
 
+                        const isCluster = this.isCluster(nodeId);
+                        const isItemInCluster = this.isItemInCluster(nodeId);
+                        if (isCluster || isItemInCluster) {
+                            const numDisplayedChildNodes = 2;
+                            let cluster, visClusterId;
+                            if (isCluster) {
+                                cluster = this.state.clusters.find(cluster => cluster.id === this.generateClusterIdFromVisId(nodeId));
+                                visClusterId = nodeId;
+                            } else {
+                                cluster = this.state.clusters.find(cluster => cluster.id === this.generateNodeIdAndClusterIdFromVisId(nodeId)[1]);
+                                visClusterId = this.generateVisClusterId(cluster);
+                            }
+                            const childNodes = cluster.child_items.slice(0, numDisplayedChildNodes);
+                            const childNodesIds = childNodes.map(node => this.generateVisInClusterId(node, cluster));
+                            childNodesIds.push(visClusterId);
+                            network.selectNodes(childNodesIds);
                         } else {
-                            this.handleDragStart(nodeId, nodes)
+                            this.handleDragStart(nodeId, nodes);
                         }
                     }
                 });
@@ -549,23 +572,22 @@ class MindMap extends React.Component {
                         }
                         if (this.state.showAddToClusterHelperMessage) {
                             const existingCluster = this.state.existingClusterId
-                            const id = existingCluster.substring(
-                                existingCluster.lastIndexOf("c") + 1,
-                                existingCluster.lastIndexOf("_")
-                            )
+                            const id = this.generateClusterIdFromVisId(existingCluster);
                             this.addItemToCluster(id, network.getSelectedNodes()[0]);
                             this.setShowAddToClusterHelperMessage(false);
                             this.renderNetwork();
                         }
+                        // Update position of item or cluster
                         const id = network.getSelectedNodes()[0];
                         const group = this.state.visNodes.get(id).group;
+                        const position = network.getPosition(id);
+                        const x = position.x;
+                        const y = position.y;
                         if (group === "items") {
-                            const position = network.getPosition(id);
-                            const x = position.x;
-                            const y = position.y;
                             this.updateItemPosition(id, x, y);
-                        } else if (group === "clusters") {
-                            // TODO: update cluster position on backend
+                        } else if (group === "inCluster") {
+                            const [, clusterId] = this.generateNodeIdAndClusterIdFromVisId(id);
+                            this.updateClusterPosition(clusterId, x, y);
                         }
                     }
                 });
