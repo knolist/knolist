@@ -57,8 +57,11 @@ def set_item_routes(app):
         if url is None and content is None:
             # Neither url nor content, so abort
             abort(400)
-        if url is None and is_note is False:
+        if url is None and not is_note:
             # Highlight without url is not allowed
+            abort(400)
+        if is_note and content is None:
+            # Note without content
             abort(400)
         # Referenced source is by default None
         source_id_temp = None

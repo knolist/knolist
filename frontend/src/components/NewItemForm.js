@@ -46,7 +46,7 @@ class NewItemForm extends React.Component {
             "x_position": x,
             "y_position": y,
             "parent_project": this.props.curProject.id,
-            "is_note": true
+            "is_note": content !== null
         }
 
         makeHttpRequest(endpoint, "POST", body).then((response) => {

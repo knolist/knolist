@@ -73,12 +73,27 @@ class MindMap extends React.Component {
 
     generateClusterIdFromVisId = (visClusterId) => parseInt(visClusterId.substring(visClusterId.indexOf("c") + 1));
 
-    generateVisInClusterId = (node, cluster) => "i" + node.id + "c" + cluster.id;
+    generateVisInClusterId = (cluster, type, node) => {
+        let firstPart = "c" + cluster.id;
+        let secondPart;
+        if (type === "item") secondPart = "i" + node.id;
+        else if (type === "title") secondPart = "t";
+        else if (type === "count") secondPart = "n";
+        return firstPart + secondPart;
+    }
 
-    generateNodeIdAndClusterIdFromVisId = (visInClusterId) => {
-        const nodeId = parseInt(visInClusterId.substring(visInClusterId.indexOf("i"), visInClusterId.indexOf("c")));
-        const clusterId = parseInt(visInClusterId.substring(visInClusterId.indexOf("c") + 1));
-        return [nodeId, clusterId];
+    generateClusterIdAndNodeIdFromVisInClusterId = (visInClusterId) => {
+        let nodeId;
+        let index = visInClusterId.indexOf("i");
+        if (index >= 0) {
+            nodeId = parseInt(visInClusterId.substring(index + 1));
+        } else {
+            index = visInClusterId.indexOf("t");
+            if (index === -1) index = visInClusterId.indexOf("n");
+        }
+
+        const clusterId = parseInt(visInClusterId.substring(visInClusterId.indexOf("c") + 1, index));
+        return [clusterId, nodeId];
     }
 
     isItem = (id) => {
@@ -377,15 +392,47 @@ class MindMap extends React.Component {
         projectClusters.forEach(cluster => {
             console.log(cluster);
             clusterNodes.add({
-                group: 'clusters',
+                group: "clusters",
                 id: this.generateVisClusterId(cluster),
                 label: '-----------------------------------------------------', // :(
                 x: cluster.x_position,
                 y: cluster.y_position
             });
-            // TODO: render title
+            // Add node to serve as cluster title
+            const helperDataOffset = 120;
+            clusterNodes.add({
+                group: "inCluster",
+                id: this.generateVisInClusterId(cluster, "title"),
+                label: cluster.name,
+                x: cluster.x_position,
+                y: cluster.y_position - helperDataOffset,
+                font: {
+                    color: "black",
+                    size: 18
+                },
+                color: {
+                    background: "#ffffff",
+                    border: "#00c0de"
+                }
+            })
             if (cluster.child_items.length > 2) {
-                // TODO: render +2, +3, etc. below cluster
+                // Render number of extra nodes
+                const extraNodes = cluster.child_items.length - 2;
+                clusterNodes.add({
+                    group: "inCluster",
+                    id: this.generateVisInClusterId(cluster, "count"),
+                    label: "+" + extraNodes + " items",
+                    x: cluster.x_position,
+                    y: cluster.y_position + helperDataOffset,
+                    font: {
+                        color: "black",
+                        size: 18
+                    },
+                    color: {
+                        background: "rgba(0, 0, 0, 0)",
+                        border: "rgba(0, 0, 0, 0)"
+                    }
+                })
             }
             let count = 0;
             console.log(cluster.child_items);
@@ -400,7 +447,7 @@ class MindMap extends React.Component {
 
                 clusterNodes.add({
                     group: 'inCluster',
-                    id: this.generateVisInClusterId(child, cluster),
+                    id: this.generateVisInClusterId(cluster, "item", child),
                     label: label,
                     x: cluster.x_position,
                     y: cluster.y_position + yOffset,
@@ -450,7 +497,7 @@ class MindMap extends React.Component {
                                 color: "#ffffff00"
                             },
                             color: {
-                                border: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"],
+                                border: "#00c0de",
                                 background: '#ffffff00'
                             },
                             physics: false
@@ -524,13 +571,15 @@ class MindMap extends React.Component {
                                 cluster = this.state.clusters.find(cluster => cluster.id === this.generateClusterIdFromVisId(nodeId));
                                 visClusterId = nodeId;
                             } else {
-                                cluster = this.state.clusters.find(cluster => cluster.id === this.generateNodeIdAndClusterIdFromVisId(nodeId)[1]);
+                                cluster = this.state.clusters.find(cluster => cluster.id === this.generateClusterIdAndNodeIdFromVisInClusterId(nodeId)[0]);
                                 visClusterId = this.generateVisClusterId(cluster);
                             }
                             const childNodes = cluster.child_items.slice(0, numDisplayedChildNodes);
-                            const childNodesIds = childNodes.map(node => this.generateVisInClusterId(node, cluster));
-                            childNodesIds.push(visClusterId);
-                            network.selectNodes(childNodesIds);
+                            const childNodesIds = childNodes.map(node => this.generateVisInClusterId(cluster, "item", node));
+                            const clusterTitleId = this.generateVisInClusterId(cluster, "title");
+                            const clusterCountId = this.generateVisInClusterId(cluster, "count");
+                            const nodesToMove = childNodesIds.concat([visClusterId, clusterTitleId, clusterCountId]);
+                            network.selectNodes(nodesToMove);
                         } else {
                             this.handleDragStart(nodeId, nodes);
                         }
@@ -574,25 +623,25 @@ class MindMap extends React.Component {
                     if (network.getSelectedNodes().length !== 0) {
                         if (this.state.showNewClusterHelperMessage) {
                             this.setState({showNewClusterForm: true})
-                        }
-                        if (this.state.showAddToClusterHelperMessage) {
+                        } else if (this.state.showAddToClusterHelperMessage) {
                             const existingCluster = this.state.existingClusterId
                             const id = this.generateClusterIdFromVisId(existingCluster);
                             this.addItemToCluster(id, network.getSelectedNodes()[0]);
                             this.setShowAddToClusterHelperMessage(false);
                             this.renderNetwork();
-                        }
-                        // Update position of item or cluster
-                        const id = network.getSelectedNodes()[0];
-                        const group = this.state.visNodes.get(id).group;
-                        const position = network.getPosition(id);
-                        const x = position.x;
-                        const y = position.y;
-                        if (group === "items") {
-                            this.updateItemPosition(id, x, y);
-                        } else if (group === "inCluster") {
-                            const [, clusterId] = this.generateNodeIdAndClusterIdFromVisId(id);
-                            this.updateClusterPosition(clusterId, x, y);
+                        } else {
+                            // Update position of item or cluster
+                            const id = network.getSelectedNodes()[0];
+                            const group = this.state.visNodes.get(id).group;
+                            const position = network.getPosition(id);
+                            const x = position.x;
+                            const y = position.y;
+                            if (group === "items") {
+                                this.updateItemPosition(id, x, y);
+                            } else if (group === "inCluster") {
+                                const [clusterId,] = this.generateClusterIdAndNodeIdFromVisInClusterId(id);
+                                this.updateClusterPosition(clusterId, x, y);
+                            }
                         }
                     }
                 });

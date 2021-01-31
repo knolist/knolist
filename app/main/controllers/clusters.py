@@ -145,6 +145,7 @@ def set_cluster_routes(app):
                 abort(400)
 
         item.cluster = cluster
+        item.parent_project = None
 
         item.update()
         cluster.child_items.append(item)

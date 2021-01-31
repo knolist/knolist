@@ -151,7 +151,6 @@ class TestClustersEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         cluster = data['cluster']
         self.assertEqual(len(cluster['child_items']), 2)
-        self.assertEqual(len(self.extra_item.project.items), 3)
 
         res = self.client()\
             .post(f'/clusters/{self.cluster_1.id}'
