@@ -65,7 +65,7 @@ class MindMap extends React.Component {
             stationaryClusterItemData: null,
             newClusterIds: null,
             existingClusterId: null,
-            curClusterView: null
+            curClusterView: null // Set to the cluster's database id
         };
     };
 
@@ -173,11 +173,10 @@ class MindMap extends React.Component {
             this.setLoading(false);
             this.setState({items: response.body.items}, callback);
         } else {
-            const cur = this.state.curClusterView;
-            const endpoint = "/clusters/" + this.generateClusterIdFromVisId(cur);
+            const endpoint = "/clusters/" + this.state.curClusterView;
             const response = await makeHttpRequest(endpoint);
             this.setLoading(false);
-            this.setState({items: response.body.child_items}, callback);
+            this.setState({items: response.body.cluster.child_items}, callback);
         }
     }
 
@@ -190,8 +189,7 @@ class MindMap extends React.Component {
             this.setLoading(false);
             this.setState({clusters: response.body.clusters}, callback);
         } else {
-            const cur = this.state.curClusterView;
-            const endpoint = "/clusters/" + this.generateClusterIdFromVisId(cur);
+            const endpoint = "/clusters/" + this.state.curClusterView;
             const response = await makeHttpRequest(endpoint);
             const children = response.body.cluster.child_clusters.map(child => makeHttpRequest('/clusters/' + child));
             Promise.all(children).then(values => {
@@ -552,8 +550,14 @@ class MindMap extends React.Component {
                         const nodeId = params.nodes[0];
                         if (this.isItem(nodeId)) {
                             this.handleClickedNode(nodeId);
-                        } else if (this.isCluster(nodeId)) {
-                            this.handleClickedCluster(nodeId)
+                        } else if (this.isCluster(nodeId) || this.isItemInCluster(nodeId)) {
+                            let clusterId;
+                            if (this.isItemInCluster(nodeId)) {
+                                clusterId = this.generateClusterIdAndNodeIdFromVisInClusterId(nodeId)[0];
+                            } else {
+                                clusterId = this.generateClusterIdFromVisId(nodeId);
+                            }
+                            this.handleClickedCluster(clusterId)
                         }
                     }
                 });
@@ -715,6 +719,10 @@ class MindMap extends React.Component {
 
     render() {
         if (this.props.curProject === null || (this.state.loading && this.state.items === null)) {
+            return <Loader size="lg" backdrop center/>
+        }
+
+        if (this.state.curClusterView !== null && this.state.loading) {
             return <Loader size="lg" backdrop center/>
         }
 

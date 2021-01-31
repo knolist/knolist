@@ -161,8 +161,8 @@ class TestClustersEndpoints(unittest.TestCase):
         cluster = data['cluster']
         self.assertEqual(len(cluster['child_items']), 3)
 
-        top_cluster_id = self.cluster_1.id
-        subcluster_id = self.source_2.child_items[0].project.id
+        # top_cluster_id = self.cluster_1.id
+        # subcluster_id = self.source_2.child_items[0].project.id
         # print(top_cluster_id)
         # print(subcluster_id)
 

@@ -38,7 +38,7 @@ def set_item_routes(app):
         x = body.get('x_position', None)
         y = body.get('y_position', None)
         is_note = body.get('is_note', None)
-        parent_cluster = body.get('cluster_id', None)
+        parent_cluster = body.get('parent_cluster', None)
 
         if parent_cluster is None and parent_project is None:
             # Need at least one of them

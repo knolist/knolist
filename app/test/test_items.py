@@ -52,7 +52,7 @@ class TestItemsEndpoints(unittest.TestCase):
             'content': 'Item in cluster',
             'x_position': self.item_1.x_position + 50,
             'y_position': self.item_1.y_position + 50,
-            'cluster_id': self.cluster.id
+            'parent_cluster': self.cluster.id
         }
 
     def tearDown(self):
