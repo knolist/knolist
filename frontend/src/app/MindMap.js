@@ -65,7 +65,7 @@ class MindMap extends React.Component {
             stationaryClusterItemData: null,
             newClusterIds: null,
             existingClusterId: null,
-            curClusterView: null // Set to the cluster's database id
+            curClusterView: JSON.parse(localStorage.getItem("curClusterView")) // Set to the cluster object if inside a cluster
         };
     };
 
@@ -140,7 +140,11 @@ class MindMap extends React.Component {
     }
 
     handleClickedCluster = (id) => {
-        this.setState({curClusterView: id})
+        this.setCurClusterView(this.state.clusters.find(x => x.id === id))
+    }
+
+    setCurClusterView = (cluster) => {
+        this.setState({curClusterView: cluster})
     }
 
     handleDragStart = (id, nodes) => {
@@ -173,7 +177,7 @@ class MindMap extends React.Component {
             this.setLoading(false);
             this.setState({items: response.body.items}, callback);
         } else {
-            const endpoint = "/clusters/" + this.state.curClusterView;
+            const endpoint = "/clusters/" + this.state.curClusterView.id;
             const response = await makeHttpRequest(endpoint);
             this.setLoading(false);
             this.setState({items: response.body.cluster.child_items}, callback);
@@ -183,13 +187,13 @@ class MindMap extends React.Component {
     getClusters = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true)
-        if (this.state.curClusterView === null) {
+        if (this.state.curClusterView == null) {
             const endpoint = "/projects/" + this.props.curProject.id + "/clusters";
             const response = await makeHttpRequest(endpoint);
             this.setLoading(false);
             this.setState({clusters: response.body.clusters}, callback);
         } else {
-            const endpoint = "/clusters/" + this.state.curClusterView;
+            const endpoint = "/clusters/" + this.state.curClusterView.id;
             const response = await makeHttpRequest(endpoint);
             const children = response.body.cluster.child_clusters.map(child => makeHttpRequest('/clusters/' + child));
             Promise.all(children).then(values => {
@@ -470,6 +474,7 @@ class MindMap extends React.Component {
                 clusterNodes.forEach(cluster => {
                     nodes.add(cluster)
                 })
+                console.log("nodes", nodes.get());
                 // create a network
                 const container = document.getElementById('mindmap');
 
@@ -581,8 +586,12 @@ class MindMap extends React.Component {
                             const childNodes = cluster.child_items.slice(0, numDisplayedChildNodes);
                             const childNodesIds = childNodes.map(node => this.generateVisInClusterId(cluster, "item", node));
                             const clusterTitleId = this.generateVisInClusterId(cluster, "title");
-                            const clusterCountId = this.generateVisInClusterId(cluster, "count");
-                            const nodesToMove = childNodesIds.concat([visClusterId, clusterTitleId, clusterCountId]);
+                            const nodesToMove = childNodesIds.concat([visClusterId, clusterTitleId]);
+                            // Include node count if necessary
+                            if (cluster.child_items.length > 2) {
+                                const clusterCountId = this.generateVisInClusterId(cluster, "count");
+                                nodesToMove.push(clusterCountId);
+                            }
                             network.selectNodes(nodesToMove);
                         } else {
                             this.handleDragStart(nodeId, nodes);
@@ -628,7 +637,8 @@ class MindMap extends React.Component {
                         if (this.state.showNewClusterHelperMessage) {
                             this.setState({showNewClusterForm: true})
                         } else if (this.state.showAddToClusterHelperMessage) {
-                            const existingCluster = this.state.existingClusterId
+                            // Add item to existing cluster
+                            const existingCluster = this.state.existingClusterId;
                             const id = this.generateClusterIdFromVisId(existingCluster);
                             this.addItemToCluster(id, network.getSelectedNodes()[0]);
                             this.setShowAddToClusterHelperMessage(false);
@@ -636,14 +646,15 @@ class MindMap extends React.Component {
                         } else {
                             // Update position of item or cluster
                             const id = network.getSelectedNodes()[0];
-                            const group = this.state.visNodes.get(id).group;
                             const position = network.getPosition(id);
                             const x = position.x;
                             const y = position.y;
-                            if (group === "items") {
+                            if (this.isItem(id)) {
                                 this.updateItemPosition(id, x, y);
-                            } else if (group === "inCluster") {
-                                const [clusterId,] = this.generateClusterIdAndNodeIdFromVisInClusterId(id);
+                            } else if (this.isCluster(id) || this.isItemInCluster(id)) {
+                                let clusterId;
+                                if (this.isCluster(id)) clusterId = this.generateClusterIdFromVisId(id);
+                                else [clusterId,] = this.generateClusterIdAndNodeIdFromVisInClusterId(id);
                                 this.updateClusterPosition(clusterId, x, y);
                             }
                         }
@@ -705,8 +716,9 @@ class MindMap extends React.Component {
         }
 
         if (prevState.curClusterView !== this.state.curClusterView) {
-            localStorage.setItem("curClusterView", JSON.stringify(this.state.curClusterView))
-            this.renderNetwork()
+            localStorage.setItem("curClusterView", JSON.stringify(this.state.curClusterView));
+            // Set items to null to trigger loading spinner
+            this.setState({items: null}, this.renderNetwork);
         }
     }
 
@@ -719,10 +731,6 @@ class MindMap extends React.Component {
 
     render() {
         if (this.props.curProject === null || (this.state.loading && this.state.items === null)) {
-            return <Loader size="lg" backdrop center/>
-        }
-
-        if (this.state.curClusterView !== null && this.state.loading) {
             return <Loader size="lg" backdrop center/>
         }
 
@@ -754,11 +762,11 @@ class MindMap extends React.Component {
                                 renderNetwork={this.renderNetwork}
                                 newClusterIds={this.state.newClusterIds}
                                 switchShowNewClusterForm={this.switchShowNewClusterForm}
-                                disableEditMode={this.disableEditMode}
-                                parentCluster={this.state.curClusterView}/>
+                                disableEditMode={this.disableEditMode}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
                            curProject={this.props.curProject}/>
-                <RaiseLevelButton isRoot={this.state.curClusterView === null}/>
+                <RaiseLevelButton curClusterView={this.state.curClusterView}
+                                  setCurClusterView={this.setCurClusterView}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );

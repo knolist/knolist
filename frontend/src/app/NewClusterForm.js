@@ -22,24 +22,17 @@ class NewClusterForm extends React.Component {
 
     addNewCluster = () => {
         this.setLoading(true);
-        const item1_id = this.props.newClusterIds.item1
-        const item2_id = this.props.newClusterIds.item2
-        const name = document.getElementById(this.state.newClusterNameId).value
+        const item1_id = this.props.newClusterIds.item1;
+        const item2_id = this.props.newClusterIds.item2;
+        const name = document.getElementById(this.state.newClusterNameId).value;
         const {x, y} = this.props.stationaryClusterItemData;
-        let parent = this.props.parentCluster
-        if (parent !== null) {
-            const temp = parent
-            parent = temp.substring(
-                temp.lastIndexOf("c") + 1,
-                temp.lastIndexOf("_"))
-        }
+
         const body = {
             "item1_id": item1_id,
             "item2_id": item2_id,
             "x_position": x,
             "y_position": y,
-            "name": name,
-            "parent_cluster_id": parseInt(parent)
+            "name": name
         }
         const endpoint = "/clusters";
         makeHttpRequest(endpoint, "POST", body).then((response) => {
