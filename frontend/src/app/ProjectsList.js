@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, ButtonToolbar, FlexboxGrid, Form, Icon, IconButton, Input, Nav} from "rsuite";
+import {Button, ButtonToolbar, FlexboxGrid, Form, Icon, IconButton, Input, Nav, Tooltip, Whisper} from "rsuite";
 
 import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
 
@@ -12,7 +12,8 @@ function ProjectsList(props) {
              onSelect={(eventKey) => props.setCurProject(eventKey)}>
             {props.projects.map(project => <Project key={project.id} updateProjects={props.updateProjects}
                                                     project={project}
-                                                    eventKey={project.id} setCurProject={props.setCurProject}/>)}
+                                                    eventKey={project.id} setCurProject={props.setCurProject}
+                                                    setShowSharedProject={props.setShowSharedProject}/>)}
         </Nav>
     );
 }
@@ -80,6 +81,7 @@ class Project extends React.Component {
     }
 
     render() {
+        //console.log(this.props.project)
         return (
             <div>
                 <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete} resetDelete={this.resetDeleteProject}
@@ -106,9 +108,14 @@ class Project extends React.Component {
                                                        setEditing={this.setEditing}
                                                        updateProjectName={this.updateProjectName}/>
                                 <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
+                                <SharedProjectButton isShared={this.props.project.shared_users.length > 0} 
+                                                        setShowSharedProject={this.props.setShowSharedProject}/>
                             </ButtonToolbar>
                         </FlexboxGrid.Item>
-                    </FlexboxGrid>
+                        {/* <FlexboxGrid.Item>
+                            <SharedProjectButton isShared={this.props.project.shared_users.length > 0} setShowSharedProject={this.props.setShowSharedProject}/>
+                        </FlexboxGrid.Item> */}
+                        </FlexboxGrid>
                 </Nav.Item>
             </div>
         );
@@ -134,6 +141,24 @@ class EditProjectNameButton extends React.Component {
             <IconButton onClick={(e) => this.buttonAction(e, true)} icon={<Icon icon="edit2"/>} size="sm"/>
         );
     }
+}
+
+class SharedProjectButton extends React.Component {
+    render() {
+        let icon;
+        if (this.props.isShared) {
+            icon = "share-alt"
+        } else {
+            icon = "people-group"
+        }
+        return ( 
+                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Share Project</Tooltip>}
+                                     placement="bottom">
+                     <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon={icon}/>} size="sm"/>
+                </Whisper>
+
+        )
+    };
 }
 
 export default ProjectsList;

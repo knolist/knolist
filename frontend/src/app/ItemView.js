@@ -4,7 +4,6 @@ import {
 } from "rsuite";
 
 import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
-
 import makeHttpRequest from "../services/HttpRequest";
 
 class ItemView extends React.Component {

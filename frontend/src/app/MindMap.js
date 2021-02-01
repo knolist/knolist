@@ -9,6 +9,7 @@ import NewItemForm from "../components/NewItemForm";
 import NewClusterForm from "./NewClusterForm"
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
+import SharedProject from "./SharedProject";
 // import Minigames from "./Minigames";
 
 import RaiseLevelButton from "../components/RaiseLevelButton"
@@ -128,6 +129,9 @@ class MindMap extends React.Component {
         this.setState({nonSelectedNodes: nodes.getIds().filter(element => element !== id)})
     }
 
+    setTitle = (val) => {
+        this.setState({title: val})
+    }
     // Check if the network is in edit mode
     // isEditMode = () => {
     //     const visCloseButton = document.getElementsByClassName("vis-close")[0];
@@ -765,6 +769,9 @@ class MindMap extends React.Component {
                                 disableEditMode={this.disableEditMode}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
                            curProject={this.props.curProject}/>
+                <SharedProject showSharedProject={this.props.showSharedProject}
+                               setShowSharedProject={this.props.setShowSharedProject}
+                               curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>
                 <RaiseLevelButton curClusterView={this.state.curClusterView}
                                   setCurClusterView={this.setCurClusterView}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>

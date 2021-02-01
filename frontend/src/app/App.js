@@ -23,6 +23,7 @@ class App extends React.Component {
             projects: null,
             showProjectsSidebar: false,
             showBib: false,
+            showSharedProject: false,
             searchQuery: '',
             filters: ["Title",
                 "URL",
@@ -91,6 +92,10 @@ class App extends React.Component {
     }
 
 
+    setShowSharedProject = (val) => {
+        this.setState({showSharedProject: val})
+    }
+
     componentDidMount() {
         this.updateProjects()
     }
@@ -118,7 +123,9 @@ class App extends React.Component {
                 {this.projectsButton()}
                 <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
                          setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
-                         filters={this.state.filters}/>
+                         filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
+                         showSharedProject={this.state.showSharedProject}
+                         updateProjects={this.updateProjects}/>
             </div>
         );
     }
