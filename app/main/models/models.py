@@ -52,6 +52,9 @@ class Project(BaseModel):
     user_id = db.Column(db.String, nullable=False)
     sources = db.relationship('Source', backref='project',
                               cascade='all, delete-orphan', lazy=True)
+    description = db.Column(db.String)
+    creation_date = db.Column(db.DateTime, nullable=False)
+    recent_access_date = db.Column(db.DateTime, nullable=False)
     clusters = db.relationship('Cluster', backref='project',
                                cascade='all, delete-orphan', lazy=True)
     items = db.relationship('Item', backref='project',

@@ -6,6 +6,7 @@ from app.main.auth.get_authorized_objects import get_authorized_project
 from app.main.helpers.url_to_citation import url_to_citation
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth
+from datetime import datetime
 
 
 def get_title(html):
@@ -13,6 +14,11 @@ def get_title(html):
     temp = temp.split(">", 1)[1]
     title = temp.split("</title>", 1)[0]
     return title
+
+
+def update_project_access_date(project):
+    project.recent_access_date = datetime.utcnow()
+    project.update()
 
 
 def extract_content_from_url(url):
@@ -87,6 +93,8 @@ def set_project_routes(app):
             abort(400)
 
         project = Project(title, user_id)
+        project.creation_date = datetime.utcnow()
+        project.recent_access_date = datetime.utcnow()
         project.insert()
 
         return jsonify({
@@ -103,7 +111,6 @@ def set_project_routes(app):
     @requires_auth('update:projects')
     def update_project(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
-
         body = request.get_json()
         if body is None:
             abort(400)
@@ -113,7 +120,7 @@ def set_project_routes(app):
             abort(400)
 
         project.title = new_title
-        project.update()
+        update_project_access_date(project)
 
         return jsonify({
             'success': True,
@@ -286,6 +293,7 @@ def set_project_routes(app):
         project = Project.query.filter(Project.user_id == user_id,
                                        Project.id == project_id).first()
         clusters = project.clusters
+        update_project_access_date(project)
         return jsonify({
             'success': True,
             'clusters': [cluster.format() for cluster in clusters]

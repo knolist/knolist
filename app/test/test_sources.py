@@ -29,6 +29,8 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.new_source = {
             'title': 'New title',
             'content': 'New content',
+            'author': 'Vishnu',
+            'site_name': 'Test123',
             'project_id': self.project_2.id
         }
 

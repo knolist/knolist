@@ -22,7 +22,11 @@ db.init_app(app)
 
 def create_starter_data():
     project_1 = Project('Test Project 1', user_id)
+    project_1.creation_date = datetime.utcnow()
+    project_1.recent_access_date = datetime.utcnow()
     project_2 = Project('Test Project 2', user_id)
+    project_2.creation_date = datetime.utcnow()
+    project_2.recent_access_date = datetime.utcnow()
 
     source_1 = Source(url='https://test1.com',
                       title='Test Source 1',
