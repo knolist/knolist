@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: dd4d1639d129
+Revision ID: 9fe8f7a7782a
 Revises: 
-Create Date: 2021-01-22 23:52:03.719755
+Create Date: 2021-02-01 02:53:13.219661
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'dd4d1639d129'
+revision = '9fe8f7a7782a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -35,6 +35,13 @@ def upgrade():
     sa.ForeignKeyConstraint(['parent_cluster_id'], ['clusters.id'], ),
     sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ),
     sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('shared_projects',
+    sa.Column('shared_proj', sa.Integer(), nullable=False),
+    sa.Column('shared_user', sa.String(), nullable=True),
+    sa.Column('role', sa.String(), nullable=False),
+    sa.ForeignKeyConstraint(['shared_proj'], ['projects.id'], ),
+    sa.PrimaryKeyConstraint('shared_proj')
     )
     op.create_table('sources',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -81,6 +88,7 @@ def downgrade():
     op.drop_table('items')
     op.drop_table('edges')
     op.drop_table('sources')
+    op.drop_table('shared_projects')
     op.drop_table('clusters')
     op.drop_table('projects')
     # ### end Alembic commands ###

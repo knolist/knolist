@@ -423,7 +423,7 @@ class MindMap extends React.Component {
                 clusterNodes.add({
                     group: "inCluster",
                     id: this.generateVisInClusterId(cluster, "count"),
-                    label: "+" + extraNodes + " items",
+                    label: "+" + extraNodes + " item" + (extraNodes > 1 ? "s" : ""),
                     x: cluster.x_position,
                     y: cluster.y_position + helperDataOffset,
                     font: {
