@@ -11,7 +11,8 @@ def set_cluster_routes(app):
     @app.route('/clusters/<int:cluster_id>')
     @requires_auth('read:clusters')
     def get_cluster_info(user_id, cluster_id):
-        cluster = Cluster.query.filter(Cluster.id == cluster_id).first()
+        cluster = get_authorized_cluster(user_id, cluster_id)
+
         return jsonify({
             'success': True,
             'cluster': cluster.format()
@@ -144,6 +145,7 @@ def set_cluster_routes(app):
                 abort(400)
 
         item.cluster = cluster
+        item.parent_project = None
 
         item.update()
         cluster.child_items.append(item)

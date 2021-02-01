@@ -45,9 +45,10 @@ class NewItemForm extends React.Component {
             "content": content,
             "x_position": x,
             "y_position": y,
-            "parent_project": this.props.curProject.id,
-            "is_note": true
+            "is_note": content !== null
         }
+        if (this.props.parentCluster !== null) body["parent_cluster"] = this.props.parentCluster.id;
+        else body["parent_project"] = this.props.curProject.id;
 
         makeHttpRequest(endpoint, "POST", body).then((response) => {
             if (response.status === 200) {

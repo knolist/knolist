@@ -1,19 +1,18 @@
 from flask import request, abort, jsonify
 from datetime import datetime
-from sqlalchemy import String, Boolean
 
-
-from app.main.auth.get_authorized_objects import get_authorized_item
+from app.main.auth.get_authorized_objects \
+    import get_authorized_item, get_authorized_cluster
 from .projects import get_authorized_project, create_and_insert_source
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
 
 
-def create_and_insert_item(content, is_note, parent_project,
-                           source_id, x=None, y=None):
+def create_and_insert_item(content, is_note, source_id, parent_project=None,
+                           parent_cluster=None, x=None, y=None):
     item = Item(source_id=source_id, is_note=is_note,
-                content=content, x_position=x,
-                parent_project=parent_project, y_position=y)
+                content=content, parent_cluster=parent_cluster,
+                parent_project=parent_project, x_position=x, y_position=y)
     item.date_of_creation = datetime.utcnow()
     item.insert()
 
@@ -39,14 +38,30 @@ def set_item_routes(app):
         x = body.get('x_position', None)
         y = body.get('y_position', None)
         is_note = body.get('is_note', None)
-        parent_cluster = body.get('cluster_id', None)
+        parent_cluster = body.get('parent_cluster', None)
+
+        if parent_cluster is None and parent_project is None:
+            # Need at least one of them
+            abort(400)
+
+        # Find root project if we are adding to a cluster
+        if parent_project is None:
+            cluster = get_authorized_cluster(user_id, parent_cluster)
+            temp_cluster = cluster
+            while temp_cluster.project_id is None:
+                temp_cluster = temp_cluster.parent_cluster
+            parent_project = temp_cluster.project_id
+
         get_authorized_project(user_id, parent_project)
 
         if url is None and content is None:
             # Neither url nor content, so abort
             abort(400)
-        if url is None and is_note is False:
+        if url is None and not is_note:
             # Highlight without url is not allowed
+            abort(400)
+        if is_note and content is None:
+            # Note without content
             abort(400)
         # Referenced source is by default None
         source_id_temp = None
@@ -64,10 +79,15 @@ def set_item_routes(app):
         elif url is None and is_note is True:
             # Regular Note
             source_id_temp = None
-        item = create_and_insert_item(content, is_note,
-                                      parent_project, source_id_temp, x, y)
-        item.parent_cluster = parent_cluster
-        item.update()
+
+        # Add item
+        if parent_cluster is None:
+            item = create_and_insert_item(content, is_note, source_id_temp,
+                                          parent_project, None, x, y)
+        else:
+            item = create_and_insert_item(content, is_note, source_id_temp,
+                                          None, parent_cluster, x, y)
+
         return jsonify({
             'success': True,
             'item': item.format()
@@ -165,13 +185,14 @@ def set_item_routes(app):
         item.is_note = is_note if is_note is not None else item.is_note
         item.content = content if content is not None else item.content
         # TODO: fix this (maybe we don't need title anymore? Since items don't really have titles)
-        item.source.title = title if title is not None else item.source.title
+        if item.source is not None:
+            item.source.title = title if title is not None else item.source.title
         item.x_position = x_position if x_position \
-            is not None else item.x_position
+                                        is not None else item.x_position
         item.y_position = y_position if y_position \
-            is not None else item.y_position
+                                        is not None else item.y_position
         item.parent_project = parent_project if parent_project \
-            is not None else item.parent_project
+                                                is not None else item.parent_project
 
         item.update()
 

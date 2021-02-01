@@ -602,8 +602,8 @@ Assume that all `curl` calls include the following:
       "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
       "parent_project": 1,
       "title": "Robert Browning - Wikipedia",
-      "content": '"This is a highlight"',
-      "is_note": False,
+      "content": "This is a highlight",
+      "is_note": false,
       "x_position": null,
       "y_position": null
     },
@@ -612,14 +612,14 @@ Assume that all `curl` calls include the following:
       "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
       "parent_project": 1,
       "title": "My Last Duchess - Wikipedia",
-      "is_note": False,
+      "is_note": false,
       "x_position": null,
       "y_position": null
     },
     {
       "id": 4,
       "parent_project": 1,
-      "is_note": True,
+      "is_note": true,
       "content": "This is a note",
       "url": null,
       "x_position": null,
@@ -650,17 +650,17 @@ Assume that all `curl` calls include the following:
       "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
       "parent_project": 1,
       "title": "Robert Browning - Wikipedia",
-      "content": '"This is a highlight"',
-      "is_note": False,
+      "content": "This is a highlight",
+      "is_note": false,
       "x_position": null,
-      "y_position": null,
+      "y_position": null
     },
     {
       "id": 2,
       "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
       "parent_project": 1,
       "title": "My Last Duchess - Wikipedia",
-      "is_note": False,
+      "is_note": false,
       "x_position": null,
       "y_position": null
     }
@@ -691,17 +691,17 @@ Assume that all `curl` calls include the following:
       "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
       "parent_project": 1,
       "title": "Robert Browning - Wikipedia",
-      "content": '"This is a highlight"',
-      "is_note": False,
+      "content": "This is a highlight",
+      "is_note": false,
       "x_position": null,
-      "y_position": null,
+      "y_position": null
     },
     {
       "id": 2,
       "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
       "parent_project": 1,
       "title": "My Last Duchess - Wikipedia",
-      "is_note": False,
+      "is_note": false,
       "x_position": null,
       "y_position": null
     }
@@ -739,10 +739,10 @@ If that is the case, the return status wil be 200 instead of 201, since no new s
     "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
     "parent_project": 1,
     "title": "Robert Browning - Wikipedia",
-    "content": '"This is a highlight"',
-    "is_note": False,
+    "content": "This is a highlight",
+    "is_note": false,
     "x_position": null,
-    "y_position": null,
+    "y_position": null
   },
   "success": true
 }
@@ -909,7 +909,7 @@ signify that.
     "url": "https://en.wikipedia.org/wiki/Robert_Browning",  
     "title": "Robert Browning - Wikipedia",    
     "parent_project": 1,
-    "is_note": True,
+    "is_note": true,
     "content": "This is a note",
     "x_position": null,
     "y_position": null
@@ -1083,7 +1083,7 @@ no new connection is created, and a 200 status code is returned to signify that
   "success": true,
   "cluster": {
     "id": 1,
-    "name": 'Test Cluster',
+    "name": "Test Cluster",
     "child_clusters": [
       2,
       3
@@ -1091,7 +1091,7 @@ no new connection is created, and a 200 status code is returned to signify that
     "child_items": [
       4,
       5
-    ]
+    ],
     "project_id": null,
     "x_position": null,
     "y_position": null
@@ -1115,9 +1115,11 @@ no new connection is created, and a 200 status code is returned to signify that
 ```
 
 ### PATCH '/clusters/{cluster_id}'
-- Updates the name of a given cluster
-- Request arguments (passed as JSON body):
-    - `string` "name": The new name of the cluster *(Required)*
+- Updates properties of a given cluster.
+- Request arguments (passed as JSON body, either `name` or both `x` and `y` required):
+    - `string` "name": The new name of the cluster *(Optional)*
+    - `int` x: The new x position of the cluster *(Optional)*
+    - `int` y: The new y position of the cluster *(Optional)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "cluster": a `cluster` object representing the id of the cluster that was deleted
@@ -1129,7 +1131,7 @@ no new connection is created, and a 200 status code is returned to signify that
   "success": true,
   "cluster": {
     "id": 1,
-    "name": 'Test Cluster with New Name',
+    "name": "Test Cluster with New Name",
     "child_clusters": [
       2,
       3
@@ -1137,7 +1139,7 @@ no new connection is created, and a 200 status code is returned to signify that
     "child_items": [
       4,
       5
-    ]
+    ],
     "project_id": null,
     "x_position": null,
     "y_position": null
@@ -1164,13 +1166,13 @@ no new connection is created, and a 200 status code is returned to signify that
   "success": true,
   "cluster": {
     "id": 1,
-    "name": 'Cluster From Scratch',
+    "name": "Cluster From Scratch",
     "child_clusters": [
     ],
     "child_items": [
       4,
       5
-    ]
+    ],
     "project_id": 10,
     "x_position": 400,
     "y_position": 300
@@ -1191,15 +1193,15 @@ no new connection is created, and a 200 status code is returned to signify that
   "success": true,
   "cluster": {
     "id": 1,
-    "name": 'Cluster Added To',
+    "name": "Cluster Added To",
     "child_clusters": [
       2,
-      3,
+      3
     ],
     "child_items": [
       4,
       5
-    ]
+    ],
     "project_id": 10,
     "x_position": 400,
     "y_position": 300
@@ -1220,13 +1222,13 @@ no new connection is created, and a 200 status code is returned to signify that
   "success": true,
   "cluster": {
     "id": 1,
-    "name": 'Cluster Being Removed From',
+    "name": "Cluster Being Removed From",
     "child_clusters": [
     ],
     "child_items": [
       4,
       5
-    ]
+    ],
     "project_id": 10,
     "x_position": 400,
     "y_position": 300

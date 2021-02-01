@@ -17,6 +17,7 @@ def create_app(config_name):
     # Set up CORS
     cors_config = {
         'origins': ['http://localhost:3000',
+                    'http://localhost:3001',
                     'http://knolist.herokuapp.com',
                     'http://knolist-api.herokuapp.com'],
         'methods': ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],

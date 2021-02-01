@@ -151,7 +151,6 @@ class TestClustersEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         cluster = data['cluster']
         self.assertEqual(len(cluster['child_items']), 2)
-        self.assertEqual(len(self.extra_item.project.items), 3)
 
         res = self.client()\
             .post(f'/clusters/{self.cluster_1.id}'
@@ -162,8 +161,8 @@ class TestClustersEndpoints(unittest.TestCase):
         cluster = data['cluster']
         self.assertEqual(len(cluster['child_items']), 3)
 
-        top_cluster_id = self.cluster_1.id
-        subcluster_id = self.source_2.child_items[0].project.id
+        # top_cluster_id = self.cluster_1.id
+        # subcluster_id = self.source_2.child_items[0].project.id
         # print(top_cluster_id)
         # print(subcluster_id)
 

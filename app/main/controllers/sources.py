@@ -37,27 +37,6 @@ def set_source_routes(app):
             'deleted': source_id
         })
 
-
-    """
-    Gets a source by URL.
-    """
-    @app.route('/sources')
-    @requires_auth('read:sources-detail')
-    def get_source_by_url(user_id):
-        body = request.get_json()
-        by_url = body.get('url', None)
-        if not by_url:
-            abort(400)
-        if type(by_url) is not str:
-            abort(422)
-        final_source = Source.query.filter(Source.url == by_url).first()
-        if final_source is None:
-            abort(404)
-        return jsonify({
-            'success': True,
-            'source': final_source.format()
-        })
-
     """
     Updates information in a source.
     The information to be updated is passed in a JSON body.
