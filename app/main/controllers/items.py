@@ -76,7 +76,7 @@ def set_item_routes(app):
             # Create new source for item
             source = create_and_insert_source(url, parent_project)
             source_id_temp = source.id
-        elif url is None and is_note is True:
+        elif url is None and is_note:
             # Regular Note
             source_id_temp = None
 

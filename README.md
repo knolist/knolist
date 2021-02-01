@@ -31,6 +31,7 @@ source.
 │   │   │   ├── projects.py --> Endpoints for /projects/...
 │   │   │   └── sources.py --> Endpoints for /sources/...
 │   │   │   └── items.py --> Endpoints for /items/...
+│   │   │   └── shared_projects.py --> Endpoints for /shared_projects/...
 │   │   ├── error_handlers --> Defines the Flask error handlers
 │   │   │   └── __init__.py
 │   │   └── models --> Defines the SQLAlchemy database models
@@ -45,6 +46,7 @@ source.
 │       ├── test_rbac.py
 │       └── test_sources.py
 │       └── test_items.py
+│       └── test_shared_projects.py
 ├── frontend --> Folder tha contains all of the frontend code (React)
 │   ├── README.md --> Details how to run the frontend commands
 │   ├── package-lock.json
@@ -223,6 +225,8 @@ python manage.py db upgrade
     - Through SQLAlchemy, the Project object also contains a `sources` field, which represents the one-to-many
     relationship between projects and sources. `sources` holds a list of all Source objects owned by
     the project.
+    - Through SQLAlchemy, the Project object also contains a `shared_users` field, which represents the 
+    many-to-many relationship between shared_projects and shared_users.
     - The model contains insert, update, delete, and format helper functions.
 - `sources` table:
     - Represents Source objects
@@ -320,6 +324,7 @@ Whenever a JSON object that represents a database model is returned, there are a
 - A `project` is an object that contains the following keys:
     - "id": the project's ID in the database
     - "title": the project's title
+    - "shared_users": the project's shared users
 - A `short source` is an object that contains the following keys:
     - "id": the source's ID in the database
     - "url": the URL of the source
@@ -360,11 +365,13 @@ Assume that all `curl` calls include the following:
     "projects": [
         {
             "id": 1,
-            "title": "New Project"
+            "title": "New Project",
+            "shared_users": 2,
         },
         {
             "id": 2,
-            "title": "New Project 2"
+            "title": "New Project 2",
+            "shared_users": 1,
         }
     ],
     "success": true
@@ -386,7 +393,8 @@ Assume that all `curl` calls include the following:
 {
   "project": {
     "id": 3,
-    "title": "New Project"
+    "title": "New Project",
+    "shared_users": 2,
   },
   "success": true
 }
@@ -408,7 +416,8 @@ Assume that all `curl` calls include the following:
 {
   "project": {
     "id": 1,
-    "title": "Updated Title"
+    "title": "Updated Title",
+    "shared_users": 2,
   },
   "success": true
 }
@@ -979,6 +988,74 @@ signify that.
 ```
 
 
+### POST '/shared_projects'
+- Adds a new shared_user to the shared_users table.  The route checks to make sure that the user exists in the auth0 
+database.  If the user is already a shared user or the user tries to add itself, the database does not add it.
+- Request arguments (passed as a JSON body):
+    - `id` "shared_proj": the id of the project to share *(Required)*
+    - `string` "email": the email of the new user *(Required)*
+    - `string` "role": the role of the new user *(Required)*
+- Returns: A JSON body with the following keys:
+    - "success": holds `true` if the request was successful
+    - "project": The project returned, with the new user in the shared_users table
+- Sample: `curl https://knolist-api.herokuapp.com/shared_projects -X POST -H "Content-Type: application/json" -d '{"shared_proj":1, email:"test@email.com", role: "collaborator""}'`
+```
+201 Created (or 200 OK if the connection between users already existed)
+```
+```json
+{
+ "project": {
+    "id": 3,
+    "title": "New Project",
+    "shared_users": 2,
+  },
+  "success": true
+}
+```
+
+### DELETE '/shared_projects'
+- Deletes an existing connection between a user and a project.
+- Request arguments (passed as JSON body):
+    - `int` "shared_proj": the id of the project to share *(Required)*
+    - `string` "email": the email of the new user *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "project": The project returned, with the new user in the shared_users table
+- Sample: `curl https://knolist-api.herokuapp.com/shared_projects -X DELETE -H "Content-Type: application/json" -d '{"shared_proj":2, "email": "test@email.com"}'`
+```
+200 OK
+```
+```json
+{
+ "project": {
+    "id": 2,
+    "title": "New Project",
+    "shared_users": None,
+  },
+  "success": true
+}
+```
+
+### PATCH '/shared_projects/{project_id}'
+- Updates the role of a user within a shared_users table given the project's ID.
+- Request arguments (passed as JSON body):
+    - `string` "role": The role of the shared_user *(Required)*
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "project": a `project` object that represents the updated project
+- Sample: `curl https://knolist-api.herokuapp.com/shared_projects/1 -X PATCH -H "Content-Type: application/json" -d "{"role": "Updated Title"}"`
+```
+200 OK
+```
+```json
+{
+  "project": {
+    "id": 1,
+    "shared_users": 2,
+  },
+  "success": true
+}
+```
 
 ### POST '/connections'
 - Creates a connection given two existing source IDs (they must be in the same project). If the connection already exists,
