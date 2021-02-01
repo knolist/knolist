@@ -1,7 +1,8 @@
 import React from "react";
-import {Whisper, Tooltip, Icon, IconButton, Table, Modal, Form, Input, Button} from 'rsuite';
+import {Table, Modal, Form, Input, Button} from 'rsuite';
 import makeHttpRequest from "../services/HttpRequest";
-const { Column, HeaderCell, Cell } = Table;
+
+const {Column, HeaderCell, Cell} = Table;
 
 
 // const data = [{ name: 'foobar', email: 'foobar@xxx.com', role: "Owner" }, { name: 'boofar', email: 'boofar@xxx.com', role: "Collaborator" }];
@@ -56,19 +57,19 @@ class SharedProject extends React.Component {
                         <Table data={this.props.curProject.shared_users}>
                             <Column width={200} fixed>
                                 <HeaderCell>Name</HeaderCell>
-                                <Cell dataKey="name" />
+                                <Cell dataKey="name"/>
                             </Column>
                             <Column width={200}>
                                 <HeaderCell>Email</HeaderCell>
-                                <Cell dataKey="email" />
+                                <Cell dataKey="email"/>
                             </Column>
                             <Column width={200}>
                                 <HeaderCell>Role</HeaderCell>
-                                <Cell dataKey="role" />
+                                <Cell dataKey="role"/>
                             </Column>
                         </Table>
                         <Input style={{marginRight: 10}} placeholder="Type email you want to share project with"
-                            id={this.state.userInputId} autoFocus required componentClass="textarea" rows={30}/>
+                               id={this.state.userInputId} autoFocus required componentClass="textarea" rows={30}/>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button type="submit" loading={this.state.loading} appearance="primary">
@@ -80,4 +81,5 @@ class SharedProject extends React.Component {
         );
     }
 }
+
 export default SharedProject;

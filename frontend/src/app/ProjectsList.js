@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, ButtonToolbar, FlexboxGrid, Form, Icon, IconButton, Input, Nav, Tooltip, Whisper} from "rsuite";
+import {Button, ButtonToolbar, FlexboxGrid, Form, Icon, IconButton, Input, Nav} from "rsuite";
 
 import ConfirmDeletionWindow from "../components/ConfirmDeletionWindow";
 
@@ -108,14 +108,11 @@ class Project extends React.Component {
                                                        setEditing={this.setEditing}
                                                        updateProjectName={this.updateProjectName}/>
                                 <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
-                                <SharedProjectButton isShared={this.props.project.shared_users.length > 0} 
-                                                        setShowSharedProject={this.props.setShowSharedProject}/>
+                                <SharedProjectButton isShared={this.props.project.shared_users.length > 0}
+                                                     setShowSharedProject={this.props.setShowSharedProject}/>
                             </ButtonToolbar>
                         </FlexboxGrid.Item>
-                        {/* <FlexboxGrid.Item>
-                            <SharedProjectButton isShared={this.props.project.shared_users.length > 0} setShowSharedProject={this.props.setShowSharedProject}/>
-                        </FlexboxGrid.Item> */}
-                        </FlexboxGrid>
+                    </FlexboxGrid>
                 </Nav.Item>
             </div>
         );
@@ -151,11 +148,11 @@ class SharedProjectButton extends React.Component {
         } else {
             icon = "people-group"
         }
-        return ( 
-                <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Share Project</Tooltip>}
-                                     placement="bottom">
-                     <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon={icon}/>} size="sm"/>
-                </Whisper>
+        return (
+            // <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Share Project</Tooltip>}
+            //                      placement="bottom">
+            <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon={icon}/>} size="sm"/>
+            // </Whisper>
 
         )
     };

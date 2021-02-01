@@ -129,9 +129,6 @@ class MindMap extends React.Component {
         this.setState({nonSelectedNodes: nodes.getIds().filter(element => element !== id)})
     }
 
-    setTitle = (val) => {
-        this.setState({title: val})
-    }
     // Check if the network is in edit mode
     // isEditMode = () => {
     //     const visCloseButton = document.getElementsByClassName("vis-close")[0];

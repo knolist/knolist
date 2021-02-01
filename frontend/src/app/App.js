@@ -117,7 +117,7 @@ class App extends React.Component {
                            searchQuery={this.state.searchQuery}
                            setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                 projects={this.state.projects}
+                                 projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
                                  close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                                  setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
