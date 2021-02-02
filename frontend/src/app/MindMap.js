@@ -148,8 +148,32 @@ class MindMap extends React.Component {
         this.setState({curClusterView: cluster})
     }
 
-    handleDragStart = (id, nodes) => {
-        this.setNonSelectedNodes(id, nodes);
+    handleDragStart = (nodeId, nodes, network) => {
+        const isCluster = this.isCluster(nodeId);
+        const isItemInCluster = this.isItemInCluster(nodeId);
+        if (isCluster || isItemInCluster) {
+            const numDisplayedChildNodes = 2;
+            let cluster, visClusterId;
+            if (isCluster) {
+                cluster = this.state.clusters.find(cluster => cluster.id === this.generateClusterIdFromVisId(nodeId));
+                visClusterId = nodeId;
+            } else {
+                cluster = this.state.clusters.find(cluster => cluster.id === this.generateClusterIdAndNodeIdFromVisInClusterId(nodeId)[0]);
+                visClusterId = this.generateVisClusterId(cluster);
+            }
+            const childNodes = cluster.child_items.slice(0, numDisplayedChildNodes);
+            const childNodesIds = childNodes.map(node => this.generateVisInClusterId(cluster, "item", node));
+            const clusterTitleId = this.generateVisInClusterId(cluster, "title");
+            const nodesToMove = childNodesIds.concat([visClusterId, clusterTitleId]);
+            // Include node count if necessary
+            if (cluster.child_items.length > 2) {
+                const clusterCountId = this.generateVisInClusterId(cluster, "count");
+                nodesToMove.push(clusterCountId);
+            }
+            network.selectNodes(nodesToMove);
+        } else {
+            this.setNonSelectedNodes(nodeId, nodes);
+        }
     }
 
     setLoading = (val) => {
@@ -571,32 +595,7 @@ class MindMap extends React.Component {
                 network.on("dragStart", (params) => {
                     if (params.nodes !== undefined && params.nodes.length > 0) {
                         const nodeId = params.nodes[0];
-
-                        const isCluster = this.isCluster(nodeId);
-                        const isItemInCluster = this.isItemInCluster(nodeId);
-                        if (isCluster || isItemInCluster) {
-                            const numDisplayedChildNodes = 2;
-                            let cluster, visClusterId;
-                            if (isCluster) {
-                                cluster = this.state.clusters.find(cluster => cluster.id === this.generateClusterIdFromVisId(nodeId));
-                                visClusterId = nodeId;
-                            } else {
-                                cluster = this.state.clusters.find(cluster => cluster.id === this.generateClusterIdAndNodeIdFromVisInClusterId(nodeId)[0]);
-                                visClusterId = this.generateVisClusterId(cluster);
-                            }
-                            const childNodes = cluster.child_items.slice(0, numDisplayedChildNodes);
-                            const childNodesIds = childNodes.map(node => this.generateVisInClusterId(cluster, "item", node));
-                            const clusterTitleId = this.generateVisInClusterId(cluster, "title");
-                            const nodesToMove = childNodesIds.concat([visClusterId, clusterTitleId]);
-                            // Include node count if necessary
-                            if (cluster.child_items.length > 2) {
-                                const clusterCountId = this.generateVisInClusterId(cluster, "count");
-                                nodesToMove.push(clusterCountId);
-                            }
-                            network.selectNodes(nodesToMove);
-                        } else {
-                            this.handleDragStart(nodeId, nodes);
-                        }
+                        this.handleDragStart(nodeId, nodes, network);
                     }
                 });
 

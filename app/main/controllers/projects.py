@@ -89,10 +89,11 @@ def set_project_routes(app):
             abort(400)
 
         title = body.get('title', None)
+        description = body.get('description', None)
         if title is None:
             abort(400)
 
-        project = Project(title, user_id)
+        project = Project(title, description, user_id)
         project.creation_date = datetime.utcnow()
         project.recent_access_date = datetime.utcnow()
         project.insert()
@@ -116,11 +117,13 @@ def set_project_routes(app):
             abort(400)
 
         new_title = body.get('title', None)
-        if new_title is None:
+        new_description = body.get('description', None)
+        if new_title is None and new_description is None:
             abort(400)
 
-        project.title = new_title
-        update_project_access_date(project)
+        project.title = new_title if new_title is not None else project.title
+        project.description = new_description if new_description is not None else project.description
+        project.update()
 
         return jsonify({
             'success': True,
@@ -131,6 +134,7 @@ def set_project_routes(app):
     Deletes a project given the project ID.
     Returns the id of the deleted project.
     """
+
     @app.route('/projects/<int:project_id>', methods=['DELETE'])
     @requires_auth('delete:projects')
     def delete_project(user_id, project_id):
@@ -148,6 +152,7 @@ def set_project_routes(app):
     or searches through them if a search query is passed.
     Search looks at all text fields of a source.
     """
+
     @app.route('/projects/<int:project_id>/sources')
     @requires_auth('read:sources')
     def get_project_sources(user_id, project_id):
@@ -164,7 +169,7 @@ def set_project_routes(app):
         pattern = '%' + search_query + '%'
         filter_query = request.args.getlist('filter', None)
         if not filter_query:
-            results = Source.query.filter(Source.project_id == project_id)\
+            results = Source.query.filter(Source.project_id == project_id) \
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
                         | Source.content
@@ -176,7 +181,7 @@ def set_project_routes(app):
 
         results = []
         for filter_type in filter_query:
-            temp = Source.query.filter(Source.project_id == project_id)\
+            temp = Source.query.filter(Source.project_id == project_id) \
                 .filter(getattr(Source, filter_type)
                         .ilike(pattern)).order_by(Source.id).all()
             for sources in temp:
@@ -192,10 +197,12 @@ def set_project_routes(app):
     or searches through them if a search query is passed.
     Search looks at all text fields of a source.
     """
+
     @app.route('/projects/<int:project_id>/items')
     @requires_auth('read:items')
     def get_project_items(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
+        update_project_access_date(project)
 
         search_query = request.args.get('query', None)
         if search_query is None:
@@ -208,7 +215,7 @@ def set_project_routes(app):
         pattern = '%' + search_query + '%'
         filter_query = request.args.getlist('filter', None)
         if not filter_query:
-            results = Item.query.join(Source).filter(Item.parent_project == project_id)\
+            results = Item.query.join(Source).filter(Item.parent_project == project_id) \
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
                         | Source.content.ilike(pattern)
@@ -221,11 +228,11 @@ def set_project_routes(app):
         results = []
         for filter_type in filter_query:
             if filter_type == 'notes' or filter_type == 'highlights':
-                temp = Item.query.filter(Item.parent_project == project_id)\
+                temp = Item.query.filter(Item.parent_project == project_id) \
                     .filter(Item.content
                             .ilike(pattern)).order_by(Item.id).all()
             else:
-                temp = Item.query.join(Source).filter(Item.parent_project == project_id)\
+                temp = Item.query.join(Source).filter(Item.parent_project == project_id) \
                     .filter(getattr(Source, filter_type)
                             .ilike(pattern)).order_by(Item.id).all()
             for item in temp:
@@ -286,6 +293,7 @@ def set_project_routes(app):
     '''
     Gets all clusters within a project.
     '''
+
     @app.route('/projects/<int:project_id>/clusters')
     @requires_auth('read:clusters')
     def get_clusters(user_id, project_id):
@@ -293,7 +301,7 @@ def set_project_routes(app):
         project = Project.query.filter(Project.user_id == user_id,
                                        Project.id == project_id).first()
         clusters = project.clusters
-        update_project_access_date(project)
+
         return jsonify({
             'success': True,
             'clusters': [cluster.format() for cluster in clusters]

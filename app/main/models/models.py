@@ -66,8 +66,9 @@ class Project(BaseModel):
                                                       lazy=True)
                                    )
 
-    def __init__(self, title, user_id):
+    def __init__(self, title, description, user_id):
         self.title = title
+        self.description = description
         self.user_id = user_id
 
     def __repr__(self):
@@ -77,7 +78,10 @@ class Project(BaseModel):
         return {
             'id': self.id,
             'title': self.title,
-            'shared_users': self.shared_users
+            'shared_users': self.shared_users,
+            'description': self.description,
+            'creation_date': self.creation_date,
+            'recent_access_date': self.recent_access_date
         }
 
 

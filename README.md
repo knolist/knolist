@@ -382,6 +382,7 @@ Assume that all `curl` calls include the following:
 - Creates a new project for the requesting user.
 - Request arguments (passed as JSON body):
     - `string` "title": The title of the new project *(Required)*
+    - `string` "description": The description of the new project *(Optional)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "project": a `project` object that represents the newly created project
@@ -403,8 +404,9 @@ Assume that all `curl` calls include the following:
 
 ### PATCH '/projects/{project_id}'
 - Updates the title of an existing project given its ID.
-- Request arguments (passed as JSON body):
-    - `string` "title": The new title to be applied *(Required)*
+- Request arguments (passed as JSON body, at least one is required):
+    - `string` "title": The new title to be applied *(Optional)*
+    - `string` "description": The new description to be applied *(Optional)*
 - Returns: A JSON object with the following keys:
     - "success": holds `true` if the request was successful
     - "project": a `project` object that represents the updated project
