@@ -717,8 +717,8 @@ class MindMap extends React.Component {
 
         if (prevState.curClusterView !== this.state.curClusterView) {
             localStorage.setItem("curClusterView", JSON.stringify(this.state.curClusterView));
-            // Set items to null to trigger loading spinner
-            this.setState({items: null}, this.renderNetwork);
+            // Set items and clusters to null to trigger loading spinner
+            this.setState({items: null, clusters: null}, this.renderNetwork);
         }
     }
 
@@ -730,7 +730,7 @@ class MindMap extends React.Component {
     }
 
     render() {
-        if (this.props.curProject === null || (this.state.loading && this.state.items === null)) {
+        if (this.props.curProject === null || (this.state.loading && (this.state.items === null || this.state.clusters === null))) {
             return <Loader size="lg" backdrop center/>
         }
 
