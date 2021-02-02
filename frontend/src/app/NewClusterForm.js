@@ -36,12 +36,21 @@ class NewClusterForm extends React.Component {
         }
         const endpoint = "/clusters";
         makeHttpRequest(endpoint, "POST", body).then((response) => {
-            if (response.status === 201) {
-                this.props.renderNetwork();
-                Alert.success('Cluster created successfully.');
+            const callback = () => {
+                this.props.switchShowNewClusterForm();
+                this.props.disableEditMode();
             }
-            this.props.switchShowNewClusterForm();
-            this.props.disableEditMode();
+
+            if (response.status === 201) {
+                this.props.renderNetwork(() => {
+                    callback();
+                    Alert.success('Cluster created successfully');
+                });
+            } else {
+                callback();
+                Alert.error('Something went wrong');
+            }
+
         });
     }
 

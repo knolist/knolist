@@ -141,6 +141,11 @@ class EditProjectNameButton extends React.Component {
 }
 
 class SharedProjectButton extends React.Component {
+    handleClick = (event) => {
+        event.stopPropagation();
+        this.props.setShowSharedProject(true);
+    }
+
     render() {
         let icon;
         if (this.props.isShared) {
@@ -151,7 +156,7 @@ class SharedProjectButton extends React.Component {
         return (
             // <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Share Project</Tooltip>}
             //                      placement="bottom">
-            <IconButton onClick={(e) => this.props.setShowSharedProject(true)} icon={<Icon icon={icon}/>} size="sm"/>
+            <IconButton onClick={this.handleClick} icon={<Icon icon={icon}/>} size="sm"/>
             // </Whisper>
 
         )

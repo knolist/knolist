@@ -16,8 +16,8 @@ import RaiseLevelButton from "../components/RaiseLevelButton"
 
 import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
-import throttle from "../util/throttle";
-import isOverlap from "../util/isOverlap"
+import throttle from "../services/throttle";
+import isOverlap from "../services/isOverlap"
 
 class MindMap extends React.Component {
     constructor(props) {
@@ -609,13 +609,15 @@ class MindMap extends React.Component {
                             if ((!this.state.showNewClusterHelperMessage && !this.state.showAddToClusterHelperMessage)
                                 && otherNodes.length >= 1) {
                                 otherNodes.forEach(node => {
-                                    if (this.isItem(node) && isOverlap(network.getBoundingBox(node), boundingBox)) {
-                                        this.setState({stationaryClusterItemData: network.getPosition(node)})
-                                        this.setState({newClusterIds: {"item1": id, "item2": node}})
-                                        this.setShowNewClusterHelperMessage(true)
-                                    } else if (this.isCluster(node) && isOverlap(network.getBoundingBox(node), boundingBox)) {
-                                        this.setState({existingClusterId: node})
-                                        this.setShowAddToClusterHelperMessage(true)
+                                    if (isOverlap(network.getBoundingBox(node), boundingBox)) {
+                                        if (this.isItem(node)) {
+                                            this.setState({stationaryClusterItemData: network.getPosition(node)})
+                                            this.setState({newClusterIds: {"item1": id, "item2": node}})
+                                            this.setShowNewClusterHelperMessage(true)
+                                        } else if (this.isCluster(node)) {
+                                            this.setState({existingClusterId: node})
+                                            this.setShowAddToClusterHelperMessage(true)
+                                        }
                                     }
                                 })
                             } else {
