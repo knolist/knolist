@@ -9,14 +9,13 @@ import ProjectCard from "./ProjectCard.js";
 function All(props) {
     // filter out irrelevant projects
     const filterProjects = (allProjects) => {
+        console.log(allProjects);
         let projectsToDisplay = null;
         // first check what page we're on to see what kinds of projects to display
         if (!props.sharedOnly && !props.archivedOnly) {
             projectsToDisplay = allProjects;
         } else if (props.sharedOnly) {
-            // shared projects not implemented yet, uncomment below when ready
-            // projectsToDisplay = allProjects.filter(project => project.shared === true);
-            return [];
+            projectsToDisplay = allProjects.filter(project => project.shared_users.length > 0);
         } else if (props.archivedOnly) {
             // archived projects not implemented yet, uncomment below when ready
             // projectsToDisplay = allProjects.filter(project => project.archived === true);
@@ -34,11 +33,17 @@ function All(props) {
         }
         // further filter based on selected sorting option
         switch (props.sortCriterion) {
-            case "Newest":
-                //sort by creation date (backwards)
-                break;
             case "Oldest":
+                //sort by creation date (backwards)
+                projectsToDisplay.sort((a, b) => {
+                    return Date.parse(a.creation_date) - Date.parse(b.creation_date);
+                });
+                break;
+            case "Newest":
                 //sort by creation date
+                projectsToDisplay.sort((a, b) => {
+                    return Date.parse(b.creation_date) - Date.parse(a.creation_date);
+                });
                 break;
             case "A-Z":
                 projectsToDisplay.sort((a, b) => {
