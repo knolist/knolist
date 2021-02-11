@@ -48,7 +48,7 @@ function Main(props) {
           <AddButton />
         </div>
 
-        <NewProjectModal show={show} setShow={setShow} />
+        <NewProjectModal show={show} setShow={setShow} fromSidebar={false} />
       </div>
     );
   } else return <Loader size="lg" center />;

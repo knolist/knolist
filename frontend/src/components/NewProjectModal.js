@@ -24,7 +24,8 @@ function NewProjectModal(props) {
         }
         makeHttpRequest("/projects", "POST", body).then(response => {
             localStorage.setItem("curProject", JSON.stringify(response.body.project));
-            history.push("/");
+            if (props.fromSidebar) history.go(0);
+            else history.push("/");
         });
     }
 
@@ -48,7 +49,6 @@ function NewProjectModal(props) {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-
                     <Button
                         onClick={() => {
                             setShow(false);
@@ -57,7 +57,6 @@ function NewProjectModal(props) {
                         appearance="primary">
                         Create
                     </Button>
-
                 <Button onClick={() => setShow(false)} appearance="default">
                     Cancel
                 </Button>
