@@ -721,6 +721,41 @@ Assume that all `curl` calls include the following:
 }
 ```
 
+### GET '/projects/{project_id}/statistics'
+- Fetches all the items of a given project (based on the project ID), given an appropriate auth_header.
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "num_items", "num_notes", and "num_clusters": hold the number of that thing for this project
+    - "max_depth": holds the maximum level of nested clusters in a project (no clusters = 0 depth)
+    - "date_accessed", "date_created": Hold string representations project date events
+    - "avg_depth_per_item": a measure of how intricate or specific a project is, is taken by summing over all items 
+    the depth it is in the project
+    - "url_breakdown": a json (dictionary) that maps each url in the source (defined up to the .com / .edu / etc.) and
+    that url's number of occurences
+
+    - "items": an array of `item` objects representing all the items of the project
+ - Sample: `curl https://knolist-api.herokuapp.com/projects/1/statistics`
+```
+200 OK
+```
+```json
+{
+	"avg_depth_per_item": 0.0,
+	"date_accessed": "Thu, 11 Feb 2021 19:51:18 GMT",
+	"date_created": "Thu, 11 Feb 2021 19:51:18 GMT",
+	"max_depth": 0,
+	"num_clusters": 0,
+	"num_items": 2,
+	"num_notes": 0,
+	"num_sources": 1,
+	"success": true,
+	"url_breakdown": {
+        "https://test3.com": 1
+	}
+}
+```
+
 ### POST 'items'
 - Creates a new item and adds it to the given project (based on the ID). The item is created based on its type, checking
  that the item has at least fields URL and content (highlight or note).  If the URL is unique, a new source is created
