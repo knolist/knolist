@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 
 function ProjectCard(props) {
   const openProject = (project) => {
-    console.log(JSON.stringify(project));
     localStorage.setItem("curProject", JSON.stringify(project));
     //set current project to selected project
   }

@@ -1,11 +1,12 @@
 import React from "react";
 import { Modal, Button, Form, FormGroup, ControlLabel, HelpBlock, FormControl } from "rsuite";
 import makeHttpRequest from "../services/HttpRequest";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 function NewProjectModal(props) {
     const show = props.show;
     const setShow = props.setShow;
+    const history = useHistory();
 
     const openProject = () => {
         const projectTitle = document.getElementById("titleInput").value;
@@ -22,9 +23,8 @@ function NewProjectModal(props) {
             }
         }
         makeHttpRequest("/projects", "POST", body).then(response => {
-            console.log(JSON.stringify(response.body.project));
-            console.log(localStorage.getItem("curProject"));
             localStorage.setItem("curProject", JSON.stringify(response.body.project));
+            history.push("/");
         });
     }
 
@@ -48,7 +48,7 @@ function NewProjectModal(props) {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                <Link to="/" style={{ textDecoration: "none" }} className="react-router-styling">
+
                     <Button
                         onClick={() => {
                             setShow(false);
@@ -57,7 +57,7 @@ function NewProjectModal(props) {
                         appearance="primary">
                         Create
                     </Button>
-                </Link>
+
                 <Button onClick={() => setShow(false)} appearance="default">
                     Cancel
                 </Button>
