@@ -284,6 +284,44 @@ class TestProjectsEndpoints(unittest.TestCase):
         for item in data['items']:
             self.assertEqual(item['parent_project'], self.project_1.id)
 
+    # GET '/projects/{project_id}/statistics' #
+    def test_get_statistics_1(self):
+        res = self.client().get(f'/projects/{self.project_1.id}/statistics',
+                                headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['num_sources'], 2)
+        self.assertEqual(data['num_items'], 2)
+        self.assertEqual(data['num_clusters'], 1)
+        self.assertEqual(data['avg_depth_per_item'], 0.5)
+        self.assertEqual(data['max_depth'], 1)
+        self.assertEqual(data['num_notes'], 2)
+
+        url_breakdown = data['url_breakdown']
+        self.assertEqual(url_breakdown['https://test1.com'], 1)
+        self.assertEqual(url_breakdown['https://test2.com'], 1)
+
+    # GET '/projects/{project_id}/statistics' #
+    def test_get_statistics_2(self):
+        res = self.client().get(f'/projects/{self.project_2.id}/statistics',
+                                headers=auth_header)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        self.assertEqual(data['num_sources'], 1)
+        self.assertEqual(data['num_items'], 2)
+        self.assertEqual(data['num_clusters'], 0)
+        self.assertEqual(data['avg_depth_per_item'], 0)
+        self.assertEqual(data['max_depth'], 0)
+        self.assertEqual(data['num_notes'], 0)
+
+        url_breakdown = data['url_breakdown']
+        self.assertEqual(url_breakdown['https://test3.com'], 1)
+
+
     def test_single_filter_search_items(self):
         query = quote('Source')
         filter = quote('title')
