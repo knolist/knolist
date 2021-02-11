@@ -3,7 +3,7 @@ import Recent from "./Recent.js";
 import All from "./All.js";
 import AddButton from "../components/AddButton.js";
 import makeHttpRequest from "../services/HttpRequest.js";
-import NewProjectModal from "./NewProjectModal.js";
+import NewProjectModal from "../components/NewProjectModal.js";
 import { Loader } from "rsuite";
 
 /*

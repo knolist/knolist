@@ -9,7 +9,6 @@ import ProjectCard from "./ProjectCard.js";
 function All(props) {
     // filter out irrelevant projects
     const filterProjects = (allProjects) => {
-        console.log(allProjects);
         let projectsToDisplay = null;
         // first check what page we're on to see what kinds of projects to display
         if (!props.sharedOnly && !props.archivedOnly) {
