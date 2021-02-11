@@ -4,6 +4,7 @@ from requests import get as requests_get
 
 from app.main.auth.get_authorized_objects import get_authorized_project
 from app.main.helpers.url_to_citation import url_to_citation
+from app.main.helpers.statistics import compute_cluster_stats, compute_source_dist
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth
 from datetime import datetime
@@ -244,6 +245,45 @@ def set_project_routes(app):
         })
 
     """
+    Gets a collection of stats relevant to a specific project.
+    No additional parameters are required.
+    Statistics are computed on each endpoint call, and
+    thus will be recomputed on successive GETs.
+    """
+
+    @app.route('/projects/<int:project_id>/statistics')
+    @requires_auth('read:projects')
+    def get_project_statistics(user_id, project_id):
+        project = get_authorized_project(user_id, project_id)
+        if (len(project.clusters) == 0):
+            max_depth = 0
+            n_clusters = 0
+            sum_item_depth = 0
+        else:
+            # Get statistics through tree traversal
+            # Note: n_items is stored and returned for future purposes
+            # If at any point all items will not be stored at the project
+            # leve, n_items can be returned.
+            max_depth, n_items, n_clusters, sum_item_depth = compute_cluster_stats(
+                project.clusters, depth = 0, n_items = len(project.items), n_clusters = 0,
+                sum_item_depth = 0)
+        # Compute URL breakdown from helper method
+        url_breakdown = compute_source_dist(project.sources)
+
+        return jsonify({
+            'success': True,
+            'num_sources' : len(project.sources),
+            'num_items': len(project.items),
+            'num_clusters': n_clusters,
+            'avg_depth_per_item': sum_item_depth / len(project.items),
+            'max_depth': max_depth,
+            'num_notes': len([i for i in project.items if i.is_note]),
+            'date_created': project.creation_date,
+            'date_accessed': project.recent_access_date,
+            'url_breakdown': url_breakdown
+        }), 200
+
+    """
     Adds a new connection to a project.
     The parameters are from_url and to_url, the two URLs to be connected.
     The parameters are passed in a JSON body.
@@ -298,6 +338,7 @@ def set_project_routes(app):
     @requires_auth('read:clusters')
     def get_clusters(user_id, project_id):
         # Will only get the top level clusters associated with the project
+        # TODO: This should use secure get_authorized_project
         project = Project.query.filter(Project.user_id == user_id,
                                        Project.id == project_id).first()
         clusters = project.clusters
