@@ -2,8 +2,8 @@ from flask import request, abort, jsonify
 from datetime import datetime
 
 from app.main.auth.get_authorized_objects \
-    import get_authorized_item, get_authorized_cluster
-from .projects import get_authorized_project, create_and_insert_source
+    import get_authorized_item, get_authorized_cluster, get_authorized_project
+from .projects import create_and_insert_source
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
 
@@ -52,6 +52,7 @@ def set_item_routes(app):
                 temp_cluster = temp_cluster.parent_cluster
             parent_project = temp_cluster.project_id
 
+        # Method call to make sure user is authorized
         get_authorized_project(user_id, parent_project)
 
         if url is None and content is None:
@@ -173,7 +174,8 @@ def set_item_routes(app):
             project = Project.query.get(parent_project)
             if project is None:
                 abort(422)
-            if project.user_id != user_id:
+            # Checks to see if the user has access to item
+            if project.user_id != user_id and user_id not in project.shared_users:
                 raise AuthError({
                     'code': 'invalid_user',
                     'description':
@@ -184,7 +186,7 @@ def set_item_routes(app):
         item.source_id = source_id if source_id is not None else item.source_id
         item.is_note = is_note if is_note is not None else item.is_note
         item.content = content if content is not None else item.content
-        # TODO: fix this (maybe we don't need title anymore? Since items don't really have titles)
+        # Changes the title of the source associated with item
         if item.source is not None:
             item.source.title = title if title is not None else item.source.title
         item.x_position = x_position if x_position \

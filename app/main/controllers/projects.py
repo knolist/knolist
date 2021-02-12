@@ -8,6 +8,10 @@ from ..models.models import Project, Source, Item
 from ..auth import requires_auth
 from datetime import datetime
 
+"""
+Gets title of project
+"""
+
 
 def get_title(html):
     temp = html.decode("utf-8", errors='ignore').split("<title", 1)[1]
@@ -16,9 +20,19 @@ def get_title(html):
     return title
 
 
+"""
+Update the most recent access date of project
+"""
+
+
 def update_project_access_date(project):
     project.recent_access_date = datetime.utcnow()
     project.update()
+
+
+"""
+Extracts all content from a url
+"""
 
 
 def extract_content_from_url(url):
@@ -39,6 +53,11 @@ def extract_content_from_url(url):
             'content': real_text,
             'title': get_title(response.content)
         }
+
+
+"""
+Helper to create and insert a source
+"""
 
 
 def create_and_insert_source(url, project_id):
@@ -242,53 +261,6 @@ def set_project_routes(app):
             'success': True,
             'items': [i.format() for i in results]
         })
-
-    """
-    Adds a new connection to a project.
-    The parameters are from_url and to_url, the two URLs to be connected.
-    The parameters are passed in a JSON body.
-    If any of the URLs is not a source in the project,
-    a source is first created.
-    """
-
-    @app.route('/projects/<int:project_id>/connections', methods=['POST'])
-    @requires_auth('create:connections')
-    def create_connection_from_urls(user_id, project_id):
-        get_authorized_project(user_id, project_id)
-
-        body = request.get_json()
-        if body is None:
-            abort(400)
-
-        from_url = body.get('from_url', None)
-        to_url = body.get('to_url', None)
-        if from_url is None or to_url is None:
-            abort(400)
-
-        # Get sources and create them if necessary
-        from_source = Source.query.filter(Source.project_id == project_id,
-                                          Source.url == from_url).first()
-        to_source = Source.query.filter(Source.project_id == project_id,
-                                        Source.url == to_url).first()
-
-        if from_source is None:
-            from_source = create_and_insert_source(from_url, project_id)
-        if to_source is None:
-            to_source = create_and_insert_source(to_url, project_id)
-
-        # Only add connection if it doesn't exist
-        status_code = 200
-        if to_source not in from_source.next_sources:
-            from_source.next_sources.append(to_source)
-            from_source.update()
-            # Set status_code to 201 to indicate new connection created
-            status_code = 201
-
-        return jsonify({
-            'success': True,
-            'from_source': from_source.format(),
-            'to_source': to_source.format()
-        }), status_code
 
     '''
     Gets all clusters within a project.

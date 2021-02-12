@@ -5,14 +5,6 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
-# Relationship table to represent connections between sources
-edges = db.Table('edges',
-                 db.Column('from_id', db.Integer,
-                           db.ForeignKey('sources.id'), primary_key=True),
-                 db.Column('to_id', db.Integer,
-                           db.ForeignKey('sources.id'), primary_key=True)
-                 )
-
 # Relationship table to represent the shared users that can access a project
 shared_projects = db.Table('shared_projects',
                            db.Column('shared_proj', db.Integer,
@@ -150,13 +142,7 @@ class Source(BaseModel):
     access_date = db.Column(db.DateTime)
     # The project that holds this source
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'))
-    # Self-referential many-to-many relationship
-    next_sources = db.relationship('Source', secondary=edges,
-                                   primaryjoin=(id == edges.c.from_id),
-                                   secondaryjoin=(id == edges.c.to_id),
-                                   backref=db.backref('prev_sources',
-                                                      lazy=True)
-                                   )
+
     child_items = db.relationship('Item', backref='source',
                                   cascade='all, delete-orphan',
                                   lazy=True)
@@ -174,8 +160,6 @@ class Source(BaseModel):
             'is_included': self.is_included,
             'published_date': self.published_date,
             'access_date': self.access_date,
-            'next_sources': [source.id for source in self.next_sources],
-            'prev_sources': [source.id for source in self.prev_sources],
             'project_id': self.project_id
         }
 
