@@ -303,9 +303,9 @@ def set_project_routes(app):
     @requires_auth('read:clusters')
     def get_clusters(user_id, project_id):
         # Will only get the top level clusters associated with the project
-        # TODO: This should use secure get_authorized_project
-        project = Project.query.filter(Project.user_id == user_id,
-                                       Project.id == project_id).first()
+        # project = Project.query.filter(Project.user_id == user_id,
+        #                                Project.id == project_id).first()
+        project = get_authorized_project(user_id, project_id)
         clusters = project.clusters
 
         return jsonify({
