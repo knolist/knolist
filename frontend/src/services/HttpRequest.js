@@ -18,7 +18,7 @@ const baseUrl = "http://localhost:5000";
 export function constructHttpQuery(endpoint, query, filters) {
     let finalEndpoint = endpoint + "?query=" + query;
     if (filters.length !== 0) {
-        filters.forEach(function(entry) {
+        filters.forEach(function (entry) {
             if (entry === "Page Content") {
                 entry = "content";
             }
@@ -47,12 +47,22 @@ async function makeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
 
     // Grab the access token from the authentication workflow
     const jwt = await auth0.getTokenSilently();
-    chrome.runtime.sendMessage("hmldebboelcocdophoijnggdmgdamdgd", {jwt: jwt}, 
-        function(response) {
-            console.log("got response " + response);
+    // Check if it's Chrome browser, only send if so
+    // Based on https://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+    const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime);
+    const isEdgeChromium = isChrome && (navigator.userAgent.indexOf("Edg") !== -1);
+    if (isChrome && !isEdgeChromium) {
+        if (process.env.REACT_APP_CHROME_EXTENSION_ID === undefined) {
+            console.log("Please include the Chrome extension ID in the /frontend/.env.development.local file");
+        } else {
+            chrome.runtime.sendMessage(process.env.REACT_APP_CHROME_EXTENSION_ID, {jwt: jwt},
+                function (response) {
+                    console.log("got response " + response);
+                }
+            );
         }
-    );
-    
+    } else console.log("Not Chrome");
+
     const url = baseUrl + endpoint;
     // Build params object
     let params = {}
