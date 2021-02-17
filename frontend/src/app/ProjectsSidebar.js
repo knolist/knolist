@@ -1,11 +1,8 @@
 import React from "react";
-import { Animation, Button, Drawer, Form, Icon, IconButton, Input, Placeholder, Tooltip, Whisper } from "rsuite";
+import {Drawer, Icon, IconButton, Placeholder, Tooltip, Whisper} from "rsuite";
 
 import ProjectsList from "./ProjectsList";
 import NewProjectModal from "../components/NewProjectModal";
-
-import { trimString } from "../services/StringHelpers";
-import makeHttpRequest from "../services/HttpRequest";
 
 class ProjectsSidebar extends React.Component {
     constructor(props) {
@@ -16,15 +13,15 @@ class ProjectsSidebar extends React.Component {
     }
 
     setShowNewProjectForm = (val) => {
-        this.setState({ showNewProjectForm: val })
+        this.setState({showNewProjectForm: val})
     }
 
     renderProjectsList = () => {
-        if (this.props.projects === null) return <Placeholder.Paragraph rows={15} active />;
+        if (this.props.projects === null) return <Placeholder.Paragraph rows={15} active/>;
 
         return <ProjectsList projects={this.props.projects} curProject={this.props.curProject}
-            updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject}
-            setShowSharedProject={this.props.setShowSharedProject} />
+                             updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject}
+                             setShowSharedProject={this.props.setShowSharedProject}/>
     }
 
     componentDidMount() {
@@ -47,18 +44,20 @@ class ProjectsSidebar extends React.Component {
                     <Drawer.Header>
                         <Drawer.Title>Your Projects</Drawer.Title>
                     </Drawer.Header>
-                    <Drawer.Body style={{ marginBottom: 10 }}>
+                    <Drawer.Body style={{marginBottom: 10}}>
                         {this.renderProjectsList()}
                     </Drawer.Body>
                     <Drawer.Footer>
                         <NewProjectButton setShowNewProjectForm={this.setShowNewProjectForm}
-                            showNewProjectForm={this.state.showNewProjectForm} />
+                                          showNewProjectForm={this.state.showNewProjectForm}/>
                     </Drawer.Footer>
                 </Drawer>
-                <NewProjectModal show={this.state.showNewProjectForm} setShow={this.setShowNewProjectForm} fromSidebar={true}/>
+                <NewProjectModal show={this.state.showNewProjectForm} setShow={this.setShowNewProjectForm}
+                                 fromSidebar={true}/>
             </div>
         )
     }
+
     /* ***OLD RENDER***
     render() {
         return (
@@ -88,9 +87,9 @@ class ProjectsSidebar extends React.Component {
 function NewProjectButton(props) {
     return (
         <Whisper preventOverflow trigger="hover" speaker={<Tooltip>New Project</Tooltip>}
-            placement="topEnd">
+                 placement="topEnd">
             <IconButton onClick={() => props.setShowNewProjectForm(true)} appearance="primary"
-                icon={<Icon icon="plus" />} circle size="lg" />
+                        icon={<Icon icon="plus"/>} circle size="lg"/>
         </Whisper>
     );
 }
@@ -112,58 +111,58 @@ function NewProjectButton(props) {
     }
 }*/
 
-class NewProjectForm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            inputId: "new-project-name",
-            loading: false
-        }
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.show !== this.props.show && this.props.show) {
-            document.getElementById(this.state.inputId).focus();
-        }
-    }
-
-    setLoading = (val) => {
-        this.setState({ loading: val })
-    }
-
-    submit = () => {
-        this.setLoading(true);
-        let projectName = document.getElementById(this.state.inputId).value;
-        projectName = trimString(projectName);
-        const endpoint = "/projects";
-        const body = {
-            "title": projectName
-        }
-
-        makeHttpRequest(endpoint, "POST", body).then((response) => {
-            // Update projects
-            const callback = () => {
-                this.props.setShowNewProjectForm(false);
-                this.props.setCurProject(response.body.project.id);
-                this.setLoading(false);
-            }
-            this.props.updateProjects(callback);
-        });
-    }
-
-    render() {
-        // if (!this.props.show) return null;
-
-        return (
-            <Animation.Fade in={this.props.show}>
-                <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
-                    <Input autoFocus required id={this.state.inputId} placeholder="New Project Name" />
-                    <Button style={{ float: "right", margin: 0 }} appearance="primary" loading={this.state.loading}
-                        type="submit">Create</Button>
-                </Form>
-            </Animation.Fade>
-        );
-    }
-}
+// class NewProjectForm extends React.Component {
+//     constructor(props) {
+//         super(props);
+//         this.state = {
+//             inputId: "new-project-name",
+//             loading: false
+//         }
+//     }
+//
+//     componentDidUpdate(prevProps, prevState, snapshot) {
+//         if (prevProps.show !== this.props.show && this.props.show) {
+//             document.getElementById(this.state.inputId).focus();
+//         }
+//     }
+//
+//     setLoading = (val) => {
+//         this.setState({ loading: val })
+//     }
+//
+//     submit = () => {
+//         this.setLoading(true);
+//         let projectName = document.getElementById(this.state.inputId).value;
+//         projectName = trimString(projectName);
+//         const endpoint = "/projects";
+//         const body = {
+//             "title": projectName
+//         }
+//
+//         makeHttpRequest(endpoint, "POST", body).then((response) => {
+//             // Update projects
+//             const callback = () => {
+//                 this.props.setShowNewProjectForm(false);
+//                 this.props.setCurProject(response.body.project.id);
+//                 this.setLoading(false);
+//             }
+//             this.props.updateProjects(callback);
+//         });
+//     }
+//
+//     render() {
+//         // if (!this.props.show) return null;
+//
+//         return (
+//             <Animation.Fade in={this.props.show}>
+//                 <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
+//                     <Input autoFocus required id={this.state.inputId} placeholder="New Project Name" />
+//                     <Button style={{ float: "right", margin: 0 }} appearance="primary" loading={this.state.loading}
+//                         type="submit">Create</Button>
+//                 </Form>
+//             </Animation.Fade>
+//         );
+//     }
+// }
 
 export default ProjectsSidebar;
