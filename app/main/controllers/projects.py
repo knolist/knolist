@@ -11,6 +11,9 @@ from datetime import datetime
 
 
 def get_title(html):
+    """
+    Gets title of project
+    """
     temp = html.decode("utf-8", errors='ignore').split("<title", 1)[1]
     temp = temp.split(">", 1)[1]
     title = temp.split("</title>", 1)[0]
@@ -18,11 +21,17 @@ def get_title(html):
 
 
 def update_project_access_date(project):
+    """
+    Update the most recent access date of project
+    """
     project.recent_access_date = datetime.utcnow()
     project.update()
 
 
 def extract_content_from_url(url):
+    """
+    Extracts all content from a url
+    """
     try:
         response = requests_get(url)
     except Exception:
@@ -43,6 +52,9 @@ def extract_content_from_url(url):
 
 
 def create_and_insert_source(url, project_id):
+    """
+    Helper to create and insert a source
+    """
     extraction_results = extract_content_from_url(url)
     content = extraction_results['content']
     citation_fields = url_to_citation(url)
@@ -265,14 +277,14 @@ def set_project_routes(app):
             # If at any point all items will not be stored at the project
             # leve, n_items can be returned.
             max_depth, n_items, n_clusters, sum_item_depth = compute_cluster_stats(
-                project.clusters, depth = 0, n_items = len(project.items), n_clusters = 0,
-                sum_item_depth = 0)
+                project.clusters, depth=0, n_items=len(project.items), n_clusters=0,
+                sum_item_depth=0)
         # Compute URL breakdown from helper method
         url_breakdown = compute_source_dist(project.sources)
 
         return jsonify({
             'success': True,
-            'num_sources' : len(project.sources),
+            'num_sources': len(project.sources),
             'num_items': len(project.items),
             'num_clusters': n_clusters,
             'avg_depth_per_item': sum_item_depth / len(project.items),
@@ -282,53 +294,6 @@ def set_project_routes(app):
             'date_accessed': project.recent_access_date,
             'url_breakdown': url_breakdown
         }), 200
-
-    """
-    Adds a new connection to a project.
-    The parameters are from_url and to_url, the two URLs to be connected.
-    The parameters are passed in a JSON body.
-    If any of the URLs is not a source in the project,
-    a source is first created.
-    """
-
-    @app.route('/projects/<int:project_id>/connections', methods=['POST'])
-    @requires_auth('create:connections')
-    def create_connection_from_urls(user_id, project_id):
-        get_authorized_project(user_id, project_id)
-
-        body = request.get_json()
-        if body is None:
-            abort(400)
-
-        from_url = body.get('from_url', None)
-        to_url = body.get('to_url', None)
-        if from_url is None or to_url is None:
-            abort(400)
-
-        # Get sources and create them if necessary
-        from_source = Source.query.filter(Source.project_id == project_id,
-                                          Source.url == from_url).first()
-        to_source = Source.query.filter(Source.project_id == project_id,
-                                        Source.url == to_url).first()
-
-        if from_source is None:
-            from_source = create_and_insert_source(from_url, project_id)
-        if to_source is None:
-            to_source = create_and_insert_source(to_url, project_id)
-
-        # Only add connection if it doesn't exist
-        status_code = 200
-        if to_source not in from_source.next_sources:
-            from_source.next_sources.append(to_source)
-            from_source.update()
-            # Set status_code to 201 to indicate new connection created
-            status_code = 201
-
-        return jsonify({
-            'success': True,
-            'from_source': from_source.format(),
-            'to_source': to_source.format()
-        }), status_code
 
     '''
     Gets all clusters within a project.
