@@ -3,6 +3,7 @@ import createAuth0Client from '@auth0/auth0-spa-js';
 
 // The Auth0 client for obtaining JWT's
 let auth0 = null;
+/* global chrome */
 
 // const baseUrl = "https://knolist-api.herokuapp.com";
 const baseUrl = "http://localhost:5000";
@@ -46,7 +47,12 @@ async function makeHttpRequest(endpoint, method = "GET", jsonBody = {}) {
 
     // Grab the access token from the authentication workflow
     const jwt = await auth0.getTokenSilently();
-
+    chrome.runtime.sendMessage("hmldebboelcocdophoijnggdmgdamdgd", {jwt: jwt}, 
+        function(response) {
+            console.log("got response " + response);
+        }
+    );
+    
     const url = baseUrl + endpoint;
     // Build params object
     let params = {}
