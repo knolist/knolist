@@ -300,8 +300,8 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(data['num_notes'], 2)
 
         url_breakdown = data['url_breakdown']
-        self.assertEqual(url_breakdown['https://test1.com'], 1)
-        self.assertEqual(url_breakdown['https://test2.com'], 1)
+        self.assertEqual(url_breakdown['test1.com'], 1)
+        self.assertEqual(url_breakdown['test2.com'], 1)
 
     # GET '/projects/{project_id}/statistics' #
     def test_get_statistics_2(self):
@@ -319,7 +319,7 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(data['num_notes'], 0)
 
         url_breakdown = data['url_breakdown']
-        self.assertEqual(url_breakdown['https://test3.com'], 1)
+        self.assertEqual(url_breakdown['test3.com'], 1)
 
 
     def test_single_filter_search_items(self):
