@@ -5,7 +5,7 @@ import ProjectCard from "./ProjectCard.js";
 function Recent(props) {
   const getFourRecent = (allProjects) => {
     allProjects.sort((a, b) => {
-      return a.id - b.id;
+      return Date.parse(b.recent_access_date) - Date.parse(a.recent_access_date);
     });
     let recent = [];
     const max = allProjects.length >= 4 ? 4 : allProjects.length;

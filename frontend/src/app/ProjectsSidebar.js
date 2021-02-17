@@ -1,9 +1,10 @@
 import React from "react";
-import {Animation, Button, Drawer, Form, Icon, IconButton, Input, Placeholder, Tooltip, Whisper} from "rsuite";
+import { Animation, Button, Drawer, Form, Icon, IconButton, Input, Placeholder, Tooltip, Whisper } from "rsuite";
 
 import ProjectsList from "./ProjectsList";
+import NewProjectModal from "../components/NewProjectModal";
 
-import {trimString} from "../services/StringHelpers";
+import { trimString } from "../services/StringHelpers";
 import makeHttpRequest from "../services/HttpRequest";
 
 class ProjectsSidebar extends React.Component {
@@ -15,15 +16,15 @@ class ProjectsSidebar extends React.Component {
     }
 
     setShowNewProjectForm = (val) => {
-        this.setState({showNewProjectForm: val})
+        this.setState({ showNewProjectForm: val })
     }
 
     renderProjectsList = () => {
-        if (this.props.projects === null) return <Placeholder.Paragraph rows={15} active/>;
+        if (this.props.projects === null) return <Placeholder.Paragraph rows={15} active />;
 
         return <ProjectsList projects={this.props.projects} curProject={this.props.curProject}
-                             updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject} 
-                             setShowSharedProject={this.props.setShowSharedProject}/>
+            updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject}
+            setShowSharedProject={this.props.setShowSharedProject} />
     }
 
     componentDidMount() {
@@ -36,6 +37,29 @@ class ProjectsSidebar extends React.Component {
         }
     }
 
+    render() {
+        return (
+            <div>
+                <Drawer
+                    size="xs"
+                    show={this.props.show}
+                    onHide={this.props.close}>
+                    <Drawer.Header>
+                        <Drawer.Title>Your Projects</Drawer.Title>
+                    </Drawer.Header>
+                    <Drawer.Body style={{ marginBottom: 10 }}>
+                        {this.renderProjectsList()}
+                    </Drawer.Body>
+                    <Drawer.Footer>
+                        <NewProjectButton setShowNewProjectForm={this.setShowNewProjectForm}
+                            showNewProjectForm={this.state.showNewProjectForm} />
+                    </Drawer.Footer>
+                </Drawer>
+                <NewProjectModal show={this.state.showNewProjectForm} setShow={this.setShowNewProjectForm} fromSidebar={true}/>
+            </div>
+        )
+    }
+    /* ***OLD RENDER***
     render() {
         return (
             <Drawer
@@ -58,9 +82,20 @@ class ProjectsSidebar extends React.Component {
                 </Drawer.Footer>
             </Drawer>
         )
-    }
+    }*/
 }
 
+function NewProjectButton(props) {
+    return (
+        <Whisper preventOverflow trigger="hover" speaker={<Tooltip>New Project</Tooltip>}
+            placement="topEnd">
+            <IconButton onClick={() => props.setShowNewProjectForm(true)} appearance="primary"
+                icon={<Icon icon="plus" />} circle size="lg" />
+        </Whisper>
+    );
+}
+
+/* ***OLD NEWPROJECTBUTTON***
 function NewProjectButton(props) {
     if (props.showNewProjectForm) {
         return (
@@ -69,13 +104,13 @@ function NewProjectButton(props) {
     } else {
         return (
             <Whisper preventOverflow trigger="hover" speaker={<Tooltip>New Project</Tooltip>}
-                     placement="topEnd">
+                placement="topEnd">
                 <IconButton onClick={() => props.setShowNewProjectForm(true)} appearance="primary"
-                            icon={<Icon icon="plus"/>} circle size="lg"/>
+                    icon={<Icon icon="plus" />} circle size="lg" />
             </Whisper>
         );
     }
-}
+}*/
 
 class NewProjectForm extends React.Component {
     constructor(props) {
@@ -93,7 +128,7 @@ class NewProjectForm extends React.Component {
     }
 
     setLoading = (val) => {
-        this.setState({loading: val})
+        this.setState({ loading: val })
     }
 
     submit = () => {
@@ -122,9 +157,9 @@ class NewProjectForm extends React.Component {
         return (
             <Animation.Fade in={this.props.show}>
                 <Form id="new-project-form" layout="inline" onSubmit={this.submit}>
-                    <Input autoFocus required id={this.state.inputId} placeholder="New Project Name"/>
-                    <Button style={{float: "right", margin: 0}} appearance="primary" loading={this.state.loading}
-                            type="submit">Create</Button>
+                    <Input autoFocus required id={this.state.inputId} placeholder="New Project Name" />
+                    <Button style={{ float: "right", margin: 0 }} appearance="primary" loading={this.state.loading}
+                        type="submit">Create</Button>
                 </Form>
             </Animation.Fade>
         );
