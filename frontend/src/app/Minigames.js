@@ -34,8 +34,8 @@ class MiniGames extends React.Component {
         console.log("num items", this.props.items.length);
         const validGames = [];
         // Have different length boundaries for different games
-        validGames.push(<OddOnesOut items={this.props.items}/>);
-        validGames.push(<FindCommonality items={this.props.items}/>);
+        validGames.push(<OddOnesOut items={this.props.items} numRounds={this.state.numRounds}/>);
+        validGames.push(<FindCommonality items={this.props.items} numRounds={this.state.numRounds}/>);
         if (this.props.items.length > 4) {
             validGames.push(<MakePairs items={this.props.items} numRounds={this.state.numRounds}/>);
         }

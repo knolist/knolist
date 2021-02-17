@@ -48,8 +48,9 @@ class OddOnesOut extends React.Component {
         // console.log(this.state.numPlayed)
         console.log('animation should show')
         console.log(this.state.show)
-
     }
+
+    generateDisplayValue = (item) => item.title ? item.title : item.content;
 
     render() {
         // console.log(this.state)
@@ -74,7 +75,7 @@ class OddOnesOut extends React.Component {
                     {this.state.randomItems.map((item, index) =>
                         <Button block key={index} appearance="primary" color='blue'
                                 style={{margin: 20, display: 'block'}}
-                                onClick={() => this.chooseItem(item)}>{item.title}</Button>)}
+                                onClick={() => this.chooseItem(item)}>{this.generateDisplayValue(item)}</Button>)}
 
                     {/* <ul>
                     {this.state.RandomItems.map((item, index) => <li key={index}>{item.title},{item.url}</li>)}
@@ -91,7 +92,7 @@ class OddOnesOut extends React.Component {
 
                     {this.state.selectedItems.map((item, index) =>
                         <Button block key={index} appearance="primary" color='blue'
-                                style={{margin: 20, display: 'block'}}>{item.title}</Button>)}
+                                style={{margin: 20, display: 'block'}}>{this.generateDisplayValue(item)}</Button>)}
                 </>
             )
         }

@@ -66,7 +66,7 @@ def set_cluster_routes(app):
         new_name = body.get('name', None)
         new_x = body.get('x', None)
         new_y = body.get('y', None)
-        #if both are somewhat missing
+        # if both are somewhat missing
         if new_name is None and (new_x is None or new_y is None):
             abort(400)
         if new_name:
@@ -105,8 +105,9 @@ def set_cluster_routes(app):
         if item1 is None or item2 is None:
             abort(400)
 
-        # Clusters should start with same parent cluster
-        if item1.cluster != item2.cluster:
+        # Clusters should start with same parent cluster or project
+        if item1.parent_cluster != item2.parent_cluster \
+                and item1.parent_project != item2.parent_project:
             abort(400)
 
         x = body.get('x_position', None)
@@ -124,6 +125,9 @@ def set_cluster_routes(app):
         cluster.child_items.append(item1)
         cluster.child_items.append(item2)
         cluster.update()
+        # TODO: test to see if the next 2 lines work
+        # item1.project = None
+        # item2.project = None
         status_code = 201
 
         return jsonify({
