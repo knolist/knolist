@@ -3,7 +3,7 @@ import React from "react";
 function ClusterTitle(props) {
   const styles = {
     position: 'absolute',
-    bottom: 15,
+    top: 55,
     display: "flex",
     justifyContent: "center",
     width: "100%",
