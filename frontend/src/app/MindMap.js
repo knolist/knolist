@@ -771,7 +771,7 @@ class MindMap extends React.Component {
                 <SharedProject showSharedProject={this.props.showSharedProject}
                                setShowSharedProject={this.props.setShowSharedProject}
                                curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>
-                <ClusterTitle curClusterView={this.state.curClusterView}/>
+                <ClusterTitle curClusterView={this.state.curClusterView} setCurClusterView={this.setCurClusterView}/>
                 <RaiseLevelButton curClusterView={this.state.curClusterView}
                                   setCurClusterView={this.setCurClusterView}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
