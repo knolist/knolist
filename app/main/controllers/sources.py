@@ -22,6 +22,20 @@ def set_source_routes(app):
         })
 
     """
+    Gets all items of a specific source
+    """
+    @app.route('/sources/<int:source_id>/items')
+    @requires_auth('read:sources-detail')
+    def get_source_items(user_id, source_id):
+        source = get_authorized_source(user_id, source_id)
+
+        return jsonify({
+            'success': True,
+            'items': [i.format() for i in source.child_items]
+        }), 200
+
+
+    """
     Deletes a source.
     """
 
