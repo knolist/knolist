@@ -3,7 +3,7 @@
 # Spring 2020
 #
 # File contains method that parses a source URL and
-# returns relevant information about the source
+# returns relevant information about the source.
 # Relies heavily on the open servers of ZoteroBib,
 # for which we are extremely thankful for their open
 # source logic
