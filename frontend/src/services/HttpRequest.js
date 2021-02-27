@@ -5,8 +5,8 @@ import createAuth0Client from '@auth0/auth0-spa-js';
 let auth0 = null;
 /* global chrome */
 
-// const baseUrl = "https://knolist-api.herokuapp.com";
-const baseUrl = "http://localhost:5000";
+const baseUrl = "https://knolist.herokuapp.com";
+// const baseUrl = "http://localhost:5000";
 
 /**
  * Used to construct the valid endpoint for general and filtered searches.
