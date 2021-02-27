@@ -1,4 +1,2 @@
-release: source setup.sh
-release: python3 manage.py db upgrade
-release: npm run build
+release: ./release-commands.sh
 web: gunicorn manage:app
