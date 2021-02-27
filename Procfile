@@ -1,2 +1,2 @@
-release: ./release-commands.sh
+release: bash release-commands.sh
 web: gunicorn manage:app
