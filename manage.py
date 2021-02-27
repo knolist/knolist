@@ -22,7 +22,7 @@ manager.add_command('db', MigrateCommand)
 @manager.command
 def run():
     """Runs the application"""
-    app.run()
+    app.run(ssl_context='adhoc')
 
 
 @manager.command
