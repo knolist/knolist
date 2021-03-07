@@ -877,6 +877,41 @@ signify that.
 }
 ```
 
+### GET '/sources/{source_id}/items'
+- Gets all items that belong to a single source.
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "items": an array of formatted items
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1/items`
+```
+{
+  "items": [
+    {
+      "id": 1,    
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
+      "parent_project": 1,
+      "title": "Robert Browning - Wikipedia",
+      "content": "This is a highlight",
+      "is_note": false,
+      "x_position": null,
+      "y_position": null
+    },
+    {
+      "id": 2,
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "parent_project": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "is_note": false,
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+
+
 ### DELETE '/sources/{source_id}'
 - Deletes a source based on its ID.
 - Request arguments: None
