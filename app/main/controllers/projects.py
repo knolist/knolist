@@ -41,9 +41,8 @@ def extract_content_from_url(url):
         real_text = ""
 
         for paragraph in paragraphs:
-            if not paragraph.is_boilerplate:
-                real_text += paragraph.text
-                real_text += "\n\n"
+            real_text += paragraph.text
+            real_text += "\n\n"
 
         return {
             'content': real_text,
