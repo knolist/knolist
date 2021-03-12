@@ -1,7 +1,7 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, Form, FormGroup, FormControl, ControlLabel,
-    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid
+    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid, Row, Col
 } from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -70,12 +70,12 @@ class BibWindow extends React.Component {
     // Displays a Missing! icon if not
     showMissingIcon = (source) => {
 
-        if (source.title && source.url && source.author
-            && source.published_date && source.site_name
-            && source.access_date) {
+        if (source.title && source.url && source.firstName
+            && source.lastName && source.published_date
+            && source.site_name && source.access_date) {
             return null;
         } else {
-            const citationFields = ['title, ', 'URL, ', 'author, ', 'publish date, ', 'site name, ', 'access date, ']
+            const citationFields = ['title, ', 'URL, ', 'first name, ', 'last name, ', 'publish date, ', 'site name, ', 'access date, ']
             let missing = ""
             if (!source.title) {
                 missing = missing.concat(citationFields[0])
@@ -83,17 +83,20 @@ class BibWindow extends React.Component {
             if (!source.url) {
                 missing = missing.concat(citationFields[1])
             }
-            if (!source.author) {
+            if (!source.firstName) {
                 missing = missing.concat(citationFields[2])
             }
-            if (!source.published_date) {
+            if (!source.lastName) {
                 missing = missing.concat(citationFields[3])
             }
-            if (!source.site_name) {
+            if (!source.published_date) {
                 missing = missing.concat(citationFields[4])
             }
-            if (!source.access_date) {
+            if (!source.site_name) {
                 missing = missing.concat(citationFields[5])
+            }
+            if (!source.access_date) {
+                missing = missing.concat(citationFields[6])
             }
             // Remove last comma
             missing = missing.substring(0, missing.length - 2)
@@ -162,8 +165,8 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + source.title + ".";
         }
-        if (source.author) {
-            author = author + source.author + ".";
+        if (source.lastName && source.firstName) {
+            author = author + source.lastName + ", " + source.firstName + ".";
         }
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {formattedDate}
@@ -188,8 +191,8 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + "\"" + source.title + ".\"";
         }
-        if (source.author) {
-            author = author + source.author + ".";
+        if (source.lastName && source.firstName) {
+            author = author + source.lastName + ", " + source.firstName + ".";
         }
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {title}
@@ -216,8 +219,8 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + "\"" + source.title + ".\"";
         }
-        if (source.author) {
-            author = author + source.author + ".";
+        if (source.lastName && source.firstName) {
+            author = author + source.lastName + ", " + source.firstName + ".";
         }
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {title}
@@ -369,7 +372,8 @@ class EditWindow extends React.Component {
         this.state = {
             loading: false,
             formValue: {
-                author: this.showField(props.source, "author"),
+                firstName: this.showField(props.source, "firstName"),
+                lastName: this.showField(props.source, "lastName"),
                 title: this.showField(props.source, "title"),
                 publishDate: this.showField(props.source, "published_date", true),
                 siteName: this.showField(props.source, "site_name"),
@@ -404,7 +408,8 @@ class EditWindow extends React.Component {
         this.setLoading(true);
         const endpoint = "/sources/" + this.props.source.id;
         const body = {
-            "author": this.state.formValue.author,
+            "author": this.state.formValue.lastName && this.state.formValue.firstName ?
+                this.state.formValue.lastName + ", " + this.state.formValue.firstName : "",
             "title": this.state.formValue.title,
             "published_date": this.state.formValue.publishDate,
             "site_name": this.state.formValue.siteName,
@@ -421,7 +426,8 @@ class EditWindow extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.source !== this.props.source) {
             this.setFormValue({
-                author: this.showField(this.props.source, "author"),
+                firstName: this.showField(this.props.source, "firstName"),
+                lastName: this.showField(this.props.source, "lastName"),
                 title: this.showField(this.props.source, "title"),
                 publishDate: this.showField(this.props.source, "published_date", true),
                 siteName: this.showField(this.props.source, "site_name"),
@@ -446,45 +452,49 @@ class EditWindow extends React.Component {
                     <Form layout="horizontal"
                           onChange={this.setFormValue}
                           formValue={this.state.formValue}>
-                        <FormGroup>
-                            <ControlLabel>Author</ControlLabel>
-                            <FormControl name="author"/>
-                        </FormGroup>
+                            <FormGroup>
+                                <ControlLabel flex>Author First Name</ControlLabel>
+                                <FormControl name="firstName"/>
+                            </FormGroup>
+                            <FormGroup>
+                                <ControlLabel>Author Last Name</ControlLabel>
+                                <FormControl name="lastName"/>
+                            </FormGroup>
 
-                        <FormGroup>
-                            <ControlLabel>Title</ControlLabel>
-                            <FormControl name="title"/>
-                        </FormGroup>
+                            <FormGroup>
+                                <ControlLabel>Title</ControlLabel>
+                                <FormControl name="title"/>
+                            </FormGroup>
 
-                        <FormGroup>
-                            <ControlLabel>Publish Date</ControlLabel>
-                            <FormControl
-                                name="publishDate"
-                                accepter={DatePicker}
-                                format={dateFormat}
-                                oneTap
-                            />
-                        </FormGroup>
+                            <FormGroup>
+                                <ControlLabel>Publish Date</ControlLabel>
+                                <FormControl
+                                    name="publishDate"
+                                    accepter={DatePicker}
+                                    format={dateFormat}
+                                    oneTap
+                                />
+                            </FormGroup>
 
-                        <FormGroup>
-                            <ControlLabel>Site Name</ControlLabel>
-                            <FormControl name="siteName"/>
-                        </FormGroup>
+                            <FormGroup>
+                                <ControlLabel>Site Name</ControlLabel>
+                                <FormControl name="siteName"/>
+                            </FormGroup>
 
-                        <FormGroup>
-                            <ControlLabel>Access Date</ControlLabel>
-                            <FormControl
-                                name="accessDate"
-                                accepter={DatePicker}
-                                format={dateFormat}
-                                oneTap
-                            />
-                        </FormGroup>
+                            <FormGroup>
+                                <ControlLabel>Access Date</ControlLabel>
+                                <FormControl
+                                    name="accessDate"
+                                    accepter={DatePicker}
+                                    format={dateFormat}
+                                    oneTap
+                                />
+                            </FormGroup>
 
-                        <FormGroup>
-                            <ControlLabel>URL</ControlLabel>
-                            <FormControl name="url"/>
-                        </FormGroup>
+                            <FormGroup>
+                                <ControlLabel>URL</ControlLabel>
+                                <FormControl name="url"/>
+                            </FormGroup>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
