@@ -805,7 +805,7 @@ class MindMap extends React.Component {
                 <ClusterTitle curClusterView={this.state.curClusterView} setCurClusterView={this.setCurClusterView}/>
                 <div onMouseOver={() => this.setState({raiseLevelButtonHover: true})}
                      onMouseOut={() => this.setState({raiseLevelButtonHover: false})}>
-                <RaiseLevelButton curClusterView={this.state.curClusterView}
+                        <RaiseLevelButton curClusterView={this.state.curClusterView}
                                   setCurClusterView={this.setCurClusterView} />
                 </div>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
