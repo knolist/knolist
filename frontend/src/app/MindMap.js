@@ -619,7 +619,6 @@ class MindMap extends React.Component {
                         if (this.isItem(id)) {
                             const boundingBox = network.getBoundingBox(id);
                             let otherNodes = this.state.nonSelectedNodes;
-                            const position = network.getPosition(id);
                             if ((!this.state.showNewClusterHelperMessage && !this.state.showAddToClusterHelperMessage)
                                  && otherNodes.length >= 1) {
                                 otherNodes.forEach(node => {

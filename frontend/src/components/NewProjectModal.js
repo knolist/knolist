@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Modal, Button, Form, FormGroup, ControlLabel, HelpBlock, FormControl } from "rsuite";
 import makeHttpRequest from "../services/HttpRequest";
 import { useHistory } from "react-router-dom";
@@ -7,6 +7,7 @@ function NewProjectModal(props) {
     const show = props.show;
     const setShow = props.setShow;
     const history = useHistory();
+    const [loading, setLoading] = useState(false);
 
     const openProject = () => {
         const projectTitle = document.getElementById("titleInput").value;
@@ -24,6 +25,7 @@ function NewProjectModal(props) {
         }
         makeHttpRequest("/projects", "POST", body).then(response => {
             localStorage.setItem("curProject", JSON.stringify(response.body.project));
+            setShow(false);
             if (props.fromSidebar) history.go(0);
             else history.push("/");
         });
@@ -51,10 +53,11 @@ function NewProjectModal(props) {
             <Modal.Footer>
                     <Button
                         onClick={() => {
-                            setShow(false);
+                            setLoading(true);
                             openProject();
                         }}
-                        appearance="primary">
+                        appearance="primary"
+                        loading={loading}>
                         Create
                     </Button>
                 <Button onClick={() => setShow(false)} appearance="default">
