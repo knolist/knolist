@@ -99,7 +99,6 @@ def cosine_after_stopwords(text_a, text_b):
         word_dict_a[word] += 1. / len(a_filt) # Frequency
     for word in b_filt:
         word_dict_b[word] += 1. / len(b_filt) # Frequency
-
     return cosine_sim(word_dict_a, word_dict_b)
 
 
