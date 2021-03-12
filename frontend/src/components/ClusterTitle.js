@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Whisper, Tooltip, Input, Button, Alert } from "rsuite";
+import { Whisper, Tooltip, Input, Button } from "rsuite";
 import makeHttpRequest from "../services/HttpRequest";
 
 function ClusterTitle(props) {
@@ -18,20 +18,18 @@ function ClusterTitle(props) {
 
   let title = "";
   if (cluster !== null) title = cluster.name;
+  //console.log(cluster);
 
   const tooltip = (<Tooltip>Click to rename.</Tooltip>)
 
   const saveNewTitle = () => {
-    if (newTitle.length === 0) Alert.error("Cluster name cannot be blank!");
-    else {
-      const endpoint = "/clusters/" + cluster.id;
-      const body = { "name": newTitle };
-      makeHttpRequest(endpoint, "PATCH", body).then((res) => {
-        props.setCurClusterView(res.body.cluster);
-        setEditing(false);
-        setCluster(res.body.cluster);
-      });
-    }
+    const endpoint = "/clusters/" + cluster.id;
+    const body = { "name": newTitle };
+    makeHttpRequest(endpoint, "PATCH", body).then((res) => {
+      props.setCurClusterView(res.body.cluster);
+      setEditing(false);
+      setCluster(res.body.cluster);
+    });
   }
 
   if (cluster === null) return null;
@@ -41,9 +39,9 @@ function ClusterTitle(props) {
     </Whisper>
   );
   else if (cluster !== null && editing) return (
-    <div style={styles}>
-      <Input style={{ width: 120 }} defaultValue={title} onInput={e => setNewTitle(e.target.value)}/>
-      <Button size="xs" style={{ marginLeft:5 }} onClick={() => saveNewTitle()}>Save</Button>
+    <div style={styles} id="cluster-title">
+      <Input style={{ width: 120 }} defaultValue={title} onInput={e => setNewTitle(e.target.value)} />
+      <Button size="xs" style={{ marginLeft: 5 }} onClick={() => saveNewTitle()}>Save</Button>
     </div>
   );
 }
