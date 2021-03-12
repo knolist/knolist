@@ -27,14 +27,6 @@
     margin-bottom: 7px;
 }
 
-#footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-}
-
 .footer-btn {
     margin: 5px 20px 20px 20px;
 }
