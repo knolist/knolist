@@ -323,7 +323,6 @@ class MindMap extends React.Component {
     moveItemFromClusterToHigherLevel = (itemId, clusterId) => {
         this.setLoading(true);
         const endpoint = "/clusters/" + clusterId + "/items/" + itemId;
-        console.log(endpoint);
         makeHttpRequest(endpoint, "DELETE").then(response => {
             this.setLoading(false);
             if (response.body.success) Alert.success("The item was successfully moved");
@@ -646,8 +645,8 @@ class MindMap extends React.Component {
                                     this.setShowAddToClusterHelperMessage(false)
                                 }
                                 if (this.state.curClusterView && !this.state.raiseLevelButtonHover) {
-                                        this.setState({showRemoveItemFromClusterMessage: false});
-                                    }
+                                    this.setState({showRemoveItemFromClusterMessage: false});
+                                }
                             }
                         }
                     }
@@ -805,10 +804,11 @@ class MindMap extends React.Component {
                                setShowSharedProject={this.props.setShowSharedProject}
                                curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>
                 <ClusterTitle curClusterView={this.state.curClusterView} setCurClusterView={this.setCurClusterView}/>
+                <div onMouseOver={() => this.setState({raiseLevelButtonHover: true})}
+                     onMouseOut={() => this.setState({raiseLevelButtonHover: false})}>
                 <RaiseLevelButton curClusterView={this.state.curClusterView}
-                                  setCurClusterView={this.setCurClusterView}
-                                  onMouseOver={() => this.setState({raiseLevelButtonHover: true})}
-                                  onMouseLeave={() => this.setState({raiseLevelButtonHover: false})} />
+                                  setCurClusterView={this.setCurClusterView} />
+                </div>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );
