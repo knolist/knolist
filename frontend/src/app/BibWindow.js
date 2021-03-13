@@ -1,7 +1,7 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, Form, FormGroup, FormControl, ControlLabel,
-    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid, Row, Col
+    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid
 } from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -452,49 +452,50 @@ class EditWindow extends React.Component {
                     <Form layout="horizontal"
                           onChange={this.setFormValue}
                           formValue={this.state.formValue}>
+                        <Form layout="inline"
+                              onChange={this.setFormValue}
+                              formValue={this.state.formValue}>
                             <FormGroup>
-                                <ControlLabel flex>Author First Name</ControlLabel>
-                                <FormControl name="firstName"/>
+                                <ControlLabel style={{alignContent: 'center'}}>Author</ControlLabel>
+                                <FormControl placeholder="First Name" name="firstName" style={{ width: 140}}/>
+                                <FormControl placeholder="Last Name" name="lastName" style={{ width: 140}}/>
                             </FormGroup>
-                            <FormGroup>
-                                <ControlLabel>Author Last Name</ControlLabel>
-                                <FormControl name="lastName"/>
-                            </FormGroup>
+                        </Form>
 
-                            <FormGroup>
-                                <ControlLabel>Title</ControlLabel>
-                                <FormControl name="title"/>
-                            </FormGroup>
+                        <FormGroup>
+                            <ControlLabel>Title</ControlLabel>
+                            <FormControl name="title"/>
+                        </FormGroup>
 
-                            <FormGroup>
-                                <ControlLabel>Publish Date</ControlLabel>
-                                <FormControl
-                                    name="publishDate"
-                                    accepter={DatePicker}
-                                    format={dateFormat}
-                                    oneTap
-                                />
-                            </FormGroup>
+                        <FormGroup>
+                            <ControlLabel>Publish Date</ControlLabel>
+                            <FormControl
+                                name="publishDate"
+                                accepter={DatePicker}
+                                format={dateFormat}
+                                oneTap
+                            />
+                        </FormGroup>
 
-                            <FormGroup>
-                                <ControlLabel>Site Name</ControlLabel>
-                                <FormControl name="siteName"/>
-                            </FormGroup>
+                        <FormGroup>
+                            <ControlLabel>Site Name</ControlLabel>
+                            <FormControl name="siteName"/>
+                        </FormGroup>
 
-                            <FormGroup>
-                                <ControlLabel>Access Date</ControlLabel>
-                                <FormControl
-                                    name="accessDate"
-                                    accepter={DatePicker}
-                                    format={dateFormat}
-                                    oneTap
-                                />
-                            </FormGroup>
+                        <FormGroup>
+                            <ControlLabel>Access Date</ControlLabel>
+                            <FormControl
+                                name="accessDate"
+                                accepter={DatePicker}
+                                format={dateFormat}
+                                oneTap
+                            />
+                        </FormGroup>
 
-                            <FormGroup>
-                                <ControlLabel>URL</ControlLabel>
-                                <FormControl name="url"/>
-                            </FormGroup>
+                        <FormGroup>
+                            <ControlLabel>URL</ControlLabel>
+                            <FormControl name="url"/>
+                        </FormGroup>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
