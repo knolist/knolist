@@ -21,6 +21,10 @@
     outline: none;
 }
 
+.vis-network:focus {
+    outline: none;
+}
+
 .source-view-subtitle {
     margin-bottom: 7px;
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Button, Progress
+    Button, Progress, Grid
 } from "rsuite";
 
 import {randomPicker} from "../../services/RandomGenerator"
@@ -50,13 +50,11 @@ class OddOnesOut extends React.Component {
         console.log(this.state.show)
     }
 
-    generateDisplayValue = (item) => item.title ? item.title : item.content;
-
     render() {
         // console.log(this.state)
-        if (this.state.numPlayed < this.props.numRounds)
+        if (this.state.numPlayed < this.props.numRounds) {
             return (
-                <>
+                <Grid>
                     <h1>OddOnesOut</h1>
                     <h3>Round {this.state.numPlayed + 1}</h3>
                     <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
@@ -72,17 +70,23 @@ class OddOnesOut extends React.Component {
                     {/* {this.state.RandomItems.map((item, index) =>
                         <AnimatedButton item={item} index={index}/>)} */}
 
-                    {this.state.randomItems.map((item, index) =>
-                        <Button block key={index} appearance="primary" color='blue'
+                    {this.state.randomItems.map((item, index) => {
+                        console.log(this.props.color(item));
+                        return (
+                            <Button block key={index} appearance="primary" color={this.props.color(item)}
                                 style={{margin: 20, display: 'block'}}
-                                onClick={() => this.chooseItem(item)}>{this.generateDisplayValue(item)}</Button>)}
+                                onClick={() => this.chooseItem(item)}>{this.props.generateDisplayValue(item)}</Button>)}
+                        )
+                        
+                    }
+                        
 
                     {/* <ul>
                     {this.state.RandomItems.map((item, index) => <li key={index}>{item.title},{item.url}</li>)}
                 </ul> */}
-                </>
-            )
-        else {
+                </Grid>
+            )           
+        } else {
             return (
                 <>
                     <h1>OddOnesOut</h1>
@@ -91,7 +95,7 @@ class OddOnesOut extends React.Component {
                     <h5>Here are your selected items:</h5>
 
                     {this.state.selectedItems.map((item, index) =>
-                        <Button block key={index} appearance="primary" color='blue'
+                        <Button block key={index} appearance="primary" color={item.color}
                                 style={{margin: 20, display: 'block'}}>{this.generateDisplayValue(item)}</Button>)}
                 </>
             )

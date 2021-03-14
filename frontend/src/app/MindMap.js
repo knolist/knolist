@@ -742,6 +742,7 @@ class MindMap extends React.Component {
                 <Minigames
                     curProject={this.props.curProject}
                     items={this.state.items}
+                    color={this.getColor}
                     network={this.state.network}/>
                 <ItemView selectedItem={this.state.selectedItem}
                           setSelectedItem={this.setSelectedItem}
