@@ -78,7 +78,7 @@ def create_starter_data():
     item_1.project = source_1.project
     item_2.project = source_2.project
     item_3.project = source_3.project
-    item_4.project = source_3.project
+    # item_4.project = source_3.project
     item_1.date_of_creation = datetime.utcnow()
     item_2.date_of_creation = datetime.utcnow()
     item_3.date_of_creation = datetime.utcnow()
@@ -86,7 +86,7 @@ def create_starter_data():
     cluster_1 = Cluster(name="Test Cluster",
                         x_position=300,
                         y_position=-40)
-    cluster_1.child_items.append(item_1)
+    cluster_1.child_items.append(item_4)
     project_1.clusters.append(cluster_1)
 
     project_1.insert()

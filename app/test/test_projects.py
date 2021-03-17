@@ -312,7 +312,7 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
         self.assertEqual(data['num_sources'], 1)
-        self.assertEqual(data['num_items'], 2)
+        self.assertEqual(data['num_items'], 1)
         self.assertEqual(data['num_clusters'], 0)
         self.assertEqual(data['avg_depth_per_item'], 0)
         self.assertEqual(data['max_depth'], 0)

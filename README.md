@@ -272,6 +272,12 @@ To run the `unittest` test suite, run the following command from the root direct
 python manage.py test
 ```
 
+To run tests and obtain the code coverage, run the following command:
+```bash
+coverage run --source=./app/main manage.py test
+```
+Results can be found after running `coverage html` and opening `./htmlcov/index.html` in the browser.
+
 A [Postman collection](./knolist.postman_collection.json) with a valid JWT is also included to facilitate testing the 
 endpoints. The collection doesn't have any tests, since those are done through unittest.
 The [setup.sh](./setup.sh) file contains two valid JWTs for local testing, as well.
