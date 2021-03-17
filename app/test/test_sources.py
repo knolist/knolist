@@ -59,6 +59,22 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
+    # GET '/sources/{source_id}/items'
+    def test_get_source_items_1(self):
+        res = self.client.get(f'/sources{self.source_1.id}/items'),
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertTrue(res.status_code, 200)
+        self.assertTrue(len(data.items), 1)
+
+    # GET '/sources/{source_id}/items'
+    def test_get_source_items_2(self):
+        res = self.client.get(f'/sources{self.source_3.id}/items'),
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertTrue(res.status_code, 200)
+        self.assertTrue(len(data.items), 2)
+
     # DELETE '/sources/{source_id}' #
     def test_delete_source(self):
         old_total = len(Source.query.filter(

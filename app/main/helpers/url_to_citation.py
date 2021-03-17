@@ -1,5 +1,14 @@
+# Knolist
+# Conner Delahanty
+# Spring 2020
+#
+# File contains method that parses a source URL and
+# returns relevant information about the source.
+# Relies heavily on the open servers of ZoteroBib,
+# for which we are extremely thankful for their open
+# source logic
+
 import requests
-from bs4 import BeautifulSoup
 from datetime import date, datetime
 
 
@@ -12,75 +21,44 @@ def url_to_citation(url):
         "publish_date": "",
         "site_name": "",
         # Set access_date to time of creating source
-        # TODO: update with access history
         "access_date": today.strftime("%m/%d/%Y"),
     }
 
-    r = requests.get(url)
-    html_source_string = r.text
-    soup = BeautifulSoup(html_source_string, 'html.parser')
+    ZOTERO_SERVER = 'https://t0guvf0w17.execute-api.us-east-1.amazonaws.com/Prod/web'
+    # Relevant headers for API call
+    headers = {
+        'accept': '*/*',
+        'accept-encoding': 'gzip, deflate, br',
+        'accept-language': 'en-US,en;q=0.9',
+        'content-type': 'text/plain',
+        'origin': 'https://zbib.org',
+        'sec-ch-ua': '"Chromium";v="88", "Google Chrome";v="88", ";Not A Brand";v="99"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'cross-site',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.190 Safari/537.36'
+    }
 
-    # Only one version of each these fields should be
-    # in a page source, but there is more than one way to denote each field
-    title1 = soup.title
-    title2 = soup.find("meta",  property="og:title")
-    title3 = soup.find(attrs={'name': 'dc.Title'})
-    title4 = soup.find("meta", property="twitter:title")
+    result = requests.post(ZOTERO_SERVER, data=url, headers=headers)
+    if (not result.status_code == 200):
+        return citation_fields
 
-    author1 = soup.find(attrs={'name': 'twitter:data1'})
-    author2 = soup.find(attrs={'name': 'dc.Creator'})
-    author3 = soup.find(attrs={'name': 'author'})
+    citation_entry = result.json()[0]
 
-    # TODO: If Author name (not "Staff") split into First and Last to order
-
-    publish_date1 = soup.find("meta",  property="article:published_time")
-    publish_date2 = soup.find(attrs={'name': 'dc.Date'})
-
-    site_name1 = soup.find("meta",  property="site_name")
-    site_name2 = soup.find(attrs={'name': 'citation_journal_title'})
-    site_name3 = soup.find("meta",  property="og:site_name")
-
-    # Populate field with whichever method does not return None
-    if title2:
-        citation_fields["title"] = title2["content"]
-    elif title3:
-        citation_fields["title"] = title3["content"]
-    elif title1:
-        citation_fields["title"] = title1.string
-    elif title4:
-        citation_fields["title"] = title4["content"]
-    else:
-        citation_fields["title"] = None
-
-    if author2:
-        citation_fields["author"] = author2["content"]
-    elif author3:
-        citation_fields["author"] = author3["content"]
-    elif author1:
-        citation_fields["author"] = author1["content"]
-    else:
-        citation_fields["author"] = None
-
-    if publish_date1:
-        citation_fields["publish_date"] = datetime.strftime(
-            datetime.strptime(publish_date1["content"][0:10], "%Y-%m-%d"),
-            "%m/%d/%Y"
-        )
-    elif publish_date2:
-        citation_fields["publish_date"] = datetime.strftime(
-            datetime.strptime(publish_date2["content"][0:10], "%Y-%m-%d"),
-            "%m/%d/%Y"
-        )
-    else:
-        citation_fields["publish_date"] = None
-
-    if site_name1:
-        citation_fields["site_name"] = site_name1["content"]
-    elif site_name2:
-        citation_fields["site_name"] = site_name2["content"]
-    elif site_name3:
-        citation_fields["site_name"] = site_name3["content"]
-    else:
-        citation_fields["site_name"] = None
+    if ('title' in citation_entry):
+        citation_fields['title'] = citation_entry['title']
+    if ('libraryCatalog' in citation_entry):
+        citation_fields['site_name'] = citation_entry['libraryCatalog']
+    elif ('websiteTitle' in citation_entry):
+        citation_fields['site_name'] = citation_entry['websiteTitle']
+    if ('date' in citation_entry):
+        citation_fields['publish_date'] = datetime.strftime(
+                                                      datetime.strptime(citation_entry['date'][0:10], "%Y-%m-%d"),
+                                                      "%m/%d/%Y")
+    if ('creators' in citation_entry):
+        for c in citation_entry['creators']:
+            if (c['creatorType'] == 'author'):
+                citation_fields['author'] = c['lastName'] + ", " + c['firstName']
 
     return citation_fields
