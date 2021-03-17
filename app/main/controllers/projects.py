@@ -4,7 +4,8 @@ from requests import get as requests_get
 
 from app.main.auth.get_authorized_objects import get_authorized_project
 from app.main.helpers.url_to_citation import url_to_citation
-from app.main.helpers.statistics import compute_cluster_stats, compute_source_dist
+from app.main.helpers.statistics import compute_cluster_stats, \
+    compute_source_dist
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth
 from datetime import datetime
@@ -135,7 +136,8 @@ def set_project_routes(app):
             abort(400)
 
         project.title = new_title if new_title is not None else project.title
-        project.description = new_description if new_description is not None else project.description
+        project.description = new_description if new_description is not None \
+            else project.description
         project.update()
 
         return jsonify({
@@ -228,7 +230,8 @@ def set_project_routes(app):
         pattern = '%' + search_query + '%'
         filter_query = request.args.getlist('filter', None)
         if not filter_query:
-            results = Item.query.join(Source).filter(Item.parent_project == project_id) \
+            results = Item.query.join(Source)\
+                .filter(Item.parent_project == project_id) \
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
                         | Source.content.ilike(pattern)
@@ -245,7 +248,8 @@ def set_project_routes(app):
                     .filter(Item.content
                             .ilike(pattern)).order_by(Item.id).all()
             else:
-                temp = Item.query.join(Source).filter(Item.parent_project == project_id) \
+                temp = Item.query.join(Source)\
+                    .filter(Item.parent_project == project_id) \
                     .filter(getattr(Source, filter_type)
                             .ilike(pattern)).order_by(Item.id).all()
             for item in temp:
@@ -276,9 +280,11 @@ def set_project_routes(app):
             # Note: n_items is stored and returned for future purposes
             # If at any point all items will not be stored at the project
             # leve, n_items can be returned.
-            max_depth, n_items, n_clusters, sum_item_depth = compute_cluster_stats(
-                project.clusters, depth=0, n_items=len(project.items), n_clusters=0,
-                sum_item_depth=0)
+            max_depth, n_items, n_clusters, \
+                sum_item_depth = compute_cluster_stats(
+                    project.clusters, depth=0,
+                    n_items=len(project.items), n_clusters=0,
+                    sum_item_depth=0)
         # Compute URL breakdown from helper method
         url_breakdown = compute_source_dist(project.sources)
 
