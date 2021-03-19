@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Button, Form, FormGroup, ControlLabel, HelpBlock, FormControl } from "rsuite";
+import { Modal, Button, Form, FormGroup, ControlLabel, HelpBlock, FormControl, Alert } from "rsuite";
 import makeHttpRequest from "../services/HttpRequest";
 import { useHistory } from "react-router-dom";
 
@@ -12,6 +12,11 @@ function NewProjectModal(props) {
     const openProject = () => {
         const projectTitle = document.getElementById("titleInput").value;
         let projectDesc = document.getElementById("descriptionInput").value;
+        if (projectTitle.length === 0) {
+            setLoading(false);
+            Alert.error("Title is required!", 2000);
+            return;
+        }
         let body = {};
         if (projectDesc == null || projectDesc === "") {
             body = {

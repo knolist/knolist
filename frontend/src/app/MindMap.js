@@ -429,9 +429,7 @@ class MindMap extends React.Component {
         // let projectClusters = this.state.clusters.filter(
         //         cluster => (cluster.project_id === this.props.curProject.id))
         let projectClusters = this.state.clusters;
-        //console.log('ok', this.state.items);
         projectClusters.forEach(cluster => {
-            //console.log(cluster);
             clusterNodes.add({
                 group: "clusters",
                 id: this.generateVisClusterId(cluster),
@@ -457,11 +455,13 @@ class MindMap extends React.Component {
                 }
             })
             if (cluster.child_items.length > 2) {
-                const totalNodes = cluster.total_items;
+                const totalNodes = cluster.total_items - 2;
+                let numLabel = " items";
+                if (totalNodes < 2) numLabel = " item"
                 clusterNodes.add({
                     group: "inCluster",
                     id: this.generateVisInClusterId(cluster, "count"),
-                    label: totalNodes + " total items",
+                    label: "+" + totalNodes + numLabel,
                     x: cluster.x_position,
                     y: cluster.y_position + helperDataOffset,
                     font: {
@@ -475,7 +475,6 @@ class MindMap extends React.Component {
                 })
             }
             let count = 0;
-            //console.log(cluster.child_items);
             cluster.child_items.forEach(child => {
                 const nodeType = this.getNodeType(child);
                 const label = this.getNodeLabel(child, nodeType);
@@ -503,6 +502,7 @@ class MindMap extends React.Component {
     }
 
     renderNetwork = (callback) => {
+        makeHttpRequest("/projects/2/items").then(response => console.log(response));
         if (this.props.curProject === null) return;
 
         this.getItems(() => {
@@ -512,7 +512,7 @@ class MindMap extends React.Component {
                 clusterNodes.forEach(cluster => {
                     nodes.add(cluster)
                 })
-                //console.log("nodes", nodes.get());
+
                 // create a network
                 const container = document.getElementById('mindmap');
 
