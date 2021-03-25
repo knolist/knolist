@@ -69,7 +69,7 @@ class MindMap extends React.Component {
             existingClusterId: null,
             curClusterView: JSON.parse(localStorage.getItem("curClusterView")), // Set to the cluster object if inside a cluster
             showRemoveItemFromClusterMessage: false,
-            raiseLevelButtonHover: false
+            raiseLevelButtonHover: false,
         };
     };
 
@@ -502,7 +502,6 @@ class MindMap extends React.Component {
     }
 
     renderNetwork = (callback) => {
-        makeHttpRequest("/projects/2/items").then(response => console.log(response));
         if (this.props.curProject === null) return;
 
         this.getItems(() => {
@@ -699,8 +698,10 @@ class MindMap extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.curProject !== this.props.curProject) {
+            console.log("here1");
             // Set items to null before updating to show loading icon
             this.setState({items: null}, this.renderNetwork);
+            this.setCurClusterView(null);
         }
 
         if (prevState.showNewItemHelperMessage !== this.state.showNewItemHelperMessage) {
