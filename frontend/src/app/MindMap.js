@@ -12,7 +12,7 @@ import BibWindow from "./BibWindow";
 import SharedProject from "./SharedProject";
 // import Minigames from "./Minigames";
 
-import RaiseLevelButton from "../components/RaiseLevelButton"
+import RaiseLevelButton from "./RaiseLevelButton"
 import ClusterTitle from "../components/ClusterTitle.js";
 
 import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
@@ -698,7 +698,6 @@ class MindMap extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.curProject !== this.props.curProject) {
-            console.log("here1");
             // Set items to null before updating to show loading icon
             this.setState({items: null}, this.renderNetwork);
             this.setCurClusterView(null);
