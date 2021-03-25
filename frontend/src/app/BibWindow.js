@@ -150,6 +150,13 @@ class BibWindow extends React.Component {
         return formattedDate;
     }
 
+    formatAuthor = (source) => {
+        if (source.firstName && source.lastName) {
+            return source.lastName + ", " + source.firstName + ".";
+        }
+        return "";
+    }
+
     renderAPACitation = (source) => {
         let formattedDate = "";
         let title = "";
@@ -165,9 +172,7 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + source.title + ".";
         }
-        if (source.lastName && source.firstName) {
-            author = author + source.lastName + ", " + source.firstName + ".";
-        }
+        author = this.formatAuthor(source);
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {formattedDate}
                 <i>{title}</i> {source.site_name}. <a href={source.url} target="_blank" rel="noopener noreferrer">
@@ -191,9 +196,7 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + "\"" + source.title + ".\"";
         }
-        if (source.lastName && source.firstName) {
-            author = author + source.lastName + ", " + source.firstName + ".";
-        }
+        author = this.formatAuthor(source);
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {title}
                 <i>{source.site_name}</i>, {formattedDate} <a href={source.url} target="_blank"
@@ -219,9 +222,7 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + "\"" + source.title + ".\"";
         }
-        if (source.lastName && source.firstName) {
-            author = author + source.lastName + ", " + source.firstName + ".";
-        }
+        author = this.formatAuthor(source);
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {title}
                 <i>{source.site_name}</i>, {formattedPublishDate} <a href={source.url} target="_blank"
