@@ -18,7 +18,7 @@ def url_to_citation(url):
     citation_fields = {
         "title": "",
         "author": "",
-        "publish_date": "",
+        "publish_date": None,
         "site_name": "",
         # Set access_date to time of creating source
         "access_date": today.strftime("%m/%d/%Y"),
