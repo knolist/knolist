@@ -5,7 +5,7 @@ from requests import get as requests_get
 from app.main.auth.get_authorized_objects import get_authorized_project
 from app.main.helpers.url_to_citation import url_to_citation
 from app.main.helpers.statistics import compute_cluster_stats, \
-    compute_source_dist
+    compute_source_dist, similarity
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth
 from datetime import datetime
@@ -317,3 +317,38 @@ def set_project_routes(app):
             'success': True,
             'clusters': [cluster.format() for cluster in clusters]
         })
+
+
+    """
+    For all the items of a given project, gets the
+    similarity value for any given two and returns in a
+    json-style matrix.
+    """
+    @app.route('/projects/<int:project_id>/similarity')
+    @requires_auth('read:items')
+    def get_project_similarity(user_id, project_id):
+        project = get_authorized_project(user_id, project_id)
+        update_project_access_date(project)
+        sources = project.sources
+
+        index_map = {}
+        for i in range (len(sources)):
+            index_map[sources[i].id] = i
+
+        # Create upper-triangluar (since symmetric)
+        sim = {}
+        for i in range (len(sources)):
+            dict = {}
+            for j in range(i + 1):
+                # Ignore empty contents
+                if (sources[i].content == None or sources[i].content == "" or
+                    sources[j].content == None or sources[j].content == ""):
+                    dict[j] = 0
+                else:
+                    dict[j] = round(similarity(sources[i].content, sources[j].content), 3)
+            sim[i] = dict
+        return jsonify({
+            'success': True,
+            'index': index_map,
+            'similarity': sim
+        }), 200

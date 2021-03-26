@@ -590,3 +590,10 @@ class TestProjectsEndpoints(unittest.TestCase):
                                 headers=auth_header)
         data = json.loads(res.data)
         self.assertEqual(len(data['clusters']), 1)
+
+    def test_content_similarity_matrix(self):
+        res = self.client().get(f'/projects/{self.project_1.id}/similarity',
+                                        headers=auth_header)
+        data = json.loads(res.data)
+        print(data)
+        self.assertTrue(data['success'])
