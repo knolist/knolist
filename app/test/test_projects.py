@@ -591,13 +591,13 @@ class TestProjectsEndpoints(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(len(data['clusters']), 1)
 
-    def test_content_similarity_matrix(self):
+    def test_get_content_similarity_matrix(self):
         res = self.client().get(f'/projects/{self.project_1.id}/similarity',
                                         headers=auth_header)
         data = json.loads(res.data)
         print(data)
         for i in range(len(data['index'])):
             for j in range(i + 1):
-                self.assertTrue(data['similarity'][i+""][j+""] >= 0.)
-                self.assertTrue(data['similarity'][i+""][j+""] <= 1.)
+                self.assertTrue(data['similarity'][str(i)][str(j)] >= 0.)
+                self.assertTrue(data['similarity'][str(i)][str(j)] <= 1.)
         self.assertTrue(data['success'])
