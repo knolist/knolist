@@ -596,4 +596,8 @@ class TestProjectsEndpoints(unittest.TestCase):
                                         headers=auth_header)
         data = json.loads(res.data)
         print(data)
+        for i in range(len(data['index'])):
+            for j in range(i + 1):
+                self.assertTrue(data['similarity'][i+""][j+""] >= 0.)
+                self.assertTrue(data['similarity'][i+""][j+""] <= 1.)
         self.assertTrue(data['success'])
