@@ -151,11 +151,14 @@ class Source(BaseModel):
         return f'<Source {self.id}: {self.url}>'
 
     def format(self):
+
         return {
             'id': self.id,
             'url': self.url,
             'title': self.title,
             'author': self.author,
+            'lastName': "" if self.author == "" else self.author[: self.author.find(',')],
+            'firstName': "" if self.author == "" else self.author[self.author.find(',') + 2:],
             'site_name': self.site_name,
             'is_included': self.is_included,
             'published_date': self.published_date,
