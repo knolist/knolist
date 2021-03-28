@@ -18,6 +18,13 @@ class AppFooter extends React.Component {
                                 size="lg" onClick={this.props.fit}/>
                 </Whisper>
 
+                <a style={{marginTop: 25}}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   href={process.env.REACT_APP_FEEDBACK_LINK}>
+                    Feedback?
+                </a>
+
                 <Dropdown style={{marginRight: 15}} trigger={["click", "hover"]} placement="topEnd"
                           renderTitle={this.newItemButton}>
                     <Dropdown.Item onClick={() => Alert.warning("Feature coming soon...")}>
