@@ -21,7 +21,7 @@ class AppFooter extends React.Component {
                 <a style={{marginTop: 25}}
                    target="_blank"
                    rel="noopener noreferrer"
-                   href={"https://docs.google.com/forms/d/1kt298YLJw1InE8_Zsy5rD_gQ1Ph67mHqTsj-F2Tzvqs/viewform?edit_requested=true"}>
+                   href={process.env.REACT_APP_FEEDBACK_LINK}>
                     Feedback?
                 </a>
 
