@@ -372,12 +372,12 @@ Assume that all `curl` calls include the following:
         {
             "id": 1,
             "title": "New Project",
-            "shared_users": 2,
+            "shared_users": 2
         },
         {
             "id": 2,
             "title": "New Project 2",
-            "shared_users": 1,
+            "shared_users": 1
         }
     ],
     "success": true
@@ -401,7 +401,7 @@ Assume that all `curl` calls include the following:
   "project": {
     "id": 3,
     "title": "New Project",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -425,7 +425,7 @@ Assume that all `curl` calls include the following:
   "project": {
     "id": 1,
     "title": "Updated Title",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -780,13 +780,13 @@ indexing / iterating may require casting
 ```
 ```json
 {
-  'index': {'1': 0, '2': 1}, 
-  'similarity': 
+  "index": {"1": 0, "2": 1}, 
+  "similarity": 
       {
-        '0': {'0': 1.0}, 
-        '1': {'0': 0.326, '1': 1.0}
+        "0": {"0": 1.0}, 
+        "1": {"0": 0.326, "1": 1.0}
       }, 
-  'success': True
+  "success": true
 }
 ```
 
@@ -1113,7 +1113,7 @@ database.  If the user is already a shared user or the user tries to add itself,
  "project": {
     "id": 3,
     "title": "New Project",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -1136,7 +1136,7 @@ database.  If the user is already a shared user or the user tries to add itself,
  "project": {
     "id": 2,
     "title": "New Project",
-    "shared_users": None,
+    "shared_users": null
   },
   "success": true
 }
@@ -1157,7 +1157,7 @@ database.  If the user is already a shared user or the user tries to add itself,
 {
   "project": {
     "id": 1,
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
