@@ -37,7 +37,17 @@ class BibWindow extends React.Component {
         this.setLoading(true);
         const endpoint = "/projects/" + this.props.curProject.id + "/sources";
         makeHttpRequest(endpoint).then((response) => {
-            this.setState({sources: response.body.sources}, () => {
+            let sortedSources = response.body.sources;
+            sortedSources = sortedSources.sort((a, b) => {
+                a.title = a.title.trim();
+                b.title = b.title.trim();
+                if (a.title > b.title) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+            this.setState({sources: sortedSources}, () => {
                 this.setLoading(false);
                 if (typeof callback === "function") callback();
             })
@@ -224,9 +234,12 @@ class BibWindow extends React.Component {
         }
         author = this.formatAuthor(source);
         return (
-            <p className={this.isIncludedClassName(source.is_included)}>{author} {title}
-                <i>{source.site_name}</i>, {formattedPublishDate} <a href={source.url} target="_blank"
-                                                                     rel="noopener noreferrer"> {source.url}.
+            <p style={{maxWidth: "800px"}} className={this.isIncludedClassName(source.is_included)}>
+                {author} {title}
+                <i>{source.site_name}</i>,
+                 {formattedPublishDate} 
+                 <a href={source.url} target="_blank" rel="noopener noreferrer">
+                     {source.url}.
                 </a> {formattedAccessDate}
             </p>
         );
@@ -280,7 +293,7 @@ class BibWindow extends React.Component {
                               onChange={(_, checked, event) => this.changeInclusion(event, checked, source)}
                               key={index}>
                         <FlexboxGrid align="middle" justify="space-between">
-                            <FlexboxGridItem>
+                            <FlexboxGridItem colspan={18}>
                                 {this.renderFormatType(source)}
                             </FlexboxGridItem>
                             <FlexboxGridItem>
@@ -345,7 +358,7 @@ class BibWindow extends React.Component {
                                       style={{float: 'right'}} cleanable={false} searchable={false}/>
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body >
                     {this.renderBibBody()}
                 </Modal.Body>
                 <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource}

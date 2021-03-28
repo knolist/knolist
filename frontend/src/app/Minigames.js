@@ -30,14 +30,22 @@ class MiniGames extends React.Component {
         })
     }
 
+    generateDisplayValue = (item) => item.title ? item.title : item.content;
+
     updateGames = () => {
         console.log("num items", this.props.items.length);
         const validGames = [];
         // Have different length boundaries for different games
-        validGames.push(<OddOnesOut items={this.props.items} numRounds={this.state.numRounds}/>);
-        validGames.push(<FindCommonality items={this.props.items} numRounds={this.state.numRounds}/>);
+        const customProps = {
+            items: this.props.items,
+            numRounds: this.state.numRounds,
+            generateDisplayValue: this.generateDisplayValue,
+            color: this.props.color
+        }
+        validGames.push(<OddOnesOut {...customProps}/>);
+        validGames.push(<FindCommonality {...customProps}/>);
         if (this.props.items.length > 4) {
-            validGames.push(<MakePairs items={this.props.items} numRounds={this.state.numRounds}/>);
+            validGames.push(<MakePairs {...customProps}/>);
         }
         // Games need to be loaded here to have the most recent items, randomizer needs to be called after the games is updated
         this.setState({games: validGames}, this.randomizer)

@@ -1,7 +1,8 @@
 import React from 'react';
 import {
-    Button, Progress, Input, Form
+    Button, Progress, Input, Form, FlexboxGrid, Grid, Row, ButtonToolbar
 } from "rsuite";
+import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 
 import {randomPicker} from "../../services/RandomGenerator"
 
@@ -41,24 +42,38 @@ class FindCommonality extends React.Component {
     }
 
     render() {
-        console.log(this.state)
         if (this.state.numPlayed < this.props.numRounds)
             return (
                 <>
-                    <h1>What comes to mind?</h1>
-                    <h3>Round {this.state.numPlayed + 1}</h3>
-                    <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
-                    <h5>What is the commonality between the following?</h5>
-                    {this.state.randomItems.map((item, index) =>
-                        <Button block key={index} appearance="primary" color='blue'
-                                style={{margin: 20, display: 'block'}}>{item.title}</Button>)}
-                    <Form onSubmit={this.submitCommon}>
-                        <Input autoFocus type="text" required componentClass="textarea" id={this.state.commonId}
-                               rows={5} placeholder="Write your thoughts here..."/>
-                        <Button appearance="primary" color='blue'
-                                style={{margin: 20, display: 'block'}}
-                                type='submit'>Next</Button>
-                    </Form>
+                                    
+                    <Grid>
+                        <Row>
+                            <h1>What comes to mind?</h1>
+                            <h3>Round {this.state.numPlayed + 1}</h3>
+                        </Row>
+                        <Row>
+                            <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
+                        </Row>
+                        <Row style={{marginTop: "10px"}}>
+                            <h5>What is the commonality between the following?</h5>
+                        </Row>
+                        {this.state.randomItems.map((item, index) =>
+                            <Row style={{marginTop: "20px"}}>
+                                <Button block key={index} appearance="primary" color='blue'
+                                        style={{display: 'block'}}>{this.props.generateDisplayValue(item)}</Button>
+                            </Row>
+                            )}
+                        <Row style={{marginTop: "20px"}}>                            
+                            <Form onSubmit={this.submitCommon}>
+                                <Input autoFocus type="text" required componentClass="textarea" id={this.state.commonId}
+                                    rows={5} placeholder="Write your thoughts here..."/>
+                                <Button appearance="primary" color='blue'
+                                        style={{display: 'block', marginTop: "20px"}}
+                                        type='submit'>Next</Button>
+
+                            </Form>
+                        </Row>  
+                    </Grid>
                 </>
             )
         else {
