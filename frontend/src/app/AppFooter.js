@@ -18,8 +18,11 @@ class AppFooter extends React.Component {
                                 size="lg" onClick={this.props.fit}/>
                 </Whisper>
 
-                <a style={{marginTop: 25}} href={"https://docs.google.com/forms/d/1kt298YLJw1InE8_Zsy5rD_gQ1Ph67mHqTsj-F2Tzvqs/viewform?edit_requested=true"}>
-                    Feedback
+                <a style={{marginTop: 25}}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   href={"https://docs.google.com/forms/d/1kt298YLJw1InE8_Zsy5rD_gQ1Ph67mHqTsj-F2Tzvqs/viewform?edit_requested=true"}>
+                    Feedback?
                 </a>
 
                 <Dropdown style={{marginRight: 15}} trigger={["click", "hover"]} placement="topEnd"
