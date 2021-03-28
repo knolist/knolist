@@ -28,15 +28,15 @@ def create_starter_data():
     project_2.creation_date = datetime.utcnow()
     project_2.recent_access_date = datetime.utcnow()
 
-    source_1 = Source(url='https://www.nationalgeographic.com/animals/mammals/facts/horse/',
+    source_1 = Source(url='https://www.nationalgeographic.com/animals/mammals/facts/horse',
                       title='Test Source 1',
                       author='Nick',
-                      content='This is the content of test source 1')
+                      content='Horses are really neat animals. This is filler content.')
 
     source_2 = Source(url='https://www.messenger.com/',
                       title='Test Source 2',
                       author='Vance',
-                      content='This is the content of test source 2')
+                      content='Other animals are cool such as horses. They are interesting.')
 
     source_3 = Source(url='https://www.test3.com',
                       title='Test Source 3',

@@ -372,12 +372,12 @@ Assume that all `curl` calls include the following:
         {
             "id": 1,
             "title": "New Project",
-            "shared_users": 2,
+            "shared_users": 2
         },
         {
             "id": 2,
             "title": "New Project 2",
-            "shared_users": 1,
+            "shared_users": 1
         }
     ],
     "success": true
@@ -401,7 +401,7 @@ Assume that all `curl` calls include the following:
   "project": {
     "id": 3,
     "title": "New Project",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -425,7 +425,7 @@ Assume that all `curl` calls include the following:
   "project": {
     "id": 1,
     "title": "Updated Title",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -762,6 +762,34 @@ Assume that all `curl` calls include the following:
 }
 ```
 
+### GET '/projects/{project_id}/similarity'
+- For a given project, compute a measure of similarity between all pairs of sources.
+The diagonal entries are also included, where if the i-ith entry is 0, then there was no
+content for that source. Additionally, a map from the source id to its index in the array
+is stored. Also, please note that JS forces int indices to be strings for dictionaries, so regular
+indexing / iterating may require casting
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "index": maps a integer (0 to n sources) to the source_id in the database
+    - "similarity": a JSON-style upper-triangular matrix who's i-jth entry is the similarity 
+    between source i and source j
+ - Sample: `curl https://knolist-api.herokuapp.com/projects/1/similarity`
+```
+200 OK
+```
+```json
+{
+  "index": {"1": 0, "2": 1}, 
+  "similarity": 
+      {
+        "0": {"0": 1.0}, 
+        "1": {"0": 0.326, "1": 1.0}
+      }, 
+  "success": true
+}
+```
+
 ### POST 'items'
 - Creates a new item and adds it to the given project (based on the ID). The item is created based on its type, checking
  that the item has at least fields URL and content (highlight or note).  If the URL is unique, a new source is created
@@ -1085,7 +1113,7 @@ database.  If the user is already a shared user or the user tries to add itself,
  "project": {
     "id": 3,
     "title": "New Project",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -1108,7 +1136,7 @@ database.  If the user is already a shared user or the user tries to add itself,
  "project": {
     "id": 2,
     "title": "New Project",
-    "shared_users": None,
+    "shared_users": null
   },
   "success": true
 }
@@ -1129,7 +1157,7 @@ database.  If the user is already a shared user or the user tries to add itself,
 {
   "project": {
     "id": 1,
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
