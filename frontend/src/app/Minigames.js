@@ -30,8 +30,6 @@ class MiniGames extends React.Component {
         })
     }
 
-    generateDisplayValue = (item) => item.title ? item.title : item.content;
-
     updateGames = () => {
         console.log("num items", this.props.items.length);
         const validGames = [];
@@ -39,7 +37,7 @@ class MiniGames extends React.Component {
         const customProps = {
             items: this.props.items,
             numRounds: this.state.numRounds,
-            generateDisplayValue: this.generateDisplayValue,
+            generateDisplayValue: this.props.generateDisplayValue,
             color: this.props.color
         }
         validGames.push(<OddOnesOut {...customProps}/>);

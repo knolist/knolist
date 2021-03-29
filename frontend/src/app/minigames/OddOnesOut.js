@@ -3,20 +3,28 @@ import {
     Button, Progress, Grid
 } from "rsuite";
 
-import {randomPicker} from "../../services/RandomGenerator"
+import {randomPicker} from "../../services/RandomGenerator";
+import {Network, DataSet} from "vis-network/standalone";
 
 const {Line} = Progress;
 
 class OddOnesOut extends React.Component {
     constructor(props) {
         super(props);
+        this.container = React.createRef();
         this.state = {
             randomItems: this.getRandomItems(),
             numPlayed: 0,
             selectedItems: [],
-            // placement: 'right',
-            show: true
+            show: true,
+            network: null,
+            visNodes: null,
+            visEdges: null,
         }
+    }
+
+    componentDidMount() {
+        this.renderNetwork();
     }
 
     // Randomly select 4 items
@@ -24,27 +32,205 @@ class OddOnesOut extends React.Component {
         return randomPicker(this.props.items, 4);
     }
 
+    // Helper function to setup the nodes and edges for the graph
+    createNodesAndEdges() {
+        let nodes = new DataSet();
+        let edges = new DataSet();
+        // Iterate through each node in the graph and build the arrays of nodes and edges
+        for (let index in this.state.randomItems) {
+            let node = this.state.randomItems[index];
+            let x_position = (index % 2) ? 0 : 500;
+            let y_position = (index < 2) ? 0 : 200;
+
+            nodes.add({id: node.id, label: this.props.generateDisplayValue(node), x: x_position, y: y_position, color: this.props.color(node)});
+        }
+        this.setState({visNodes: nodes, visEdges: edges});
+        return [nodes, edges];
+    }
+
+    renderNetwork = (callback) => {
+        if (this.props.curProject === null) return;
+
+        // this.getItems(() => {
+        // TODO?
+        const [nodes, edges] = this.createNodesAndEdges();
+
+        const container = document.getElementById('OddOnesOut');
+
+        // provide the data in the vis format
+        const data = {
+            nodes: nodes,
+            edges: edges
+        };
+        const options = {
+            nodes: {
+                shape: "box",
+                size: 16,
+                margin: 10,
+                physics: false,
+                chosen: false,
+                font: {
+                    face: "Apple-System",
+                    color: "white"
+                },
+                color: {
+                    background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                },
+                widthConstraint: {
+                    maximum: 500
+                }
+            },
+            edges: {
+                color: "black",
+                physics: false,
+                smooth: false,
+                hoverWidth: 0
+            },
+            interaction: {
+                selectConnectedEdges: false,
+                hover: true,
+                hoverConnectedEdges: false,
+                zoomView: false,
+                dragView: false
+            },
+            manipulation: {
+                enabled: false,
+            }
+        };
+
+        console.log("container", container, "data", data)
+        // Initialize the network -- TODO: WHEN REFACTORING, CHANGE DATA and OPTIONS
+        const network = new Network(container, data, options);
+        network.fit();
+        network.on("click", (params) => {
+            if (params.nodes !== undefined && params.nodes.length > 0) {
+                console.log(params);
+                const nodeId = params.nodes[0];
+                this.chooseItem(this.state.network.body.data.nodes.get(nodeId));
+            }
+        });
+
+        // Set cursor to pointer when hovering over a node
+        network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
+        network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
+
+        // Store the network
+        this.setState({network: network}, callback);
+
+    }
+
+    createFinalNodesAndEdges() {
+        let nodes = new DataSet();
+        let edges = new DataSet();
+        // Iterate through each node in the graph and build the arrays of nodes and edges
+        let counter = 0;
+        console.log(this.state.selectedItems);
+        for (let index in this.state.selectedItems) {
+            let node = this.state.selectedItems[index];
+            let x_position = (index % 2) ? 0 : 500;
+            let y_position = (index < 2) ? 0 : 200;
+
+            nodes.add({id: counter, label: node.label, x: x_position, y: y_position, color: node.color});
+            counter += 1;
+        }
+        this.setState({visNodes: nodes, visEdges: edges});
+        return [nodes, edges];
+    }
+
+    renderFinalNetwork = (callback) => {
+        if (this.props.curProject === null) return;
+
+        // this.getItems(() => {
+        // TODO?
+        const [nodes, edges] = this.createFinalNodesAndEdges();
+
+        const container = document.getElementById('OddOnesOut');
+
+        // provide the data in the vis format
+        const data = {
+            nodes: nodes,
+            edges: edges
+        };
+        const options = {
+            nodes: {
+                shape: "box",
+                size: 16,
+                margin: 10,
+                physics: false,
+                chosen: false,
+                font: {
+                    face: "Apple-System",
+                    color: "white"
+                },
+                color: {
+                    background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                },
+                widthConstraint: {
+                    maximum: 500
+                }
+            },
+            edges: {
+                color: "black",
+                physics: false,
+                smooth: false,
+                hoverWidth: 0
+            },
+            interaction: {
+                selectConnectedEdges: false,
+                hover: true,
+                hoverConnectedEdges: false,
+                zoomView: false,
+                dragView: false
+            },
+            manipulation: {
+                enabled: false,
+                // TODO
+            }
+        };
+
+        console.log("container", container, "data", data)
+        // Initialize the network -- TODO: WHEN REFACTORING, CHANGE DATA and OPTIONS
+        const network = new Network(container, data, options);
+        network.fit();
+
+        // Set cursor to pointer when hovering over a node
+        network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
+        network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
+
+        // Store the network
+        this.setState({network: network}, callback);
+
+    }
+
     updateRandomItems = () => {
+
         this.setState({
             randomItems: this.getRandomItems(),
             // placement: 'right' // need to reset
             show: !this.state.show
             // show: false
-        })
+        });
         console.log('show is false')
         console.log(this.state.show)
     }
 
     chooseItem = (item) => {
-        // console.log(item)
+        console.log(item)
         this.setState({
             numPlayed: this.state.numPlayed + 1,
             selectedItems: [...this.state.selectedItems, item],
             // placement: 'left',
             show: !this.state.show
             // show: true
-        }, this.updateRandomItems)
-        // console.log(this.state.selectedItems)
+        }, () => {
+            this.updateRandomItems();
+            console.log(this.state.selectedItems)
+        });
+        if (this.state.numPlayed < this.props.numRounds) {
+            this.renderNetwork();
+        } else{
+            this.renderFinalNetwork();
+        }
         // console.log(this.state.numPlayed)
         console.log('animation should show')
         console.log(this.state.show)
@@ -59,31 +245,7 @@ class OddOnesOut extends React.Component {
                     <h3>Round {this.state.numPlayed + 1}</h3>
                     <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
                     <h5>Select the odd one out!</h5>
-
-                    {/* Need to figure out how to make animation persist? Disappear and then reappear? */}
-
-                    {/* <AnimatedButton item='test' index='test2'
-                        show={this.state.show} 
-                        placement={this.state.placement} 
-                        chooseItem= {this.chooseItem}
-                        ></AnimatedButton> */}
-                    {/* {this.state.RandomItems.map((item, index) =>
-                        <AnimatedButton item={item} index={index}/>)} */}
-
-                    {this.state.randomItems.map((item, index) => {
-                        console.log(this.props.color(item));
-                        return (
-                            <Button block key={index} appearance="primary" color={this.props.color(item)}
-                                style={{margin: 20, display: 'block'}}
-                                onClick={() => this.chooseItem(item)}>{this.props.generateDisplayValue(item)}</Button>)}
-                        )
-                        
-                    }
-                        
-
-                    {/* <ul>
-                    {this.state.RandomItems.map((item, index) => <li key={index}>{item.title},{item.url}</li>)}
-                </ul> */}
+                    <div id='OddOnesOut' style={{height: 300}}/>
                 </Grid>
             )           
         } else {
@@ -93,10 +255,7 @@ class OddOnesOut extends React.Component {
                     <h3>Well Done!</h3>
                     <h5>Hope you found some inspirations to explore more!</h5>
                     <h5>Here are your selected items:</h5>
-
-                    {this.state.selectedItems.map((item, index) =>
-                        <Button block key={index} appearance="primary" color={item.color}
-                                style={{margin: 20, display: 'block'}}>{this.generateDisplayValue(item)}</Button>)}
+                    <div id='OddOnesOut' style={{height: 300}}/>
                 </>
             )
         }

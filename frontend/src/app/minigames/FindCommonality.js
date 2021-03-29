@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-    Button, Progress, Input, Form, FlexboxGrid, Grid, Row, ButtonToolbar
+    Alert, Button, Progress, Input, Form, FlexboxGrid, Grid, Row, ButtonToolbar
 } from "rsuite";
 import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
+import {Network, DataSet} from "vis-network/standalone";
 
 import {randomPicker} from "../../services/RandomGenerator"
 
@@ -11,12 +12,20 @@ const {Line} = Progress;
 class FindCommonality extends React.Component {
     constructor(props) {
         super(props);
+        this.container = React.createRef();
         this.state = {
             randomItems: this.getRandomItems(),
             numPlayed: 0,
             commonality: [],
-            commonId: 'common-Id'
+            commonId: 'common-Id',
+            network: null,
+            visNodes: null,
+            visEdges: null,
         }
+    }
+
+    componentDidMount() {
+        this.renderNetwork();
     }
 
     // Randomly select 2 items
@@ -24,9 +33,29 @@ class FindCommonality extends React.Component {
         return randomPicker(this.props.items, 2);
     }
 
+    // Helper function to setup the nodes and edges for the graph
+    createNodesAndEdges() {
+        let nodes = new DataSet();
+        let edges = new DataSet();
+        // Iterate through each node in the graph and build the arrays of nodes and edges
+        for (let index in this.state.randomItems) {
+            let node = this.state.randomItems[index];
+            let x_position = (index % 2) ? 0 : 500;
+            let y_position = (index < 2) ? 0 : 200;
+
+            nodes.add({id: node.id, label: this.props.generateDisplayValue(node), x: x_position, y: y_position, color: this.props.color(node)});
+        }
+        this.setState({visNodes: nodes, visEdges: edges});
+        return [nodes, edges];
+    }
+
     updateRandomItems = () => {
         this.setState({
             randomItems: this.getRandomItems(),
+        }, () => {
+            if (this.state.numPlayed < this.props.numRounds) {
+                this.renderNetwork();
+            }
         })
     }
 
@@ -39,6 +68,70 @@ class FindCommonality extends React.Component {
         }, this.updateRandomItems)
         // Clear text area
         textarea.value = "";
+    }
+
+    renderNetwork = (callback) => {
+        if (this.props.curProject === null) return;
+
+        const [nodes, edges] = this.createNodesAndEdges();
+
+        // create a network
+        const container = this.container.current;
+
+        // provide the data in the vis format
+        const data = {
+            nodes: nodes,
+            edges: edges
+        };
+        const options = {
+            nodes: {
+                shape: "box",
+                size: 16,
+                margin: 10,
+                physics: false,
+                chosen: false,
+                font: {
+                    face: "Apple-System",
+                    color: "white"
+                },
+                color: {
+                    background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                },
+                widthConstraint: {
+                    maximum: 500
+                }
+            },
+            edges: {
+                color: "black",
+                physics: false,
+                smooth: false,
+                hoverWidth: 0
+            },
+            interaction: {
+                selectConnectedEdges: false,
+                hover: true,
+                hoverConnectedEdges: false,
+                zoomView: false,
+                dragView: false
+            },
+            manipulation: {
+                enabled: false,
+                // TODO
+            },
+        };
+
+        console.log("container", container, "data", data)
+        // Initialize the network -- TODO: WHEN REFACTORING, CHANGE DATA and OPTIONS
+        const network = new Network(container, data, options);
+        network.fit()
+
+        // Set cursor to pointer when hovering over a node
+        network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
+        network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
+
+        // Store the network
+        this.setState({network: network}, callback);
+
     }
 
     render() {
@@ -57,12 +150,7 @@ class FindCommonality extends React.Component {
                         <Row style={{marginTop: "10px"}}>
                             <h5>What is the commonality between the following?</h5>
                         </Row>
-                        {this.state.randomItems.map((item, index) =>
-                            <Row style={{marginTop: "20px"}}>
-                                <Button block key={index} appearance="primary" color='blue'
-                                        style={{display: 'block'}}>{this.props.generateDisplayValue(item)}</Button>
-                            </Row>
-                            )}
+                        <div ref={this.container} />
                         <Row style={{marginTop: "20px"}}>                            
                             <Form onSubmit={this.submitCommon}>
                                 <Input autoFocus type="text" required componentClass="textarea" id={this.state.commonId}
@@ -86,9 +174,6 @@ class FindCommonality extends React.Component {
                     <ul>
                         {this.state.commonality.map((common, index) => <li key={index}>{common}</li>)}
                     </ul>
-
-                    {/* {this.state.selectedItems.map((item, index) =>
-                        <Button block key={index} appearance="primary" color='blue' style={{ margin: 20, display: 'block'}}>{item.title}</Button>)} */}
                 </>
             )
         }

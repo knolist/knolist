@@ -724,6 +724,8 @@ class MindMap extends React.Component {
         }
     }
 
+    generateDisplayValue = (item) => item.title ? item.title : item.content;
+
     componentDidMount() {
         if (this.state.curClusterView === null) {
             localStorage.setItem("curClusterView", JSON.stringify(null))
@@ -743,14 +745,16 @@ class MindMap extends React.Component {
                     curProject={this.props.curProject}
                     items={this.state.items}
                     color={this.getColor}
-                    network={this.state.network}/>
+                    network={this.state.network}
+                    generateDisplayValue={this.generateDisplayValue}/>
                 <ItemView selectedItem={this.state.selectedItem}
                           setSelectedItem={this.setSelectedItem}
                           getSelectedItemDetails={this.getSelectedItemDetails}
                           renderNetwork={this.renderNetwork}
                           setAddItemMode={this.setAddItemMode}
                           getNodeType={this.getNodeType}
-                          nodeTypes={this.state.types}/>
+                          nodeTypes={this.state.types}
+                          generateDisplayValue={this.generateDisplayValue}/>
                 <NewItemForm showNewItemForm={this.state.showNewItemForm}
                              curProject={this.props.curProject}
                              renderNetwork={this.renderNetwork}

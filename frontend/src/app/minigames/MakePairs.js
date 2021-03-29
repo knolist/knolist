@@ -23,7 +23,8 @@ class MakePairs extends React.Component {
             selectedNode: null,
             items: null,
             loading: false,
-            pairCount: 0
+            pairCount: 0,
+            finalNetwork: false
         }
         console.log("numRounds", this.props.numRounds)
     }
@@ -41,21 +42,7 @@ class MakePairs extends React.Component {
             let x_position = (index % 2) ? 0 : 500;
             let y_position = (index < 2) ? 0 : 200;
 
-            nodes.add({id: node.id, label: this.props.generateDisplayValue(node), x: x_position, y: y_position});
-            // // Deal with positions
-            // if (node.x_position === null || node.y_position === null) {
-            //     // If position is still undefined, generate random x and y in interval [-300, 300]
-            //     const [x, y] = this.generateNodePositions(node);
-            //     this.updateItemPosition(node.id, x, y);
-            //     nodes.add({ id: node.id, label: node.title, x: x, y: y });
-            // } else {
-            //     nodes.add({ id: node.id, label: node.title, x: node.x_position, y: node.y_position });
-            // }
-            // // Deal with edges
-            // for (let nextIndex in node.next_items) {
-            //     const nextId = node.next_items[nextIndex];
-            //     edges.add({ from: node.id, to: nextId })
-            // }
+            nodes.add({id: node.id, label: this.props.generateDisplayValue(node), x: x_position, y: y_position, color: this.props.color(node)});
         }
         this.setState({visNodes: nodes, visEdges: edges});
         return [nodes, edges];
@@ -96,11 +83,6 @@ class MakePairs extends React.Component {
                 }
             },
             edges: {
-                // arrows: {
-                //     to: {
-                //         enabled: true
-                //     }
-                // },
                 color: "black",
                 physics: false,
                 smooth: false,
@@ -118,20 +100,15 @@ class MakePairs extends React.Component {
                 // TODO
                 addEdge: (data, callback) => {
                     console.log('add edge', data);
-                    if (data.from == data.to) {
-                        var r = Alert("Do you want to connect the node to itself?");
-                        if (r === true) {
-                            callback(data);
-                        }
-                    }
-                    else {
+                    if (data.from != data.to) {
                         callback(data);
+                        this.addEdgeConnection(data.from, data.to);
+                        network.addEdgeMode();
                     }
                     // after each adding you will be back to addEdge mode
-                    this.addEdgeConnection(data.from, data.to);
-                    network.addEdgeMode();
+                    
                 }
-            }
+            },
         };
 
         console.log("container", container, "data", data)
@@ -139,35 +116,6 @@ class MakePairs extends React.Component {
         const network = new Network(container, data, options);
         network.addEdgeMode();
         network.fit()
-
-        // Handle click vs drag
-        // network.on("click", (params) => {
-        //     if (params.nodes !== undefined && params.nodes.length > 0) {
-        //         const nodeId = params.nodes[0];
-        //         // console.log("PARAM NODES:", params.nodes);
-        //         // this.handleClickedNode(nodeId);
-        //         // console.log("nodeId", nodeId);
-        //         if (this.state.from_id === null || this.state.from_id === nodeId) {
-        //             this.setState({from_id: nodeId});
-        //         } else {
-        //             this.addEdgeConnection(this.state.from_id, nodeId); // Node Id will be to!
-        //             this.setState({from_id: null});
-        //         }
-        //         // Network.addEdgeMode();
-        //     }
-        // });
-
-        // // Update positions after dragging node
-        // network.on("dragEnd", () => {
-        //     // Only update positions if there is a selected node
-        //     if (network.getSelectedNodes().length !== 0) {
-        //         const id = network.getSelectedNodes()[0];
-        //         const position = network.getPosition(id);
-        //         const x = position.x;
-        //         const y = position.y;
-        //         this.updateItemPosition(id, x, y);
-        //     }
-        // });
 
         // Set cursor to pointer when hovering over a node
         network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
@@ -178,16 +126,110 @@ class MakePairs extends React.Component {
 
     }
 
+    createFinalNodesAndEdges() {
+        let nodes = new DataSet();
+        let edges = new DataSet();
+        let counter = 0;
+        // Iterate through each node in the graph and build the arrays of nodes and edges
+        console.log(this.state.connections);
+        const offset = 100;
+        for (let index in this.state.connections) {
+            let node = this.state.connections[index];
+            // Positions should be fixed 
+            // [0] [1]
+            // [2] [3]
+            let x_position = (index % 2) ? 0 : 500;
+            let y_position = offset * Math.floor(counter/2);
+            if (counter % 2 == 1) {
+                edges.add([{from: counter, to: counter - 1}])
+            }
+            nodes.add({id: counter, label: node.label, x: x_position, y: y_position, color: node.color});
+
+            counter += 1;
+        }
+        this.setState({visNodes: nodes, visEdges: edges});
+        return [nodes, edges];
+    }
+
+
+    renderFinalNetwork = (callback) => {
+        if (this.props.curProject === null) return;
+        
+
+        // this.getItems(() => {
+        // TODO?
+        const [nodes, edges] = this.createFinalNodesAndEdges();
+        console.log(nodes, edges);
+
+        // create a network
+        const container = document.getElementById('MakePairs');
+
+        // provide the data in the vis format
+        const data = {
+            nodes: nodes,
+            edges: edges
+        };
+        console.log(data);
+        const options = {
+            nodes: {
+                shape: "box",
+                size: 16,
+                margin: 10,
+                physics: false,
+                chosen: false,
+                font: {
+                    face: "Apple-System",
+                    color: "white"
+                },
+                color: {
+                    background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                },
+                widthConstraint: {
+                    maximum: 500
+                }
+            },
+            edges: {
+                color: "black",
+                physics: false,
+                smooth: false,
+                hoverWidth: 0
+            },
+            interaction: {
+                selectConnectedEdges: false,
+                hover: true,
+                hoverConnectedEdges: false,
+                zoomView: false,
+                dragView: false
+            },
+            manipulation: {
+                enabled: false,
+                // TODO
+            },
+        };
+
+        console.log("container", container, "data", data)
+        // Initialize the network -- TODO: WHEN REFACTORING, CHANGE DATA and OPTIONS
+        const network = new Network(container, data, options);
+        network.fit()
+
+        // Set cursor to pointer when hovering over a node
+        network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
+        network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
+
+        // Store the network
+        this.setState({finalNetwork: true, network: network}, callback);
+
+    }
+
     addEdgeConnection = (from_id, to_id) => {
         let pairCountCurr = this.state.pairCount + 1;
         this.state.network.body.data.edges.add([{from: from_id, to: to_id}])
         // Add connections to state
-        const fromLabel = this.state.network.body.data.nodes.get(from_id).label;
-        const toLabel = this.state.network.body.data.nodes.get(to_id).label;
-        // console.log("from", fromLabel)
-        // console.log("to", toLabel)
+        console.log(this.state.network.body.data);
+        const fromLabel = this.state.network.body.data.nodes.get(from_id);
+        const toLabel = this.state.network.body.data.nodes.get(to_id);
         this.setState({
-            connections: [...this.state.connections, {from: fromLabel, to: toLabel}],
+            connections: [...this.state.connections, fromLabel, toLabel],
             pairCount: pairCountCurr
         }, () => {
             if (this.state.pairCount == 2) {
@@ -204,6 +246,12 @@ class MakePairs extends React.Component {
     updateRandomItems = () => {
         this.setState({
             randomItems: this.getRandomItems(),
+        }, () => {
+            if (this.state.numPlayed < this.props.numRounds) {
+                this.renderNetwork();
+            } else {
+                this.renderFinalNetwork();
+            }
         })
     }
 
@@ -213,13 +261,9 @@ class MakePairs extends React.Component {
             numPlayed: this.state.numPlayed + 1,
             pairCount: 0
         }, this.updateRandomItems)
-        if (this.state.numPlayed < this.props.numRounds)
-            this.renderNetwork();
     }
 
     componentDidMount() {
-        // const container = document.getElementById('MakePairs');
-        // console.log(container)
         this.renderNetwork();
     }
 
@@ -231,31 +275,18 @@ class MakePairs extends React.Component {
                     <h3>Round {this.state.numPlayed + 1}</h3>
                     <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
                     <div id='MakePairs' style={{height: 300}}/>
-                    {/* <div id='MakePairs'>  */}
-                    {/* <Form onSubmit={this.submitItems}>
-                        <Button appearance="primary" color='blue'
-                                style={{margin: 20, display: 'block'}}
-                                type='submit'>Next</Button>
-                    </Form> */}
 
                 </Grid>
             )
         else {
+            const height = 50 * this.state.connections.length;
             return (
                 <>
                     <h1>Make Pairs</h1>
                     <h3>Well Done!</h3>
                     <h5>Hope you found some inspirations to explore more!</h5>
                     <h5>Here are the connections you have identified:</h5>
-                    {this.state.connections.slice(1, this.state.connections.length).map((connection, index) => [
-                        <Button key={index} appearance="primary" color='blue'
-                                style={{margin: 20}}>{connection.from}</Button>,
-                        // <Button key={index} appearance="primary" color='blue' style={{ margin: 20, display: 'block' }}>{connection.from}</Button>,
-                        // <p key={index + 50}>is related to</p>,
-                        <Divider key={index + 50}>is related to</Divider>,
-                        <Button key={index + 100} appearance="primary" color='blue'
-                                style={{margin: 20}}>{connection.to}</Button>,
-                        <Divider key={index + 200}/>])}
+                    <div id='MakePairs' style={{height: height}}/>
                 </>
             )
         }
