@@ -422,6 +422,7 @@ class MindMap extends React.Component {
     }
 
     createClusters() {
+        //console.log("createClusters()");
         let clusterNodes = new DataSet();
         if (this.state.clusters.length === 0) {
             return clusterNodes;
@@ -502,6 +503,7 @@ class MindMap extends React.Component {
     }
 
     renderNetwork = (callback) => {
+        //console.log("renderNetwork()");
         if (this.props.curProject === null) return;
 
         this.getItems(() => {
@@ -697,6 +699,14 @@ class MindMap extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        Object.entries(this.props).forEach(([key, val]) =>
+        prevProps[key] !== val && console.log(`Prop '${key}' changed`)
+        );
+        if (this.state) {
+            Object.entries(this.state).forEach(([key, val]) =>
+                prevState[key] !== val && console.log(`State '${key}' changed`)
+            );
+        }
         if (prevProps.curProject !== this.props.curProject) {
             // Set items to null before updating to show loading icon
             this.setState({items: null}, this.renderNetwork);
@@ -757,6 +767,7 @@ class MindMap extends React.Component {
     }
 
     componentDidMount() {
+        //console.log("componentDidMount()");
         if (this.state.curClusterView === null) {
             localStorage.setItem("curClusterView", JSON.stringify(null))
         }

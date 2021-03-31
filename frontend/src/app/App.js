@@ -103,6 +103,7 @@ class App extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
+            //console.log("here");
             if (this.state.curProject === null) {
                 this.setState({curProject: this.state.projects[0]})
             }
