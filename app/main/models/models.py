@@ -114,11 +114,10 @@ class Cluster(BaseModel):
     def __repr__(self):
         return f'<Cluster {self.id}: {self.name}>'
 
-    def count_items(self, count):
-        items = len(self.child_items)
-        count += items
+    def count_items(self):
+        count = len(self.child_items)
         for child_cluster in self.child_clusters:
-            count += child_cluster.count_items(count)
+            count += child_cluster.count_items()
         return count
 
     def format(self):
@@ -131,7 +130,7 @@ class Cluster(BaseModel):
             'child_clusters': [cluster.id for cluster in self.child_clusters],
             'child_items': [item.format() for item in self.child_items],
             'parent_cluster': self.parent_cluster_id,
-            'total_items': self.count_items(0)
+            'total_items': self.count_items()
         }
 
 
