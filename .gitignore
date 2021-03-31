@@ -135,4 +135,6 @@ dmypy.json
 .pyre/
 
 #Node modules
-/node_modules.DS_Store
+/node_modules
+
+.DS_Store
