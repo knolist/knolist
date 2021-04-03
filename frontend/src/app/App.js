@@ -103,6 +103,7 @@ class App extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
+            //console.log("here");
             if (this.state.curProject === null) {
                 this.setState({curProject: this.state.projects[0]})
             }
@@ -111,23 +112,26 @@ class App extends React.Component {
     }
 
     render() {
-        return (
-            <div>
-                <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
-                           searchQuery={this.state.searchQuery}
-                           setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
-                <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                 projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
-                                 close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
-                                 setCurProject={this.setCurProject}/>
-                {this.projectsButton()}
-                <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                         setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
-                         filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
-                         showSharedProject={this.state.showSharedProject}
-                         updateProjects={this.updateProjects}/>
-            </div>
-        );
+        if (this.state.curProject === null) return <Loader size="lg" backdrop center/>
+        else {
+            return (
+                <div>
+                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
+                               searchQuery={this.state.searchQuery}
+                               setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
+                    <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
+                                     projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
+                                     close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
+                                     setCurProject={this.setCurProject}/>
+                    {this.projectsButton()}
+                    <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
+                             setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
+                             filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
+                             showSharedProject={this.state.showSharedProject}
+                             updateProjects={this.updateProjects}/>
+                </div>
+            );
+        }
     }
 }
 
