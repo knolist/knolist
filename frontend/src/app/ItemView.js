@@ -76,8 +76,9 @@ class ItemView extends React.Component {
             <div>
                 <ConfirmDeletionWindow confirmDelete={this.state.confirmDelete}
                                        resetDelete={() => this.setConfirmDelete(false)}
-                                       title={item.title} delete={this.deleteItem}
-                                       loading={this.state.loadingDelete}/>
+                                       title={this.props.generateDisplayValue(item)} delete={this.deleteItem}
+                                       loading={this.state.loadingDelete}
+                                       />
                 <Modal size="md" show onHide={this.close}>
                     {this.generateItemBody(item, typeOfNode, nodeTypes)}
                     <Modal.Footer>
