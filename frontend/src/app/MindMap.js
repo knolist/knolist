@@ -455,10 +455,13 @@ class MindMap extends React.Component {
                     border: "#00c0de"
                 }
             })
-            if (cluster.child_items.length > 2) {
+            console.log(cluster);
+            if (cluster.total_items > 2) {
                 const totalNodes = cluster.total_items - 2;
                 let numLabel = " items";
-                if (totalNodes < 2) numLabel = " item"
+                if (totalNodes < 2) numLabel = " item";
+                console.log("here");
+                console.log("totalNodes: " + totalNodes);
                 clusterNodes.add({
                     group: "inCluster",
                     id: this.generateVisInClusterId(cluster, "count"),
@@ -699,14 +702,6 @@ class MindMap extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        Object.entries(this.props).forEach(([key, val]) =>
-        prevProps[key] !== val && console.log(`Prop '${key}' changed`)
-        );
-        if (this.state) {
-            Object.entries(this.state).forEach(([key, val]) =>
-                prevState[key] !== val && console.log(`State '${key}' changed`)
-            );
-        }
         if (prevProps.curProject !== this.props.curProject) {
             // Set items to null before updating to show loading icon
             this.setState({items: null}, this.renderNetwork);
