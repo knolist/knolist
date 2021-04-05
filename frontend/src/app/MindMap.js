@@ -455,13 +455,10 @@ class MindMap extends React.Component {
                     border: "#00c0de"
                 }
             })
-            console.log(cluster);
             if (cluster.total_items > 2) {
                 const totalNodes = cluster.total_items - 2;
                 let numLabel = " items";
                 if (totalNodes < 2) numLabel = " item";
-                console.log("here");
-                console.log("totalNodes: " + totalNodes);
                 clusterNodes.add({
                     group: "inCluster",
                     id: this.generateVisInClusterId(cluster, "count"),
@@ -637,8 +634,10 @@ class MindMap extends React.Component {
                                         }
                                     }
                                 });
-                                if (this.state.curClusterView !== null && this.state.raiseLevelButtonHover) {
+                                if (this.state.curClusterView && this.state.raiseLevelButtonHover) {
                                     this.setState({showRemoveItemFromClusterMessage: true});
+                                } else if (this.state.curClusterView && !this.state.raiseLevelButtonHover) {
+                                    this.setState({showRemoveItemFromClusterMessage: false});
                                 }
                             } else {
                                 if (this.state.newClusterIds && !isOverlap(boundingBox, network.getBoundingBox(this.state.newClusterIds.item2))) {
@@ -646,9 +645,6 @@ class MindMap extends React.Component {
                                 }
                                 if (this.state.existingClusterId && !isOverlap(boundingBox, network.getBoundingBox(this.state.existingClusterId))) {
                                     this.setShowAddToClusterHelperMessage(false)
-                                }
-                                if (this.state.curClusterView && !this.state.raiseLevelButtonHover) {
-                                    this.setState({showRemoveItemFromClusterMessage: false});
                                 }
                             }
                         }
@@ -762,7 +758,6 @@ class MindMap extends React.Component {
     }
 
     componentDidMount() {
-        //console.log("componentDidMount()");
         if (this.state.curClusterView === null) {
             localStorage.setItem("curClusterView", JSON.stringify(null))
         }
