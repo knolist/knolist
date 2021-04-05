@@ -215,6 +215,11 @@ Run the database migrations to create the schema of the `knolist` database:
 python manage.py db upgrade
 ```
 
+If you run into issues with this command (`FATAL: password authentication failed for user "postgres"`), try running:
+```bash
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+```
+
 ### Data Modeling
 - The models used for this app can be found in `app/main/models/models.py`
 - The database consists of three tables: `projects`, `sources`, and `edges`
