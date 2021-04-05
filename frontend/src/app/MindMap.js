@@ -692,7 +692,6 @@ class MindMap extends React.Component {
 
                 // Store the network
                 this.setState({network: network}, callback);
-
             })
         })
     }
@@ -768,7 +767,6 @@ class MindMap extends React.Component {
         if (this.props.curProject === null || (this.state.loading && (this.state.items === null || this.state.clusters === null))) {
             return <Loader size="lg" backdrop center/>
         }
-
         return (
             <div>
                 <div id="mindmap"/>
