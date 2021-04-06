@@ -55,6 +55,7 @@ function Header(props) {
             <Dropdown noCaret icon={<Icon icon="user" size={"lg"} />} placement="bottomEnd">
               <Link to="/settings"><Dropdown.Item componentClass="span" className="react-router-styling">Settings</Dropdown.Item></Link>
               <Dropdown.Item onClick={() => {
+                localStorage.removeItem(process.env.REACT_APP_LOCAL_STORAGE_CUR_PROJECT);
                 logout({
                   returnTo: window.location.origin,
                 });

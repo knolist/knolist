@@ -18,8 +18,10 @@ import '../index.css';
 class App extends React.Component {
     constructor(props) {
         super(props);
+        const curProjectKey = process.env.REACT_APP_LOCAL_STORAGE_CUR_PROJECT;
         this.state = {
-            curProject: JSON.parse(localStorage.getItem("curProject")),
+            curProjectKey: curProjectKey,
+            curProject: JSON.parse(localStorage.getItem(curProjectKey)),
             projects: null,
             showProjectsSidebar: false,
             showBib: false,
@@ -107,7 +109,7 @@ class App extends React.Component {
             if (this.state.curProject === null) {
                 this.setState({curProject: this.state.projects[0]})
             }
-            localStorage.setItem("curProject", JSON.stringify(this.state.curProject));
+            localStorage.setItem(this.state.curProjectKey, JSON.stringify(this.state.curProject));
         }
     }
 

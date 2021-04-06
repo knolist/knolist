@@ -29,7 +29,7 @@ function NewProjectModal(props) {
             }
         }
         makeHttpRequest("/projects", "POST", body).then(response => {
-            localStorage.setItem("curProject", JSON.stringify(response.body.project));
+            localStorage.setItem(process.env.REACT_APP_LOCAL_STORAGE_CUR_PROJECT, JSON.stringify(response.body.project));
             setShow(false);
             if (props.fromSidebar) history.go(0);
             else history.push("/");
