@@ -1,6 +1,7 @@
 # Other
 /.idea
 login_link.txt
+deployed_commands.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
