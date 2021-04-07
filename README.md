@@ -1282,6 +1282,32 @@ no new connection is created, and a 200 status code is returned to signify that
 }
 ```
 
+### GET '/clusters/{cluster_id}/subsources'
+- Gets all the sources that occur at this cluster or in a
+  nested cluster
+    - "success": holds `true` if the request was successful
+    - "sources": a list of `source` objects
+```
+200 OK
+```
+```json
+{
+  "sources": [
+    {"access_date": null, 
+      "author": "Vini", 
+      "firstName": "ini", 
+      "id": 3, 
+      "is_included": null, 
+      "lastName": "Vin", 
+      "project_id": 2, 
+      "published_date": null, 
+      "site_name": null, 
+      "title": "Test Source 3", 
+      "url": "https://www.test3.com"}], 
+  "success": true
+}
+```
+
 ### DELETE '/clusters/{cluster_id}'
 - Deletes a given cluster and all 
 - Returns: A JSON object with the following keys:
