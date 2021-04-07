@@ -242,5 +242,14 @@ class TestClustersEndpoints(unittest.TestCase):
                    headers=auth_header)
         self.assertEquals(res.status_code, 400)
 
+    def test_get_sources_under_cluster(self):
+        res = self.client() \
+            .get(f'/clusters/{self.cluster_1.id}/subsources',
+                 headers=auth_header)
+        self.assertEquals(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEquals(len(data['sources']), 1)
+
+
 if __name__ == '__main__':
     unittest.main()
