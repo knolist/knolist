@@ -20,7 +20,8 @@ def create_app(config_name):
                     'http://localhost:3001',
                     'http://knolist.herokuapp.com',
                     'http://knolist-api.herokuapp.com',
-                    'https://app.knolist.com'],
+                    'https://app.knolist.com',
+                    'chrome-extension://ljjgadmlbbmcmbmgapjjklbnlliedefc'],
         'methods': ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
         'allow_headers': ['Content-Type', 'Authorization', 'true']
     }
