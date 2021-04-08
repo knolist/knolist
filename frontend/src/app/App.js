@@ -112,22 +112,23 @@ class App extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{height:"100%"}}>
                 <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
-                           searchQuery={this.state.searchQuery}
-                           setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
+                            searchQuery={this.state.searchQuery}
+                            setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                 projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
-                                 close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
-                                 setCurProject={this.setCurProject}/>
+                                    projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
+                                    close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
+                                    setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
                 <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                         setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
-                         filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
-                         showSharedProject={this.state.showSharedProject}
-                         updateProjects={this.updateProjects}/>
+                            setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
+                            filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
+                            showSharedProject={this.state.showSharedProject}
+                            updateProjects={this.updateProjects}/>
             </div>
         );
+
     }
 }
 

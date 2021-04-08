@@ -14,7 +14,7 @@
 }
 
 #mindmap {
-    height: 665px;
+    height: 100%
 }
 
 #mindmap .vis-network:focus {
@@ -29,14 +29,6 @@
     margin-bottom: 7px;
 }
 
-#footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-}
-
 .footer-btn {
     margin: 5px 20px 20px 20px;
 }
@@ -47,6 +39,15 @@
 
 #new-project-name {
     margin-bottom: 10px;
+}
+
+.center-header-title {
+    position: absolute;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
 }
 
 /* My Knolist styling */

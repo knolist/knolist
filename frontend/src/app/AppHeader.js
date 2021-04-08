@@ -3,21 +3,21 @@ import {
     Checkbox, CheckboxGroup, Divider, Dropdown, FlexboxGrid, Icon, IconButton, Navbar,
     Tooltip, Whisper
 } from "rsuite";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import horizontalLogo from "../images/horizontal_main.png";
 import SearchBar from "../components/SearchBar.js";
 
 function AppHeader(props) {
     return (
-        <Navbar style={{padding: "0 10px"}}>
+        <Navbar style={{ padding: "0 10px" }}>
             <FlexboxGrid justify="space-between" align="middle">
                 <Link to="/my-projects">
                     <Navbar.Header>
                         <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
                     </Navbar.Header>
                 </Link>
-                <FlexboxGrid.Item>
+                <div className="center-header-title">
                     {
                         props.curProject === null ?
                             null :
@@ -27,7 +27,7 @@ function AppHeader(props) {
                             }}>{props.curProject.title}</span>
 
                     }
-                </FlexboxGrid.Item>
+                </div>
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
                         <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery}
