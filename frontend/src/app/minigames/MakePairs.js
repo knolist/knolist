@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Button, Progress, Form, Divider, Grid, Alert
+    Button, Progress, Divider, Grid, Alert
 } from "rsuite";
 import {Network, DataSet} from "vis-network/standalone";
 
@@ -102,7 +102,13 @@ class MakePairs extends React.Component {
                 // TODO
                 addEdge: (data, callback) => {
                     console.log('add edge', data);
-                    if (data.from != data.to) {
+                    if (data.from === data.to) {
+                        var r = Alert("Do you want to connect the node to itself?");
+                        if (r === true) {
+                            callback(data);
+                        }
+                    }
+                    else {
                         callback(data);
                         this.addEdgeConnection(data.from, data.to);
                         network.addEdgeMode();
@@ -234,7 +240,7 @@ class MakePairs extends React.Component {
             connections: [...this.state.connections, fromLabel, toLabel],
             pairCount: pairCountCurr
         }, () => {
-            if (this.state.pairCount == 2) {
+            if (this.state.pairCount === 2) {
                 this.submitItems();
             }
         })

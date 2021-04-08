@@ -125,9 +125,9 @@ def set_cluster_routes(app):
         cluster.child_items.append(item1)
         cluster.child_items.append(item2)
         cluster.update()
-        # TODO: test to see if the next 2 lines work
-        # item1.project = None
-        # item2.project = None
+
+        item1.project = None
+        item2.project = None
         status_code = 201
 
         return jsonify({
@@ -170,9 +170,14 @@ def set_cluster_routes(app):
 
         if item.cluster != cluster:
             abort(400)
-        item.cluster = cluster.parent_cluster
+
+        if not cluster.parent_cluster:
+            item.cluster = None
+            cluster.project.items.append(item)
+        else:
+            cluster.parent_cluster.child_items.append(item)
         item.update()
-        status_code = 201
+        status_code = 200
         return jsonify({
             'success': True,
             'cluster': cluster.format()

@@ -215,6 +215,11 @@ Run the database migrations to create the schema of the `knolist` database:
 python manage.py db upgrade
 ```
 
+If you run into issues with this command (`FATAL: password authentication failed for user "postgres"`), try running:
+```bash
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+```
+
 ### Data Modeling
 - The models used for this app can be found in `app/main/models/models.py`
 - The database consists of three tables: `projects`, `sources`, and `edges`
@@ -271,6 +276,12 @@ To run the `unittest` test suite, run the following command from the root direct
 ```bash
 python manage.py test
 ```
+
+To run tests and obtain the code coverage, run the following command:
+```bash
+coverage run --source=./app/main manage.py test
+```
+Results can be found after running `coverage html` and opening `./htmlcov/index.html` in the browser.
 
 A [Postman collection](./knolist.postman_collection.json) with a valid JWT is also included to facilitate testing the 
 endpoints. The collection doesn't have any tests, since those are done through unittest.
@@ -366,12 +377,12 @@ Assume that all `curl` calls include the following:
         {
             "id": 1,
             "title": "New Project",
-            "shared_users": 2,
+            "shared_users": 2
         },
         {
             "id": 2,
             "title": "New Project 2",
-            "shared_users": 1,
+            "shared_users": 1
         }
     ],
     "success": true
@@ -395,7 +406,7 @@ Assume that all `curl` calls include the following:
   "project": {
     "id": 3,
     "title": "New Project",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -419,7 +430,7 @@ Assume that all `curl` calls include the following:
   "project": {
     "id": 1,
     "title": "Updated Title",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -756,6 +767,34 @@ Assume that all `curl` calls include the following:
 }
 ```
 
+### GET '/projects/{project_id}/similarity'
+- For a given project, compute a measure of similarity between all pairs of sources.
+The diagonal entries are also included, where if the i-ith entry is 0, then there was no
+content for that source. Additionally, a map from the source id to its index in the array
+is stored. Also, please note that JS forces int indices to be strings for dictionaries, so regular
+indexing / iterating may require casting
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "index": maps a integer (0 to n sources) to the source_id in the database
+    - "similarity": a JSON-style upper-triangular matrix who's i-jth entry is the similarity 
+    between source i and source j
+ - Sample: `curl https://knolist-api.herokuapp.com/projects/1/similarity`
+```
+200 OK
+```
+```json
+{
+  "index": {"1": 0, "2": 1}, 
+  "similarity": 
+      {
+        "0": {"0": 1.0}, 
+        "1": {"0": 0.326, "1": 1.0}
+      }, 
+  "success": true
+}
+```
+
 ### POST 'items'
 - Creates a new item and adds it to the given project (based on the ID). The item is created based on its type, checking
  that the item has at least fields URL and content (highlight or note).  If the URL is unique, a new source is created
@@ -876,6 +915,41 @@ signify that.
   "success": true
 }
 ```
+
+### GET '/sources/{source_id}/items'
+- Gets all items that belong to a single source.
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "items": an array of formatted items
+- Sample: `curl https://knolist-api.herokuapp.com/sources/1/items`
+```
+{
+  "items": [
+    {
+      "id": 1,    
+      "url": "https://en.wikipedia.org/wiki/Robert_Browning",      
+      "parent_project": 1,
+      "title": "Robert Browning - Wikipedia",
+      "content": "This is a highlight",
+      "is_note": false,
+      "x_position": null,
+      "y_position": null
+    },
+    {
+      "id": 2,
+      "url": "https://en.wikipedia.org/wiki/My_Last_Duchess",
+      "parent_project": 1,
+      "title": "My Last Duchess - Wikipedia",
+      "is_note": false,
+      "x_position": null,
+      "y_position": null
+    }
+  ],
+  "success": true
+}
+```
+
 
 ### DELETE '/sources/{source_id}'
 - Deletes a source based on its ID.
@@ -1044,7 +1118,7 @@ database.  If the user is already a shared user or the user tries to add itself,
  "project": {
     "id": 3,
     "title": "New Project",
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }
@@ -1067,7 +1141,7 @@ database.  If the user is already a shared user or the user tries to add itself,
  "project": {
     "id": 2,
     "title": "New Project",
-    "shared_users": None,
+    "shared_users": null
   },
   "success": true
 }
@@ -1088,7 +1162,7 @@ database.  If the user is already a shared user or the user tries to add itself,
 {
   "project": {
     "id": 1,
-    "shared_users": 2,
+    "shared_users": 2
   },
   "success": true
 }

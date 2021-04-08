@@ -55,6 +55,26 @@ class TestItemsEndpoints(unittest.TestCase):
             'parent_cluster': self.cluster.id
         }
 
+        self.new_item_source_1 = {
+            'url': "https://en.wikipedia.org/wiki/Horse",
+            'is_note': False,
+            'content': 'Horse Source',
+            'x_position': self.item_1.x_position + 50,
+            'y_position': self.item_1.y_position + 50,
+            'parent_cluster': self.cluster.id
+        }
+
+        self.new_item_source_2 = {
+            'url': "https://www.messenger.com/",
+            'is_note': False,
+            'content': 'FB Messenger',
+            'x_position': self.item_1.x_position + 50,
+            'y_position': self.item_1.y_position + 50,
+            'parent_cluster': self.cluster.id
+        }
+
+
+
     def tearDown(self):
         """Executed after each test."""
         pass
@@ -200,3 +220,20 @@ class TestItemsEndpoints(unittest.TestCase):
         data = json.loads(res.data)
         self.assertEqual(res.status_code, 201)
         self.assertEqual(len(self.cluster.child_items), 2)
+
+    def test_create_item_source_content(self):
+        # Source has a content
+        res = self.client().post('/items',
+                                json=self.new_item_source_1,
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertTrue(data['success'])
+
+
+    def test_create_item_source_no_content(self):
+        # Source does not have a content
+        res = self.client().post('/items',
+                                json=self.new_item_source_2,
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertTrue(data['success'])

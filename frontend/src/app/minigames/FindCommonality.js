@@ -1,9 +1,15 @@
 import React from 'react';
 import {
+<<<<<<< HEAD
     Alert, Button, Progress, Input, Form, FlexboxGrid, Grid, Row, ButtonToolbar
 } from "rsuite";
 import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 import {Network, DataSet} from "vis-network/standalone";
+=======
+    Button, Progress, Input, Form, Grid, Row
+} from "rsuite";
+// import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
+>>>>>>> dev
 
 import {randomPicker} from "../../services/RandomGenerator";
 

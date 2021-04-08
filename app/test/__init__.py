@@ -28,17 +28,17 @@ def create_starter_data():
     project_2.creation_date = datetime.utcnow()
     project_2.recent_access_date = datetime.utcnow()
 
-    source_1 = Source(url='https://test1.com',
+    source_1 = Source(url='https://www.nationalgeographic.com/animals/mammals/facts/horse',
                       title='Test Source 1',
                       author='Nick',
-                      content='This is the content of test source 1')
+                      content='Horses are really neat animals. This is filler content.')
 
-    source_2 = Source(url='https://test2.com',
+    source_2 = Source(url='https://www.messenger.com/',
                       title='Test Source 2',
                       author='Vance',
-                      content='This is the content of test source 2')
+                      content='Other animals are cool such as horses. They are interesting.')
 
-    source_3 = Source(url='https://test3.com',
+    source_3 = Source(url='https://www.test3.com',
                       title='Test Source 3',
                       author='Vini',
                       content='This is the content of test source 3')
@@ -78,7 +78,7 @@ def create_starter_data():
     item_1.project = source_1.project
     item_2.project = source_2.project
     item_3.project = source_3.project
-    item_4.project = source_3.project
+    # item_4.project = source_3.project
     item_1.date_of_creation = datetime.utcnow()
     item_2.date_of_creation = datetime.utcnow()
     item_3.date_of_creation = datetime.utcnow()
@@ -86,7 +86,7 @@ def create_starter_data():
     cluster_1 = Cluster(name="Test Cluster",
                         x_position=300,
                         y_position=-40)
-    cluster_1.child_items.append(item_1)
+    cluster_1.child_items.append(item_4)
     project_1.clusters.append(cluster_1)
 
     project_1.insert()
