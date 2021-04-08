@@ -58,7 +58,7 @@ function ListView(props) {
                     href={item.url} style={{ fontSize: "1.3em" }}>
                     {item.url}
                   </a>
-                  <ul style={{listStyleType:"none", paddingTop:0, paddingLeft:0, paddingRight:0}}>
+                  <ul style={{listStyleType:"none", padding:0}}>
                     {content.map((c, i) => {
                       return (
                         <li key={i}>{c}</li>
