@@ -23,6 +23,7 @@ class MiniGames extends React.Component {
     }
 
     randomizer = () => {
+
         this.setState({
             selectedGame: this.state.games[Math.floor(Math.random() *
                 this.state.games.length)],
@@ -38,6 +39,7 @@ class MiniGames extends React.Component {
             items: this.props.items,
             numRounds: this.state.numRounds,
             generateDisplayValue: this.props.generateDisplayValue,
+            similarity:this.props.similarity,
             color: this.props.color
         }
         validGames.push(<OddOnesOut {...customProps}/>);

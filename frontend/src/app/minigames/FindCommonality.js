@@ -5,7 +5,9 @@ import {
 import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 import {Network, DataSet} from "vis-network/standalone";
 
-import {randomPicker} from "../../services/RandomGenerator"
+import {randomPicker} from "../../services/RandomGenerator";
+
+import {randomSimilarPicker} from "../../services/RandomGenerator"
 
 const {Line} = Progress;
 
@@ -30,6 +32,7 @@ class FindCommonality extends React.Component {
 
     // Randomly select 2 items
     getRandomItems = () => {
+        // return randomSimilarPicker(this.props.items, 2, this.props.similarity);
         return randomPicker(this.props.items, 2);
     }
 

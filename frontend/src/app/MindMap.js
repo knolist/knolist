@@ -17,7 +17,8 @@ import RaiseLevelButton from "../components/RaiseLevelButton"
 import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
 import throttle from "../services/throttle";
-import isOverlap from "../services/isOverlap"
+import isOverlap from "../services/isOverlap";
+import GraphView from "./GraphView";
 
 class MindMap extends React.Component {
     constructor(props) {
@@ -48,6 +49,7 @@ class MindMap extends React.Component {
             visNodes: null,
             selectedItem: null,
             items: null,
+            similarity: null,
             nonSelectedNodes: null,
             clusters: null,
             loading: false,
@@ -198,14 +200,19 @@ class MindMap extends React.Component {
             }
 
             const response = await makeHttpRequest(endpoint);
+            endpoint = "/projects/" + this.props.curProject.id + "/similarity";
+            const response2 = await makeHttpRequest(endpoint);
 
             this.setLoading(false);
-            this.setState({items: response.body.items}, callback);
+            this.setState({items: response.body.items, similarity: response2.body.similarity}, callback);
         } else {
             const endpoint = "/clusters/" + this.state.curClusterView.id;
+            endpoint = "/projects/" + this.props.curProject.id + "/similarity";
             const response = await makeHttpRequest(endpoint);
+            const response2 = await makeHttpRequest(endpoint);
             this.setLoading(false);
-            this.setState({items: response.body.cluster.child_items}, callback);
+
+            this.setState({items: response.body.cluster.child_items, similarity: response2.body.similarity}, callback);
         }
     }
 
@@ -737,7 +744,7 @@ class MindMap extends React.Component {
         if (this.props.curProject === null || (this.state.loading && (this.state.items === null || this.state.clusters === null))) {
             return <Loader size="lg" backdrop center/>
         }
-
+        console.log(this.state.clusters);
         return (
             <div>
                 <div id="mindmap"/>
@@ -746,7 +753,8 @@ class MindMap extends React.Component {
                     items={this.state.items}
                     color={this.getColor}
                     network={this.state.network}
-                    generateDisplayValue={this.generateDisplayValue}/>
+                    generateDisplayValue={this.generateDisplayValue}
+                    similarity={this.state.similarity}/>
                 <ItemView selectedItem={this.state.selectedItem}
                           setSelectedItem={this.setSelectedItem}
                           getSelectedItemDetails={this.getSelectedItemDetails}
@@ -778,6 +786,7 @@ class MindMap extends React.Component {
                 <RaiseLevelButton curClusterView={this.state.curClusterView}
                                   setCurClusterView={this.setCurClusterView}/>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
+                <GraphView clusters={this.state.clusters} curProject={this.props.curProject}/>
             </div>
         );
     }

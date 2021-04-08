@@ -4,6 +4,8 @@ import {
 } from "rsuite";
 
 import {randomPicker} from "../../services/RandomGenerator";
+
+import {randomSimilarPicker} from "../../services/RandomGenerator";
 import {Network, DataSet} from "vis-network/standalone";
 
 const {Line} = Progress;
@@ -29,6 +31,7 @@ class OddOnesOut extends React.Component {
 
     // Randomly select 4 items
     getRandomItems = () => {
+        // return randomSimilarPicker(this.props.items, 4, this.props.similarity);
         return randomPicker(this.props.items, 4);
     }
 

@@ -5,7 +5,9 @@ import {
 import {Network, DataSet} from "vis-network/standalone";
 
 
-import {randomPicker} from "../../services/RandomGenerator"
+import {randomPicker} from "../../services/RandomGenerator";
+
+import {randomSimilarPicker} from "../../services/RandomGenerator";
 
 const {Line} = Progress;
 
@@ -240,6 +242,7 @@ class MakePairs extends React.Component {
 
     // Randomly select 4 items
     getRandomItems = () => {
+        // return randomSimilarPicker(this.props.items, 4, this.props.similarity);
         return randomPicker(this.props.items, 4);
     }
 

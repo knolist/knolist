@@ -6,6 +6,7 @@ import Page from "./my-knolist/Page.js";
 import Settings from "./my-knolist/Settings.js";
 
 import App from './app/App.js';
+import GraphView from './app/GraphView.js';
 import KnolistAuthProvider from "./authentication/auth-provider";
 
 ReactDOM.render(
@@ -26,6 +27,9 @@ ReactDOM.render(
                 </Route>
                 <Route path="/settings">
                     <Settings />
+                </Route>
+                <Route path="/graph">
+                    <GraphView />
                 </Route>
             </KnolistAuthProvider>
         </Switch>
