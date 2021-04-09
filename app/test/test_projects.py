@@ -322,6 +322,14 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(url_breakdown["www.test3.com"], 1)
 
 
+    def test_get_all_stats(self):
+        res = self.client().get(f'/projects/statistics',
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(data), 2)
+
+
     def test_single_filter_search_items(self):
         query = quote('Source')
         filter = quote('title')
