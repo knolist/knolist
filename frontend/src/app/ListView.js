@@ -41,8 +41,9 @@ function ListView(props) {
         {items.map((item, index) => {
           if (!item.url) { //pure note
             return (
-              <List.Item key={index} style={{ paddingLeft: "1em", paddingRight: "1em", backgroundColor: "#FAD4A6" }}>
-                {item.content}
+              <List.Item key={index} style={{ paddingLeft: "1em", paddingRight: "1em" }}>
+                <div style={{ backgroundColor: "#FAD4A6", width: ".5%", height: "100%", position: "absolute", left: 0, top: 0 }}></div>
+                <div style={{ paddingLeft: ".3em" }}>{item.content}</div>
               </List.Item>
             );
           }
@@ -53,29 +54,35 @@ function ListView(props) {
             console.log(content.length);
             if (content.length > 0) { //source and note/highlight
               return (
-                <List.Item key={index} style={{ paddingLeft: "1em", paddingRight: "1em", backgroundColor: "#96DFBB" }}>
-                  <a target="_blank" rel="noopener noreferrer"
-                    href={item.url} style={{ fontSize: "1.3em" }}>
-                    {item.url}
-                  </a>
-                  <ul style={{listStyleType:"none", padding:0}}>
-                    {content.map((c, i) => {
-                      return (
-                        <li key={i}>{c}</li>
-                      );
-                    })}
-                  </ul>
+                <List.Item key={index} style={{ paddingLeft: "1em", paddingRight: "1em" }}>
+                  <div style={{ backgroundColor: "#96DFBB", width: ".5%", height: "100%", position: "absolute", left: 0, top: 0 }}></div>
+                  <div style={{ paddingLeft: ".3em" }}>
+                    <a target="_blank" rel="noopener noreferrer"
+                      href={item.url} style={{ fontSize: "1.3em" }}>
+                      {item.url}
+                    </a>
+                    <ul style={{ listStyleType: "none", padding: 0 }}>
+                      {content.map((c, i) => {
+                        return (
+                          <li key={i}>{c}</li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </List.Item>
               );
             }
             else { //pure source
               console.log("pure source");
               return (
-                <List.Item key={index} style={{ paddingLeft: "1em", paddingRight: "1em", backgroundColor: "#ADF4FF" }}>
-                  <a target="_blank" rel="noopener noreferrer"
-                    href={item.url} style={{ fontSize: "1.3em" }}>
-                    {item.url}
-                  </a>
+                <List.Item key={index} style={{ paddingLeft: "1em", paddingRight: "1em" }}>
+                  <div style={{ backgroundColor: "#ADF4FF", width: ".5%", height: "100%", position: "absolute", left: 0, top: 0 }}></div>
+                  <div style={{ paddingLeft: ".3em" }}>
+                    <a target="_blank" rel="noopener noreferrer"
+                      href={item.url} style={{ fontSize: "1.3em" }}>
+                      {item.url}
+                    </a>
+                  </div>
                 </List.Item>
               );
             }
