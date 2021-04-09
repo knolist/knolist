@@ -18,8 +18,10 @@ function Main(props) {
   //Stops making an API call on every render which makes my computer breathe heavy lol
   const [gotProjects, setGotProjects] = useState(false);
 
-  const getProjects = () => {
-    if (!gotProjects) {
+  // fromMain is false if you call from anywhere outside this file
+  const getProjects = (fromMain) => {
+      if(!fromMain) setGotProjects(false);
+      if (!gotProjects) {
       makeHttpRequest("/projects")
         .then(res => setProjects(res.body.projects));
       setGotProjects(true);
@@ -29,19 +31,20 @@ function Main(props) {
   //Async function above works only when used in combination with
   //a lifecycle function (this is basically a componentDidMount)
   useEffect(() => {
-    getProjects();
+    getProjects(true);
   });
 
   if (projects !== null) {
     return (
       <div id="myknolist-main-container">
-        <Recent show={props.showRecent} projects={projects} />
+        <Recent show={props.showRecent} projects={projects} getProjects={getProjects}/>
         <All
           projects={projects}
           sharedOnly={props.sharedOnly}
           archivedOnly={props.archivedOnly}
           sortCriterion={props.sortCriterion}
-          searchQuery={props.searchQuery} />
+          searchQuery={props.searchQuery}
+          getProjects={getProjects}/>
         <div
           style={{ position: "fixed", right: 0, bottom: 0 }}
           onClick={() => setShow(true)}>

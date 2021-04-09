@@ -10,10 +10,13 @@ function ProjectsList(props) {
     return (
         <Nav vertical activeKey={props.curProject === null ? undefined : props.curProject.id}
              onSelect={(eventKey) => props.setCurProject(eventKey)}>
-            {props.projects.map(project => <Project key={project.id} updateProjects={props.updateProjects}
+            {props.projects.map(project => {
+                if (project.is_archived !== true) {
+                return <Project key={project.id} updateProjects={props.updateProjects}
                                                     project={project}
                                                     eventKey={project.id} setCurProject={props.setCurProject}
-                                                    setShowSharedProject={props.setShowSharedProject}/>)}
+                                                    setShowSharedProject={props.setShowSharedProject}
+                                                    setShowArchivedProject={props.setShowArchivedProject}/>}})}
         </Nav>
     );
 }
@@ -44,6 +47,10 @@ class Project extends React.Component {
         }
     }
 
+    setArchiveProject = (val) => {
+        this.setState({is_archived: val})
+    }
+
     setDeleteProject = (event) => {
         event.stopPropagation();
         this.setState({confirmDelete: true})
@@ -61,6 +68,25 @@ class Project extends React.Component {
             let callback;
             if (this.props.active) callback = () => this.props.setCurProject(null);
             this.props.updateProjects(callback);
+        });
+    }
+
+    archiveProject = () => {
+        this.setLoading(true);
+        const endpoint = "/projects/" + this.props.project.id;
+        const archived = document.getElementById(this.state.is_archived);
+        const update_archive = !archived;
+        const body = {
+            "is_archived": update_archive
+        }
+        makeHttpRequest(endpoint, "PATCH", body).then(() => {
+            let callback;
+            this.props.updateProjects(() => {
+                this.setEditing(false);
+                this.setLoading(false);
+            })
+            //if (this.props.active) callback = () => this.props.setCurProject(null);
+            //this.props.updateProjects(callback)
         });
     }
 
@@ -107,9 +133,10 @@ class Project extends React.Component {
                                                        updateProjectNameButtonId={this.state.updateProjectNameButtonId}
                                                        setEditing={this.setEditing}
                                                        updateProjectName={this.updateProjectName}/>
-                                <IconButton onClick={this.setDeleteProject} icon={<Icon icon="trash"/>} size="sm"/>
+                                <ArchiveButton archiveProject={this.archiveProject}/>
                                 <SharedProjectButton isShared={this.props.project.shared_users.length > 0}
-                                                     setShowSharedProject={this.props.setShowSharedProject}/>
+                                                     setShowSharedProject={this.props.setShowSharedProject}
+                                                     setCurProject={this.props.setCurProject} id={this.props.project.id}/>
                             </ButtonToolbar>
                         </FlexboxGrid.Item>
                     </FlexboxGrid>
@@ -142,6 +169,7 @@ class EditProjectNameButton extends React.Component {
 
 class SharedProjectButton extends React.Component {
     handleClick = (event) => {
+        this.props.setCurProject(this.props.id);
         event.stopPropagation();
         this.props.setShowSharedProject(true);
     }
@@ -158,6 +186,22 @@ class SharedProjectButton extends React.Component {
             //                      placement="bottom">
             <IconButton onClick={this.handleClick} icon={<Icon icon={icon}/>} size="sm"/>
             // </Whisper>
+
+        )
+    };
+}
+
+class ArchiveButton extends React.Component {
+    handleClick = (event) => {
+        event.stopPropagation();
+        this.props.archiveProject();
+    }
+
+    render() {
+        let icon = "archive"
+        return (
+            <IconButton onClick={this.handleClick} icon={<Icon icon={icon}/>} size="sm"
+                        style={{float: "right", marginTop: "5px"}}/>
 
         )
     };

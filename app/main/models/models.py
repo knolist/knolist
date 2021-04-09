@@ -5,6 +5,7 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+"""
 # Relationship table to represent the shared users that can access a project
 shared_projects = db.Table('shared_projects',
                            db.Column('shared_proj', db.Integer,
@@ -12,7 +13,7 @@ shared_projects = db.Table('shared_projects',
                            db.Column('shared_user', db.String),
                            db.Column('role', db.String, nullable=False)
                            )
-
+"""
 
 class BaseModel(db.Model):
     """
@@ -47,16 +48,13 @@ class Project(BaseModel):
     description = db.Column(db.String)
     creation_date = db.Column(db.DateTime, nullable=False)
     recent_access_date = db.Column(db.DateTime, nullable=False)
+    is_archived = db.Column(db.Boolean, nullable=False, default=False)
     clusters = db.relationship('Cluster', backref='project',
                                cascade='all, delete-orphan', lazy=True)
     items = db.relationship('Item', backref='project',
                             cascade='all, delete-orphan', lazy=True)
     # Many to many relationship
-    shared_users = db.relationship('Project', secondary=shared_projects,
-                                   primaryjoin=(id == shared_projects.c.shared_proj),
-                                   backref=db.backref('shared_projects',
-                                                      lazy=True)
-                                   )
+    shared_users = db.relationship('Shared_User', backref='project')
 
     def __init__(self, title, description, user_id):
         self.title = title
@@ -70,10 +68,11 @@ class Project(BaseModel):
         return {
             'id': self.id,
             'title': self.title,
-            'shared_users': self.shared_users,
+            'shared_users': [shared.format() for shared in self.shared_users],
             'description': self.description,
             'creation_date': self.creation_date,
-            'recent_access_date': self.recent_access_date
+            'recent_access_date': self.recent_access_date,
+            'is_archived': self.is_archived
         }
 
 
@@ -164,7 +163,6 @@ class Source(BaseModel):
         }
 
 
-
 class Item(BaseModel):
     """
     Represents the different types of items.
@@ -198,5 +196,29 @@ class Item(BaseModel):
             'is_note': self.is_note,
             'content': self.content,
             'x_position': self.x_position,
-            'y_position': self.y_position,
+            'y_position': self.y_position
+        }
+
+
+class Shared_User(BaseModel):
+    """
+    Represents the user (used for shared_projects feature)
+    """
+    __tablename__ = 'shared_users'
+    shared_proj = db.Column(db.Integer, db.ForeignKey('projects.id'), primary_key=True)
+    shared_user = db.Column(db.String)
+    role = db.Column(db.String, nullable=False)
+    name = db.Column(db.String)
+    email = db.Column(db.String)
+
+    def __repr__(self):
+        return f'<Shared_user {self.shared_proj}: {self.shared_user}>'
+
+    def format(self):
+        return {
+            'shared_proj': self.shared_proj,
+            'shared_user': self.shared_user,
+            'role': self.role,
+            'name': self.name,
+            'email': self.email
         }

@@ -2,11 +2,11 @@ import json
 import unittest
 
 from app.test import create_starter_data, auth_header, app, db
+from app.main.models.models import Project, Shared_User
 
-
-class TestSharedProjectEndpoints(unittest.TestCase):
+class TestSharedUserEndpoints(unittest.TestCase):
     """This class contains tests for endpoints
-    that start with '/shared_projects'."""
+    that start with '/shared_users'."""
 
     def setUp(self):
         """Define test variables and initialize app."""
@@ -33,10 +33,10 @@ class TestSharedProjectEndpoints(unittest.TestCase):
         """Executed after each test."""
         pass
 
-    # POST '/shared_projects' #
+    # POST '/shared_users' #
     def test_share_project(self):
         old_users = len(self.project_1.shared_users)
-        res = self.client().post(f'/shared_projects',
+        res = self.client().post(f'/shared_users',
                                  json={'shared_proj': self.project_1.id,
                                        'email': "achen93@jhu.edu",
                                        'role': 'collaborator'},
@@ -52,60 +52,55 @@ class TestSharedProjectEndpoints(unittest.TestCase):
 
     def test_share_repeat(self):
         old_users = len(self.project_1.shared_users)
-        res = self.client().post(f'/shared_projects',
+        res = self.client().post(f'/shared_users',
                                  json={'shared_proj': self.project_1.id,
                                        'email': "noahpark0930@gmail.com",
                                        'role': 'collaborator'},
                                  headers=auth_header)
         data = json.loads(res.data)
-
         new_users = len(self.project_1.shared_users)
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertTrue(old_users, new_users)
+        self.assertEqual(old_users, new_users)
 
-    # DELETE '/shared_projects' #
+    # DELETE '/shared_users' #
     def test_delete_user_from_project(self):
         old_users = len(self.project_1.shared_users)
-        res = self.client().post(f'/shared_projects',
+        res = self.client().post(f'/shared_users',
                                  json={'shared_proj': self.project_1.id,
                                        'email': "achen93@jhu.edu",
                                        'role': 'collaborator'},
                                  headers=auth_header)
-
         # Delete the connection
-        res = self.client().delete(f'/shared_projects',
+        res = self.client().delete(f'/shared_users',
                                    json={'shared_proj': self.project_1.id,
                                          'email': "achen93@jhu.edu",
                                          'role': 'collaborator'},
                                    headers=auth_header)
         data = json.loads(res.data)
-
         new_users = len(self.project_1.shared_users)
         # Observe results
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertTrue(old_users, new_users + 1)
+        self.assertEqual(old_users, new_users)
 
     def test_delete_connection_nonexistent_share(self):
-        res = self.client().delete(f'/shared_projects',
+        res = self.client().delete(f'/shared_users',
                                    json={'shared_proj': self.project_1.id,
                                          'email': 2000,
                                          'role': 'collaborator'},
                                    headers=auth_header)
         data = json.loads(res.data)
-
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
     def test_delete_nonexistent_share(self):
-        res = self.client().delete(f'/shared_projects',
+        res = self.client().delete(f'/shared_users',
                                    json={'shared_proj': self.project_1.id,
                                          'email': 'npark@bergencatholichs.org',
                                          'role': 'collaborator'},
                                    headers=auth_header)
         data = json.loads(res.data)
-
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
 

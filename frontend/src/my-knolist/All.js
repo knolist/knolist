@@ -1,6 +1,7 @@
 import React from "react";
 import {FlexboxGrid, Col} from "rsuite"
 import ProjectCard from "./ProjectCard.js";
+import makeHttpRequest from "../services/HttpRequest";
 
 /*
     Displays all projects relevant to current page,
@@ -17,8 +18,8 @@ function All(props) {
             projectsToDisplay = allProjects.filter(project => project.shared_users.length > 0);
         } else if (props.archivedOnly) {
             // archived projects not implemented yet, uncomment below when ready
-            // projectsToDisplay = allProjects.filter(project => project.archived === true);
-            return [];
+            projectsToDisplay = allProjects.filter(project => project.is_archived === true);
+            //return [];
         }
         // further filter based on search query, if any (currently only searching project title)
         if (props.searchQuery !== "") {
@@ -71,7 +72,7 @@ function All(props) {
                         {projects.map((project, index) => {
                             return (
                                 <FlexboxGrid.Item componentClass={Col} md={6} key={index}>
-                                    <ProjectCard data={project}/>
+                                    <ProjectCard data={project} getProjects={props.getProjects}/>
                                 </FlexboxGrid.Item>);
                         })}
                     </FlexboxGrid>

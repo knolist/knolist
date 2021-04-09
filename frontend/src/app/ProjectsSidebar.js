@@ -18,10 +18,10 @@ class ProjectsSidebar extends React.Component {
 
     renderProjectsList = () => {
         if (this.props.projects === null) return <Placeholder.Paragraph rows={15} active/>;
-
+        // check out
         return <ProjectsList projects={this.props.projects} curProject={this.props.curProject}
                              updateProjects={this.props.updateProjects} setCurProject={this.props.setCurProject}
-                             setShowSharedProject={this.props.setShowSharedProject}/>
+                             setShowSharedProject={this.props.setShowSharedProject} setShowArchivedProject={this.props.setShowArchivedProject}/>
     }
 
     componentDidMount() {

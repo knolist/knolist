@@ -1,6 +1,6 @@
 // Import from npm libraries
 import React from 'react';
-import {Button, Loader} from 'rsuite';
+import {Button, Loader, Modal} from 'rsuite';
 import {withAuthenticationRequired} from "@auth0/auth0-react";
 
 // Import React Components
@@ -11,11 +11,14 @@ import MindMap from "./MindMap";
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
 
+// Import components
+import NewProjectModal from "../components/NewProjectModal";
+
 // Import styles
 import 'rsuite/dist/styles/rsuite-default.css';
 import '../index.css';
 
-class App extends React.Component {
+export class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -24,6 +27,7 @@ class App extends React.Component {
             showProjectsSidebar: false,
             showBib: false,
             showSharedProject: false,
+            showNewProjectModal: false,
             searchQuery: '',
             filters: ["Title",
                 "URL",
@@ -35,22 +39,28 @@ class App extends React.Component {
 
     updateProjects = (callback) => {
         makeHttpRequest("/projects").then(response => {
-            if (!response.body.success) return;
+            if (!response.body.success) {
+                this.setShowNewProjectModal(true);
+            }
 
-            const projects = response.body.projects;
+            let projects = response.body.projects;
             this.setState({projects: projects}, () => {
+                let archivedProjects = projects.filter(project => project.is_archived === true)
                 // Update current project
                 if (this.state.curProject !== null) {
                     this.setCurProject(this.state.curProject.id);
                 } else if (projects && projects.length > 0) {
                     this.setState({curProject: projects[0]});
+                } else if (!projects || archivedProjects.length === 0) {
+                    this.setCurProject(null);
+                    this.setShowNewProjectModal(true);
                 }
 
                 if (typeof callback === "function") {
                     callback();
                 }
-            })
-        })
+            });
+        });
     }
 
     switchShowProjectsSidebar = () => {
@@ -72,7 +82,6 @@ class App extends React.Component {
             </Button>
         );
     }
-
     setShowBib = (clicked) => {
         // Keeps track if Bibliography Generation Button clicked and Window should open
         this.setState({
@@ -94,6 +103,14 @@ class App extends React.Component {
 
     setShowSharedProject = (val) => {
         this.setState({showSharedProject: val})
+    }
+
+    setShowArchivedProject = (val) => {
+        this.setState({showArchivedProject: val})
+    }
+
+    setShowNewProjectModal = (val) => {
+        this.setState({showNewProjectModal: val})
     }
 
     componentDidMount() {
@@ -118,14 +135,18 @@ class App extends React.Component {
                            setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
                 <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
                                  projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
+                                 setShowArchivedProject={this.setShowArchivedProject}
                                  close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
                                  setCurProject={this.setCurProject}/>
                 {this.projectsButton()}
                 <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
                          setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
                          filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
+                         setShowArchivedProject={this.setShowArchivedProject}
                          showSharedProject={this.state.showSharedProject}
+                         showArchivedProject={this.state.showArchivedProject}
                          updateProjects={this.updateProjects}/>
+                <NewProjectModal show={this.state.showNewProjectModal} setShow={this.setShowNewProjectModal}/>
             </div>
         );
     }

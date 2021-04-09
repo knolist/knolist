@@ -132,6 +132,57 @@ class TestProjectsEndpoints(unittest.TestCase):
         self.assertEqual(projects[1]['id'], self.project_2.id)
         self.assertEqual(projects[1]['title'], self.project_2.title)
 
+    # GET '/projects/archived' #
+    def test_get_archived(self):
+        before_archive = Project.query.get(self.project_1.id).is_archived
+        before_archive2 = Project.query.get(self.project_2.id).is_archived
+        res = self.client().patch(f'/projects/{self.project_1.id}',
+                                  json={'is_archived': True},
+                                  headers=auth_header)
+        data = json.loads(res.data)
+        after_archive = Project.query.get(self.project_1.id).is_archived
+        after_archive2 = Project.query.get(self.project_2.id).is_archived
+        res2 = self.client().get('/projects/archived', headers=auth_header)
+        data2 = json.loads(res2.data)
+
+        self.assertEqual(res2.status_code, 200)
+        self.assertTrue(data2['success'])
+        projects = data2['projects']
+
+        self.assertEqual(len(projects), 1)
+        self.assertEqual(projects[0]['id'], self.project_1.id)
+        self.assertEqual(projects[0]['title'], self.project_1.title)
+        self.assertNotEqual(before_archive, after_archive)
+
+        res3 = self.client().get('/projects', headers=auth_header)
+        data3 = json.loads(res3.data)
+        projects2 = data3['projects']
+
+        self.assertEqual(len(projects2), 1)
+        self.assertEqual(projects2[0]['id'], self.project_2.id)
+        self.assertEqual(projects2[0]['title'], self.project_2.title)
+        self.assertFalse(before_archive2)
+        self.assertFalse(after_archive2)
+
+    # PATCH '/projects/{project_id}'
+    def test_archive(self):
+        before_archive = Project.query.get(self.project_1.id).is_archived
+        res = self.client().patch(f'/projects/{self.project_1.id}',
+                                  json={'is_archived': True},
+                                  headers=auth_header)
+        data = json.loads(res.data)
+        after_archive = Project.query.get(self.project_1.id).is_archived
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'])
+        project = data['project']
+
+        self.assertEqual(project['title'], self.project_1.title)
+        self.assertTrue(project['is_archived'])
+        self.assertEqual(project['id'], self.project_1.id)
+        self.assertNotEqual(before_archive, after_archive)
+
+
     # POST '/projects' #
     def test_create_project(self):
         temp_filter = Project.query.filter(Project.user_id == user_id)

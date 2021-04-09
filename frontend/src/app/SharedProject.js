@@ -1,5 +1,5 @@
 import React from "react";
-import {Table, Modal, Form, Input, Button} from 'rsuite';
+import {Table, Modal, Form, Input, Button, Tag, TagGroup} from 'rsuite';
 import makeHttpRequest from "../services/HttpRequest";
 
 const {Column, HeaderCell, Cell} = Table;
@@ -19,16 +19,31 @@ class SharedProject extends React.Component {
 
     saveUser = async () => {
         this.setLoading(true);
+        //const emails = document.getElementById(this.state.userInputId).value.split(",");
         const email = document.getElementById(this.state.userInputId).value.trim();
+        //for (let i = 0; i < emails.length; i++) {
+            //let email = emails[i].trim();
+            const body = {
+                "shared_proj": this.props.curProject.id,
+                "email": email,
+                "role": "Collaborator"
+            }
+            const endpoint = "/shared_users";
+            makeHttpRequest(endpoint, 'POST', body).then(r => {
+                this.props.updateProjects();
+            });
+        //}
 
-        const body = {
+        /*const body = {
             "shared_proj": this.props.curProject.id,
             "email": email,
             "role": "Collaborator"
         }
-        const endpoint = "/shared_projects";
-        await makeHttpRequest(endpoint, 'POST', body);
-        this.props.updateProjects();
+        const endpoint = "/shared_users";
+        makeHttpRequest(endpoint, 'POST', body).then(r => {
+            this.props.updateProjects();
+        });*/
+        //this.props.updateProjects();
     }
 
     setLoading = (val) => {

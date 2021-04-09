@@ -1,5 +1,5 @@
 from flask import abort
-from app.main.models.models import Project, Source, Cluster, Item
+from app.main.models.models import Project, Source, Cluster, Item, Shared_User
 from app.main.auth import AuthError
 
 
@@ -17,6 +17,18 @@ def get_authorized_project(user_id, project_id):
 
     return project
 
+def get_authorized_shareduser(user_id, project_id):
+    shared_user = Shared_User.query.get(project_id)
+    if shared_user is None:
+        abort(404)
+
+    if shared_user.shared_proj != project_id:
+        raise AuthError({
+            'code': 'invalid_user',
+            'description': 'This user does not have access to the shared user.'
+        })
+
+    return shared_user
 
 def get_authorized_cluster(user_id, cluster_id):
     cluster = Cluster.query.get(cluster_id)

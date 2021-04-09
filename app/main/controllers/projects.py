@@ -1,6 +1,7 @@
 from flask import request, abort, jsonify
 from justext import justext, get_stoplist
 from requests import get as requests_get
+from sqlalchemy import and_, or_
 
 from app.main.auth.get_authorized_objects import get_authorized_project
 from app.main.helpers.url_to_citation import url_to_citation
@@ -81,7 +82,28 @@ def set_project_routes(app):
     @app.route('/projects')
     @requires_auth('read:projects')
     def get_projects(user_id):
+        # Add projects that are shared
         temp_filter = Project.query.filter(Project.user_id == user_id)
+        projects = temp_filter.order_by(Project.id).all()
+        #temp2 = Project.query.filter(user_id in Project.shared_users)
+        #shared_projects = temp2.order_by(Project.id).all()
+        if len(projects) == 0:
+            print("empty")
+
+        return jsonify({
+            'success': True,
+            'projects': [project.format() for project in projects],
+            #'shared_projects': [project.format() for project in shared_projects]
+        })
+
+    """
+    Returns a list of all archived projects in database.
+    """
+
+    @app.route('/projects/archived')
+    @requires_auth('read:projects')
+    def get_archived_projects(user_id):
+        temp_filter = Project.query.filter(and_(Project.user_id == user_id, Project.is_archived == True))
         projects = temp_filter.order_by(Project.id).all()
 
         return jsonify({
@@ -131,11 +153,13 @@ def set_project_routes(app):
 
         new_title = body.get('title', None)
         new_description = body.get('description', None)
-        if new_title is None and new_description is None:
+        new_is_archived = body.get('is_archived', None)
+        if new_title is None and new_description is None and new_is_archived is None:
             abort(400)
 
         project.title = new_title if new_title is not None else project.title
         project.description = new_description if new_description is not None else project.description
+        project.is_archived = new_is_archived if new_is_archived is not None else project.is_archived
         project.update()
 
         return jsonify({

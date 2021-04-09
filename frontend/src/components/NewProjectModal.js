@@ -49,14 +49,14 @@ function NewProjectModal(props) {
                 </Form>
             </Modal.Body>
             <Modal.Footer>
-                    <Button
-                        onClick={() => {
-                            setShow(false);
-                            openProject();
-                        }}
-                        appearance="primary">
-                        Create
-                    </Button>
+                <Button
+                    onClick={() => {
+                        setShow(false)
+                        openProject()
+                    }}
+                    appearance="primary">
+                    Create
+                </Button>
                 <Button onClick={() => setShow(false)} appearance="default">
                     Cancel
                 </Button>
