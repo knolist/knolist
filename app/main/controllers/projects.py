@@ -4,8 +4,7 @@ from requests import get as requests_get
 
 from app.main.auth.get_authorized_objects import get_authorized_project
 from app.main.helpers.url_to_citation import url_to_citation
-from app.main.helpers.statistics import compute_cluster_stats, \
-    compute_source_dist, similarity
+from app.main.helpers.statistics import get_statistics_for_project, similarity
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth
 from datetime import datetime
@@ -229,7 +228,7 @@ def set_project_routes(app):
         pattern = '%' + search_query + '%'
         filter_query = request.args.getlist('filter', None)
         if not filter_query:
-            results = Item.query.join(Source)\
+            results = Item.query.join(Source) \
                 .filter(Item.parent_project == project_id) \
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
@@ -247,7 +246,7 @@ def set_project_routes(app):
                     .filter(Item.content
                             .ilike(pattern)).order_by(Item.id).all()
             else:
-                temp = Item.query.join(Source)\
+                temp = Item.query.join(Source) \
                     .filter(Item.parent_project == project_id) \
                     .filter(getattr(Source, filter_type)
                             .ilike(pattern)).order_by(Item.id).all()
@@ -257,6 +256,22 @@ def set_project_routes(app):
         return jsonify({
             'success': True,
             'items': [i.format() for i in results]
+        })
+
+
+    @app.route('/projects/statistics')
+    @requires_auth('read:projects')
+    def get_all_statistics(user_id):
+        temp_filter = Project.query.filter(Project.user_id == user_id)
+        projects = temp_filter.order_by(Project.id).all()
+
+        stats = []
+        for p in projects:
+            stats.append(get_statistics_for_project(p))
+
+        return jsonify({
+            'success': True,
+            'stats': stats
         })
 
     """
@@ -270,35 +285,8 @@ def set_project_routes(app):
     @requires_auth('read:projects')
     def get_project_statistics(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
-        if (len(project.clusters) == 0):
-            max_depth = 0
-            n_clusters = 0
-            sum_item_depth = 0
-        else:
-            # Get statistics through tree traversal
-            # Note: n_items is stored and returned for future purposes
-            # If at any point all items will not be stored at the project
-            # leve, n_items can be returned.
-            max_depth, n_items, n_clusters, \
-                sum_item_depth = compute_cluster_stats(
-                    project.clusters, depth=0,
-                    n_items=len(project.items), n_clusters=0,
-                    sum_item_depth=0)
-        # Compute URL breakdown from helper method
-        url_breakdown = compute_source_dist(project.sources)
+        return jsonify(get_statistics_for_project(project)), 200
 
-        return jsonify({
-            'success': True,
-            'num_sources': len(project.sources),
-            'num_items': len(project.items),
-            'num_clusters': n_clusters,
-            'avg_depth_per_item': sum_item_depth / len(project.items),
-            'max_depth': max_depth,
-            'num_notes': len([i for i in project.items if i.is_note]),
-            'date_created': project.creation_date,
-            'date_accessed': project.recent_access_date,
-            'url_breakdown': url_breakdown
-        }), 200
 
     '''
     Gets all clusters within a project.
@@ -318,12 +306,12 @@ def set_project_routes(app):
             'clusters': [cluster.format() for cluster in clusters]
         })
 
-
     """
     For all the items of a given project, gets the
     similarity value for any given two and returns in a
     json-style matrix.
     """
+
     @app.route('/projects/<int:project_id>/similarity')
     @requires_auth('read:items')
     def get_project_similarity(user_id, project_id):
@@ -332,17 +320,17 @@ def set_project_routes(app):
         sources = project.sources
 
         index_map = {}
-        for i in range (len(sources)):
+        for i in range(len(sources)):
             index_map[sources[i].id] = i
 
         # Create upper-triangluar (since symmetric)
         sim = {}
-        for i in range (len(sources)):
+        for i in range(len(sources)):
             dict = {}
             for j in range(i + 1):
                 # Ignore empty contents
                 if (sources[i].content == None or sources[i].content == "" or
-                    sources[j].content == None or sources[j].content == ""):
+                        sources[j].content == None or sources[j].content == ""):
                     dict[j] = 0
                 else:
                     dict[j] = round(similarity(sources[i].content, sources[j].content), 3)

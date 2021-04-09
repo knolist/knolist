@@ -11,6 +11,53 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import numpy as np
 
+
+def get_statistics_for_project(project):
+    if (len(project.clusters) == 0):
+        max_depth = 0
+        n_clusters = 0
+        sum_item_depth = 0
+    else:
+        # Get statistics through tree traversal
+        # Note: n_items is stored and returned for future purposes
+        # If at any point all items will not be stored at the project
+        # leve, n_items can be returned.
+        max_depth, n_items, n_clusters, \
+        sum_item_depth = compute_cluster_stats(
+            project.clusters, depth=0,
+            n_items=len(project.items), n_clusters=0,
+            sum_item_depth=0)
+    # Compute URL breakdown from helper method
+    url_breakdown = compute_source_dist(project.sources)
+
+
+    n_notes = len([i for i in project.items if i.is_note])
+    n_sources = len(project.sources)
+    n_items = len(project.items)
+
+    most_common = ""
+
+    if n_notes > n_sources and n_notes > n_items:
+        most_common = "note"
+    elif n_sources > n_notes and n_sources > n_items:
+        most_common = "source"
+    else:
+        most_common = "item"
+
+    return {
+        'success': True,
+        'num_sources': len(project.sources),
+        'num_items': len(project.items),
+        'num_clusters': n_clusters,
+        'avg_depth_per_item': sum_item_depth / len(project.items),
+        'max_depth': max_depth,
+        'num_notes': len([i for i in project.items if i.is_note]),
+        'date_created': project.creation_date,
+        'date_accessed': project.recent_access_date,
+        'most_common': most_common,
+        'url_breakdown': url_breakdown
+    }
+
 def compute_cluster_stats(clusters, depth, n_items, n_clusters, sum_item_depth):
     """
     Computes max depth of a cluster. Performed using
