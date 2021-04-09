@@ -411,7 +411,7 @@ class BibWindow extends React.Component {
                         <SelectPicker defaultValue={this.state.curFormat ? this.state.curFormat : formats.APA}
                                       data={dropdownData} onChange={this.changeFormatType}
                                       style={{float: 'right'}} cleanable={false} searchable={false}/>
-                        <Toggle unCheckedChildren={'all'} checkedChildren={'cluster'} size='lg'
+                        <Toggle unCheckedChildren={<div style={{color: '#3498FF'}}> all </div>} checkedChildren={'cluster'} size='lg'
                                       style={{float: 'middle'}} onChange={this.toggleClusterBib}/>
                     </Modal.Title>
                 </Modal.Header>
