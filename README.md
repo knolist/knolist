@@ -767,6 +767,38 @@ Assume that all `curl` calls include the following:
 }
 ```
 
+### GET '/projects/statistics'
+- Fetches an array of statistics for all projects for a user
+- Request arguments: None
+- Returns: A JSON object with the following keys:
+    - "success": holds `true` if the request was successful
+    - "stats": array of statistics dictionaries (see `/projects/<project_id>/statistics` endpoint above)
+ - Sample: `curl https://knolist-api.herokuapp.com/projects/statistics`
+```
+200 OK
+```
+```json
+{
+    "success": true,
+    "stats": [
+      {
+        "avg_depth_per_item": 0.0,
+        "date_accessed": "Thu, 11 Feb 2021 19:51:18 GMT",
+        "date_created": "Thu, 11 Feb 2021 19:51:18 GMT",
+        "max_depth": 0,
+        "num_clusters": 0,
+        "num_items": 2,
+        "num_notes": 0,
+        "num_sources": 1,
+        "success": true,
+        "url_breakdown": {
+          "https://test3.com": 1
+        }
+      }
+    ]
+}
+```
+
 ### GET '/projects/{project_id}/similarity'
 - For a given project, compute a measure of similarity between all pairs of sources.
 The diagonal entries are also included, where if the i-ith entry is 0, then there was no
