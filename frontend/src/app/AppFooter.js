@@ -19,7 +19,7 @@ class AppFooter extends React.Component {
                                     size="lg" onClick={this.props.fit}/>
                     </Whisper>
                 </div>
-                <a style={{position: "absolute", left: "50%", bottom: 0, marginBottom: 20}}
+                <a style={{position: "absolute", left: "50%", bottom: 0, marginBottom: 20, transform: "translate(-50%, 0)"}}
                    target="_blank"
                    rel="noopener noreferrer"
                    href={process.env.REACT_APP_FEEDBACK_LINK}>
