@@ -70,6 +70,24 @@ source.
 - PS: Command to obtain tree:  
 `tree -I "build|node_modules|env|__pycache__"`
 
+### Lines of Code (as of 4/9/21)
+```text
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+JavaScript                      38            407            400           3411
+Python                          24            618            376           2638
+Markdown                         4            121              0           1386
+JSON                             2              0              0            545
+CSS                              1             18              1             76
+HTML                             1              3             20             20
+Bourne Shell                     1              0              2              6
+-------------------------------------------------------------------------------
+SUM:                            71           1167            799           8082
+-------------------------------------------------------------------------------
+```
+Obtained with: `cloc . --exclude-dir=build,node_modules,env,__pycache__,.idea,htmlcov,migrations,package.json,package-lock.json`
+
 ### GitHub guidelines
 We have 3 main branches on GitHub, with increasing importance and restrictions:
 1. `dev`: This is the branch to which you will create pull requests. It contains the most updated
