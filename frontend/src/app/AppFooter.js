@@ -11,23 +11,23 @@ class AppFooter extends React.Component {
 
     render() {
         return (
-            <div style={{bottom:0}}>
+            <div style={{bottom: 0}}>
                 <div style={{position: "absolute", left: 0, bottom: 0}}>
                     <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Fit To Screen</Tooltip>}
-                            placement="topStart">
+                             placement="topStart">
                         <IconButton className="footer-btn" appearance="primary" icon={<Icon icon="arrows-alt"/>} circle
                                     size="lg" onClick={this.props.fit}/>
                     </Whisper>
                 </div>
-                <a style={{margin: 25, bottom:0, left:0, right:0, position:"absolute", textAlign:"center"}}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={process.env.REACT_APP_FEEDBACK_LINK}>
-                            Feedback?
-                    </a>
+                <a style={{position: "absolute", left: "50%", bottom: 0, marginBottom: 25, transform: "translate(-50%, 0)"}}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   href={process.env.REACT_APP_FEEDBACK_LINK}>
+                    Feedback?
+                </a>
                 <div style={{position: "absolute", right: 0, bottom: 0}}>
                     <Dropdown style={{marginRight: 15}} trigger={["click", "hover"]} placement="topEnd"
-                            renderTitle={this.newItemButton}>
+                              renderTitle={this.newItemButton}>
                         <Dropdown.Item onClick={() => Alert.warning("Feature coming soon...")}>
                             <Icon icon="file-o"/> Add File
                         </Dropdown.Item>
