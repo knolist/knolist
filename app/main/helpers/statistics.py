@@ -30,28 +30,39 @@ def get_statistics_for_project(project):
     # Compute URL breakdown from helper method
     url_breakdown = compute_source_dist(project.sources)
 
+    # note, source note, highlight, source
 
     n_notes = len([i for i in project.items if i.is_note])
     n_sources = len(project.sources)
+    n_sourcenotes = len([i for i in project.items if i.is_note and i.source_id is not None])
+    n_highlights = len([i for i in project.items if not i.is_note and
+                       i.content is not None
+                       and not i.content == ""])
     n_items = len(project.items)
 
+    # Fast way to achieve maximum
     most_common = ""
-
-    if n_notes > n_sources and n_notes > n_items:
+    if n_notes > n_sources and n_notes > n_sourcenotes and n_notes > n_highlights:
         most_common = "note"
-    elif n_sources > n_notes and n_sources > n_items:
+    elif n_sources > n_notes and n_sources > n_sourcenotes and n_sources > n_highlights:
         most_common = "source"
+    elif n_sourcenotes > n_sources and n_sourcenotes > n_sources and n_sourcenotes > n_highlights:
+        most_common = "source note"
     else:
-        most_common = "item"
+        most_common = "highlight"
 
     return {
         'success': True,
-        'num_sources': len(project.sources),
-        'num_items': len(project.items),
-        'num_clusters': n_clusters,
+        'counts': {
+            'num_sources': n_sources,
+            'num_items': n_items,
+            'num_clusters': n_clusters,
+            'num_notes': n_notes,
+            'num_sourcenotes': n_sourcenotes,
+            'num_highlights': n_highlights
+        },
         'avg_depth_per_item': sum_item_depth / len(project.items),
-        'max_depth': max_depth,
-        'num_notes': len([i for i in project.items if i.is_note]),
+        'max_depth': max_depth + 1,
         'date_created': project.creation_date,
         'date_accessed': project.recent_access_date,
         'most_common': most_common,

@@ -15,8 +15,8 @@ function ProjectCard(props) {
 
   let stats = [];
   if (props.stats !== undefined) {
-      if (props.stats['num_items'] !== undefined) {
-          stats.push(<p key={'num_items'}> {props.stats['num_items'].toString()}  total items </p>)
+      if (props.stats.counts['num_items'] !== undefined) {
+          stats.push(<p key={'num_items'}> {props.stats.counts['num_items'].toString()}  total items </p>)
       }
       if (props.stats.average_depth_per_item !== undefined) {
           stats.push(<p key={'avg_depth'}> Average depth of {props.stats.average_depth_per_item} </p>)
@@ -43,7 +43,8 @@ function ProjectCard(props) {
           shaded bordered
           header={props.data.title}
           style={{marginTop: "2vh" }}
-          onClick={() => openProject(props.data)}>
+          onClick={() => openProject(props.data)}
+          collapsible>
           {props.data.id}
           <Icon icon="people-group" style={{ float: "right", marginTop: "5px" }}/>
 
@@ -60,7 +61,7 @@ function ProjectCard(props) {
                 {props.data.title}
                 </Link>
             }
-            style={{marginTop: "2vh" }}
+            style={{marginTop: "2vh"}}
             onClick={() => openProject(props.data)}
             collapsible>
             {description ? <> <b>Description</b> {description} <br/> </>: null}

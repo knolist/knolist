@@ -70,8 +70,6 @@ function All(props) {
                     <FlexboxGrid style={{marginLeft: "-6px", marginBottom: "5vh"}} justify="start">
                         {projects.map((project, index) => {
                             const stats = props.stats[index];
-                            console.log(stats)
-                            console.log(project)
                             return (
                                 <FlexboxGrid.Item componentClass={Col} md={6} key={index}>
                                     <ProjectCard data={project} stats={stats}/>

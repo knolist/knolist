@@ -292,12 +292,12 @@ class TestProjectsEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertEqual(data['num_sources'], 2)
-        self.assertEqual(data['num_items'], 2)
-        self.assertEqual(data['num_clusters'], 1)
+        self.assertEqual(data['counts']['num_sources'], 2)
+        self.assertEqual(data['counts']['num_items'], 2)
+        self.assertEqual(data['counts']['num_clusters'], 1)
         self.assertEqual(data['avg_depth_per_item'], 0.5)
         self.assertEqual(data['max_depth'], 1)
-        self.assertEqual(data['num_notes'], 2)
+        self.assertEqual(data['counts']['num_notes'], 2)
 
         url_breakdown = data['url_breakdown']
         self.assertEqual(url_breakdown["www.nationalgeographic.com"], 1)
@@ -311,12 +311,12 @@ class TestProjectsEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertEqual(data['num_sources'], 1)
-        self.assertEqual(data['num_items'], 1)
-        self.assertEqual(data['num_clusters'], 0)
+        self.assertEqual(data['counts']['num_sources'], 1)
+        self.assertEqual(data['counts']['num_items'], 1)
+        self.assertEqual(data['counts']['num_clusters'], 0)
         self.assertEqual(data['avg_depth_per_item'], 0)
         self.assertEqual(data['max_depth'], 0)
-        self.assertEqual(data['num_notes'], 0)
+        self.assertEqual(data['counts']['num_notes'], 0)
 
         url_breakdown = data['url_breakdown']
         self.assertEqual(url_breakdown["www.test3.com"], 1)
