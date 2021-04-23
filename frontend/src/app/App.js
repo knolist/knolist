@@ -113,7 +113,7 @@ class App extends React.Component {
             localStorage.setItem(this.state.curProjectKey, JSON.stringify(this.state.curProject));
         }
     }
-
+    //<div style={{height:"100%"}}>
     render() {
         return (
             <div style={{height:"100%"}}>

@@ -9,7 +9,7 @@ import App from './app/App.js';
 import KnolistAuthProvider from "./authentication/auth-provider";
 
 ReactDOM.render(
-    <div style={{position:"absolute", bottom:0, top:0, width:"100%"}}>
+    <div style={{position:"absolute", bottom:0, top:0, width:"100%", height:"100%"}}>
     <Router>
         <Switch>
             <KnolistAuthProvider>
