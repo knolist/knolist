@@ -9,7 +9,7 @@ function ClusterTitle(props) {
 
     const styles = {
         position: 'absolute',
-        top: 60,
+        top: 5,
         display: "flex",
         justifyContent: "center",
         width: "100%",
@@ -42,7 +42,8 @@ function ClusterTitle(props) {
             <Input style={{width: 120}} defaultValue={title} autoFocus
                    onBlur={() => setEditing(false)}
                    onInput={e => setNewTitle(e.target.value)}/>
-            <Button size="xs" style={{marginLeft: 5}} onClick={() => saveNewTitle()}>Save</Button>
+            <Button size="xs" style={{marginLeft: 5}} onMouseDown={e => e.preventDefault()}
+                    onClick={() => saveNewTitle()}>Save</Button>
         </div>
     );
 }
