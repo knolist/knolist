@@ -34,11 +34,9 @@ def set_source_routes(app):
             'items': [i.format() for i in source.child_items]
         }), 200
 
-
     """
     Deletes a source.
     """
-
     @app.route('/sources/<int:source_id>', methods=['DELETE'])
     @requires_auth('delete:sources')
     def delete_source(user_id, source_id):
@@ -127,9 +125,11 @@ def set_source_routes(app):
         source.project_id = project_id if project_id is not None \
             else source.project_id
 
-        source.is_included = is_included if is_included is not None else source.is_included
+        source.is_included = is_included if is_included is not None \
+            else source.is_included
         source.author = author if author is not None else source.author
-        source.site_name = site_name if site_name is not None else source.site_name
+        source.site_name = site_name if site_name is not None \
+            else source.site_name
         if published_date:
             published_date = published_date[0:10]
         if access_date:

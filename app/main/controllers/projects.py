@@ -258,7 +258,6 @@ def set_project_routes(app):
             'items': [i.format() for i in results]
         })
 
-
     @app.route('/projects/statistics')
     @requires_auth('read:projects')
     def get_all_statistics(user_id):
@@ -286,7 +285,6 @@ def set_project_routes(app):
     def get_project_statistics(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
         return jsonify(get_statistics_for_project(project)), 200
-
 
     '''
     Gets all clusters within a project.
@@ -329,11 +327,14 @@ def set_project_routes(app):
             dict = {}
             for j in range(i + 1):
                 # Ignore empty contents
-                if (sources[i].content == None or sources[i].content == "" or
-                        sources[j].content == None or sources[j].content == ""):
+                if (sources[i].content is None
+                        or sources[i].content == ""
+                        or sources[j].content is None
+                        or sources[j].content == ""):
                     dict[j] = 0
                 else:
-                    dict[j] = round(similarity(sources[i].content, sources[j].content), 3)
+                    dict[j] = round(similarity(sources[i].content,
+                                               sources[j].content), 3)
             sim[i] = dict
         return jsonify({
             'success': True,
