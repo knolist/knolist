@@ -56,7 +56,7 @@ class MindMap extends React.Component {
             showNewItemHelperMessage: false,
             newItemData: modes.NULL,
             modes: modes,
-            newItemFormType: null,
+            newItemFormType: "Note",
             item: null,
             types: types,
             nodeColors: nodeColors,
@@ -501,8 +501,6 @@ class MindMap extends React.Component {
 
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
-        //HERE
-        document.body.addEventListener('click', () => {this.setState({newItemFormType: "Note"}); this.state.network.addNodeMode()});
 
         this.getItems(() => {
             this.getClusters(() => {
@@ -759,12 +757,17 @@ class MindMap extends React.Component {
             localStorage.setItem("curClusterView", JSON.stringify(null))
         }
         this.renderNetwork();
+        if (this.state.network) {
+            this.setState({newItemFormType:"Note"});
+            this.state.network.addNodeMode();
+        }
     }
 
     render() {
         if (this.props.curProject === null || (this.state.loading && (this.state.items === null || this.state.clusters === null))) {
             return <Loader size="lg" backdrop center/>
         }
+        if (this.state.network) this.state.network.addNodeMode();
         return (
             <div style={{height:"100%"}}>
                 <div id="mindmap"/>
