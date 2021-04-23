@@ -19,13 +19,12 @@ function AppHeader(props) {
                 </Link>
                 <div className="center-header-title">
                     {
-                        props.curProject === null ?
-                            null :
+                        props.curProject ?
                             <span style={{
                                 fontWeight: "bold",
                                 fontSize: "2em"
-                            }}>{props.curProject.title}</span>
-
+                            }}>{props.curProject.title}</span> :
+                            null
                     }
                 </div>
                 <FlexboxGrid.Item>

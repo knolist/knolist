@@ -42,7 +42,7 @@ class SharedProject extends React.Component {
     }
 
     render() {
-        if (this.props.curProject === null) {
+        if (!this.props.curProject) {
             return null;
         }
         return (

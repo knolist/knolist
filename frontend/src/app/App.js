@@ -47,7 +47,7 @@ class App extends React.Component {
             const projects = response.body.projects;
             this.setState({projects: projects}, () => {
                 // Update current project
-                if (this.state.curProject !== null) {
+                if (this.state.curProject) {
                     this.setCurProject(this.state.curProject.id);
                 } else if (projects && projects.length > 0) {
                     this.setState({curProject: projects[0]});
@@ -117,10 +117,16 @@ class App extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
-            if (this.state.curProject === null) {
-                this.setState({curProject: this.state.projects[0]})
+            const callback = () => localStorage.setItem(this.state.curProjectKey, JSON.stringify(this.state.curProject));
+            if (!this.state.curProject) {
+                let curProject = null;
+                if (this.state.projects && this.state.projects.length > 0) {
+                    curProject = this.state.projects[0];
+                } else {
+                    this.setShowNewProjectModal(true);
+                }
+                this.setState({curProject: curProject}, callback);
             }
-            localStorage.setItem(this.state.curProjectKey, JSON.stringify(this.state.curProject));
         }
     }
 

@@ -8,7 +8,7 @@ import {trimString} from "../services/StringHelpers";
 
 function ProjectsList(props) {
     return (
-        <Nav vertical activeKey={props.curProject === null ? undefined : props.curProject.id}
+        <Nav vertical activeKey={props.curProject ? props.curProject.id : undefined}
              onSelect={(eventKey) => props.setCurProject(eventKey)}>
             {props.projects.map(project => <Project key={project.id} updateProjects={props.updateProjects}
                                                     project={project}

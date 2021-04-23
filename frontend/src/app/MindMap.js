@@ -184,7 +184,7 @@ class MindMap extends React.Component {
     }
 
     getItems = async (callback) => {
-        if (this.props.curProject === null) return null;
+        if (!this.props.curProject) return null;
         this.setLoading(true);
 
         if (this.props.filters.length === 0) {
