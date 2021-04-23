@@ -1,5 +1,4 @@
 import makeHttpRequest from "../services/HttpRequest";
-import { Alert } from "rsuite";
 import { DataSet } from "vis-network/standalone";
 
 const generateVisClusterId = (cluster) => "c" + cluster.id;
