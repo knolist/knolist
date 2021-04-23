@@ -2,11 +2,11 @@ from flask import request, abort, jsonify
 from justext import justext, get_stoplist
 from requests import get as requests_get
 
-from app.main.auth.get_authorized_objects import get_authorized_project
+from app.main.auth.get_authorized_objects import get_authorized_project, get_authorized_cluster
 from app.main.helpers.url_to_citation import url_to_citation
 from app.main.helpers.statistics import compute_cluster_stats, \
     compute_source_dist, similarity
-from ..models.models import Project, Source, Item
+from ..models.models import Project, Source, Item, Cluster
 from ..auth import requires_auth
 from datetime import datetime
 
@@ -203,13 +203,14 @@ def set_project_routes(app):
                     results.append(sources)
         return jsonify({
             'success': True,
-            'sources': [source.format() for source in results]
+            'sources': [source.format() for source in results],
         })
 
     """
     Gets all the items of a given project
     or searches through them if a search query is passed.
     Search looks at all text fields of a source.
+    Returns clusters that items live in
     """
 
     @app.route('/projects/<int:project_id>/items')
@@ -219,44 +220,92 @@ def set_project_routes(app):
         update_project_access_date(project)
 
         search_query = request.args.get('query', None)
+        # Cluster is only present if the search queries are present
+        cluster = request.args.get('cluster', None)
+        if cluster:
+            cluster = int(cluster)
+
         if search_query is None:
             # Returns all items
             return jsonify({
                 'success': True,
-                'items': [i.format() for i in project.items]
+                'items': [i.format() for i in project.items],
+                # 'clusters': [c.format() for c in project.clusters]
             })
 
         pattern = '%' + search_query + '%'
         filter_query = request.args.getlist('filter', None)
+        results = []
         if not filter_query:
-            results = Item.query.join(Source)\
+            # Perform search without filter queries (almost never happens)
+            results = Item.query.join(Source) \
                 .filter(Item.parent_project == project_id) \
                 .filter(Source.url.ilike(pattern)
                         | Source.title.ilike(pattern)
                         | Source.content.ilike(pattern)
                         | Item.content.ilike(pattern)).order_by(Item.id).all()
+        else:
+            # Performs search iterating through filter queries
+            for filter_type in filter_query:
+                if filter_type == 'notes' or filter_type == 'highlights':
+                    temp = Item.query.filter(Item.parent_project == project_id) \
+                        .filter(Item.content.ilike(pattern)).order_by(Item.id).all()
+                else:
+                    temp = Item.query.join(Source) \
+                        .filter(Item.parent_project == project_id) \
+                        .filter(getattr(Source, filter_type)
+                                .ilike(pattern)).order_by(Item.id).all()
+                for item in temp:
+                    if item not in results:
+                        if not (filter_type == 'content' and item.content is None):
+                            # Fix error where None content matches with all strings
+                            results.append(item)
+
+        # Results contains all items that conform to search
+        # Return now the relavent clusters to these items and limit by cluster
+        # Idea: If an item has as a parent cluster query variable 'cluster' return it
+        # and return all the other clusters that are above it
+        print("Results")
+        print([i.format() for i in results])
+
+        if cluster is None:
             return jsonify({
                 'success': True,
-                'items': [i.format() for i in results]
+                'items': [i.format() for i in results],
+                # 'clusters': []  # This is not needed
             })
 
-        results = []
-        for filter_type in filter_query:
-            if filter_type == 'notes' or filter_type == 'highlights':
-                temp = Item.query.filter(Item.parent_project == project_id) \
-                    .filter(Item.content
-                            .ilike(pattern)).order_by(Item.id).all()
-            else:
-                temp = Item.query.join(Source)\
-                    .filter(Item.parent_project == project_id) \
-                    .filter(getattr(Source, filter_type)
-                            .ilike(pattern)).order_by(Item.id).all()
-            for item in temp:
-                if item not in results:
-                    results.append(item)
+        # cluster_ids = set()
+        # return_clusters = []
+        return_items = []
+        for i in results:
+            if cluster is None:
+                # Return if no cluster is specified
+                return_items.append(i)
+                continue
+            # Need to check up parent cluster hierarchy
+            if i.parent_cluster is None:
+                continue
+            print(type(i.parent_cluster))
+            print(type(cluster))
+            print(i.parent_cluster)
+            print(cluster)
+            if i.parent_cluster == cluster:
+                return_items.append(i)
+                print(return_items)
+                continue
+            c = get_authorized_cluster(user_id, i.parent_cluster)
+            while c.parent_cluster is not None:
+                if c.parent_cluster.id == cluster:
+                    # Append and return if we match the cluster
+                    return_items.append(i)
+                    break
+                c = c.parent_cluster
+
         return jsonify({
             'success': True,
-            'items': [i.format() for i in results]
+            'items': [i.format() for i in return_items]
+            # 'clusters': []  # This is not needed
         })
 
     """
@@ -280,10 +329,10 @@ def set_project_routes(app):
             # If at any point all items will not be stored at the project
             # leve, n_items can be returned.
             max_depth, n_items, n_clusters, \
-                sum_item_depth = compute_cluster_stats(
-                    project.clusters, depth=0,
-                    n_items=len(project.items), n_clusters=0,
-                    sum_item_depth=0)
+            sum_item_depth = compute_cluster_stats(
+                project.clusters, depth=0,
+                n_items=len(project.items), n_clusters=0,
+                sum_item_depth=0)
         # Compute URL breakdown from helper method
         url_breakdown = compute_source_dist(project.sources)
 
@@ -318,12 +367,12 @@ def set_project_routes(app):
             'clusters': [cluster.format() for cluster in clusters]
         })
 
-
     """
     For all the items of a given project, gets the
     similarity value for any given two and returns in a
     json-style matrix.
     """
+
     @app.route('/projects/<int:project_id>/similarity')
     @requires_auth('read:items')
     def get_project_similarity(user_id, project_id):
@@ -332,17 +381,17 @@ def set_project_routes(app):
         sources = project.sources
 
         index_map = {}
-        for i in range (len(sources)):
+        for i in range(len(sources)):
             index_map[sources[i].id] = i
 
         # Create upper-triangluar (since symmetric)
         sim = {}
-        for i in range (len(sources)):
+        for i in range(len(sources)):
             dict = {}
             for j in range(i + 1):
                 # Ignore empty contents
-                if (sources[i].content == None or sources[i].content == "" or
-                    sources[j].content == None or sources[j].content == ""):
+                if (sources[i].content is None or sources[i].content == "" or
+                        sources[j].content is None or sources[j].content == ""):
                     dict[j] = 0
                 else:
                     dict[j] = round(similarity(sources[i].content, sources[j].content), 3)
