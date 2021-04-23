@@ -7,10 +7,12 @@
 # construct to keep helper methods out of endpoint file.
 
 from urllib.parse import urlparse
+from nltk import download
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import numpy as np
 
+download('stopwords')
 
 def get_statistics_for_project(project):
     if (len(project.clusters) == 0):
