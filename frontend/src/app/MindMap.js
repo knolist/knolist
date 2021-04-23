@@ -10,7 +10,7 @@ import NewClusterForm from "./NewClusterForm"
 import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
 import SharedProject from "./SharedProject";
-// import Minigames from "./Minigames";
+import Minigames from "./Minigames";
 
 import RaiseLevelButton from "./RaiseLevelButton.js"
 import ClusterTitle from "./ClusterTitle.js";
@@ -766,10 +766,10 @@ class MindMap extends React.Component {
         return (
             <div style={{height:"100%"}}>
                 <div id="mindmap"/>
-                {/*<Minigames*/}
-                {/*    curProject={this.props.curProject}*/}
-                {/*    items={this.state.items}*/}
-                {/*    network={this.state.network}/>*/}
+                <Minigames
+                    curProject={this.props.curProject}
+                    items={this.state.items}
+                    network={this.state.network}/>
                 <ItemView selectedItem={this.state.selectedItem}
                           setSelectedItem={this.setSelectedItem}
                           getSelectedItemDetails={this.getSelectedItemDetails}
