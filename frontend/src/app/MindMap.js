@@ -144,6 +144,8 @@ class MindMap extends React.Component {
     }
 
     handleClickedCluster = (id) => {
+        console.log("Cluster ID: " + id);
+        console.log(this.state.clusters);
         this.setCurClusterView(this.state.clusters.find(x => x.id === id))
     }
 
@@ -183,6 +185,7 @@ class MindMap extends React.Component {
         this.setState({loading: val});
     }
 
+
     getItems = async (callback) => {
         if (this.props.curProject === null) return null;
         this.setLoading(true);
@@ -193,29 +196,59 @@ class MindMap extends React.Component {
             return;
         }
 
+        // These two cases below could be combined (since now being coded generally)
+        // Left separate however if additional logic is needed
         if (this.state.curClusterView === null) {
             let endpoint = "/projects/" + this.props.curProject.id + "/items";
-
             if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
                 endpoint = constructHttpQuery(endpoint, this.props.searchQuery, this.props.filters)
             }
-
             const response = await makeHttpRequest(endpoint);
 
             this.setLoading(false);
-            this.setState({items: response.body.items}, callback);
+            console.log(response.body.items);
+            console.log(response.body.clusters);
+            this.setState({items: response.body.items,
+                                clusters: []}, callback); // Adjust visible clusters
+
         } else {
-            const endpoint = "/clusters/" + this.state.curClusterView.id;
-            const response = await makeHttpRequest(endpoint);
-            this.setLoading(false);
-            this.setState({items: response.body.cluster.child_items}, callback);
+            if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
+                // They are searching - use search item endpoint and restrict to this cluster
+                let endpoint = "/projects/" + this.props.curProject.id + "/items";
+                endpoint = constructHttpQuery(endpoint, this.props.searchQuery, this.props.filters)
+                endpoint += "&cluster=" + this.state.curClusterView.id; // Add argument to search from this cluster
+                const response = await makeHttpRequest(endpoint);
+                console.log(endpoint);
+                console.log(response);
+                this.setLoading(false);
+                this.setState({items: response.body.items,
+                                    clusters: []}, callback); // Adjust visible clusters
+            } else {
+                // Get cluster specific data
+                const endpoint = "/clusters/" + this.state.curClusterView.id;
+                const response = await makeHttpRequest(endpoint);
+                this.setLoading(false);
+                this.setState({items: response.body.cluster.child_items}, callback);
+            }
         }
     }
 
     getClusters = async (callback) => {
         if (this.props.curProject === null) return null;
+        if (this.props.searchQuery !== ''){
+            // Don't display clusters when searching
+            this.setState({}, callback);
+            return [];
+        }
         this.setLoading(true)
         if (this.state.curClusterView == null) {
+            /*
+            if (this.props.searchQuery !== ''){
+                this.setLoading(false);
+                this.setState({}, callback);
+                return [];
+            }
+            */
             const endpoint = "/projects/" + this.props.curProject.id + "/clusters";
             const response = await makeHttpRequest(endpoint);
             this.setLoading(false);
@@ -400,7 +433,7 @@ class MindMap extends React.Component {
     // Helper function to setup the nodes for the graph
     createNodes() {
         let nodes = new DataSet();
-
+        console.log(this.state.clusters);
         // Iterate through each node in the graph and build the arrays of nodes
         for (let index in this.state.items) {
             if (this.state.clusters.length === 0 || this.state.clusters.filter(cluster => cluster.project_id === this.props.curProject.id)
