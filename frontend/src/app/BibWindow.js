@@ -229,7 +229,8 @@ class BibWindow extends React.Component {
         author = this.formatAuthor(source);
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {formattedDate}
-                <i>{title}</i> {source.site_name}. <a href={source.url} target="_blank" rel="noopener noreferrer">
+                <i>{title}</i> {source.site_name !== "" ? source.site_name + "." : ""}
+                <a href={source.url} target="_blank" rel="noopener noreferrer">
                     {source.url}.</a>
             </p>
         );
@@ -280,10 +281,10 @@ class BibWindow extends React.Component {
         return (
             <p style={{maxWidth: "800px"}} className={this.isIncludedClassName(source.is_included)}>
                 {author} {title}
-                <i>{source.site_name}</i>,
+                <i>{source.site_name !=="" ? source.site_name + ", " : ""}</i>
                  {formattedPublishDate} 
                  <a href={source.url} target="_blank" rel="noopener noreferrer">
-                     {source.url}.
+                     {" " + source.url}.
                 </a> {formattedAccessDate}
             </p>
         );
