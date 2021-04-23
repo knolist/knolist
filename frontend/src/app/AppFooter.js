@@ -19,7 +19,7 @@ class AppFooter extends React.Component {
                                     size="lg" onClick={this.props.fit}/>
                     </Whisper>
                 </div>
-                <a style={{margin: 25, bottom: 0}}
+                <a style={{marginBottom: 25, bottom: 0}}
                    className="center-header-title"
                    target="_blank"
                    rel="noopener noreferrer"
