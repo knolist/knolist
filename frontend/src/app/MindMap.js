@@ -389,6 +389,8 @@ class MindMap extends React.Component {
     getNodePosition = (node) => {
         let x = node.x_position;
         let y = node.y_position;
+        // Decide whether to remove or keep for posterity.
+        // All x and y positions should be defined
         if (x === null || y === null) {
             // If position is still undefined, generate random x and y in interval [-300, 300]
             [x, y] = this.generateNodePositions(node);
