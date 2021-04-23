@@ -61,7 +61,7 @@ def get_statistics_for_project(project):
             'num_sourcenotes': n_sourcenotes,
             'num_highlights': n_highlights
         },
-        'avg_depth_per_item': sum_item_depth / len(project.items),
+        'avg_depth_per_item': sum_item_depth / len(project.items) if len(project.items) != 0 else None,
         'max_depth': max_depth + 1,
         'date_created': project.creation_date,
         'date_accessed': project.recent_access_date,
