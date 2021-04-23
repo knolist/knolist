@@ -103,9 +103,9 @@ class NewItemForm extends React.Component {
                 <div>
                     <Input type={"Note"} required id={this.state.newItemNotesId}
                            placeholder="Add Note" componentClass="textarea" rows={30}
-                           disabled={this.state.loading}/>
+                           disabled={this.state.loading} autoFocus/>
                     <br />
-                    <Input autoFocus type="URL" id={this.state.newItemUrlId} placeholder="Add optional URL"  disabled={this.state.loading}/>
+                    <Input type="URL" id={this.state.newItemUrlId} placeholder="Add optional URL"  disabled={this.state.loading}/>
                 </div>;
         }
 
