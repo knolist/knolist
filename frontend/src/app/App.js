@@ -15,6 +15,7 @@ import makeHttpRequest from "../services/HttpRequest";
 import 'rsuite/dist/styles/rsuite-default.css';
 import '../index.css';
 
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -105,7 +106,6 @@ class App extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
-            //console.log("here");
             if (this.state.curProject === null) {
                 this.setState({curProject: this.state.projects[0]})
             }
@@ -117,7 +117,7 @@ class App extends React.Component {
         if (this.state.curProject === null) return <Loader size="lg" backdrop center/>
         else {
             return (
-                <div>
+                <div style={{height: "100%"}}>
                     <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
                                searchQuery={this.state.searchQuery}
                                setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>

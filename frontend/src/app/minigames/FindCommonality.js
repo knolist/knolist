@@ -2,7 +2,6 @@ import React from 'react';
 import {
     Button, Progress, Input, Form, Grid, Row
 } from "rsuite";
-// import FlexboxGridItem from 'rsuite/lib/FlexboxGrid/FlexboxGridItem';
 
 import {randomPicker} from "../../services/RandomGenerator"
 

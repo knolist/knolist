@@ -139,3 +139,6 @@ dmypy.json
 /node_modules
 
 .DS_Store
+
+/app/.DS_Store
+/migrations/.DS_Store

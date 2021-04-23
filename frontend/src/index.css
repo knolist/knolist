@@ -14,9 +14,7 @@
 }
 
 #mindmap {
-    position: absolute;
-    top: 55px;
-    bottom: 0;
+    height: 100%
 }
 
 #mindmap .vis-network:focus {

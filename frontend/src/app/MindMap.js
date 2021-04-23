@@ -12,8 +12,8 @@ import BibWindow from "./BibWindow";
 import SharedProject from "./SharedProject";
 import Minigames from "./Minigames";
 
-import RaiseLevelButton from "./RaiseLevelButton"
-import ClusterTitle from "../components/ClusterTitle.js";
+import RaiseLevelButton from "./RaiseLevelButton.js"
+import ClusterTitle from "./ClusterTitle.js";
 
 import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
@@ -422,7 +422,6 @@ class MindMap extends React.Component {
     }
 
     createClusters() {
-        //console.log("createClusters()");
         let clusterNodes = new DataSet();
         if (this.state.clusters.length === 0) {
             return clusterNodes;
@@ -455,14 +454,12 @@ class MindMap extends React.Component {
                     border: "#00c0de"
                 }
             })
-            if (cluster.child_items.length > 2) {
+            if (cluster.total_items > 2) {
                 const totalNodes = cluster.total_items - 2;
-                let numLabel = " items";
-                if (totalNodes < 2) numLabel = " item"
                 clusterNodes.add({
                     group: "inCluster",
                     id: this.generateVisInClusterId(cluster, "count"),
-                    label: "+" + totalNodes + numLabel,
+                    label: "+" + totalNodes + " item" + (totalNodes > 1 ? "s" : ""),
                     x: cluster.x_position,
                     y: cluster.y_position + helperDataOffset,
                     font: {
@@ -503,7 +500,6 @@ class MindMap extends React.Component {
     }
 
     renderNetwork = (callback) => {
-        //console.log("renderNetwork()");
         if (this.props.curProject === null) return;
 
         this.getItems(() => {
@@ -586,7 +582,7 @@ class MindMap extends React.Component {
 
                 // Initialize the network
                 const network = new Network(container, data, options);
-                network.fit()
+                network.fit();
 
                 // Handle click vs drag
                 network.on("click", (params) => {
@@ -634,8 +630,10 @@ class MindMap extends React.Component {
                                         }
                                     }
                                 });
-                                if (this.state.curClusterView !== null && this.state.raiseLevelButtonHover) {
+                                if (this.state.curClusterView && this.state.raiseLevelButtonHover) {
                                     this.setState({showRemoveItemFromClusterMessage: true});
+                                } else if (this.state.curClusterView && !this.state.raiseLevelButtonHover) {
+                                    this.setState({showRemoveItemFromClusterMessage: false});
                                 }
                             } else {
                                 if (this.state.newClusterIds && !isOverlap(boundingBox, network.getBoundingBox(this.state.newClusterIds.item2))) {
@@ -643,9 +641,6 @@ class MindMap extends React.Component {
                                 }
                                 if (this.state.existingClusterId && !isOverlap(boundingBox, network.getBoundingBox(this.state.existingClusterId))) {
                                     this.setShowAddToClusterHelperMessage(false)
-                                }
-                                if (this.state.curClusterView && !this.state.raiseLevelButtonHover) {
-                                    this.setState({showRemoveItemFromClusterMessage: false});
                                 }
                             }
                         }
@@ -693,20 +688,11 @@ class MindMap extends React.Component {
 
                 // Store the network
                 this.setState({network: network}, callback);
-
             })
         })
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        Object.entries(this.props).forEach(([key, val]) =>
-        prevProps[key] !== val && console.log(`Prop '${key}' changed`)
-        );
-        if (this.state) {
-            Object.entries(this.state).forEach(([key, val]) =>
-                prevState[key] !== val && console.log(`State '${key}' changed`)
-            );
-        }
         if (prevProps.curProject !== this.props.curProject) {
             // Set items to null before updating to show loading icon
             this.setState({items: null}, this.renderNetwork);
@@ -767,7 +753,6 @@ class MindMap extends React.Component {
     }
 
     componentDidMount() {
-        //console.log("componentDidMount()");
         if (this.state.curClusterView === null) {
             localStorage.setItem("curClusterView", JSON.stringify(null))
         }
@@ -780,7 +765,7 @@ class MindMap extends React.Component {
         }
 
         return (
-            <div>
+            <div style={{height:"100%"}}>
                 <div id="mindmap"/>
                 <Minigames
                     curProject={this.props.curProject}
