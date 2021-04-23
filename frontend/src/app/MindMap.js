@@ -765,7 +765,7 @@ class MindMap extends React.Component {
         }
 
         return (
-            <div style={{height:"100%"}}>
+            <div style={{position:"relative", height:"93.5%"}}>
                 <div id="mindmap"/>
                 <Minigames
                     curProject={this.props.curProject}

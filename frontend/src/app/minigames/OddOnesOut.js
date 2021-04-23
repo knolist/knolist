@@ -96,7 +96,7 @@ class OddOnesOut extends React.Component {
 
                     {this.state.selectedItems.map((item, index) =>
                         <Button block key={index} appearance="primary" color={item.color}
-                                style={{margin: 20, display: 'block'}}>{this.generateDisplayValue(item)}</Button>)}
+                                style={{margin: 20, display: 'block'}}>{this.props.generateDisplayValue(item)}</Button>)}
                 </>
             )
         }
