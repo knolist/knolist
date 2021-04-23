@@ -1,5 +1,5 @@
 import React from "react";
-import {Alert, Button, Form, Input, Modal} from "rsuite";
+import {Alert, Button, Form, Input, Modal, FormControl} from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
 
@@ -63,7 +63,20 @@ class NewItemForm extends React.Component {
                 });
             }
         });
+    }
 
+    enterEvent = (e) => {
+        if(e.keyCode === 13 && !e.shiftKey) {
+            this.addNewItem();
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener("keydown", this.enterEvent);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener("keydown", this.enterEvent);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -88,9 +101,11 @@ class NewItemForm extends React.Component {
             // New note without a source passed in
             body =
                 <div>
-                    <Input autoFocus type="URL" id={this.state.newItemUrlId} placeholder="Add optional URL"/>
                     <Input type={"Note"} required id={this.state.newItemNotesId}
-                           placeholder="Add Note" componentClass="textarea" rows={30}/>
+                           placeholder="Add Note" componentClass="textarea" rows={30}
+                           disabled={this.state.loading}/>
+                    <br />
+                    <Input autoFocus type="URL" id={this.state.newItemUrlId} placeholder="Add optional URL"  disabled={this.state.loading}/>
                 </div>;
         }
 
