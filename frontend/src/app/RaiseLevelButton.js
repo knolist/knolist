@@ -25,7 +25,6 @@ class RaiseLevelButton extends React.Component {
             position: 'fixed',
             top: 55,
             left: 0,
-            zIndex: 99999,
             color: 'white',
             cursor: 'pointer'
         }

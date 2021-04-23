@@ -69,9 +69,10 @@ function All(props) {
                 <div className="myknolist-container">
                     <FlexboxGrid style={{marginLeft: "-6px", marginBottom: "5vh"}} justify="start">
                         {projects.map((project, index) => {
+                            const stats = props.stats[index];
                             return (
                                 <FlexboxGrid.Item componentClass={Col} md={6} key={index}>
-                                    <ProjectCard data={project}/>
+                                    <ProjectCard data={project} stats={stats}/>
                                 </FlexboxGrid.Item>);
                         })}
                     </FlexboxGrid>

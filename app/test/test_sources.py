@@ -59,6 +59,22 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
+    # GET '/sources/{source_id}/items'
+    def test_get_source_items_1(self):
+        res = self.client().get(f'/sources/{self.source_1.id}/items',
+                              headers=auth_header)
+        data = json.loads(res.data)
+        self.assertTrue(res.status_code, 200)
+        self.assertTrue(len(data['items']), 1)
+
+    # GET '/sources/{source_id}/items'
+    def test_get_source_items_2(self):
+        res = self.client().get(f'/sources/{self.source_3.id}/items',
+                              headers = auth_header)
+        data = json.loads(res.data)
+        self.assertTrue(res.status_code, 200)
+        self.assertTrue(len(data['items']), 2)
+
     # DELETE '/sources/{source_id}' #
     def test_delete_source(self):
         old_total = len(Source.query.filter(
@@ -77,6 +93,7 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertIsNone(deleted_source)
         self.assertEqual(new_total, old_total - 1)
 
+
     def test_delete_source_nonexistent_source(self):
         old_total = len(Source.query.filter(
             Source.project_id == self.source_1.project_id
@@ -90,6 +107,7 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
         self.assertEqual(new_total, old_total)
+
 
     # PATCH '/sources/{source_id}' #
     def test_update_source(self):
@@ -105,6 +123,7 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertTrue(self.source_1 in self.project_2.sources)
         self.assertTrue(self.source_1 not in self.project_1.sources)
 
+
     def test_update_source_no_body(self):
         # Attempt to update source
         res = self.client().patch(f'/sources/{self.source_1.id}',
@@ -113,6 +132,7 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
+
 
     def test_update_source_no_data_in_body(self):
         # Attempt to update source
@@ -124,6 +144,7 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 400)
         self.assertFalse(data['success'])
 
+
     def test_update_source_no_id(self):
         # Attempt to update source
         res = self.client().patch('/sources', json=self.new_source,
@@ -132,6 +153,7 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 405)
         self.assertFalse(data['success'])
+
 
     def test_update_source_nonexistent_source(self):
         # Attempt to update source
@@ -142,6 +164,7 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 404)
         self.assertFalse(data['success'])
 
+
     def test_update_source_invalid_x_position(self):
         res = self.client().patch(f'/sources/{self.source_1.id}',
                                   json={'x_position': 'not int'},
@@ -150,6 +173,7 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
+
 
     def test_update_source_invalid_y_position(self):
         res = self.client().patch(f'/sources/{self.source_1.id}',
@@ -160,6 +184,7 @@ class TestSourcesEndpoints(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
 
+
     def test_update_source_nonexistent_project(self):
         res = self.client().patch(f'/sources/{self.source_1.id}',
                                   json={'project_id': 2000},
@@ -168,6 +193,7 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
+
 
     def test_update_source_project_with_already_existing_url(self):
         # Create source with same URL as source 1, but in project 2
@@ -182,7 +208,3 @@ class TestSourcesEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 422)
         self.assertFalse(data['success'])
-
-
-
-

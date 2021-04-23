@@ -106,6 +106,12 @@ class Cluster(BaseModel):
     def __repr__(self):
         return f'<Cluster {self.id}: {self.name}>'
 
+    def count_items(self):
+        count = len(self.child_items)
+        for child_cluster in self.child_clusters:
+            count += child_cluster.count_items()
+        return count
+
     def format(self):
         return {
             'id': self.id,
@@ -115,7 +121,8 @@ class Cluster(BaseModel):
             'project_id': self.project_id,
             'child_clusters': [cluster.id for cluster in self.child_clusters],
             'child_items': [item.format() for item in self.child_items],
-            'parent_cluster': self.parent_cluster_id
+            'parent_cluster': self.parent_cluster_id,
+            'total_items': self.count_items()
         }
 
 
@@ -156,13 +163,16 @@ class Source(BaseModel):
             'url': self.url,
             'title': self.title,
             'author': self.author,
+            'lastName': None if self.author == "" or not self.author
+            else self.author[: self.author.find(',')],
+            'firstName': None if self.author == "" or not self.author
+            else self.author[self.author.find(',') + 2:],
             'site_name': self.site_name,
             'is_included': self.is_included,
             'published_date': self.published_date,
             'access_date': self.access_date,
             'project_id': self.project_id
         }
-
 
 
 class Item(BaseModel):

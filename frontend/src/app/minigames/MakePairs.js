@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    Button, Progress, Form, Divider
+    Button, Progress, Divider, Grid
 } from "rsuite";
 import {Network, DataSet} from "vis-network/standalone";
 
@@ -23,6 +23,7 @@ class MakePairs extends React.Component {
             selectedNode: null,
             items: null,
             loading: false,
+            pairCount: 0
         }
         console.log("numRounds", this.props.numRounds)
     }
@@ -40,7 +41,7 @@ class MakePairs extends React.Component {
             let x_position = (index % 2) ? 0 : 500;
             let y_position = (index < 2) ? 0 : 200;
 
-            nodes.add({id: node.id, label: node.title, x: x_position, y: y_position});
+            nodes.add({id: node.id, label: this.props.generateDisplayValue(node), x: x_position, y: y_position});
             // // Deal with positions
             // if (node.x_position === null || node.y_position === null) {
             //     // If position is still undefined, generate random x and y in interval [-300, 300]
@@ -108,36 +109,47 @@ class MakePairs extends React.Component {
             interaction: {
                 selectConnectedEdges: false,
                 hover: true,
-                hoverConnectedEdges: false
+                hoverConnectedEdges: false,
+                zoomView: false,
+                dragView: false
             },
             manipulation: {
                 enabled: false,
                 // TODO
-                addEdge: this.addEdgeConnection
+                addEdge: (data, callback) => {
+                    console.log('add edge', data);
+                    if (data.from !== data.to) {
+                        callback(data);
+                        this.addEdgeConnection(data.from, data.to);
+                    }
+                    // after each adding you will be back to addEdge mode
+                    network.addEdgeMode();
+                }
             }
         };
 
         console.log("container", container, "data", data)
         // Initialize the network -- TODO: WHEN REFACTORING, CHANGE DATA and OPTIONS
         const network = new Network(container, data, options);
+        network.addEdgeMode();
         network.fit()
 
         // Handle click vs drag
-        network.on("click", (params) => {
-            if (params.nodes !== undefined && params.nodes.length > 0) {
-                const nodeId = params.nodes[0];
-                // console.log("PARAM NODES:", params.nodes);
-                // this.handleClickedNode(nodeId);
-                // console.log("nodeId", nodeId);
-                if (this.state.from_id === null || this.state.from_id === nodeId) {
-                    this.setState({from_id: nodeId});
-                } else {
-                    this.addEdgeConnection(this.state.from_id, nodeId); // Node Id will be to!
-                    this.setState({from_id: null});
-                }
-                // Network.addEdgeMode();
-            }
-        });
+        // network.on("click", (params) => {
+        //     if (params.nodes !== undefined && params.nodes.length > 0) {
+        //         const nodeId = params.nodes[0];
+        //         // console.log("PARAM NODES:", params.nodes);
+        //         // this.handleClickedNode(nodeId);
+        //         // console.log("nodeId", nodeId);
+        //         if (this.state.from_id === null || this.state.from_id === nodeId) {
+        //             this.setState({from_id: nodeId});
+        //         } else {
+        //             this.addEdgeConnection(this.state.from_id, nodeId); // Node Id will be to!
+        //             this.setState({from_id: null});
+        //         }
+        //         // Network.addEdgeMode();
+        //     }
+        // });
 
         // // Update positions after dragging node
         // network.on("dragEnd", () => {
@@ -161,6 +173,7 @@ class MakePairs extends React.Component {
     }
 
     addEdgeConnection = (from_id, to_id) => {
+        let pairCountCurr = this.state.pairCount + 1;
         this.state.network.body.data.edges.add([{from: from_id, to: to_id}])
         // Add connections to state
         const fromLabel = this.state.network.body.data.nodes.get(from_id).label;
@@ -168,7 +181,12 @@ class MakePairs extends React.Component {
         // console.log("from", fromLabel)
         // console.log("to", toLabel)
         this.setState({
-            connections: [...this.state.connections, {from: fromLabel, to: toLabel}]
+            connections: [...this.state.connections, {from: fromLabel, to: toLabel}],
+            pairCount: pairCountCurr
+        }, () => {
+            if (this.state.pairCount === 2) {
+                this.submitItems();
+            }
         })
     }
 
@@ -187,6 +205,7 @@ class MakePairs extends React.Component {
         console.log("network", this.state.network);
         this.setState({
             numPlayed: this.state.numPlayed + 1,
+            pairCount: 0
         }, this.updateRandomItems)
         if (this.state.numPlayed < this.props.numRounds)
             this.renderNetwork();
@@ -199,22 +218,21 @@ class MakePairs extends React.Component {
     }
 
     render() {
-        console.log(this.state)
         if (this.state.numPlayed < this.props.numRounds)
             return (
-                <>
+                <Grid>
                     <h1>Make Pairs</h1>
                     <h3>Round {this.state.numPlayed + 1}</h3>
                     <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
-                    <div id='MakePairs' style={{height: 480}}/>
+                    <div id='MakePairs' style={{height: 300}}/>
                     {/* <div id='MakePairs'>  */}
-                    <Form onSubmit={this.submitItems}>
+                    {/* <Form onSubmit={this.submitItems}>
                         <Button appearance="primary" color='blue'
                                 style={{margin: 20, display: 'block'}}
                                 type='submit'>Next</Button>
-                    </Form>
+                    </Form> */}
 
-                </>
+                </Grid>
             )
         else {
             return (

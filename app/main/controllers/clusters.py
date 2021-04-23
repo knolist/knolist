@@ -125,9 +125,9 @@ def set_cluster_routes(app):
         cluster.child_items.append(item1)
         cluster.child_items.append(item2)
         cluster.update()
-        # TODO: test to see if the next 2 lines work
-        # item1.project = None
-        # item2.project = None
+
+        item1.project = None
+        item2.project = None
         status_code = 201
 
         return jsonify({
@@ -170,10 +170,41 @@ def set_cluster_routes(app):
 
         if item.cluster != cluster:
             abort(400)
-        item.cluster = cluster.parent_cluster
+
+        if not cluster.parent_cluster:
+            item.cluster = None
+            cluster.project.items.append(item)
+        else:
+            cluster.parent_cluster.child_items.append(item)
         item.update()
-        status_code = 201
+        status_code = 200
         return jsonify({
             'success': True,
             'cluster': cluster.format()
         }), status_code
+
+    """
+    For a cluster, set all sources to 'included'
+    if it exists in a sub cluster of that cluster
+    """
+
+    @app.route('/clusters/<int:cluster_id>/subsources', methods=["GET"])
+    @requires_auth('read:clusters')
+    def get_sources_under_clusters(user_id, cluster_id):
+        cluster = get_authorized_cluster(user_id, cluster_id)
+        if not cluster:
+            abort(404)  # Cluster not found
+        cluster_queue = [cluster]
+        sources = []
+        while len(cluster_queue) > 0:
+            for c in cluster_queue:
+                if c.child_clusters:
+                    cluster_queue.extend(c.child_clusters)
+            for item in cluster_queue[0].child_items:
+                if item.source_id:
+                    sources.append(item.source.format())
+            cluster_queue.pop(0)
+        return jsonify({
+            'success': True,
+            'sources': sources
+        }), 200

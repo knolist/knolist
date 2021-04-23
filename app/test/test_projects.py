@@ -292,16 +292,16 @@ class TestProjectsEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertEqual(data['num_sources'], 2)
-        self.assertEqual(data['num_items'], 2)
-        self.assertEqual(data['num_clusters'], 1)
+        self.assertEqual(data['counts']['num_sources'], 2)
+        self.assertEqual(data['counts']['num_items'], 2)
+        self.assertEqual(data['counts']['num_clusters'], 1)
         self.assertEqual(data['avg_depth_per_item'], 0.5)
         self.assertEqual(data['max_depth'], 1)
-        self.assertEqual(data['num_notes'], 2)
+        self.assertEqual(data['counts']['num_notes'], 2)
 
         url_breakdown = data['url_breakdown']
-        self.assertEqual(url_breakdown['test1.com'], 1)
-        self.assertEqual(url_breakdown['test2.com'], 1)
+        self.assertEqual(url_breakdown["www.nationalgeographic.com"], 1)
+        self.assertEqual(url_breakdown["www.messenger.com"], 1)
 
     # GET '/projects/{project_id}/statistics' #
     def test_get_statistics_2(self):
@@ -311,15 +311,23 @@ class TestProjectsEndpoints(unittest.TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertTrue(data['success'])
-        self.assertEqual(data['num_sources'], 1)
-        self.assertEqual(data['num_items'], 2)
-        self.assertEqual(data['num_clusters'], 0)
+        self.assertEqual(data['counts']['num_sources'], 1)
+        self.assertEqual(data['counts']['num_items'], 1)
+        self.assertEqual(data['counts']['num_clusters'], 0)
         self.assertEqual(data['avg_depth_per_item'], 0)
         self.assertEqual(data['max_depth'], 0)
-        self.assertEqual(data['num_notes'], 0)
+        self.assertEqual(data['counts']['num_notes'], 0)
 
         url_breakdown = data['url_breakdown']
-        self.assertEqual(url_breakdown['test3.com'], 1)
+        self.assertEqual(url_breakdown["www.test3.com"], 1)
+
+
+    def test_get_all_stats(self):
+        res = self.client().get(f'/projects/statistics',
+                                headers=auth_header)
+        data = json.loads(res.data)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(len(data), 2)
 
 
     def test_single_filter_search_items(self):
@@ -526,7 +534,7 @@ class TestProjectsEndpoints(unittest.TestCase):
         added_item = data['item']
         self.assertIsNotNone(Item.query.get(added_item['id']))
         self.assertEqual(added_item['parent_project'], self.project_1.id)
-        self.assertEqual(added_item['url'], 'https://test1.com')
+        self.assertEqual(added_item['url'], self.source_1.url)
         self.assertEqual(new_total, old_total + 1)
         self.assertEqual(new_sources, old_sources)
 
@@ -590,3 +598,13 @@ class TestProjectsEndpoints(unittest.TestCase):
                                 headers=auth_header)
         data = json.loads(res.data)
         self.assertEqual(len(data['clusters']), 1)
+
+    def test_get_content_similarity_matrix(self):
+        res = self.client().get(f'/projects/{self.project_1.id}/similarity',
+                                        headers=auth_header)
+        data = json.loads(res.data)
+        for i in range(len(data['index'])):
+            for j in range(i + 1):
+                self.assertTrue(data['similarity'][str(i)][str(j)] >= 0.)
+                self.assertTrue(data['similarity'][str(i)][str(j)] <= 1.)
+        self.assertTrue(data['success'])

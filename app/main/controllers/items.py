@@ -175,7 +175,8 @@ def set_item_routes(app):
             if project is None:
                 abort(422)
             # Checks to see if the user has access to item
-            if project.user_id != user_id and user_id not in project.shared_users:
+            if project.user_id != user_id \
+                    and user_id not in project.shared_users:
                 raise AuthError({
                     'code': 'invalid_user',
                     'description':
@@ -188,13 +189,14 @@ def set_item_routes(app):
         item.content = content if content is not None else item.content
         # Changes the title of the source associated with item
         if item.source is not None:
-            item.source.title = title if title is not None else item.source.title
+            item.source.title = title if title is not None \
+                else item.source.title
         item.x_position = x_position if x_position \
-                                        is not None else item.x_position
+            is not None else item.x_position
         item.y_position = y_position if y_position \
-                                        is not None else item.y_position
+            is not None else item.y_position
         item.parent_project = parent_project if parent_project \
-                                                is not None else item.parent_project
+            is not None else item.parent_project
 
         item.update()
 
