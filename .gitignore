@@ -1,6 +1,7 @@
 # Other
 /.idea
 login_link.txt
+deployed_commands.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -138,6 +139,9 @@ dmypy.json
 /node_modules
 
 .DS_Store
+<<<<<<< HEAD
 
 /app/.DS_Store
 /migrations/.DS_Store
+=======
+>>>>>>> 48ea81ca0b9e8b5dc91f18513384f022f54a7f6f

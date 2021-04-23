@@ -15,14 +15,13 @@ import makeHttpRequest from "../services/HttpRequest";
 import 'rsuite/dist/styles/rsuite-default.css';
 import '../index.css';
 
-import { Icon, IconButton } from "rsuite"; //temporary
-import ListView from "./ListView.js"; //temporary
-
 class App extends React.Component {
     constructor(props) {
         super(props);
+        const curProjectKey = process.env.REACT_APP_LOCAL_STORAGE_CUR_PROJECT;
         this.state = {
-            curProject: JSON.parse(localStorage.getItem("curProject")),
+            curProjectKey: curProjectKey,
+            curProject: JSON.parse(localStorage.getItem(curProjectKey)),
             projects: null,
             showProjectsSidebar: false,
             showBib: false,
@@ -107,45 +106,34 @@ class App extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
+            //console.log("here");
             if (this.state.curProject === null) {
                 this.setState({curProject: this.state.projects[0]})
             }
-            localStorage.setItem("curProject", JSON.stringify(this.state.curProject));
+            localStorage.setItem(this.state.curProjectKey, JSON.stringify(this.state.curProject));
         }
     }
 
     render() {
-        if (!this.state.clicked) {//temporary
+        if (this.state.curProject === null) return <Loader size="lg" backdrop center/>
+        else {
             return (
-                <div style={{height:"100%"}}>
+                <div>
                     <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
-                                searchQuery={this.state.searchQuery}
-                                setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
+                               searchQuery={this.state.searchQuery}
+                               setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
                     <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                        projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
-                                        close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
-                                        setCurProject={this.setCurProject}/>
+                                     projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
+                                     close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
+                                     setCurProject={this.setCurProject}/>
                     {this.projectsButton()}
                     <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                                setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
-                                filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
-                                showSharedProject={this.state.showSharedProject}
-                                updateProjects={this.updateProjects}/>
-                    {/*below is temporary*/}
-                    <div style={{position:"absolute", top: 65, left: 10}}>
-                        <IconButton size="md" icon={<Icon icon="star"/>} onClick={() => this.setState({clicked: true})}/>
-                    </div>
+                             setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
+                             filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
+                             showSharedProject={this.state.showSharedProject}
+                             updateProjects={this.updateProjects}/>
                 </div>
             );
-        } else {
-            return (
-                <div style={{height:"100%"}}>
-                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
-                                searchQuery={this.state.searchQuery}
-                                setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
-                    <ListView curProject={this.state.curProject}/>
-                </div>
-            )
         }
     }
 }

@@ -1,7 +1,8 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, Form, FormGroup, FormControl, ControlLabel,
-    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid
+    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid,
+    Toggle
 } from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -19,6 +20,8 @@ class BibWindow extends React.Component {
             'July', 'August', 'September', 'October', 'November', 'December'];
         this.state = {
             sources: null,
+            allSources: null,
+            subSources: null,
             curFormat: formats.APA,
             formats: formats,
             months: months,
@@ -35,10 +38,11 @@ class BibWindow extends React.Component {
     getBibSources = (callback) => {
         if (this.props.curProject === null || !this.props.showBib) return null;
         this.setLoading(true);
-        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        makeHttpRequest(endpoint).then((response) => {
-            let sortedSources = response.body.sources;
-            sortedSources = sortedSources.sort((a, b) => {
+        // Get all sources in the project
+        const allSourceEndpoint = "/projects/" + this.props.curProject.id + "/sources";
+        makeHttpRequest(allSourceEndpoint).then((response) => {
+            let sortedAllSources = response.body.sources;
+            sortedAllSources = sortedAllSources.sort((a, b) => {
                 a.title = a.title.trim();
                 b.title = b.title.trim();
                 if (a.title > b.title) {
@@ -47,9 +51,34 @@ class BibWindow extends React.Component {
                     return -1;
                 }
             });
-            this.setState({sources: sortedSources}, () => {
-                this.setLoading(false);
+            this.setState({sources: sortedAllSources,
+                                allSources: sortedAllSources,
+                                subSources: sortedAllSources}, () => {
                 if (typeof callback === "function") callback();
+            })
+        });
+
+        if (!this.props.curCluster) {
+            this.setLoading(false);
+            return;
+        }
+        // Get all sources in this cluster or below
+        const subSourceEndpoint = "/clusters/" + this.props.curCluster.id + "/subsources";
+        makeHttpRequest(subSourceEndpoint).then((response) => {
+            let sortedSubSources = response.body.sources;
+            sortedSubSources = sortedSubSources.sort((a, b) => {
+                a.title = a.title.trim();
+                b.title = b.title.trim();
+                if (a.title > b.title) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+            this.setState({subSources: sortedSubSources}, () => {
+                if (typeof callback === "function") callback();
+                this.setLoading(false);
+                console.log(sortedSubSources)
             })
         });
     }
@@ -129,10 +158,25 @@ class BibWindow extends React.Component {
             "is_included": checked
         }
         makeHttpRequest(endpoint, "PATCH", body);
-        let sources = this.state.sources;
-        const index = sources.findIndex(x => x.id === source.id);
-        sources[index].is_included = checked;
-        this.setState({sources: sources});
+        let disSources = this.state.sources;
+        let allSources = this.state.allSources;
+        let subSources = this.state.subSources;
+
+        const disIndex = disSources ? disSources.findIndex(x => x.id === source.id) : null;
+        const allIndex = allSources ? allSources.findIndex(x => x.id === source.id) : null;
+        const subIndex = subSources ? subSources.findIndex(x => x.id === source.id) : null;
+
+        if (disSources && disIndex !== -1) {
+            disSources[disIndex].is_included = checked;
+        }
+        if (allSources && allIndex !== -1) {
+            allSources[allIndex].is_included = checked;
+        }
+        if (subSources && subIndex !== -1) {
+            subSources[subIndex].is_included = checked;
+        }
+
+        this.setState({sources: disSources, allSources: allSources, subSources: subSources});
     }
 
     renderAPADate = (date) => {
@@ -185,7 +229,8 @@ class BibWindow extends React.Component {
         author = this.formatAuthor(source);
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {formattedDate}
-                <i>{title}</i> {source.site_name}. <a href={source.url} target="_blank" rel="noopener noreferrer">
+                <i>{title}</i> {source.site_name !== "" ? source.site_name + "." : ""}
+                <a href={source.url} target="_blank" rel="noopener noreferrer">
                     {source.url}.</a>
             </p>
         );
@@ -236,10 +281,10 @@ class BibWindow extends React.Component {
         return (
             <p style={{maxWidth: "800px"}} className={this.isIncludedClassName(source.is_included)}>
                 {author} {title}
-                <i>{source.site_name}</i>,
+                <i>{source.site_name !=="" ? source.site_name + ", " : ""}</i>
                  {formattedPublishDate} 
                  <a href={source.url} target="_blank" rel="noopener noreferrer">
-                     {source.url}.
+                     {" " + source.url}.
                 </a> {formattedAccessDate}
             </p>
         );
@@ -320,6 +365,14 @@ class BibWindow extends React.Component {
         );
     }
 
+    toggleClusterBib = (checked) => {
+        if (checked) {
+            this.setState({sources: this.state.subSources});
+        } else {
+            this.setState({sources: this.state.allSources})
+        }
+    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.showBib !== this.props.showBib && this.props.showBib) {
             this.getBibSources();
@@ -356,6 +409,8 @@ class BibWindow extends React.Component {
                         <SelectPicker defaultValue={this.state.curFormat ? this.state.curFormat : formats.APA}
                                       data={dropdownData} onChange={this.changeFormatType}
                                       style={{float: 'right'}} cleanable={false} searchable={false}/>
+                        <Toggle unCheckedChildren={<div style={{color: '#3498FF'}}> all </div>} checkedChildren={'cluster'} size='lg'
+                                      style={{float: 'middle'}} onChange={this.toggleClusterBib}/>
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body >

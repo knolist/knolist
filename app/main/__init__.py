@@ -15,11 +15,15 @@ def create_app(config_name):
     db.init_app(app)
 
     # Set up CORS
+    cors_origins = ['https://app.knolist.com',
+                    'chrome-extension://ljjgadmlbbmcmbmgapjjklbnlliedefc']
+    if config_by_name != "prod":
+        cors_origins += ['http://localhost:3000',
+                         'http://localhost:3001',
+                         'chrome-extension://*']
+
     cors_config = {
-        'origins': ['http://localhost:3000',
-                    'http://localhost:3001',
-                    'http://knolist.herokuapp.com',
-                    'http://knolist-api.herokuapp.com'],
+        'origins': cors_origins,
         'methods': ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
         'allow_headers': ['Content-Type', 'Authorization', 'true']
     }

@@ -14,7 +14,7 @@ function AppHeader(props) {
             <FlexboxGrid justify="space-between" align="middle">
                 <Link to="/my-projects">
                     <Navbar.Header>
-                        <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
+                        <img className="limit-height" src={horizontalLogo} alt="Knolist" />
                     </Navbar.Header>
                 </Link>
                 <div className="center-header-title">
@@ -31,8 +31,8 @@ function AppHeader(props) {
                 <FlexboxGrid.Item>
                     <FlexboxGrid>
                         <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery}
-                                         updateFilters={props.updateFilters}/>
-                        <BibButton setShowBib={props.setShowBib}/>
+                            updateFilters={props.updateFilters} />
+                        <BibButton setShowBib={props.setShowBib} />
                     </FlexboxGrid>
                 </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -45,8 +45,8 @@ class BibButton extends React.Component {
         return (
             <FlexboxGrid.Item>
                 <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Bibliography</Tooltip>}
-                         placement="bottomEnd">
-                    <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book"/>}/>
+                    placement="bottomEnd">
+                    <IconButton onClick={() => this.props.setShowBib(true)} icon={<Icon icon="book" />} />
                 </Whisper>
             </FlexboxGrid.Item>
         );
@@ -100,12 +100,12 @@ class SearchAndFilter extends React.Component {
             <FlexboxGrid>
                 <FlexboxGrid.Item>
                     <SearchBar width={250} searchQuery={this.props.searchQuery}
-                               setSearchQuery={this.props.setSearchQuery} updateFilters={this.props.updateFilters}/>
+                        setSearchQuery={this.props.setSearchQuery} updateFilters={this.props.updateFilters} />
                 </FlexboxGrid.Item>
                 <FlexboxGrid.Item>
                     <FilterDropdown indeterminate={this.state.indeterminate} checkAll={this.state.checkAll}
-                                    value={this.state.value} filterCategories={this.state.filterCategories}
-                                    handleCheckAll={this.handleCheckAll} handleChange={this.handleChange}/>
+                        value={this.state.value} filterCategories={this.state.filterCategories}
+                        handleCheckAll={this.handleCheckAll} handleChange={this.handleChange} />
                 </FlexboxGrid.Item>
             </FlexboxGrid>
         );
@@ -115,16 +115,16 @@ class SearchAndFilter extends React.Component {
 function FilterDropdown(props) {
     return (
         <Whisper preventOverflow trigger="hover" speaker={<Tooltip>Search Filters</Tooltip>}
-                 placement="bottomEnd">
-            <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter"/>}/>}>
-                <div style={{width: 200}}>
+            placement="bottomEnd">
+            <Dropdown placement="bottomEnd" renderTitle={() => <IconButton icon={<Icon icon="filter" />} />}>
+                <div style={{ width: 200 }}>
                     <Checkbox indeterminate={props.indeterminate} checked={props.checkAll}
-                              onChange={props.handleCheckAll}>
+                        onChange={props.handleCheckAll}>
                         Select all
                     </Checkbox>
-                    <Divider style={{margin: "5px 0"}}/>
+                    <Divider style={{ margin: "5px 0" }} />
                     <CheckboxGroup name="checkboxList" value={props.value}
-                                   onChange={props.handleChange}>
+                        onChange={props.handleChange}>
                         {props.filterCategories.map(filter => {
                             return <Checkbox key={filter} value={filter}>{filter}</Checkbox>
                         })}
