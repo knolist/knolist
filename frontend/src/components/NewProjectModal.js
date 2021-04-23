@@ -36,8 +36,10 @@ function NewProjectModal(props) {
         });
     }
 
+    const cancel = () => props.noCancel ? Alert.error("Please create a project!") : setShow(false);
+
     return (
-        <Modal show={show} style={{ overflow: "hidden" }} onHide={() => setShow(false)}>
+        <Modal show={show} style={{ overflow: "hidden" }} onHide={cancel}>
             <Modal.Header><Modal.Title>New Project</Modal.Title></Modal.Header>
             <Modal.Body>
                 <Form fluid>
@@ -65,7 +67,7 @@ function NewProjectModal(props) {
                         loading={loading}>
                         Create
                     </Button>
-                <Button onClick={() => setShow(false)} appearance="default">
+                <Button onClick={cancel} appearance="default">
                     Cancel
                 </Button>
             </Modal.Footer>

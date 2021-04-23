@@ -7,6 +7,7 @@ import {withAuthenticationRequired} from "@auth0/auth0-react";
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
+import NewProjectModal from "../components/NewProjectModal";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -27,6 +28,7 @@ class App extends React.Component {
             showProjectsSidebar: false,
             showBib: false,
             showSharedProject: false,
+            showNewProjectModal: false,
             searchQuery: '',
             filters: ["Title",
                 "URL",
@@ -38,7 +40,9 @@ class App extends React.Component {
 
     updateProjects = (callback) => {
         makeHttpRequest("/projects").then(response => {
-            if (!response.body.success) return;
+            if (!response.body.success) {
+                this.setShowNewProjectModal(true);
+            }
 
             const projects = response.body.projects;
             this.setState({projects: projects}, () => {
@@ -47,6 +51,9 @@ class App extends React.Component {
                     this.setCurProject(this.state.curProject.id);
                 } else if (projects && projects.length > 0) {
                     this.setState({curProject: projects[0]});
+                } else if (!projects || projects.length === 0) {
+                    this.setCurProject(null);
+                    this.setShowNewProjectModal(true);
                 }
 
                 if (typeof callback === "function") {
@@ -83,6 +90,10 @@ class App extends React.Component {
         });
     }
 
+    setShowNewProjectModal = (val) => {
+        this.setState({showNewProjectModal: val})
+    }
+
     setSearchQuery = (searchQuery) => {
         this.setState({searchQuery});
         if (this.props.onInput) {
@@ -114,26 +125,25 @@ class App extends React.Component {
     }
 
     render() {
-        if (this.state.curProject === null) return <Loader size="lg" backdrop center/>
-        else {
-            return (
-                <div style={{height: "100%"}}>
-                    <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
-                               searchQuery={this.state.searchQuery}
-                               setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
-                    <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
-                                     projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
-                                     close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
-                                     setCurProject={this.setCurProject}/>
-                    {this.projectsButton()}
-                    <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
-                             setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
-                             filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
-                             showSharedProject={this.state.showSharedProject}
-                             updateProjects={this.updateProjects}/>
-                </div>
-            );
-        }
+        return (
+            <div style={{height: "100%"}}>
+                <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
+                           searchQuery={this.state.searchQuery}
+                           setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
+                <ProjectsSidebar show={this.state.showProjectsSidebar} curProject={this.state.curProject}
+                                 projects={this.state.projects} setShowSharedProject={this.setShowSharedProject}
+                                 close={this.switchShowProjectsSidebar} updateProjects={this.updateProjects}
+                                 setCurProject={this.setCurProject}/>
+                {this.projectsButton()}
+                <MindMap curProject={this.state.curProject} showBib={this.state.showBib}
+                         setShowBib={this.setShowBib} searchQuery={this.state.searchQuery}
+                         filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
+                         showSharedProject={this.state.showSharedProject}
+                         updateProjects={this.updateProjects}/>
+                <NewProjectModal show={this.state.showNewProjectModal} setShow={this.setShowNewProjectModal}
+                                 noCancel fromSidebar/>
+            </div>
+        );
     }
 }
 
