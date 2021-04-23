@@ -41,7 +41,6 @@ def get_statistics_for_project(project):
     n_items = len(project.items)
 
     # Fast way to achieve maximum
-    most_common = ""
     if n_notes > n_sources and n_notes > n_sourcenotes and n_notes > n_highlights:
         most_common = "note"
     elif n_sources > n_notes and n_sources > n_sourcenotes and n_sources > n_highlights:
