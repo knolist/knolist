@@ -367,11 +367,8 @@ class BibWindow extends React.Component {
 
     toggleClusterBib = (checked) => {
         if (checked) {
-            console.log(this.state.subSources)
-            this.state.sources = this.state.subSources ? this.state.subSources : null;
             this.setState({sources: this.state.subSources});
         } else {
-            this.state.sources = this.state.allSources;
             this.setState({sources: this.state.allSources})
         }
     }
