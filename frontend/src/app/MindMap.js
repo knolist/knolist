@@ -455,23 +455,12 @@ class MindMap extends React.Component {
                     border: "#00c0de"
                 }
             })
-<<<<<<< HEAD
             if (cluster.total_items > 2) {
                 const totalNodes = cluster.total_items - 2;
                 clusterNodes.add({
                     group: "inCluster",
                     id: this.generateVisInClusterId(cluster, "count"),
                     label: "+" + totalNodes + " item" + (totalNodes > 1 ? "s" : ""),
-=======
-            if (cluster.child_items.length > 2) {
-                const totalNodes = cluster.total_items - 2;
-                let numLabel = " items";
-                if (totalNodes < 2) numLabel = " item"
-                clusterNodes.add({
-                    group: "inCluster",
-                    id: this.generateVisInClusterId(cluster, "count"),
-                    label: "+" + totalNodes + numLabel,
->>>>>>> 48ea81ca0b9e8b5dc91f18513384f022f54a7f6f
                     x: cluster.x_position,
                     y: cluster.y_position + helperDataOffset,
                     font: {
@@ -643,15 +632,10 @@ class MindMap extends React.Component {
                                         }
                                     }
                                 });
-<<<<<<< HEAD
                                 if (this.state.curClusterView && this.state.raiseLevelButtonHover) {
                                     this.setState({showRemoveItemFromClusterMessage: true});
                                 } else if (this.state.curClusterView && !this.state.raiseLevelButtonHover) {
                                     this.setState({showRemoveItemFromClusterMessage: false});
-=======
-                                if (this.state.curClusterView !== null && this.state.raiseLevelButtonHover) {
-                                    this.setState({showRemoveItemFromClusterMessage: true});
->>>>>>> 48ea81ca0b9e8b5dc91f18513384f022f54a7f6f
                                 }
                             } else {
                                 if (this.state.newClusterIds && !isOverlap(boundingBox, network.getBoundingBox(this.state.newClusterIds.item2))) {
