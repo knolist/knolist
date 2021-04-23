@@ -6,6 +6,7 @@ from app.main.auth.get_authorized_objects \
 from .projects import create_and_insert_source
 from ..models.models import Project, Source, Item
 from ..auth import requires_auth, AuthError
+from ..helpers.coordinates import get_ideal_coords
 
 
 def create_and_insert_item(content, is_note, source_id, parent_project=None,
@@ -53,7 +54,7 @@ def set_item_routes(app):
             parent_project = temp_cluster.project_id
 
         # Method call to make sure user is authorized
-        get_authorized_project(user_id, parent_project)
+        project = get_authorized_project(user_id, parent_project)
 
         if url is None and content is None:
             # Neither url nor content, so abort
@@ -80,6 +81,11 @@ def set_item_routes(app):
         elif url is None and is_note:
             # Regular Note
             source_id_temp = None
+
+        # Get X, Y coordinates
+        if not x or not y:
+            print("Content: " + content)
+            x, y = get_ideal_coords(project, content)
 
         # Add item
         if parent_cluster is None:
