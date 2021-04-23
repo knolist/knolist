@@ -810,7 +810,8 @@ class MindMap extends React.Component {
                                 switchShowNewClusterForm={this.switchShowNewClusterForm}
                                 disableEditMode={this.disableEditMode}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
-                           curProject={this.props.curProject}/>
+                           curProject={this.props.curProject}
+                           curCluster={this.state.curClusterView} />
                 <SharedProject showSharedProject={this.props.showSharedProject}
                                setShowSharedProject={this.props.setShowSharedProject}
                                curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>

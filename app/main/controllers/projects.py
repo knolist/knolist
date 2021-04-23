@@ -270,7 +270,7 @@ def set_project_routes(app):
     @requires_auth('read:projects')
     def get_project_statistics(user_id, project_id):
         project = get_authorized_project(user_id, project_id)
-        if (len(project.clusters) == 0):
+        if len(project.clusters) == 0:
             max_depth = 0
             n_clusters = 0
             sum_item_depth = 0

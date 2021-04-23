@@ -595,7 +595,6 @@ class TestProjectsEndpoints(unittest.TestCase):
         res = self.client().get(f'/projects/{self.project_1.id}/similarity',
                                         headers=auth_header)
         data = json.loads(res.data)
-        print(data)
         for i in range(len(data['index'])):
             for j in range(i + 1):
                 self.assertTrue(data['similarity'][str(i)][str(j)] >= 0.)
