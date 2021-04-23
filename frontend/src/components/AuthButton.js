@@ -18,7 +18,7 @@ const LogoutButton = () => {
     return (
         <Button color="red" appearance="ghost"
                 onClick={() => {
-                    localStorage.removeItem("curProject");
+                    localStorage.removeItem(process.env.REACT_APP_LOCAL_STORAGE_CUR_PROJECT);
                     logout({
                         returnTo: window.location.origin,
                     });

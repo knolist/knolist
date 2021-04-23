@@ -7,6 +7,7 @@ import {withAuthenticationRequired} from "@auth0/auth0-react";
 import AppHeader from "./AppHeader";
 import ProjectsSidebar from "./ProjectsSidebar";
 import MindMap from "./MindMap";
+import NewProjectModal from "../components/NewProjectModal";
 
 // Import utilities
 import makeHttpRequest from "../services/HttpRequest";
@@ -15,15 +16,19 @@ import makeHttpRequest from "../services/HttpRequest";
 import 'rsuite/dist/styles/rsuite-default.css';
 import '../index.css';
 
+
 class App extends React.Component {
     constructor(props) {
         super(props);
+        const curProjectKey = process.env.REACT_APP_LOCAL_STORAGE_CUR_PROJECT;
         this.state = {
-            curProject: JSON.parse(localStorage.getItem("curProject")),
+            curProjectKey: curProjectKey,
+            curProject: JSON.parse(localStorage.getItem(curProjectKey)),
             projects: null,
             showProjectsSidebar: false,
             showBib: false,
             showSharedProject: false,
+            showNewProjectModal: false,
             searchQuery: '',
             filters: ["Title",
                 "URL",
@@ -35,15 +40,20 @@ class App extends React.Component {
 
     updateProjects = (callback) => {
         makeHttpRequest("/projects").then(response => {
-            if (!response.body.success) return;
+            if (!response.body.success) {
+                this.setShowNewProjectModal(true);
+            }
 
             const projects = response.body.projects;
             this.setState({projects: projects}, () => {
                 // Update current project
-                if (this.state.curProject !== null) {
+                if (this.state.curProject) {
                     this.setCurProject(this.state.curProject.id);
                 } else if (projects && projects.length > 0) {
                     this.setState({curProject: projects[0]});
+                } else if (!projects || projects.length === 0) {
+                    this.setCurProject(null);
+                    this.setShowNewProjectModal(true);
                 }
 
                 if (typeof callback === "function") {
@@ -80,6 +90,10 @@ class App extends React.Component {
         });
     }
 
+    setShowNewProjectModal = (val) => {
+        this.setState({showNewProjectModal: val})
+    }
+
     setSearchQuery = (searchQuery) => {
         this.setState({searchQuery});
         if (this.props.onInput) {
@@ -103,16 +117,22 @@ class App extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         // Update localstorage whenever the curProject changes
         if (prevState.curProject !== this.state.curProject) {
-            if (this.state.curProject === null) {
-                this.setState({curProject: this.state.projects[0]})
+            const callback = () => localStorage.setItem(this.state.curProjectKey, JSON.stringify(this.state.curProject));
+            if (!this.state.curProject) {
+                let curProject = null;
+                if (this.state.projects && this.state.projects.length > 0) {
+                    curProject = this.state.projects[0];
+                } else {
+                    this.setShowNewProjectModal(true);
+                }
+                this.setState({curProject: curProject}, callback);
             }
-            localStorage.setItem("curProject", JSON.stringify(this.state.curProject));
         }
     }
 
     render() {
         return (
-            <div>
+            <div style={{height: "100%"}}>
                 <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
                            searchQuery={this.state.searchQuery}
                            setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>
@@ -126,6 +146,8 @@ class App extends React.Component {
                          filters={this.state.filters} setShowSharedProject={this.setShowSharedProject}
                          showSharedProject={this.state.showSharedProject}
                          updateProjects={this.updateProjects}/>
+                <NewProjectModal show={this.state.showNewProjectModal} setShow={this.setShowNewProjectModal}
+                                 noCancel fromSidebar/>
             </div>
         );
     }

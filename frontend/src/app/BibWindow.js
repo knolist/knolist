@@ -1,7 +1,8 @@
 import React from "react";
 import {
     Modal, SelectPicker, IconButton, Icon, Checkbox, Form, FormGroup, FormControl, ControlLabel,
-    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid
+    CheckboxGroup, Tooltip, Whisper, Divider, Alert, Button, DatePicker, Placeholder, FlexboxGrid,
+    Toggle
 } from "rsuite";
 
 import makeHttpRequest from "../services/HttpRequest";
@@ -19,6 +20,8 @@ class BibWindow extends React.Component {
             'July', 'August', 'September', 'October', 'November', 'December'];
         this.state = {
             sources: null,
+            allSources: null,
+            subSources: null,
             curFormat: formats.APA,
             formats: formats,
             months: months,
@@ -35,11 +38,47 @@ class BibWindow extends React.Component {
     getBibSources = (callback) => {
         if (this.props.curProject === null || !this.props.showBib) return null;
         this.setLoading(true);
-        const endpoint = "/projects/" + this.props.curProject.id + "/sources";
-        makeHttpRequest(endpoint).then((response) => {
-            this.setState({sources: response.body.sources}, () => {
-                this.setLoading(false);
+        // Get all sources in the project
+        const allSourceEndpoint = "/projects/" + this.props.curProject.id + "/sources";
+        makeHttpRequest(allSourceEndpoint).then((response) => {
+            let sortedAllSources = response.body.sources;
+            sortedAllSources = sortedAllSources.sort((a, b) => {
+                a.title = a.title.trim();
+                b.title = b.title.trim();
+                if (a.title > b.title) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+            this.setState({sources: sortedAllSources,
+                                allSources: sortedAllSources,
+                                subSources: sortedAllSources}, () => {
                 if (typeof callback === "function") callback();
+            })
+        });
+
+        if (!this.props.curCluster) {
+            this.setLoading(false);
+            return;
+        }
+        // Get all sources in this cluster or below
+        const subSourceEndpoint = "/clusters/" + this.props.curCluster.id + "/subsources";
+        makeHttpRequest(subSourceEndpoint).then((response) => {
+            let sortedSubSources = response.body.sources;
+            sortedSubSources = sortedSubSources.sort((a, b) => {
+                a.title = a.title.trim();
+                b.title = b.title.trim();
+                if (a.title > b.title) {
+                    return 1;
+                } else {
+                    return -1;
+                }
+            });
+            this.setState({subSources: sortedSubSources}, () => {
+                if (typeof callback === "function") callback();
+                this.setLoading(false);
+                console.log(sortedSubSources)
             })
         });
     }
@@ -70,12 +109,12 @@ class BibWindow extends React.Component {
     // Displays a Missing! icon if not
     showMissingIcon = (source) => {
 
-        if (source.title && source.url && source.author
-            && source.published_date && source.site_name
-            && source.access_date) {
+        if (source.title && source.url && source.firstName
+            && source.lastName && source.published_date
+            && source.site_name && source.access_date) {
             return null;
         } else {
-            const citationFields = ['title, ', 'URL, ', 'author, ', 'publish date, ', 'site name, ', 'access date, ']
+            const citationFields = ['title, ', 'URL, ', 'first name, ', 'last name, ', 'publish date, ', 'site name, ', 'access date, ']
             let missing = ""
             if (!source.title) {
                 missing = missing.concat(citationFields[0])
@@ -83,17 +122,20 @@ class BibWindow extends React.Component {
             if (!source.url) {
                 missing = missing.concat(citationFields[1])
             }
-            if (!source.author) {
+            if (!source.firstName) {
                 missing = missing.concat(citationFields[2])
             }
-            if (!source.published_date) {
+            if (!source.lastName) {
                 missing = missing.concat(citationFields[3])
             }
-            if (!source.site_name) {
+            if (!source.published_date) {
                 missing = missing.concat(citationFields[4])
             }
-            if (!source.access_date) {
+            if (!source.site_name) {
                 missing = missing.concat(citationFields[5])
+            }
+            if (!source.access_date) {
+                missing = missing.concat(citationFields[6])
             }
             // Remove last comma
             missing = missing.substring(0, missing.length - 2)
@@ -116,10 +158,25 @@ class BibWindow extends React.Component {
             "is_included": checked
         }
         makeHttpRequest(endpoint, "PATCH", body);
-        let sources = this.state.sources;
-        const index = sources.findIndex(x => x.id === source.id);
-        sources[index].is_included = checked;
-        this.setState({sources: sources});
+        let disSources = this.state.sources;
+        let allSources = this.state.allSources;
+        let subSources = this.state.subSources;
+
+        const disIndex = disSources ? disSources.findIndex(x => x.id === source.id) : null;
+        const allIndex = allSources ? allSources.findIndex(x => x.id === source.id) : null;
+        const subIndex = subSources ? subSources.findIndex(x => x.id === source.id) : null;
+
+        if (disSources && disIndex !== -1) {
+            disSources[disIndex].is_included = checked;
+        }
+        if (allSources && allIndex !== -1) {
+            allSources[allIndex].is_included = checked;
+        }
+        if (subSources && subIndex !== -1) {
+            subSources[subIndex].is_included = checked;
+        }
+
+        this.setState({sources: disSources, allSources: allSources, subSources: subSources});
     }
 
     renderAPADate = (date) => {
@@ -147,6 +204,13 @@ class BibWindow extends React.Component {
         return formattedDate;
     }
 
+    formatAuthor = (source) => {
+        if (source.firstName && source.lastName) {
+            return source.lastName + ", " + source.firstName + ".";
+        }
+        return "";
+    }
+
     renderAPACitation = (source) => {
         let formattedDate = "";
         let title = "";
@@ -162,12 +226,11 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + source.title + ".";
         }
-        if (source.author) {
-            author = author + source.author + ".";
-        }
+        author = this.formatAuthor(source);
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {formattedDate}
-                <i>{title}</i> {source.site_name}. <a href={source.url} target="_blank" rel="noopener noreferrer">
+                <i>{title}</i> {source.site_name !== "" ? source.site_name + "." : ""}
+                <a href={source.url} target="_blank" rel="noopener noreferrer">
                     {source.url}.</a>
             </p>
         );
@@ -188,9 +251,7 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + "\"" + source.title + ".\"";
         }
-        if (source.author) {
-            author = author + source.author + ".";
-        }
+        author = this.formatAuthor(source);
         return (
             <p className={this.isIncludedClassName(source.is_included)}>{author} {title}
                 <i>{source.site_name}</i>, {formattedDate} <a href={source.url} target="_blank"
@@ -216,13 +277,14 @@ class BibWindow extends React.Component {
         if (source.title) {
             title = title + "\"" + source.title + ".\"";
         }
-        if (source.author) {
-            author = author + source.author + ".";
-        }
+        author = this.formatAuthor(source);
         return (
-            <p className={this.isIncludedClassName(source.is_included)}>{author} {title}
-                <i>{source.site_name}</i>, {formattedPublishDate} <a href={source.url} target="_blank"
-                                                                     rel="noopener noreferrer"> {source.url}.
+            <p style={{maxWidth: "800px"}} className={this.isIncludedClassName(source.is_included)}>
+                {author} {title}
+                <i>{source.site_name !=="" ? source.site_name + ", " : ""}</i>
+                 {formattedPublishDate} 
+                 <a href={source.url} target="_blank" rel="noopener noreferrer">
+                     {" " + source.url}.
                 </a> {formattedAccessDate}
             </p>
         );
@@ -276,7 +338,7 @@ class BibWindow extends React.Component {
                               onChange={(_, checked, event) => this.changeInclusion(event, checked, source)}
                               key={index}>
                         <FlexboxGrid align="middle" justify="space-between">
-                            <FlexboxGridItem>
+                            <FlexboxGridItem colspan={18}>
                                 {this.renderFormatType(source)}
                             </FlexboxGridItem>
                             <FlexboxGridItem>
@@ -301,6 +363,14 @@ class BibWindow extends React.Component {
                 {this.renderCitations(false)}
             </CheckboxGroup>
         );
+    }
+
+    toggleClusterBib = (checked) => {
+        if (checked) {
+            this.setState({sources: this.state.subSources});
+        } else {
+            this.setState({sources: this.state.allSources})
+        }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -339,9 +409,11 @@ class BibWindow extends React.Component {
                         <SelectPicker defaultValue={this.state.curFormat ? this.state.curFormat : formats.APA}
                                       data={dropdownData} onChange={this.changeFormatType}
                                       style={{float: 'right'}} cleanable={false} searchable={false}/>
+                        <Toggle unCheckedChildren={<div style={{color: '#3498FF'}}> all </div>} checkedChildren={'cluster'} size='lg'
+                                      style={{float: 'middle'}} onChange={this.toggleClusterBib}/>
                     </Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body >
                     {this.renderBibBody()}
                 </Modal.Body>
                 <EditWindow close={() => this.setEditSource(null)} source={this.state.editSource}
@@ -369,7 +441,8 @@ class EditWindow extends React.Component {
         this.state = {
             loading: false,
             formValue: {
-                author: this.showField(props.source, "author"),
+                firstName: this.showField(props.source, "firstName"),
+                lastName: this.showField(props.source, "lastName"),
                 title: this.showField(props.source, "title"),
                 publishDate: this.showField(props.source, "published_date", true),
                 siteName: this.showField(props.source, "site_name"),
@@ -404,7 +477,8 @@ class EditWindow extends React.Component {
         this.setLoading(true);
         const endpoint = "/sources/" + this.props.source.id;
         const body = {
-            "author": this.state.formValue.author,
+            "author": this.state.formValue.lastName && this.state.formValue.firstName ?
+                this.state.formValue.lastName + ", " + this.state.formValue.firstName : "",
             "title": this.state.formValue.title,
             "published_date": this.state.formValue.publishDate,
             "site_name": this.state.formValue.siteName,
@@ -421,7 +495,8 @@ class EditWindow extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.source !== this.props.source) {
             this.setFormValue({
-                author: this.showField(this.props.source, "author"),
+                firstName: this.showField(this.props.source, "firstName"),
+                lastName: this.showField(this.props.source, "lastName"),
                 title: this.showField(this.props.source, "title"),
                 publishDate: this.showField(this.props.source, "published_date", true),
                 siteName: this.showField(this.props.source, "site_name"),
@@ -446,10 +521,15 @@ class EditWindow extends React.Component {
                     <Form layout="horizontal"
                           onChange={this.setFormValue}
                           formValue={this.state.formValue}>
-                        <FormGroup>
-                            <ControlLabel>Author</ControlLabel>
-                            <FormControl name="author"/>
-                        </FormGroup>
+                        <Form layout="inline"
+                              onChange={this.setFormValue}
+                              formValue={this.state.formValue}>
+                            <FormGroup>
+                                <ControlLabel style={{alignContent: 'center'}}>Author</ControlLabel>
+                                <FormControl placeholder="First Name" name="firstName" style={{ width: 140}}/>
+                                <FormControl placeholder="Last Name" name="lastName" style={{ width: 140}}/>
+                            </FormGroup>
+                        </Form>
 
                         <FormGroup>
                             <ControlLabel>Title</ControlLabel>

@@ -24,6 +24,9 @@ class TestClustersEndpoints(unittest.TestCase):
         self.source_1 = items[2]
         self.source_2 = items[3]
         self.source_3 = items[4]
+        self.item_1 = items[5]
+        self.item_2 = items[6]
+        self.item_3 = items[7]
         self.cluster_1 = items[8]
 
         self.new_source = {
@@ -84,8 +87,8 @@ class TestClustersEndpoints(unittest.TestCase):
         # We will try and put item_3 and item_4 into a cluster
         res = self.client()\
             .post(f'/clusters',
-                  json={'item1_id': self.source_3.child_items[0].id,
-                        'item2_id': self.source_3.child_items[1].id,
+                  json={'item1_id': self.item_1.id,
+                        'item2_id': self.item_2.id,
                         'x_position': 400,
                         'y_position': 300,
                         'name': 'Cluster From Scratch'},
@@ -97,13 +100,13 @@ class TestClustersEndpoints(unittest.TestCase):
         self.assertEqual(cluster['x_position'], 400)
         self.assertEqual(cluster['y_position'], 300)
         self.assertEqual(len(cluster['child_items']), 2)
-        self.assertEqual(len(self.project_2.clusters), 1)
+        self.assertEqual(len(self.project_1.clusters), 2)
 
         # Add another sub-cluster to this one
         res = self.client()\
             .post(f'/clusters',
-                  json={'item1_id': self.source_3.child_items[0].id,
-                        'item2_id': self.source_3.child_items[1].id,
+                  json={'item1_id': self.item_1.id,
+                        'item2_id': self.item_2.id,
                         'x_position': 200,
                         'y_position': 100,
                         'name': 'Cluster Within Cluster'},
@@ -114,10 +117,10 @@ class TestClustersEndpoints(unittest.TestCase):
         self.assertTrue(data['success'])
         inner_cluster = data['cluster']
         self.assertEqual(inner_cluster['name'], 'Cluster Within Cluster')
-        self.assertEqual(len(self.project_2.clusters), 1)
+        self.assertEqual(len(self.project_1.clusters), 2)
         self.assertEqual(len(inner_cluster['child_items']), 2)
 
-        actual_cluster = self.source_3.child_items[0].cluster
+        actual_cluster = self.item_1.cluster
         self.assertEqual(actual_cluster.name, 'Cluster Within Cluster')
         self.assertEqual(len(actual_cluster.child_items), 2)
         self.assertEqual(len(actual_cluster.child_clusters), 0)
@@ -194,22 +197,25 @@ class TestClustersEndpoints(unittest.TestCase):
 
     def test_remove_from_existing_cluster(self):
         # After this removal, there should be nothing in the cluster
-        self.assertEqual(len(self.source_1.child_items), 1)
+        # There should also be one more item in the cluster's parent
+        self.assertEqual(len(self.source_3.child_items), 2)
+        prev_number = len(self.cluster_1.project.items)
         res = self.client()\
             .delete(f'/clusters/{self.cluster_1.id}'
-                   f'/items/{self.source_1.child_items[0].id}',
+                   f'/items/{self.source_3.child_items[0].id}',
                    headers=auth_header)
 
         data = json.loads(res.data)
         self.assertTrue(data['success'])
         cluster = data['cluster']
         self.assertEqual(len(cluster['child_items']), 0)
-        self.assertEqual(len(self.source_1.child_items), 1)
+        self.assertEqual(len(self.source_3.child_items), 2)
+        self.assertEqual(len(self.project_1.items), prev_number + 1)
 
         # Attempt to remove item that is not in cluster from cluster
         res = self.client()\
             .delete(f'/clusters/{self.cluster_1.id}'
-                    f'/items/{self.source_1.child_items[0].id}',
+                    f'/items/{self.source_3.child_items[0].id}',
                     headers=auth_header)
 
         self.assertEqual(res.status_code, 400)
@@ -235,6 +241,15 @@ class TestClustersEndpoints(unittest.TestCase):
                    json={'y': 200},
                    headers=auth_header)
         self.assertEquals(res.status_code, 400)
+
+    def test_get_sources_under_cluster(self):
+        res = self.client() \
+            .get(f'/clusters/{self.cluster_1.id}/subsources',
+                 headers=auth_header)
+        self.assertEquals(res.status_code, 200)
+        data = json.loads(res.data)
+        self.assertEquals(len(data['sources']), 1)
+
 
 if __name__ == '__main__':
     unittest.main()

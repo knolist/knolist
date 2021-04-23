@@ -7,17 +7,21 @@ from ..auth import requires_auth
 from app.main.auth.get_authorized_objects \
     import get_authorized_project
 
-"""
-Helper to access auth0 and to find a user 
-in the auth0 database based on their email.
-"""
+
 def access_auth0(email):
+    """
+    Helper to access auth0 and to find a user
+    in the auth0 database based on their email.
+    """
     # GET MGMT Token
     conn = http.client.HTTPSConnection("")
     client_beg = "zMZtScJRq7ZSiFzvRnnMIYsIcLRDoYWmKXh56"
     client_end = "O8n4dni6kRjvPQHy6e0irQZuJao"
-    payload = "grant_type=client_credentials&client_id=%24%7Baccount.clientId%7D&client_secret=" \
-              + client_beg + client_end + "&audience=https%3A%2F%2F%24%7Baccount.namespace%7D%2Fapi%2Fv2%2F"
+    grant_type = "client_credentials"
+    client_id = "%24%7Baccount.clientId%7D"
+    audience = "https%3A%2F%2F%24%7Baccount.namespace%7D%2Fapi%2Fv2%2F"
+    payload = f"grant_type={grant_type}&client_id={client_id}"
+    payload += f"&client_secret={client_beg + client_end}&audience={audience}"
     headers = {'content-type': "application/x-www-form-urlencoded"}
     conn.request("POST", "/knolist.us.auth0.com/oauth/token", payload, headers)
 
@@ -29,7 +33,9 @@ def access_auth0(email):
 
     headers = {'authorization': "Bearer " + data.decode("utf-8").access_token}
 
-    conn.request("GET", "/knolist.us.auth0.com/api/v2/users-by-email?email=" + email, headers=headers)
+    conn.request("GET",
+                 "/knolist.us.auth0.com/api/v2/users-by-email?email=" + email,
+                 headers=headers)
 
     res = conn.getresponse()
     data = res.read()

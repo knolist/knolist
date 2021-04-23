@@ -17,11 +17,15 @@ function Main(props) {
   const [projects, setProjects] = useState(null);
   //Stops making an API call on every render which makes my computer breathe heavy lol
   const [gotProjects, setGotProjects] = useState(false);
+  const [stats, setStats] = useState(null);
 
   const getProjects = () => {
     if (!gotProjects) {
       makeHttpRequest("/projects")
         .then(res => setProjects(res.body.projects));
+
+      makeHttpRequest("/projects/statistics")
+          .then(res => setStats(res.body.stats));
       setGotProjects(true);
     }
   }
@@ -32,16 +36,17 @@ function Main(props) {
     getProjects();
   });
 
-  if (projects !== null) {
+  if (projects !== null && stats !== null) {
     return (
       <div id="myknolist-main-container">
-        <Recent show={props.showRecent} projects={projects} />
+        <Recent show={props.showRecent} projects={projects} stats={stats} />
         <All
           projects={projects}
           sharedOnly={props.sharedOnly}
           archivedOnly={props.archivedOnly}
           sortCriterion={props.sortCriterion}
-          searchQuery={props.searchQuery} />
+          searchQuery={props.searchQuery}
+          stats={stats}/>
         <div
           style={{ position: "fixed", right: 0, bottom: 0 }}
           onClick={() => setShow(true)}>

@@ -10,7 +10,7 @@ postgres_dev_base = 'postgres://postgres:postgres@{}/{}'\
     .format('localhost:5432', dev_database_name)
 postgres_test_base = 'postgres://postgres:postgres@{}/{}'\
     .format('localhost:5432', test_database_name)
-postgres_prod_base = os.environ.get('DATABASE_URL')  # Obtained from Heroku
+postgres_prod_base = postgres_dev_base
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 

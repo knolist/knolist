@@ -12,7 +12,8 @@ import BibWindow from "./BibWindow";
 import SharedProject from "./SharedProject";
 import Minigames from "./Minigames";
 
-import RaiseLevelButton from "../components/RaiseLevelButton"
+import RaiseLevelButton from "./RaiseLevelButton.js"
+import ClusterTitle from "./ClusterTitle.js";
 
 import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 
@@ -66,7 +67,9 @@ class MindMap extends React.Component {
             stationaryClusterItemData: null,
             newClusterIds: null,
             existingClusterId: null,
-            curClusterView: JSON.parse(localStorage.getItem("curClusterView")) // Set to the cluster object if inside a cluster
+            curClusterView: JSON.parse(localStorage.getItem("curClusterView")), // Set to the cluster object if inside a cluster
+            showRemoveItemFromClusterMessage: false,
+            raiseLevelButtonHover: false,
         };
     };
 
@@ -181,7 +184,7 @@ class MindMap extends React.Component {
     }
 
     getItems = async (callback) => {
-        if (this.props.curProject === null) return null;
+        if (!this.props.curProject) return null;
         this.setLoading(true);
 
         if (this.props.filters.length === 0) {
@@ -317,6 +320,17 @@ class MindMap extends React.Component {
 
     }
 
+    moveItemFromClusterToHigherLevel = (itemId, clusterId) => {
+        this.setLoading(true);
+        const endpoint = "/clusters/" + clusterId + "/items/" + itemId;
+        makeHttpRequest(endpoint, "DELETE").then(response => {
+            this.setLoading(false);
+            if (response.body.success) Alert.success("The item was successfully moved");
+            else Alert.error("This item could not be moved");
+            this.renderNetwork();
+        });
+    }
+
     /* Helper function to generate position for nodes
     This function adds an offset to  the randomly generated position based on the
     position of the node's parent (if it has one)
@@ -415,9 +429,7 @@ class MindMap extends React.Component {
         // let projectClusters = this.state.clusters.filter(
         //         cluster => (cluster.project_id === this.props.curProject.id))
         let projectClusters = this.state.clusters;
-        console.log('ok', this.state.items);
         projectClusters.forEach(cluster => {
-            console.log(cluster);
             clusterNodes.add({
                 group: "clusters",
                 id: this.generateVisClusterId(cluster),
@@ -442,13 +454,12 @@ class MindMap extends React.Component {
                     border: "#00c0de"
                 }
             })
-            if (cluster.child_items.length > 2) {
-                // Render number of extra nodes
-                const extraNodes = cluster.child_items.length - 2;
+            if (cluster.total_items > 2) {
+                const totalNodes = cluster.total_items - 2;
                 clusterNodes.add({
                     group: "inCluster",
                     id: this.generateVisInClusterId(cluster, "count"),
-                    label: "+" + extraNodes + " item" + (extraNodes > 1 ? "s" : ""),
+                    label: "+" + totalNodes + " item" + (totalNodes > 1 ? "s" : ""),
                     x: cluster.x_position,
                     y: cluster.y_position + helperDataOffset,
                     font: {
@@ -462,7 +473,6 @@ class MindMap extends React.Component {
                 })
             }
             let count = 0;
-            console.log(cluster.child_items);
             cluster.child_items.forEach(child => {
                 const nodeType = this.getNodeType(child);
                 const label = this.getNodeLabel(child, nodeType);
@@ -499,7 +509,7 @@ class MindMap extends React.Component {
                 clusterNodes.forEach(cluster => {
                     nodes.add(cluster)
                 })
-                console.log("nodes", nodes.get());
+
                 // create a network
                 const container = document.getElementById('mindmap');
 
@@ -572,7 +582,7 @@ class MindMap extends React.Component {
 
                 // Initialize the network
                 const network = new Network(container, data, options);
-                network.fit()
+                network.fit();
 
                 // Handle click vs drag
                 network.on("click", (params) => {
@@ -607,7 +617,7 @@ class MindMap extends React.Component {
                             const boundingBox = network.getBoundingBox(id);
                             let otherNodes = this.state.nonSelectedNodes;
                             if ((!this.state.showNewClusterHelperMessage && !this.state.showAddToClusterHelperMessage)
-                                && otherNodes.length >= 1) {
+                                 && otherNodes.length >= 1) {
                                 otherNodes.forEach(node => {
                                     if (isOverlap(network.getBoundingBox(node), boundingBox)) {
                                         if (this.isItem(node)) {
@@ -619,7 +629,12 @@ class MindMap extends React.Component {
                                             this.setShowAddToClusterHelperMessage(true)
                                         }
                                     }
-                                })
+                                });
+                                if (this.state.curClusterView && this.state.raiseLevelButtonHover) {
+                                    this.setState({showRemoveItemFromClusterMessage: true});
+                                } else if (this.state.curClusterView && !this.state.raiseLevelButtonHover) {
+                                    this.setState({showRemoveItemFromClusterMessage: false});
+                                }
                             } else {
                                 if (this.state.newClusterIds && !isOverlap(boundingBox, network.getBoundingBox(this.state.newClusterIds.item2))) {
                                     this.setShowNewClusterHelperMessage(false)
@@ -645,6 +660,10 @@ class MindMap extends React.Component {
                             this.addItemToCluster(id, network.getSelectedNodes()[0]);
                             this.setShowAddToClusterHelperMessage(false);
                             this.renderNetwork();
+                        } else if (this.state.showRemoveItemFromClusterMessage && this.state.raiseLevelButtonHover) {
+                            this.moveItemFromClusterToHigherLevel(network.getSelectedNodes()[0], this.state.curClusterView.id);
+                            this.setState({showRemoveItemFromClusterMessage: false});
+                            this.renderNetwork();
                         } else {
                             // Update position of item or cluster
                             const id = network.getSelectedNodes()[0];
@@ -669,7 +688,6 @@ class MindMap extends React.Component {
 
                 // Store the network
                 this.setState({network: network}, callback);
-
             })
         })
     }
@@ -678,6 +696,7 @@ class MindMap extends React.Component {
         if (prevProps.curProject !== this.props.curProject) {
             // Set items to null before updating to show loading icon
             this.setState({items: null}, this.renderNetwork);
+            this.setCurClusterView(null);
         }
 
         if (prevState.showNewItemHelperMessage !== this.state.showNewItemHelperMessage) {
@@ -711,6 +730,15 @@ class MindMap extends React.Component {
             }
         }
 
+        if (prevState.showRemoveItemFromClusterMessage !== this.state.showRemoveItemFromClusterMessage) {
+            if (this.state.showRemoveItemFromClusterMessage) {
+                Alert.info("Release to move node to previous level.",
+                    0, this.disableEditMode);
+            } else {
+                Alert.close();
+            }
+        }
+
         if (prevState.showNewClusterForm !== this.state.showNewClusterForm) {
             if (this.state.showNewClusterForm) {
                 Alert.close()
@@ -737,11 +765,12 @@ class MindMap extends React.Component {
         }
 
         return (
-            <div>
+            <div style={{position:"relative", height:"93.5%"}}>
                 <div id="mindmap"/>
                 <Minigames
                     curProject={this.props.curProject}
                     items={this.state.items}
+                    color={this.getColor}
                     network={this.state.network}/>
                 <ItemView selectedItem={this.state.selectedItem}
                           setSelectedItem={this.setSelectedItem}
@@ -766,12 +795,17 @@ class MindMap extends React.Component {
                                 switchShowNewClusterForm={this.switchShowNewClusterForm}
                                 disableEditMode={this.disableEditMode}/>
                 <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
-                           curProject={this.props.curProject}/>
+                           curProject={this.props.curProject}
+                           curCluster={this.state.curClusterView} />
                 <SharedProject showSharedProject={this.props.showSharedProject}
                                setShowSharedProject={this.props.setShowSharedProject}
                                curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>
-                <RaiseLevelButton curClusterView={this.state.curClusterView}
-                                  setCurClusterView={this.setCurClusterView}/>
+                <ClusterTitle curClusterView={this.state.curClusterView} setCurClusterView={this.setCurClusterView}/>
+                <div onMouseOver={() => this.setState({raiseLevelButtonHover: true})}
+                     onMouseOut={() => this.setState({raiseLevelButtonHover: false})}>
+                        <RaiseLevelButton curClusterView={this.state.curClusterView}
+                                  setCurClusterView={this.setCurClusterView} />
+                </div>
                 <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
             </div>
         );
