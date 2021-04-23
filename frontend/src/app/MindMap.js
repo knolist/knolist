@@ -501,6 +501,8 @@ class MindMap extends React.Component {
 
     renderNetwork = (callback) => {
         if (this.props.curProject === null) return;
+        //HERE
+        document.body.addEventListener('click', () => {this.setState({newItemFormType: "Note"}); this.state.network.addNodeMode()});
 
         this.getItems(() => {
             this.getClusters(() => {
