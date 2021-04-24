@@ -185,9 +185,16 @@ def similarity(text_a, text_b):
     a smaller weight to counteract effects of large sloppy corpi.
     text_a and text_b are large strings representing two documents
     """
+
+    if not text_a or text_a == "":
+        return 0
+    if not text_b or text_b == "":
+        return 0
+
     stop_words = set(stopwords.words('english'))
     text_a_tok = word_tokenize(text_a)
     text_b_tok = word_tokenize(text_b)
+
 
     a_filt = [w.upper() for w in text_a_tok if not w in stop_words and len(w) >= 3]
     b_filt = [w.upper() for w in text_b_tok if not w in stop_words and len(w) >= 3]
@@ -204,9 +211,9 @@ def similarity(text_a, text_b):
     word_dict_a = dict.fromkeys(total, 0)
     word_dict_b = dict.fromkeys(total, 0)
     for word in a_filt:
-        word_dict_a[word] += 1. / len(a_filt) # Frequency
+        word_dict_a[word] += 1. / len(a_filt)  # Frequency
     for word in b_filt:
-        word_dict_b[word] += 1. / len(b_filt) # Frequency
+        word_dict_b[word] += 1. / len(b_filt)  # Frequency
 
     cos_score = cosine_sim(word_dict_a, word_dict_b)
 
