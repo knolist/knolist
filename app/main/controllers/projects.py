@@ -221,9 +221,11 @@ def set_project_routes(app):
 
         search_query = request.args.get('query', None)
         # Cluster is only present if the search queries are present
-        cluster = request.args.get('cluster', None)
-        if cluster:
-            cluster = int(cluster)
+        cluster_id = request.args.get('cluster', None)
+        cluster = None
+        if cluster_id:
+            cluster_id = int(cluster_id)
+            cluster = get_authorized_cluster(user_id, cluster_id)
 
         if search_query is None:
             # Returns all items
@@ -255,6 +257,12 @@ def set_project_routes(app):
                         .filter(Item.parent_project == project_id) \
                         .filter(getattr(Source, filter_type)
                                 .ilike(pattern)).order_by(Item.id).all()
+                # Add items that can be found at the cluster level (parent project may be null)
+                if cluster and filter_type == 'content':
+                    for ci in cluster.child_items:
+                        if ci.content and ci.content.find(search_query) > 0:
+                            results.append(ci)
+
                 for item in temp:
                     if item not in results:
                         if not (filter_type == 'content' and item.content is None):
@@ -265,10 +273,7 @@ def set_project_routes(app):
         # Return now the relavent clusters to these items and limit by cluster
         # Idea: If an item has as a parent cluster query variable 'cluster' return it
         # and return all the other clusters that are above it
-        print("Results")
-        print([i.format() for i in results])
-
-        if cluster is None:
+        if cluster_id is None:
             return jsonify({
                 'success': True,
                 'items': [i.format() for i in results],
@@ -279,20 +284,15 @@ def set_project_routes(app):
         # return_clusters = []
         return_items = []
         for i in results:
-            if cluster is None:
+            if cluster_id is None:
                 # Return if no cluster is specified
                 return_items.append(i)
                 continue
             # Need to check up parent cluster hierarchy
             if i.parent_cluster is None:
                 continue
-            print(type(i.parent_cluster))
-            print(type(cluster))
-            print(i.parent_cluster)
-            print(cluster)
-            if i.parent_cluster == cluster:
+            if i.parent_cluster == cluster_id:
                 return_items.append(i)
-                print(return_items)
                 continue
             c = get_authorized_cluster(user_id, i.parent_cluster)
             while c.parent_cluster is not None:
