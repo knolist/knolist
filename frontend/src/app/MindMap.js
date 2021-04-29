@@ -70,6 +70,7 @@ class MindMap extends React.Component {
             curClusterView: JSON.parse(localStorage.getItem("curClusterView")), // Set to the cluster object if inside a cluster
             showRemoveItemFromClusterMessage: false,
             raiseLevelButtonHover: false,
+            lastSearchDate: new Date()
         };
     };
 
@@ -196,20 +197,21 @@ class MindMap extends React.Component {
             return;
         }
 
-        // These two cases below could be combined (since now being coded generally)
-        // Left separate however if additional logic is needed
         if (this.state.curClusterView === null) {
+            // Not in a cluster
             let endpoint = "/projects/" + this.props.curProject.id + "/items";
             if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
                 endpoint = constructHttpQuery(endpoint, this.props.searchQuery, this.props.filters)
             }
+            // Do not perform HTTP request if too recent
+            if (this.state.lastSearchDate - Date() < 500) {
+                return;
+            }
             const response = await makeHttpRequest(endpoint);
-
             this.setLoading(false);
-            console.log(response.body.items);
-            console.log(response.body.clusters);
             this.setState({items: response.body.items,
-                                clusters: []}, callback); // Adjust visible clusters
+                                clusters: [],
+                                lastSearchDate: new Date()}, callback); // Adjust visible clusters
 
         } else {
             if (this.props.searchQuery !== '' && this.props.filters.length !== 0) {
@@ -217,12 +219,17 @@ class MindMap extends React.Component {
                 let endpoint = "/projects/" + this.props.curProject.id + "/items";
                 endpoint = constructHttpQuery(endpoint, this.props.searchQuery, this.props.filters)
                 endpoint += "&cluster=" + this.state.curClusterView.id; // Add argument to search from this cluster
+
+                const timeNow = Date();
+                // Do not perform HTTP request if too recent
+                if (this.state.lastSearchDate - timeNow < 500) {
+                    return;
+                }
                 const response = await makeHttpRequest(endpoint);
-                console.log(endpoint);
-                console.log(response);
                 this.setLoading(false);
                 this.setState({items: response.body.items,
-                                    clusters: []}, callback); // Adjust visible clusters
+                                    clusters: [],
+                                    lastSearchDate: new Date()}, callback); // Adjust visible clusters
             } else {
                 // Get cluster specific data
                 const endpoint = "/clusters/" + this.state.curClusterView.id;
