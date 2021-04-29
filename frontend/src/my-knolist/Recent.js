@@ -24,7 +24,7 @@ function Recent(props) {
             {getFourRecent(props.projects).map((project, index) => {
               return (
                 <FlexboxGrid.Item componentClass={Col} md={6} key={index}>
-                  <ProjectCard data={project} stats={props.stats[index]}/>
+                  <ProjectCard data={project} stats={props.stats[project['id']]}/>
                 </FlexboxGrid.Item>);
             })}
           </FlexboxGrid>

@@ -14,22 +14,22 @@ function ProjectCard(props) {
 
     let stats = [];
     if (props.stats !== undefined) {
-        if (props.stats.counts['num_items'] !== undefined) {
+        if (props.stats.counts['num_items']) {
             stats.push(<p key={'num_items'}> {props.stats.counts['num_items'].toString()} total items </p>)
         }
-        if (props.stats.average_depth_per_item !== undefined) {
+        if (props.stats.average_depth_per_item) {
             stats.push(<p key={'avg_depth'}> Average depth of {props.stats.average_depth_per_item} </p>)
         }
-        if (props.stats.date_accessed !== undefined) {
+        if (props.stats.date_accessed) {
             stats.push(<p key={'date_accessed'}> Last edit was {props.stats.date_accessed}</p>)
         }
-        if (props.stats.date_created !== undefined) {
+        if (props.stats.date_created) {
             stats.push(<p key={'date_created'}> Project created on {props.stats.date_created}</p>)
         }
-        if (props.stats.max_depth !== undefined) {
+        if (props.stats.max_depth) {
             stats.push(<p key={'max_depth'}> Max depth of {props.stats.max_depth}</p>)
         }
-        if (props.stats.most_common !== undefined) {
+        if (props.stats.most_common) {
             stats.push(<p key={'most_common'}> Most common item is {props.stats.most_common}</p>)
         }
     }

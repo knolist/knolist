@@ -264,9 +264,9 @@ def set_project_routes(app):
         temp_filter = Project.query.filter(Project.user_id == user_id)
         projects = temp_filter.order_by(Project.id).all()
 
-        stats = []
+        stats = {}
         for p in projects:
-            stats.append(get_statistics_for_project(p))
+            stats[p.id] = get_statistics_for_project(p)
 
         return jsonify({
             'success': True,
