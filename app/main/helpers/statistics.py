@@ -42,19 +42,23 @@ def get_statistics_for_project(project):
                        and not i.content == ""])
     n_items = len(project.items)
 
+    most_common = ""
+
+    # Fast way to achieve maximum
+    if n_notes >= n_sources and n_notes >= n_sourcenotes and n_notes >= n_highlights:
+        most_common += "note, "
+    if n_sources >= n_notes and n_sources >= n_sourcenotes and n_sources >= n_highlights:
+        most_common += "source, "
+    if n_sourcenotes >= n_sources and n_sourcenotes >= n_sources and n_sourcenotes >= n_highlights:
+        most_common += "source note, "
+    if n_highlights >= n_sources and n_highlights >= n_sourcenotes and n_highlights >= n_notes:
+        most_common += "highlight, "
+
     if n_notes == n_sources == n_highlights == n_sourcenotes == 0:
         most_common = None
-    elif n_notes == n_sources == n_highlights == n_sourcenotes:
-        most_common = None
-    # Fast way to achieve maximum
-    elif n_notes >= n_sources and n_notes >= n_sourcenotes and n_notes >= n_highlights:
-        most_common = "note"
-    elif n_sources >= n_notes and n_sources >= n_sourcenotes and n_sources >= n_highlights:
-        most_common = "source"
-    elif n_sourcenotes >= n_sources and n_sourcenotes >= n_sources and n_sourcenotes >= n_highlights:
-        most_common = "source note"
-    else:
-        most_common = "highlight"
+
+    if most_common:
+        most_common = most_common[:-2]
 
     return {
         'success': True,
