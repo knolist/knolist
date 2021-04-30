@@ -139,7 +139,7 @@ class App extends React.Component {
             );
         } else {
             return (
-                <div style={{height:"100%"}}>
+                <div style={{height:"100%", overflowY:"scroll"}}>
                     <AppHeader curProject={this.state.curProject} setShowBib={this.setShowBib}
                                 searchQuery={this.state.searchQuery}
                                 setSearchQuery={this.setSearchQuery} updateFilters={this.updateFilters}/>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { List, Animation, Icon } from "rsuite";
+import { List, Animation, Icon, } from "rsuite";
 import makeHttpRequest from "../services/HttpRequest.js";
+import ListViewAdd from "./ListViewAdd.js";
 
 const { Collapse } = Animation;
 
@@ -8,11 +9,11 @@ function ListView(props) {
   const [items, setItems] = useState([]); //all the stuff in the project
   //Stops making an API call on every render
   const [gotItems, setGotItems] = useState(false);
-  const [notesShow, setNotesShow] = useState(false);
-  const [highlightsShow, setHighlightsShow] = useState(false);
+  const [notesShow, setNotesShow] = useState(true);
+  const [highlightsShow, setHighlightsShow] = useState(true);
 
-  const getItems = () => {
-    if (!gotItems) {
+  const getItems = (override = false) => { //override is set to true when this function is called from ListViewAdd
+    if (!gotItems || override) {
       const endpoint = "/projects/" + props.curProject.id + "/items";
       makeHttpRequest(endpoint).then(res => setItems(res.body.items));
       setGotItems(true);
@@ -24,8 +25,6 @@ function ListView(props) {
   useEffect(() => {
     getItems();
   })
-
-  console.log(items);
 
   const getNotesForUrl = (url) => {
     let notes = [];
@@ -65,9 +64,6 @@ function ListView(props) {
             addedToList.push(item.url);
             const notes = getNotesForUrl(item.url);
             const highlights = getHighlightsForUrl(item.url);
-            console.log("content for url " + item.url + ": ");
-            console.log("notes:\n" + notes);
-            console.log("highlights:\n" + highlights);
             if (notes.length + highlights.length > 0) { //source and note/highlight
               if (notes.length > 0 && highlights.length > 0) { //there are notes and highlights present!
                 return (
@@ -78,10 +74,10 @@ function ListView(props) {
                         href={item.url} style={{ fontSize: "1.3em" }}>
                         {item.url}
                       </a>
-                      <br/>
-                      <br/>
-                      <Icon icon={notesShow ? "angle-down" : "angle-right"} onClick={() => setNotesShow(!notesShow)} />Notes
-                      <br/>
+                      <br />
+                      <br />
+                      <Icon icon={notesShow ? "angle-down" : "angle-right"} onClick={() => setNotesShow(!notesShow)} /><p style={{fontWeight: "bold"}}>Notes</p>
+                      <br />
                       <Icon Icon icon={highlightsShow ? "angle-down" : "angle-right"} onClick={() => setHighlightsShow(!highlightsShow)} />Highlights
                       <Collapse in={notesShow}>
                         <ul style={{ listStyleType: "none", padding: 0 }}>
@@ -101,6 +97,7 @@ function ListView(props) {
                           })}
                         </ul>
                       </Collapse>
+                      <ListViewAdd getItems={getItems} curProject={props.curProject} insideListItem={true}/>
                     </div>
                   </List.Item>
                 );
@@ -114,8 +111,8 @@ function ListView(props) {
                         href={item.url} style={{ fontSize: "1.3em" }}>
                         {item.url}
                       </a>
-                      <br/>
-                      <br/>
+                      <br />
+                      <br />
                       <Icon icon={highlightsShow ? "angle-down" : "angle-right"} onClick={() => setHighlightsShow(!notesShow)} />Highlights
                       <Collapse in={highlightsShow}>
                         <ul style={{ listStyleType: "none", padding: 0 }}>
@@ -127,6 +124,7 @@ function ListView(props) {
                         </ul>
                       </Collapse>
                     </div>
+                    <ListViewAdd getItems={getItems} curProject={props.curProject} insideListItem={true}/>
                   </List.Item>
                 );
               }
@@ -139,8 +137,8 @@ function ListView(props) {
                         href={item.url} style={{ fontSize: "1.3em" }}>
                         {item.url}
                       </a>
-                      <br/>
-                      <br/>
+                      <br />
+                      <br />
                       <Icon icon={notesShow ? "angle-down" : "angle-right"} onClick={() => setNotesShow(!notesShow)} /> Notes
                       <Collapse in={notesShow}>
                         <ul style={{ listStyleType: "none", padding: 0 }}>
@@ -152,12 +150,12 @@ function ListView(props) {
                         </ul>
                       </Collapse>
                     </div>
+                    <ListViewAdd getItems={getItems} curProject={props.curProject} insideListItem={true}/>
                   </List.Item>
                 );
               }
             }
             else { //pure source
-              console.log("pure source");
               return (
                 <List.Item key={index} style={{ paddingLeft: "1em", paddingRight: "1em" }}>
                   <div style={{ backgroundColor: "#ADF4FF", width: ".5%", height: "100%", position: "absolute", left: 0, top: 0 }}></div>
@@ -167,12 +165,15 @@ function ListView(props) {
                       {item.url}
                     </a>
                   </div>
+                  <div style={{paddingTop:"10px"}}><ListViewAdd getItems={getItems} curProject={props.curProject} insideListItem={true}/></div>
                 </List.Item>
               );
             }
-          } else return null;
+          }
+          return null;
         })}
       </List>
+      <ListViewAdd getItems={getItems} curProject={props.curProject} insideListItem={false}/>
     </div>
   );
 }

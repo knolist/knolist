@@ -10,14 +10,14 @@ import SearchBar from "../components/SearchBar.js";
 
 function AppHeader(props) {
     return (
-        <Navbar style={{ padding: "0 10px" }}>
+        <Navbar style={{ padding: "0 10px", position:"sticky" }}>
             <FlexboxGrid justify="space-between" align="middle">
                 <Link to="/my-projects">
                     <Navbar.Header>
                         <img className="limit-height" src={horizontalLogo} alt="Knolist"/>
                     </Navbar.Header>
                 </Link>
-                <div className="center-header-title">
+                <div className="center-header-title" style={{position:"sticky"}}>
                     {
                         props.curProject === null ?
                             null :
