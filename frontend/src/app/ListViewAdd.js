@@ -67,9 +67,7 @@ function ListViewAdd(props) {
   if (props.insideListItem) {
     if (!addNoteMode) {
       return (
-        <Button size="sm" onClick={() => setAddNoteMode(true)}>
-          <Icon icon="plus" style={{ marginRight: "10px" }} />Add note
-        </Button>
+        <p onClick={() => setAddNoteMode(true)} className="add-button"><Icon icon="plus" style={{ marginRight: "5px"}} />Add note</p>
       );
     }
     else {
