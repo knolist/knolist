@@ -31,6 +31,9 @@ class AppFooter extends React.Component {
                         <Dropdown.Item onClick={() => this.props.setAddItemMode("Note")}>
                             <Icon icon="edit"/> Add Notes
                         </Dropdown.Item>
+                        <Dropdown.Item onClick={() => this.props.createEmptyCluster()}>
+                            <Icon icon="circle-o"/> Create Empty Cluster
+                        </Dropdown.Item>
                     </Dropdown>
                 </div>
             </div>

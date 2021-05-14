@@ -1,6 +1,6 @@
 import React from "react";
 import {
-    Alert, Loader
+    Alert, Button, Loader, Dropdown, Nav, Icon, Navbar, IconButton, ButtonGroup
 } from "rsuite";
 import {Network, DataSet} from "vis-network/standalone";
 
@@ -11,6 +11,8 @@ import AppFooter from "./AppFooter";
 import BibWindow from "./BibWindow";
 import SharedProject from "./SharedProject";
 import Minigames from "./Minigames";
+import '../index.css';
+import ListView from "./ListView.js"; //temporary
 
 import RaiseLevelButton from "./RaiseLevelButton"
 import ClusterTitle from "../components/ClusterTitle.js";
@@ -20,6 +22,8 @@ import makeHttpRequest, {constructHttpQuery} from "../services/HttpRequest";
 import throttle from "../services/throttle";
 import isOverlap from "../services/isOverlap";
 import GraphView from "./GraphView";
+import View from '../components/View';
+/*global chrome*/
 
 class MindMap extends React.Component {
     constructor(props) {
@@ -52,6 +56,7 @@ class MindMap extends React.Component {
             items: null,
             similarity: null,
             nonSelectedNodes: null,
+            parentClusters: null,
             clusters: null,
             loading: false,
             showNewItemForm: false,
@@ -72,6 +77,8 @@ class MindMap extends React.Component {
             curClusterView: JSON.parse(localStorage.getItem("curClusterView")), // Set to the cluster object if inside a cluster
             showRemoveItemFromClusterMessage: false,
             raiseLevelButtonHover: false,
+            view: 'mindmap',
+            listView: false
         };
     };
 
@@ -146,8 +153,22 @@ class MindMap extends React.Component {
     }
 
     handleClickedCluster = (id) => {
-        this.setCurClusterView(this.state.clusters.find(x => x.id === id))
+        let cluster = this.state.clusters.find(x => x.id === id);
+        console.log(cluster);
+        if (cluster === undefined) {
+            makeHttpRequest("/clusters/" + id)
+            .then(response => {
+                this.setCurClusterView(response.body.cluster);
+            });
+        } else {
+            this.setCurClusterView(cluster);
+        }
+
     }
+
+    // handleClickedCluster = (id) => {
+    //     this.setCurClusterView(this.state.clusters.find(x => x.id === id))
+    // }
 
     setCurClusterView = (cluster) => {
         this.setState({curClusterView: cluster})
@@ -203,19 +224,21 @@ class MindMap extends React.Component {
             }
 
             const response = await makeHttpRequest(endpoint);
-            endpoint = "/projects/" + this.props.curProject.id + "/similarity";
-            const response2 = await makeHttpRequest(endpoint);
+            //endpoint = "/projects/" + this.props.curProject.id + "/similarity";
+            //const response2 = await makeHttpRequest(endpoint);
 
             this.setLoading(false);
-            this.setState({items: response.body.items, similarity: response2.body.similarity}, callback);
+            //this.setState({items: response.body.items, similarity: response2.body.similarity}, callback);
+            this.setState({items: response.body.items}, callback);
         } else {
             const endpoint = "/clusters/" + this.state.curClusterView.id;
-            endpoint = "/projects/" + this.props.curProject.id + "/similarity";
+            //endpoint = "/projects/" + this.props.curProject.id + "/similarity";
             const response = await makeHttpRequest(endpoint);
-            const response2 = await makeHttpRequest(endpoint);
+            // const response2 = await makeHttpRequest(endpoint);
             this.setLoading(false);
 
-            this.setState({items: response.body.cluster.child_items, similarity: response2.body.similarity}, callback);
+            //this.setState({items: response.body.cluster.child_items, similarity: response2.body.similarity}, callback);
+            this.setState({items: response.body.cluster.child_items }, callback);
         }
     }
 
@@ -226,7 +249,7 @@ class MindMap extends React.Component {
             const endpoint = "/projects/" + this.props.curProject.id + "/clusters";
             const response = await makeHttpRequest(endpoint);
             this.setLoading(false);
-            this.setState({clusters: response.body.clusters}, callback);
+            this.setState({clusters: response.body.clusters, parentClusters: response.body.clusters}, callback);
         } else {
             const endpoint = "/clusters/" + this.state.curClusterView.id;
             const response = await makeHttpRequest(endpoint);
@@ -428,6 +451,83 @@ class MindMap extends React.Component {
         return this.state.nodeColors[nodeType];
     }
 
+    connectClustersToParent = async (nodes, edges, node) => {
+        console.log(node);
+        let countTypes = {
+            'pureSource': 0,
+            'pureNote': 0,
+            'sourceAndNote': 0,
+            'sourceAndHighlight': 0,
+            'neither': 0
+        }
+        let finalType = null;
+        let finalCount = 0;
+        for (let j in node.child_items) {
+            let type = this.getNodeType(node.child_items[j]);
+            countTypes[type] += 1;
+            if (countTypes[type] > finalCount) {
+                finalCount = countTypes[type];
+                finalType = type;
+            }
+        }
+        for (let i = 0; i < node.child_clusters.length; i++) {
+            let response = await makeHttpRequest("/clusters/" + node.child_clusters[i]);
+            let childNode = response.body.cluster;
+            if (this.state.curClusterView && this.state.curClusterView.id === childNode.id) {
+                nodes.add({id: childNode.id, label: childNode.name, color: {"background": this.state.nodeColors[finalType], "border": '#000000'}, borderWidth: 5});
+            } else {
+                nodes.add({id: childNode.id, label: childNode.name, color: this.state.nodeColors[finalType]});
+            }
+            //nodes.add({id: childNode.id, label: childNode.name, color: this.state.nodeColors[finalType]});
+            edges.add([{from: childNode.parent_cluster, to: childNode.id}]);
+            if (childNode.child_clusters.length > 0) {
+                this.connectClustersToParent(nodes, edges, childNode);
+            }
+        }
+    }
+
+    createGraphNodesAndEdges() {
+        let nodes = new DataSet();
+        let edges = new DataSet();
+        nodes.add({id: -1, label: this.props.curProject.title, color: {"background": 'purple'}});
+        // Iterate through each node in the graph and build the arrays of nodes and edges
+        console.log(this.state.curClusterView);
+        for (let index in this.state.parentClusters) {
+            let node = this.state.parentClusters[index];
+            let countTypes = {
+                'pureSource': 0,
+                'pureNote': 0,
+                'sourceAndNote': 0,
+                'sourceAndHighlight': 0,
+                'neither': 0
+            }
+            let finalType = null;
+            let finalCount = 0;
+            for (let j in node.child_items) {
+                let type = this.getNodeType(node.child_items[j]);
+                countTypes[type] += 1;
+                if (countTypes[type] > finalCount) {
+                    finalCount = countTypes[type];
+                    finalType = type;
+                }
+            }
+            if (this.state.curClusterView && this.state.curClusterView.id === node.id) {
+                nodes.add({id: node.id, label: node.name, color: {"background": this.state.nodeColors[finalType], "border": '#000000'}, borderWidth: 5});
+            } else {
+                nodes.add({id: node.id, label: node.name, color: this.state.nodeColors[finalType]});
+            }
+            
+            this.connectClustersToParent(nodes, edges, node);
+            
+            // console.log(finalType, finalCount);
+
+            //nodes.add({id: node.id, label: node.name, color: this.getColor(finalType)});
+            edges.add([{from: -1, to: node.id}]);
+        }
+        this.setState({visNodes: nodes, visEdges: edges});
+        return [nodes, edges];
+    }
+
     createClusters() {
         //console.log("createClusters()");
         let clusterNodes = new DataSet();
@@ -507,6 +607,104 @@ class MindMap extends React.Component {
             })
         })
         return clusterNodes
+    }
+
+    renderGraphNetwork = (callback) => {
+        if (this.props.curProject === null) return;
+        // this.getItems(() => {
+        // TODO?
+        const [nodes, edges] = this.createGraphNodesAndEdges();
+
+        const container = document.getElementById('mindmap');
+
+        // provide the data in the vis format
+        const data = {
+            nodes: nodes,
+            edges: edges
+        };
+        const options = {
+            nodes: {
+                shape: "circle",
+                size: 16,
+                margin: 10,
+                physics: true,
+                chosen: false,
+                font: {
+                    face: "Apple-System",
+                    color: "white"
+                },
+                // color: {
+                //     background: getComputedStyle(document.querySelector(".rs-btn-primary"))["background-color"]
+                // },
+                widthConstraint: {
+                    maximum: 500
+                }
+            },
+            edges: {
+                color: "black",
+                physics: true,
+                smooth: false,
+                length: 200,
+            },
+            interaction: {
+                selectConnectedEdges: false,
+                hover: true,
+                hoverConnectedEdges: false,
+                zoomView: false,
+                dragView: false
+            },
+            manipulation: {
+                enabled: false,
+            }
+        };
+
+        console.log("container", container, "data", data)
+        // Initialize the network -- TODO: WHEN REFACTORING, CHANGE DATA and OPTIONS
+        const network = new Network(container, data, options);
+        network.fit();
+        network.on("click", (params) => {
+            if (params.nodes !== undefined && params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                console.log(params.nodes)
+                this.handleClickedCluster(nodeId)
+            }
+        });
+
+        // Set cursor to pointer when hovering over a node
+        network.on("hoverNode", () => network.canvas.body.container.style.cursor = "pointer");
+        network.on("blurNode", () => network.canvas.body.container.style.cursor = "default");
+
+        // Store the network
+        this.setState({network: network}, callback);
+
+    }
+
+    createEmptyCluster = () => {
+        let x = 0;
+        let y = 0;
+
+        [x, y] = this.generateNodePositions(this.props.curProject);
+        let body = {
+            "item1_id": null,
+            "item2_id": null,
+            "x_position": x,
+            "y_position": y,
+            "string": x
+        }
+        console.log(body);
+        makeHttpRequest("/clusters", "POST", body).then(response => {
+            if (response.success) {
+                this.renderNetwork();
+            }
+        });
+    }
+
+    deleteCluster = () => {
+        makeHttpRequest("/clusters/" + this.state.curClusterView.id, "DELETE").then(response => {
+            if (response.success) {
+                this.renderNetwork();
+            }
+        });
     }
 
     renderNetwork = (callback) => {
@@ -783,6 +981,41 @@ class MindMap extends React.Component {
         this.renderNetwork();
     }
 
+    handleSelect = (eventKey) => {
+        console.log(eventKey);
+
+        if (eventKey === 'graph') {
+            this.renderGraphNetwork();
+            
+        } else {
+            this.renderNetwork();
+        }
+    }
+
+    onMindMapClick = () => {
+        this.setState({
+            listView: false,
+            view: "mindmap"
+        }, () => {
+            setTimeout(this.renderGraphNetwork(), 500)
+        });
+    }
+
+    onItemListViewClick = () => {
+        this.setState({
+            listView: false,
+            view: "itemList"
+        }, this.renderNetwork())
+
+    }
+
+    onListViewClick = () => {
+        this.setState({
+            listView: true,
+            view: "listView"
+        })
+    }
+
     render() {
         if (this.props.curProject === null || (this.state.loading && (this.state.items === null || this.state.clusters === null))) {
             return <Loader size="lg" backdrop center/>
@@ -790,50 +1023,69 @@ class MindMap extends React.Component {
         console.log(this.state.clusters);
         return (
             <div>
-                <div id="mindmap"/>
-                <Minigames
-                    curProject={this.props.curProject}
-                    items={this.state.items}
-                    color={this.getColor}
-                    network={this.state.network}
-                    generateDisplayValue={this.generateDisplayValue}
-                    similarity={this.state.similarity}/>
-                <ItemView selectedItem={this.state.selectedItem}
-                          setSelectedItem={this.setSelectedItem}
-                          getSelectedItemDetails={this.getSelectedItemDetails}
-                          renderNetwork={this.renderNetwork}
-                          setAddItemMode={this.setAddItemMode}
-                          getNodeType={this.getNodeType}
-                          nodeTypes={this.state.types}
-                          generateDisplayValue={this.generateDisplayValue}/>
-                <NewItemForm showNewItemForm={this.state.showNewItemForm}
-                             curProject={this.props.curProject}
-                             renderNetwork={this.renderNetwork}
-                             switchShowNewItemForm={this.switchShowNewItemForm}
-                             inputType={this.state.newItemFormType}
-                             newItemData={this.state.newItemData}
-                             item={this.state.item}
-                             parentCluster={this.state.curClusterView}/>
-                <NewClusterForm showNewClusterForm={this.state.showNewClusterForm}
-                                stationaryClusterItemData={this.state.stationaryClusterItemData}
-                                curProject={this.props.curProject}
+                {this.state.listView === false &&
+                    <div>
+                        <div style={{width: '100%'}} id="mindmap"/>
+                        <Minigames
+                            curProject={this.props.curProject}
+                            items={this.state.items}
+                            color={this.getColor}
+                            network={this.state.network}
+                            generateDisplayValue={this.generateDisplayValue}
+                            similarity={this.state.similarity}/>
+                        <ItemView selectedItem={this.state.selectedItem}
+                                setSelectedItem={this.setSelectedItem}
+                                getSelectedItemDetails={this.getSelectedItemDetails}
                                 renderNetwork={this.renderNetwork}
-                                newClusterIds={this.state.newClusterIds}
-                                switchShowNewClusterForm={this.switchShowNewClusterForm}
-                                disableEditMode={this.disableEditMode}/>
-                <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
-                           curProject={this.props.curProject}/>
-                <SharedProject showSharedProject={this.props.showSharedProject}
-                               setShowSharedProject={this.props.setShowSharedProject}
-                               curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>
-                <ClusterTitle curClusterView={this.state.curClusterView} setCurClusterView={this.setCurClusterView}/>
-                <div onMouseOver={() => this.setState({raiseLevelButtonHover: true})}
-                     onMouseOut={() => this.setState({raiseLevelButtonHover: false})}>
-                        <RaiseLevelButton curClusterView={this.state.curClusterView}
-                                  setCurClusterView={this.setCurClusterView} />
+                                setAddItemMode={this.setAddItemMode}
+                                getNodeType={this.getNodeType}
+                                nodeTypes={this.state.types}
+                                generateDisplayValue={this.generateDisplayValue}/>
+                        <NewItemForm showNewItemForm={this.state.showNewItemForm}
+                                    curProject={this.props.curProject}
+                                    renderNetwork={this.renderNetwork}
+                                    switchShowNewItemForm={this.switchShowNewItemForm}
+                                    inputType={this.state.newItemFormType}
+                                    newItemData={this.state.newItemData}
+                                    item={this.state.item}
+                                    parentCluster={this.state.curClusterView}/>
+                        <NewClusterForm showNewClusterForm={this.state.showNewClusterForm}
+                                        stationaryClusterItemData={this.state.stationaryClusterItemData}
+                                        curProject={this.props.curProject}
+                                        renderNetwork={this.renderNetwork}
+                                        newClusterIds={this.state.newClusterIds}
+                                        switchShowNewClusterForm={this.switchShowNewClusterForm}
+                                        disableEditMode={this.disableEditMode}/>
+                        <BibWindow showBib={this.props.showBib} setShowBib={this.props.setShowBib}
+                                curProject={this.props.curProject}/>
+                        <SharedProject showSharedProject={this.props.showSharedProject}
+                                    setShowSharedProject={this.props.setShowSharedProject}
+                                    curProject={this.props.curProject} updateProjects={this.props.updateProjects}/>
+                        
+                        <ClusterTitle curClusterView={this.state.curClusterView} setCurClusterView={this.setCurClusterView}/>
+                        {this.state.curClusterView !== null && <IconButton style={{display: "block", marginLeft: "auto", marginRight: "auto", top: "30px"}} icon={<Icon icon="trash2" />} onClick={this.deleteCluster}/>}
+                        <div onMouseOver={() => this.setState({raiseLevelButtonHover: true})}
+                            onMouseOut={() => this.setState({raiseLevelButtonHover: false})}>
+                                {this.state.view === "listView" &&
+                                    <RaiseLevelButton curClusterView={this.state.curClusterView}
+                                    setCurClusterView={this.setCurClusterView} />
+                                }
+
+                        </div>
+                        <AppFooter createEmptyCluster={this.createEmptyCluster} fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
+                        
+                    </div>
+                }
+                <ButtonGroup style={{position: "absolute", top: "65%", right: "50px", width: "1%"}}>
+                    <IconButton onClick={this.onMindMapClick} size="lg" icon={<Icon icon="sitemap" />} />
+                    <IconButton onClick={this.onItemListViewClick} size="lg" icon={<Icon icon="area-chart" />} />
+                    <IconButton onClick={this.onListViewClick}size="lg" icon={<Icon icon="list-ul" />} />
+                </ButtonGroup>
+                {this.state.listView === true &&
+                <div>
+                    <ListView curProject={this.props.curProject}/>
                 </div>
-                <AppFooter fit={this.fitNetworkToScreen} setAddItemMode={this.setAddItemMode}/>
-                <GraphView clusters={this.state.clusters} curProject={this.props.curProject}/>
+                }
             </div>
         );
     }

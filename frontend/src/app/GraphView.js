@@ -7,6 +7,7 @@ import {randomPicker} from "../services/RandomGenerator";
 
 import {randomSimilarPicker} from "../services/RandomGenerator";
 import {Network, DataSet} from "vis-network/standalone";
+import ClusterTitle from "../components/ClusterTitle.js";
 
 const {Line} = Progress;
 
@@ -21,22 +22,50 @@ class GraphView extends React.Component {
             network: null,
             visNodes: null,
             visEdges: null,
-            clusters: null
+            clusters: null,
+            curCluster: null,
+            curClusterView: null
         }
     }
 
     componentDidMount() {
         this.setState({
-            clusters: this.props.clusters
-        })
-        this.renderNetwork();
+            clusters: this.props.clusters,
+            curCluster: this.props.curCluster,
+            curProject: this.props.curProject
+        }, this.renderNetwork());
+ 
+    }
+
+    isItem = (id) => {
+        const node = this.state.visNodes.get(id);
+        if (node) return node.group === "items";
+        return false;
+    }
+
+    handleClickedCluster = (id) => {
+        this.setCurClusterView(this.state.visNodes.find(x => x.id === id))
+    }
+
+    setCurClusterView = (cluster) => {
+        this.setState({curClusterView: cluster})
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.clusters !== this.props.clusters) {
             this.setState({
                 clusters: this.props.clusters
-            })
+            }, this.renderNetwork());
+        }
+        if (prevProps.curCluster !== this.props.curCluster) {
+            this.setState({
+                curCluster: this.props.curCluster
+            }, this.renderNetwork());
+        }
+        if (prevProps.curProject !== this.props.curProject) {
+            this.setState({
+                curProject: this.props.curProject
+            }, this.renderNetwork());
         }
     }
 
@@ -44,17 +73,14 @@ class GraphView extends React.Component {
     createNodesAndEdges() {
         let nodes = new DataSet();
         let edges = new DataSet();
-        console.log(this.props.curProject);
-        nodes.add({id: 1, label: this.props.curProject.title});
+        nodes.add({id: -1, label: this.props.curProject.title, color: 'orange'});
         // Iterate through each node in the graph and build the arrays of nodes and edges
         for (let index in this.state.clusters) {
             let node = this.state.clusters[index];
-            let x_position = (index % 2) ? 0 : 500;
-            let y_position = (index < 2) ? 0 : 200;
 
-            nodes.add({id: node.id, label: index, x: x_position, y: y_position, color: this.props.color(node)});
+            nodes.add({id: node.id, label: node.name});
+            edges.add([{from: -1, to: node.id}]);
         }
-        console.log(nodes);
         this.setState({visNodes: nodes, visEdges: edges});
         return [nodes, edges];
     }
@@ -66,7 +92,7 @@ class GraphView extends React.Component {
         // TODO?
         const [nodes, edges] = this.createNodesAndEdges();
 
-        const container = document.getElementById('OddOnesOut');
+        const container = document.getElementById('GraphView');
 
         // provide the data in the vis format
         const data = {
@@ -75,10 +101,10 @@ class GraphView extends React.Component {
         };
         const options = {
             nodes: {
-                shape: "box",
+                shape: "circle",
                 size: 16,
                 margin: 10,
-                physics: false,
+                physics: true,
                 chosen: false,
                 font: {
                     face: "Apple-System",
@@ -93,9 +119,9 @@ class GraphView extends React.Component {
             },
             edges: {
                 color: "black",
-                physics: false,
+                physics: true,
                 smooth: false,
-                hoverWidth: 0
+                length: 200,
             },
             interaction: {
                 selectConnectedEdges: false,
@@ -115,9 +141,9 @@ class GraphView extends React.Component {
         network.fit();
         network.on("click", (params) => {
             if (params.nodes !== undefined && params.nodes.length > 0) {
-                console.log(params);
                 const nodeId = params.nodes[0];
-                this.chooseItem(this.state.network.body.data.nodes.get(nodeId));
+                console.log(params.nodes)
+                this.props.handleClickedCluster(nodeId)
             }
         });
 
@@ -130,47 +156,13 @@ class GraphView extends React.Component {
 
     }
 
-    createFinalNodesAndEdges() {
-        let nodes = new DataSet();
-        let edges = new DataSet();
-        // Iterate through each node in the graph and build the arrays of nodes and edges
-        let counter = 0;
-        console.log(this.state.selectedItems);
-        for (let index in this.state.selectedItems) {
-            let node = this.state.selectedItems[index];
-            let x_position = (index % 2) ? 0 : 500;
-            let y_position = (index < 2) ? 0 : 200;
-
-            nodes.add({id: counter, label: node.label, x: x_position, y: y_position, color: node.color});
-            counter += 1;
-        }
-        this.setState({visNodes: nodes, visEdges: edges});
-        return [nodes, edges];
-    }
-
     render() {
         // console.log(this.state)
-        if (this.state.numPlayed < this.props.numRounds) {
-            return (
-                <Grid>
-                    <h1>OddOnesOut</h1>
-                    <h3>Round {this.state.numPlayed + 1}</h3>
-                    <Line percent={this.state.numPlayed / 5 * 100} status='active'/>
-                    <h5>Select the odd one out!</h5>
-                    <div id='OddOnesOut' style={{height: 300}}/>
-                </Grid>
-            )           
-        } else {
-            return (
-                <>
-                    <h1>OddOnesOut</h1>
-                    <h3>Well Done!</h3>
-                    <h5>Hope you found some inspirations to explore more!</h5>
-                    <h5>Here are your selected items:</h5>
-                    <div id='OddOnesOut' style={{height: 300}}/>
-                </>
-            )
-        }
+        return (
+            <>
+                <div id='GraphView' style={{height: 300}}/>
+            </>
+        )           
     }
 }
 

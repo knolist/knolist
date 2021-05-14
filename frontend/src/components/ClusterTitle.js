@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Whisper, Tooltip, Input, Button } from "rsuite";
+import { Whisper, Tooltip, Input, Button, Icon, IconButton } from "rsuite";
 import makeHttpRequest from "../services/HttpRequest";
 
 function ClusterTitle(props) {
@@ -37,11 +37,13 @@ function ClusterTitle(props) {
     <Whisper placement="bottom" trigger="hover" speaker={tooltip}>
       <div style={styles} onClick={() => setEditing(true)}>{title}</div>
     </Whisper>
+
   );
   else if (cluster !== null && editing) return (
     <div style={styles} id="cluster-title">
       <Input style={{ width: 120 }} defaultValue={title} onInput={e => setNewTitle(e.target.value)} />
       <Button size="xs" style={{ marginLeft: 5 }} onClick={() => saveNewTitle()}>Save</Button>
+      
     </div>
   );
 }

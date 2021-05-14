@@ -7,37 +7,62 @@ import { Link } from "react-router-dom";
 
 import horizontalLogo from "../images/horizontal_main.png";
 import SearchBar from "../components/SearchBar.js";
+import { render } from '@testing-library/react';
+/*global chrome*/
 
-function AppHeader(props) {
-    return (
-        <Navbar style={{ padding: "0 10px" }}>
-            <FlexboxGrid justify="space-between" align="middle">
-                <Link to="/my-projects">
-                    <Navbar.Header>
-                        <img className="limit-height" src={horizontalLogo} alt="Knolist" />
-                    </Navbar.Header>
-                </Link>
-                <div className="center-header-title">
-                    {
-                        props.curProject === null ?
-                            null :
-                            <span style={{
-                                fontWeight: "bold",
-                                fontSize: "2em"
-                            }}>{props.curProject.title}</span>
+class AppHeader extends React.Component {
+    state = {
+        extension: false
+    }
+    componentDidMount() {
+        chrome.runtime.sendMessage('hmldebboelcocdophoijnggdmgdamdgf', 'version', response => {
+            if (!response) {
+              console.log('not installed');
+              return;
+            }
+            this.setState({
+                extension: true
+            })
+        });
+    }
 
-                    }
-                </div>
-                <FlexboxGrid.Item>
-                    <FlexboxGrid>
-                        <SearchAndFilter searchQuery={props.searchQuery} setSearchQuery={props.setSearchQuery}
-                            updateFilters={props.updateFilters} />
-                        <BibButton setShowBib={props.setShowBib} />
-                    </FlexboxGrid>
-                </FlexboxGrid.Item>
-            </FlexboxGrid>
-        </Navbar>
-    );
+    render() {
+        return (
+            <Navbar style={{ padding: "0 10px" }}>
+                <FlexboxGrid justify="space-between" align="middle">
+                    <Link to="/my-projects">
+                        <Navbar.Header>
+                            <img className="limit-height" src={horizontalLogo} alt="Knolist" />
+                        </Navbar.Header>
+                    </Link>
+                    <div className="center-header-title">
+                        {
+                            this.props.curProject === null ?
+                                null :
+                                <span style={{
+                                    fontWeight: "bold",
+                                    fontSize: "2em"
+                                }}>{this.props.curProject.title}</span>
+    
+                        }
+                    </div>
+                    <FlexboxGrid.Item>
+                        <FlexboxGrid>
+                            <SearchAndFilter searchQuery={this.props.searchQuery} setSearchQuery={this.props.setSearchQuery}
+                                updateFilters={this.props.updateFilters} />
+                            <BibButton setShowBib={this.props.setShowBib} />
+                            <div>
+                                {!this.state.extension &&
+                                    <Icon style={{position: "relative", top: "7px", color: "#fa8682", paddingLeft: "7px"}} icon='chrome' />
+                                }
+                            </div>
+                        </FlexboxGrid>
+                    </FlexboxGrid.Item>
+                </FlexboxGrid>
+            </Navbar>
+        );
+    }
+    
 }
 
 class BibButton extends React.Component {

@@ -93,3 +93,19 @@ body {
 .react-router-styling:hover {
     color: inherit;
 }
+
+.add-button {
+    cursor: pointer;
+    transition: background-color .5s;
+    display: inline-block;
+    border-radius: 10px;
+    padding: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+    font-size: 12px
+}
+
+.add-button:hover {
+    background-color: powderblue;
+    border-radius: 10px;
+}
